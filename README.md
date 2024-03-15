@@ -20,23 +20,23 @@ CEOS 19th BE study - everytime clone coding
 @Entity  
 @ToString(exclude = {"user", "post"})  
 public class Heart { // 좋아요  
-	@Id  
-	@GeneratedValue(strategy = IDENTITY)  
-	@Column(name = "heart_id")  
+    @Id  
+    @GeneratedValue(strategy = IDENTITY)  
+    @Column(name = "heart_id")  
     private Long id;  
   
     @ManyToOne(fetch = LAZY, cascade = PERSIST)  
-	@JoinColumn(name = "user_id")  
-	@Setter(value = PROTECTED)  
-	private User user;  
+    @JoinColumn(name = "user_id")  
+    @Setter(value = PROTECTED)  
+    private User user;  
   
     @ManyToOne(fetch = LAZY)  
-	@JoinColumn(name = "post_id")  
-	@Setter(value = PROTECTED)  
-	private Post post;  
+    @JoinColumn(name = "post_id")  
+    @Setter(value = PROTECTED)  
+    private Post post;  
   
     protected static Heart createHeart(User user) {  // 생성 메서드
-		Heart heart = new Heart();  
+        Heart heart = new Heart();  
         user.addHearts(heart);  
   
         return heart;  
@@ -113,37 +113,37 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity  
 @ToString(exclude = {"sender", "receiver"})  
 public class Message { // 쪽지, message는 user의 비즈니스 연관관계 편의 메서드로 저장함. 별도의 리포지토리 없다.  
-	 @Id  
-	 @GeneratedValue(strategy = IDENTITY)  
-	 @Column(name = "message_id")  
-	 private Long id;  
+    @Id  
+    @GeneratedValue(strategy = IDENTITY)  
+    @Column(name = "message_id")  
+    private Long id;  
   
-	 @Column(nullable = false)  
-	 private String title;  
-	 private String content;  
+    @Column(nullable = false)  
+    private String title;  
+    private String content;  
   
-	 @Column(nullable = false)  
-	 private LocalDateTime sentAt;  
+    @Column(nullable = false)  
+    private LocalDateTime sentAt;  
   
-	 @ManyToOne(fetch = LAZY)  
-	 @Setter(value = PROTECTED)
-	 @JoinColumn(name = "sender_id")  
-	 private User sender;  
+    @ManyToOne(fetch = LAZY)  
+    @Setter(value = PROTECTED)
+    @JoinColumn(name = "sender_id")  
+    private User sender;  
   
-	 @ManyToOne(fetch = LAZY)  
-	 @Setter(value = PROTECTED)
-	 @JoinColumn(name = "receiver_id")  
-	 private User receiver;  
+    @ManyToOne(fetch = LAZY)  
+    @Setter(value = PROTECTED)
+    @JoinColumn(name = "receiver_id")  
+    private User receiver;  
   
   
-	 public Message(String title, String content) {  
-	 this.title = title;  
-		 this.content = content;  
-         this.sentAt = LocalDateTime.now();  
+    public Message(String title, String content) {  
+        this.title = title;  
+        this.content = content;  
+        this.sentAt = LocalDateTime.now();  
      }  
   
-	public void setSenderAndReceiver(User sender, User receiver) {  
-		sender.addSendMessage(this);  
+    public void setSenderAndReceiver(User sender, User receiver) {  
+        sender.addSendMessage(this);  
         receiver.addReceiveMessage(this);  
     }  
 }
