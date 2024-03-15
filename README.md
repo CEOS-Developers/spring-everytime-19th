@@ -76,11 +76,11 @@ public class Post extends BaseTimeEntity {  //게시물
     private List<Heart> hearts = new ArrayList<>();  
     
   
-		 /**  
-		  * 연관관계 편의 메서드  
-		  */
+    /**  
+     * 연관관계 편의 메서드  
+    */
      
-     // User, Heart, Post의 연관관계는 Post에서 관리함  
+    // User, Heart, Post의 연관관계는 Post에서 관리함  
     public void addHeartFromUser(User user) {  
        Heart heart = Heart.createHeart(user);  
        heart.setPost(this);  
