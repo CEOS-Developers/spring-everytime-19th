@@ -14,5 +14,5 @@ public class TimeTable extends BaseEntity {
 
     private Float totalAverage;
 
-
+    private Integer totalCredit;
 }
