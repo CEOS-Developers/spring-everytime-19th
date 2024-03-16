@@ -1,9 +1,11 @@
 package com.ceos19.springboot.lecture.entity;
 
 import com.ceos19.springboot.common.BaseEntity;
+import com.ceos19.springboot.common.WeekDayType;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(name = "lecture")
@@ -27,7 +29,7 @@ public class Lecture extends BaseEntity {
 
     private Integer credit;
 
-    private List<WeekDay> lectureDays;
+    private List<WeekDayType> lectureDays;
 
 
 }
