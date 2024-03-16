@@ -8,7 +8,7 @@ public class Image {
     @Id
     private Long id;
 
-    @Column(length = 200)
+    @Column(length = 200, nullable = false)
     private String imageUrl;
 
     @OneToMany
