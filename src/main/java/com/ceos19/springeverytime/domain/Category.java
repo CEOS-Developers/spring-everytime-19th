@@ -7,6 +7,7 @@ import java.util.Date;
 @Entity
 public class Category {
     @Id
+    @GeneratedValue
     private Long id;
 
     @Column(length = 100, nullable = false)

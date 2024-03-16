@@ -1,12 +1,10 @@
 package com.ceos19.springeverytime.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 
 public class ChatRoom {
     @Id
+    @GeneratedValue
     private Long id;
 
     @ManyToOne

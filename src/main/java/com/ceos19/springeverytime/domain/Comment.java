@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 public class Comment {
-    @Id
+    @Id@GeneratedValue
     private Long id;
 
     @Column(length = 2000, nullable = false)
