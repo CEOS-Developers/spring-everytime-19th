@@ -46,7 +46,6 @@ public class Post {
     @ManyToOne
     private Category category;
 
-    @NonNull
     @OneToMany(mappedBy = "post")
     private List<PostLike> postLikes = new ArrayList<>();
 
