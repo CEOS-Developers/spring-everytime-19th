@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class Postlike {
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
-    private Long postLikeId;g
+    private Long postLikeId;
 
 
 }
