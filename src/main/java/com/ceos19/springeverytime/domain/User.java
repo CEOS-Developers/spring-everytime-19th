@@ -8,29 +8,29 @@ import java.util.Date;
 public class User {
     @Id
     @Column(length = 30, nullable = false)
-    String id;
+    private String id;
 
     @Column(length = 30, nullable = false)
-    String pw;
+    private String pw;
 
     @Column(length = 30, nullable = false)
-    String nickname;
+    private String nickname;
 
     @Column(length = 10, nullable = false)
-    String name;
+    private String name;
 
     @Column(length = 30, nullable = false)
-    String major;
+    private String major;
 
     @Column(length = 2, nullable = false)
-    String admissionYear;
+    private String admissionYear;
 
     @Column(length = 30, nullable = false)
-    String email;
+    private String email;
 
     @Column(nullable = false)
-    boolean isEnrolled;
+    private boolean isEnrolled;
 
     @Temporal(TemporalType.TIMESTAMP)
-    Date createDate;
+    private Date createDate;
 }
