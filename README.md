@@ -2,6 +2,7 @@
 CEOS 19th BE study - everytime clone coding
 
 ## 에브리타임 서비스 설명 & ERD 의도 설명
+![img.png](readme_img/img_whole.png)
 에브리타임은 대학생 익명 커뮤니티 사이트이다.
 
 ### 회원
