@@ -49,7 +49,7 @@ class SpringEverytimeApplicationTests {
         freeCategory.addPost(post3);
 
         // then
-        Category testCategory = em.find(Category.class, freeCategory.getId());
+        Category testCategory = em.find(Category.class, freeCategory.getCategoryId());
         Assertions.assertEquals(testCategory.getPosts().size(), 3);
 
         /** 위 테스트에 대한 쿼리
