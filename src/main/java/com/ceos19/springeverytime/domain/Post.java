@@ -17,7 +17,7 @@ import java.util.List;
 public class Post {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long postId;
 
     @NonNull
     @Column(length = 100, nullable = false)

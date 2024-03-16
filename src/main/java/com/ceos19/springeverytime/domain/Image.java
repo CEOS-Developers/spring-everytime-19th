@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 public class Image {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long imageId;
 
     @Column(length = 200, nullable = false)
     private String imageUrl;

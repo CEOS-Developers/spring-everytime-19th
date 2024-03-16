@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 public class ChatRoom {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long roomId;
 
     @ManyToOne
     private User member1;

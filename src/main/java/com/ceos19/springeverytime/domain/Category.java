@@ -14,7 +14,7 @@ import java.util.List;
 public class Category {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long categoryId;
 
     @NonNull
     @Column(length = 100, nullable = false)

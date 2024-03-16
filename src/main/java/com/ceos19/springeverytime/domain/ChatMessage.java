@@ -7,7 +7,7 @@ import java.util.Date;
 public class ChatMessage {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long messageId;
 
     @Column(length = 2000, nullable = false)
     private String content;
