@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ceos19.everytime.repository.PostRepositoryTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-03-15T02:04:37" hostname="minui-MacBookPro.local" time="0.547">
+  <properties/>
+  <testcase name="heartTest" classname="com.ceos19.everytime.repository.PostRepositoryTest" time="0.547"/>
+  <system-out><![CDATA[11:04:34.196 [Test worker] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.3)
+
+2024-03-15T11:04:34.378+09:00  INFO 3329 --- [    Test worker] c.c.e.repository.PostRepositoryTest      : Starting PostRepositoryTest using Java 21.0.2 with PID 3329 (started by min in /Users/min/Documents/ceos-study/everytime)
+2024-03-15T11:04:34.379+09:00  INFO 3329 --- [    Test worker] c.c.e.repository.PostRepositoryTest      : No active profile set, falling back to 1 default profile: "default"
+2024-03-15T11:04:34.832+09:00  INFO 3329 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-03-15T11:04:34.871+09:00  INFO 3329 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 33 ms. Found 4 JPA repository interfaces.
+2024-03-15T11:04:35.184+09:00  INFO 3329 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-03-15T11:04:35.227+09:00  INFO 3329 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2024-03-15T11:04:35.259+09:00  INFO 3329 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-03-15T11:04:35.428+09:00  INFO 3329 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-03-15T11:04:35.450+09:00  INFO 3329 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-03-15T11:04:35.573+09:00  INFO 3329 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7a3643e3
+2024-03-15T11:04:35.574+09:00  INFO 3329 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-03-15T11:04:36.411+09:00  INFO 3329 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-03-15T11:04:36.421+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table comment 
+       drop 
+       foreign key FKs1slvnkuemjsq2kj4h3vhx7i1
+Hibernate: 
+    alter table comment 
+       drop 
+       foreign key FKs1slvnkuemjsq2kj4h3vhx7i1
+2024-03-15T11:04:36.434+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table comment 
+       drop 
+       foreign key FK8kcum44fvpupyw6f5baccx25c
+Hibernate: 
+    alter table comment 
+       drop 
+       foreign key FK8kcum44fvpupyw6f5baccx25c
+2024-03-15T11:04:36.444+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table heart 
+       drop 
+       foreign key FKqyr9v537b0go8pcrr83aq4m4
+Hibernate: 
+    alter table heart 
+       drop 
+       foreign key FKqyr9v537b0go8pcrr83aq4m4
+2024-03-15T11:04:36.451+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table heart 
+       drop 
+       foreign key FK5pv32bwn1jhofpwouomqupc6u
+Hibernate: 
+    alter table heart 
+       drop 
+       foreign key FK5pv32bwn1jhofpwouomqupc6u
+2024-03-15T11:04:36.455+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table image 
+       drop 
+       foreign key FKe2l07hc93u2bbjnl80meu3rn4
+Hibernate: 
+    alter table image 
+       drop 
+       foreign key FKe2l07hc93u2bbjnl80meu3rn4
+2024-03-15T11:04:36.460+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table message 
+       drop 
+       foreign key FK6qr2pf6832une5ac66iods3wb
+Hibernate: 
+    alter table message 
+       drop 
+       foreign key FK6qr2pf6832une5ac66iods3wb
+2024-03-15T11:04:36.466+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table message 
+       drop 
+       foreign key FK7jsajn70qydu0h9rtlv5hrtuj
+Hibernate: 
+    alter table message 
+       drop 
+       foreign key FK7jsajn70qydu0h9rtlv5hrtuj
+2024-03-15T11:04:36.474+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table post 
+       drop 
+       foreign key FK72mt33dhhs48hf9gcqrq4fxte
+Hibernate: 
+    alter table post 
+       drop 
+       foreign key FK72mt33dhhs48hf9gcqrq4fxte
+2024-03-15T11:04:36.478+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table receive_message 
+       drop 
+       foreign key FKehu4qi2to1ibksi7de0aslo5w
+Hibernate: 
+    alter table receive_message 
+       drop 
+       foreign key FKehu4qi2to1ibksi7de0aslo5w
+2024-03-15T11:04:36.482+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table receive_message 
+       drop 
+       foreign key FKrjgqkuve2dhl0bd41vt0gdfpt
+Hibernate: 
+    alter table receive_message 
+       drop 
+       foreign key FKrjgqkuve2dhl0bd41vt0gdfpt
+2024-03-15T11:04:36.485+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table reply 
+       drop 
+       foreign key FK6w0ns67lrq1jdiwi5xvtj1vxx
+Hibernate: 
+    alter table reply 
+       drop 
+       foreign key FK6w0ns67lrq1jdiwi5xvtj1vxx
+2024-03-15T11:04:36.489+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table reply 
+       drop 
+       foreign key FKapyyxlgntertu5okpkr685ir9
+Hibernate: 
+    alter table reply 
+       drop 
+       foreign key FKapyyxlgntertu5okpkr685ir9
+2024-03-15T11:04:36.492+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table send_message 
+       drop 
+       foreign key FKjj1un7msh2qb33pgj7ti6m1r7
+Hibernate: 
+    alter table send_message 
+       drop 
+       foreign key FKjj1un7msh2qb33pgj7ti6m1r7
+2024-03-15T11:04:36.496+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table send_message 
+       drop 
+       foreign key FKikxww389pw8fcqf2fdea4jv4e
+Hibernate: 
+    alter table send_message 
+       drop 
+       foreign key FKikxww389pw8fcqf2fdea4jv4e
+2024-03-15T11:04:36.500+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table user 
+       drop 
+       foreign key FKhbkxju61kpht7qnnhemgjv3u7
+Hibernate: 
+    alter table user 
+       drop 
+       foreign key FKhbkxju61kpht7qnnhemgjv3u7
+2024-03-15T11:04:36.506+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists comment
+Hibernate: 
+    drop table if exists comment
+2024-03-15T11:04:36.511+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists heart
+Hibernate: 
+    drop table if exists heart
+2024-03-15T11:04:36.514+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists image
+Hibernate: 
+    drop table if exists image
+2024-03-15T11:04:36.517+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists message
+Hibernate: 
+    drop table if exists message
+2024-03-15T11:04:36.519+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists post
+Hibernate: 
+    drop table if exists post
+2024-03-15T11:04:36.522+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists receive_message
+Hibernate: 
+    drop table if exists receive_message
+2024-03-15T11:04:36.525+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists reply
+Hibernate: 
+    drop table if exists reply
+2024-03-15T11:04:36.527+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists school
+Hibernate: 
+    drop table if exists school
+2024-03-15T11:04:36.530+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists send_message
+Hibernate: 
+    drop table if exists send_message
+2024-03-15T11:04:36.531+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    drop table if exists user
+Hibernate: 
+    drop table if exists user
+2024-03-15T11:04:36.538+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table comment (
+        comment_id bigint not null auto_increment,
+        created_date datetime(6),
+        modified_date datetime(6),
+        post_id bigint,
+        user_id bigint,
+        content varchar(255),
+        primary key (comment_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table comment (
+        comment_id bigint not null auto_increment,
+        created_date datetime(6),
+        modified_date datetime(6),
+        post_id bigint,
+        user_id bigint,
+        content varchar(255),
+        primary key (comment_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.542+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table heart (
+        heart_id bigint not null auto_increment,
+        post_id bigint,
+        user_id bigint,
+        primary key (heart_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table heart (
+        heart_id bigint not null auto_increment,
+        post_id bigint,
+        user_id bigint,
+        primary key (heart_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.546+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table image (
+        file_size bigint not null,
+        image_id bigint not null auto_increment,
+        image_idx bigint not null,
+        post_id bigint,
+        original_file_name varchar(255) not null,
+        stored_file_name varchar(255) not null,
+        primary key (image_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table image (
+        file_size bigint not null,
+        image_id bigint not null auto_increment,
+        image_idx bigint not null,
+        post_id bigint,
+        original_file_name varchar(255) not null,
+        stored_file_name varchar(255) not null,
+        primary key (image_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.550+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table message (
+        message_id bigint not null auto_increment,
+        receive_message_id bigint,
+        send_message_id bigint,
+        sent_at datetime(6) not null,
+        content varchar(255) not null,
+        title varchar(255),
+        primary key (message_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table message (
+        message_id bigint not null auto_increment,
+        receive_message_id bigint,
+        send_message_id bigint,
+        sent_at datetime(6) not null,
+        content varchar(255) not null,
+        title varchar(255),
+        primary key (message_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.554+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table post (
+        created_date datetime(6),
+        modified_date datetime(6),
+        post_id bigint not null auto_increment,
+        user_id bigint,
+        content varchar(255) not null,
+        title varchar(255) not null,
+        primary key (post_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table post (
+        created_date datetime(6),
+        modified_date datetime(6),
+        post_id bigint not null auto_increment,
+        user_id bigint,
+        content varchar(255) not null,
+        title varchar(255) not null,
+        primary key (post_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.558+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table receive_message (
+        message_message_id bigint,
+        receive_message_id bigint not null auto_increment,
+        receiver_user_id bigint,
+        primary key (receive_message_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table receive_message (
+        message_message_id bigint,
+        receive_message_id bigint not null auto_increment,
+        receiver_user_id bigint,
+        primary key (receive_message_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.561+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table reply (
+        comment_id bigint,
+        created_date datetime(6),
+        modified_date datetime(6),
+        reply_id bigint not null auto_increment,
+        user_id bigint,
+        content varchar(255),
+        primary key (reply_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table reply (
+        comment_id bigint,
+        created_date datetime(6),
+        modified_date datetime(6),
+        reply_id bigint not null auto_increment,
+        user_id bigint,
+        content varchar(255),
+        primary key (reply_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.566+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table school (
+        school_id bigint not null auto_increment,
+        department varchar(255) not null,
+        name varchar(255) not null,
+        primary key (school_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table school (
+        school_id bigint not null auto_increment,
+        department varchar(255) not null,
+        name varchar(255) not null,
+        primary key (school_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.570+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table send_message (
+        message_message_id bigint,
+        send_message_id bigint not null auto_increment,
+        sender_user_id bigint,
+        primary key (send_message_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table send_message (
+        message_message_id bigint,
+        send_message_id bigint not null auto_increment,
+        sender_user_id bigint,
+        primary key (send_message_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.574+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    create table user (
+        student_no integer not null,
+        school_id bigint,
+        user_id bigint not null auto_increment,
+        name varchar(255) not null,
+        password varchar(255) not null,
+        username varchar(255) not null,
+        primary key (user_id)
+    ) engine=InnoDB
+Hibernate: 
+    create table user (
+        student_no integer not null,
+        school_id bigint,
+        user_id bigint not null auto_increment,
+        name varchar(255) not null,
+        password varchar(255) not null,
+        username varchar(255) not null,
+        primary key (user_id)
+    ) engine=InnoDB
+2024-03-15T11:04:36.578+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table message 
+       add constraint UK_j3tnkhqs2n0pkboe5wfgg9ion unique (receive_message_id)
+Hibernate: 
+    alter table message 
+       add constraint UK_j3tnkhqs2n0pkboe5wfgg9ion unique (receive_message_id)
+2024-03-15T11:04:36.583+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table message 
+       add constraint UK_frdioooye71vywdyen5bs3kmo unique (send_message_id)
+Hibernate: 
+    alter table message 
+       add constraint UK_frdioooye71vywdyen5bs3kmo unique (send_message_id)
+2024-03-15T11:04:36.587+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table receive_message 
+       add constraint UK_5ylbk55dngaeuk1n21978xlsn unique (message_message_id)
+Hibernate: 
+    alter table receive_message 
+       add constraint UK_5ylbk55dngaeuk1n21978xlsn unique (message_message_id)
+2024-03-15T11:04:36.591+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table send_message 
+       add constraint UK_r6vrca4m7iglclixte3gc9vkq unique (message_message_id)
+Hibernate: 
+    alter table send_message 
+       add constraint UK_r6vrca4m7iglclixte3gc9vkq unique (message_message_id)
+2024-03-15T11:04:36.595+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table user 
+       add constraint UK_1uh7oeahrk32k618reufb7fuv unique (student_no)
+Hibernate: 
+    alter table user 
+       add constraint UK_1uh7oeahrk32k618reufb7fuv unique (student_no)
+2024-03-15T11:04:36.600+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table user 
+       add constraint UK_sb8bbouer5wak8vyiiy4pf2bx unique (username)
+Hibernate: 
+    alter table user 
+       add constraint UK_sb8bbouer5wak8vyiiy4pf2bx unique (username)
+2024-03-15T11:04:36.604+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table comment 
+       add constraint FKs1slvnkuemjsq2kj4h3vhx7i1 
+       foreign key (post_id) 
+       references post (post_id)
+Hibernate: 
+    alter table comment 
+       add constraint FKs1slvnkuemjsq2kj4h3vhx7i1 
+       foreign key (post_id) 
+       references post (post_id)
+2024-03-15T11:04:36.614+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table comment 
+       add constraint FK8kcum44fvpupyw6f5baccx25c 
+       foreign key (user_id) 
+       references user (user_id)
+Hibernate: 
+    alter table comment 
+       add constraint FK8kcum44fvpupyw6f5baccx25c 
+       foreign key (user_id) 
+       references user (user_id)
+2024-03-15T11:04:36.624+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table heart 
+       add constraint FKqyr9v537b0go8pcrr83aq4m4 
+       foreign key (post_id) 
+       references post (post_id)
+Hibernate: 
+    alter table heart 
+       add constraint FKqyr9v537b0go8pcrr83aq4m4 
+       foreign key (post_id) 
+       references post (post_id)
+2024-03-15T11:04:36.632+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table heart 
+       add constraint FK5pv32bwn1jhofpwouomqupc6u 
+       foreign key (user_id) 
+       references user (user_id)
+Hibernate: 
+    alter table heart 
+       add constraint FK5pv32bwn1jhofpwouomqupc6u 
+       foreign key (user_id) 
+       references user (user_id)
+2024-03-15T11:04:36.641+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table image 
+       add constraint FKe2l07hc93u2bbjnl80meu3rn4 
+       foreign key (post_id) 
+       references post (post_id)
+Hibernate: 
+    alter table image 
+       add constraint FKe2l07hc93u2bbjnl80meu3rn4 
+       foreign key (post_id) 
+       references post (post_id)
+2024-03-15T11:04:36.651+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table message 
+       add constraint FK6qr2pf6832une5ac66iods3wb 
+       foreign key (receive_message_id) 
+       references receive_message (receive_message_id)
+Hibernate: 
+    alter table message 
+       add constraint FK6qr2pf6832une5ac66iods3wb 
+       foreign key (receive_message_id) 
+       references receive_message (receive_message_id)
+2024-03-15T11:04:36.660+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table message 
+       add constraint FK7jsajn70qydu0h9rtlv5hrtuj 
+       foreign key (send_message_id) 
+       references send_message (send_message_id)
+Hibernate: 
+    alter table message 
+       add constraint FK7jsajn70qydu0h9rtlv5hrtuj 
+       foreign key (send_message_id) 
+       references send_message (send_message_id)
+2024-03-15T11:04:36.669+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table post 
+       add constraint FK72mt33dhhs48hf9gcqrq4fxte 
+       foreign key (user_id) 
+       references user (user_id)
+Hibernate: 
+    alter table post 
+       add constraint FK72mt33dhhs48hf9gcqrq4fxte 
+       foreign key (user_id) 
+       references user (user_id)
+2024-03-15T11:04:36.682+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table receive_message 
+       add constraint FKehu4qi2to1ibksi7de0aslo5w 
+       foreign key (message_message_id) 
+       references message (message_id)
+Hibernate: 
+    alter table receive_message 
+       add constraint FKehu4qi2to1ibksi7de0aslo5w 
+       foreign key (message_message_id) 
+       references message (message_id)
+2024-03-15T11:04:36.691+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table receive_message 
+       add constraint FKrjgqkuve2dhl0bd41vt0gdfpt 
+       foreign key (receiver_user_id) 
+       references user (user_id)
+Hibernate: 
+    alter table receive_message 
+       add constraint FKrjgqkuve2dhl0bd41vt0gdfpt 
+       foreign key (receiver_user_id) 
+       references user (user_id)
+2024-03-15T11:04:36.711+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table reply 
+       add constraint FK6w0ns67lrq1jdiwi5xvtj1vxx 
+       foreign key (comment_id) 
+       references comment (comment_id)
+Hibernate: 
+    alter table reply 
+       add constraint FK6w0ns67lrq1jdiwi5xvtj1vxx 
+       foreign key (comment_id) 
+       references comment (comment_id)
+2024-03-15T11:04:36.722+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table reply 
+       add constraint FKapyyxlgntertu5okpkr685ir9 
+       foreign key (user_id) 
+       references user (user_id)
+Hibernate: 
+    alter table reply 
+       add constraint FKapyyxlgntertu5okpkr685ir9 
+       foreign key (user_id) 
+       references user (user_id)
+2024-03-15T11:04:36.733+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table send_message 
+       add constraint FKjj1un7msh2qb33pgj7ti6m1r7 
+       foreign key (message_message_id) 
+       references message (message_id)
+Hibernate: 
+    alter table send_message 
+       add constraint FKjj1un7msh2qb33pgj7ti6m1r7 
+       foreign key (message_message_id) 
+       references message (message_id)
+2024-03-15T11:04:36.743+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table send_message 
+       add constraint FKikxww389pw8fcqf2fdea4jv4e 
+       foreign key (sender_user_id) 
+       references user (user_id)
+Hibernate: 
+    alter table send_message 
+       add constraint FKikxww389pw8fcqf2fdea4jv4e 
+       foreign key (sender_user_id) 
+       references user (user_id)
+2024-03-15T11:04:36.757+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    alter table user 
+       add constraint FKhbkxju61kpht7qnnhemgjv3u7 
+       foreign key (school_id) 
+       references school (school_id)
+Hibernate: 
+    alter table user 
+       add constraint FKhbkxju61kpht7qnnhemgjv3u7 
+       foreign key (school_id) 
+       references school (school_id)
+2024-03-15T11:04:36.777+09:00  INFO 3329 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-03-15T11:04:36.956+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    insert 
+    into
+        post
+        (content, created_date, modified_date, title, user_id) 
+    values
+        (?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        post
+        (content, created_date, modified_date, title, user_id) 
+    values
+        (?, ?, ?, ?, ?)
+2024-03-15T11:04:37.083+09:00  WARN 3329 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-03-15T11:04:37.379+09:00  INFO 3329 --- [    Test worker] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-03-15T11:04:37.847+09:00  INFO 3329 --- [    Test worker] c.c.e.repository.PostRepositoryTest      : Started PostRepositoryTest in 3.654 seconds (process running for 4.451)
+2024-03-15T11:04:38.374+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    insert 
+    into
+        user
+        (name, password, school_id, student_no, username) 
+    values
+        (?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        user
+        (name, password, school_id, student_no, username) 
+    values
+        (?, ?, ?, ?, ?)
+2024-03-15T11:04:38.380+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    insert 
+    into
+        post
+        (content, created_date, modified_date, title, user_id) 
+    values
+        (?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        post
+        (content, created_date, modified_date, title, user_id) 
+    values
+        (?, ?, ?, ?, ?)
+Post(id=2, title=title, content=content)
+2024-03-15T11:04:38.390+09:00 DEBUG 3329 --- [    Test worker] org.hibernate.SQL                        : 
+    insert 
+    into
+        heart
+        (post_id, user_id) 
+    values
+        (?, ?)
+Hibernate: 
+    insert 
+    into
+        heart
+        (post_id, user_id) 
+    values
+        (?, ?)
+]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/min/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.14.12/be4984cb6fd1ef1d11f218a648889dfda44b8a15/byte-buddy-agent-1.14.12.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
