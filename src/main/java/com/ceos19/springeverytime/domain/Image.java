@@ -1,10 +1,11 @@
 package com.ceos19.springeverytime.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image {
     @Id
     @GeneratedValue
@@ -13,6 +14,6 @@ public class Image {
     @Column(length = 200, nullable = false)
     private String imageUrl;
 
-    @OneToMany
+    @ManyToOne
     private Post post;
 }
