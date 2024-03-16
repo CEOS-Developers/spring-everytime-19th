@@ -9,6 +9,7 @@ import com.ceos19.springboot.postlike.entity.Postlike;
 import com.ceos19.springboot.reply.entity.Reply;
 import com.ceos19.springboot.school.entity.School;
 import com.ceos19.springboot.timetable.entity.TimeTable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -36,24 +37,37 @@ public class User {
     @Column(nullable = false)
     private String nickName;
 
-    @OneToOne(mappedBy = "school")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
     private School school;
 
-    @OneToMany(mappedBy = "friend")
-    private List<Friend> friendList = new ArrayList<>();
-    @OneToMany(mappedBy = "reply")
+
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Reply> replyList = new ArrayList<>();
-    @OneToMany(mappedBy = "comment")
+
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Comment> commentList = new ArrayList<>();
-    @OneToMany(mappedBy = "post_like")
+
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Postlike> postLikeList = new ArrayList<>();
-    @OneToMany(mappedBy = "comment_like")
+
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<CommentLike> commentLikesList = new ArrayList<>();
-    @OneToMany(mappedBy = "post")
+
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Post> postList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "time_table")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "time_table_id")
     private TimeTable timeTable;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user1",cascade = CascadeType.REMOVE)
+    private List<Friend> friend1 = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user2",cascade = CascadeType.REMOVE)
+    private List<Friend> friend2 = new ArrayList<>();
 
 
 }

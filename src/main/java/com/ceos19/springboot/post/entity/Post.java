@@ -1,5 +1,6 @@
 package com.ceos19.springboot.post.entity;
 
+import com.ceos19.springboot.board.entity.Board;
 import com.ceos19.springboot.comment.entity.Comment;
 import com.ceos19.springboot.common.BaseEntity;
 import com.ceos19.springboot.postlike.entity.Postlike;
@@ -26,12 +27,18 @@ public class Post extends BaseEntity {
 
     private Integer likes;
 
-    @OneToMany(mappedBy = "post")
-    private List<Postlike> postlikeList = new ArrayList<>();
+    @OneToMany(mappedBy ="post",fetch = FetchType.LAZY)
+    private List<Comment>commentList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "post")
-    private List<Comment> commentList = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    private Board board;
+
+    @OneToMany(mappedBy ="post",fetch = FetchType.LAZY)
+    private List<Postlike>postLikeList = new ArrayList<>();
 }
+

@@ -20,6 +20,6 @@ public class TimeTable extends BaseEntity {
 
     private Integer totalCredit;
 
-    @OneToMany(mappedBy = "tablecourse")
+    @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY)
     private List<TableCourse> tableCourseList = new ArrayList<>();
 }

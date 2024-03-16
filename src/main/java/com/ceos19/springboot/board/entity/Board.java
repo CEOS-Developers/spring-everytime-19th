@@ -24,10 +24,11 @@ public class Board extends BaseEntity {
     @Column(name = "board_setting", length = 100)
     private String boardSetting;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-    private List<Post> postList = new ArrayList<>();
-
-    @OneToOne(mappedBy = "university")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
     private School school;
+
+    @OneToMany(mappedBy ="board", fetch = FetchType.LAZY)
+    private List<Post> postList = new ArrayList<>();
 
 }

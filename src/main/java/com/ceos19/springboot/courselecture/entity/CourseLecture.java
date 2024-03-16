@@ -1,6 +1,7 @@
 package com.ceos19.springboot.courselecture.entity;
 
 import com.ceos19.springboot.lecture.entity.Lecture;
+import com.ceos19.springboot.tablecourse.entity.TableCourse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -13,6 +14,12 @@ public class CourseLecture {
 
     private Float lectureGrade;
 
-    @OneToOne(mappedBy = "lecture", cascade = CascadeType.REMOVE)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "table_course_id")
+    private TableCourse tableCourse;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 }

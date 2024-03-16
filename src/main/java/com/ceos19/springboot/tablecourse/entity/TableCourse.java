@@ -5,6 +5,9 @@ import com.ceos19.springboot.courselecture.entity.CourseLecture;
 import com.ceos19.springboot.timetable.entity.TimeTable;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "table_course")
 public class TableCourse extends BaseEntity {
@@ -16,10 +19,9 @@ public class TableCourse extends BaseEntity {
     private Float courseAverage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "timetable_id")
+    @JoinColumn(name = "time_table_id")
     private TimeTable timeTable;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courelecture_id")
-    private CourseLecture courseLecture;
+    @OneToMany(mappedBy = "tableCourse",fetch = FetchType.LAZY)
+    private List<CourseLecture> courseLectureList = new ArrayList<>();
 }

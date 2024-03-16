@@ -2,6 +2,7 @@ package com.ceos19.springboot.school.entity;
 
 import com.ceos19.springboot.board.entity.Board;
 import com.ceos19.springboot.common.BaseEntity;
+import com.ceos19.springboot.user.entity.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,7 +15,10 @@ public class School extends BaseEntity {
 
     private String schoolName;
 
-    @OneToOne
+    @OneToOne(mappedBy = "school",fetch = FetchType.LAZY)
     private Board board;
+
+    @OneToOne(mappedBy = "school",fetch = FetchType.LAZY)
+    private User user;
 
 }

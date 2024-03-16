@@ -19,6 +19,7 @@ public class Reply {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 }

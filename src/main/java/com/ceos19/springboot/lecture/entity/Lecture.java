@@ -2,6 +2,7 @@ package com.ceos19.springboot.lecture.entity;
 
 import com.ceos19.springboot.common.BaseEntity;
 import com.ceos19.springboot.common.WeekDayType;
+import com.ceos19.springboot.courselecture.entity.CourseLecture;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
@@ -31,4 +32,6 @@ public class Lecture extends BaseEntity {
 
     private List<WeekDayType> lectureDays;
 
+    @OneToMany(mappedBy = "lecture", fetch = FetchType.LAZY)
+    private List<CourseLecture> courseLectureList;
 }

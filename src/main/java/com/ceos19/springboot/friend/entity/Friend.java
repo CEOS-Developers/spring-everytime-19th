@@ -16,12 +16,12 @@ public class Friend extends BaseEntity {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users1")
+    @JoinColumn(name = "user_id1")
     private User user1;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users2")
+    @JoinColumn(name = "user_id2")
     private User user2;
 
     @ColumnDefault("false")
