@@ -31,11 +31,11 @@ public class JjokjiRoom extends BaseEntity {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "first_sender_id",nullable = false,updatable = false)
+    @JoinColumn(name = "first_sender_id",updatable = false)
     private Member firstSender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "first_receiver_id",nullable = false,updatable = false)
+    @JoinColumn(name = "first_receiver_id",updatable = false)
     private Member firstReceiver;
 
     @Builder

@@ -1,5 +1,7 @@
 package com.ceos19.everyTime.member.domain;
 
+import com.ceos19.everyTime.post.domain.LikePost;
+import com.ceos19.everyTime.post.domain.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +10,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,6 +47,11 @@ public class Member {
         this.password=password;
         this.nickName=nickName;
     }
+
+    @OneToMany(mappedBy = "member")
+    private List<Post> postList = new ArrayList<>();
+
+
 
 
 

@@ -31,7 +31,7 @@ public class Post extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id",nullable = false,updatable = false)
+    @JoinColumn(name = "member_id",updatable = false)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -68,8 +68,11 @@ public class Post extends BaseEntity {
         this.likeCount=0;
     }
 
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post")
     private List<Reply> replyList=new ArrayList<>();
+
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<PostImage> postImageList = new ArrayList<>();
 
 
 

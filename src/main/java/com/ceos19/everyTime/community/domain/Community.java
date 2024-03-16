@@ -25,7 +25,7 @@ public class Community extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id",nullable = false,updatable = false)
+    @JoinColumn(name = "member_id",updatable = false)
     private Member member;
 
     @Column(nullable = false)
