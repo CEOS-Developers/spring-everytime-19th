@@ -1,5 +1,6 @@
 package com.ceos19.springboot.user.entity;
 
+import com.ceos19.springboot.common.UserRoleEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 
