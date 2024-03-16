@@ -3,6 +3,7 @@ package com.ceos19.springeverytime;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.like.PostLike;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,29 +27,18 @@ class SpringEverytimeApplicationTests {
     EntityManager em;
 
     @Test
-    @Rollback(value = false)
     void 채팅_메세지_작성_테스트() {
 
         // given
-        User member1 = new User(
-                "test",
-                "1234",
-                "nickname",
-                "kim",
-                "computer",
-                "20",
-                "test@example.com",
-                true,
-                new Date());
+        User member1 = createUser("user1");
 
-        Category freeCategory = new Category("자유게시판", "자유롭게 이야기 해봐요", member1);
+        Category freeCategory = createCategory(member1);
 
         Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), member1, freeCategory);
         Post post2 = new Post("두번째 글", "두번째 글입니다.", true, new Date(), new Date(), member1, freeCategory);
         Post post3 = new Post("세번째 글", "세번째 글입니다.", true, new Date(), new Date(), member1, freeCategory);
 
         em.persist(member1);
-        em.persist(freeCategory);
         em.persist(post1);
         em.persist(post2);
         em.persist(post3);
@@ -59,8 +49,51 @@ class SpringEverytimeApplicationTests {
         freeCategory.addPost(post3);
 
         // then
-        Category testCategory = em.find(Category.class, 1L);
+        Category testCategory = em.find(Category.class, freeCategory.getId());
         Assertions.assertEquals(testCategory.getPosts().size(), 3);
     }
 
+    @Test
+    @Rollback(value = false)
+    public void 좋아요_생성_테스트() throws Exception {
+        //given
+        User user1 = createUser("user1");
+        User user2 = createUser("user2");
+        Category freeCategory = createCategory(user1);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, freeCategory);
+        em.persist(user1);
+        em.persist(user2);
+        em.persist(post1);
+
+        PostLike like1 = new PostLike(user1, new Date(), post1);
+        em.persist(like1);
+        PostLike like2 = new PostLike(user2, new Date(), post1);
+        em.persist(like2);
+
+        //when
+        post1.addLike(like1);
+        post1.addLike(like2);
+
+        //then
+        Assertions.assertEquals(post1.getPostLikes().size(), 2);
+    }
+
+    private User createUser(String id) {
+        return new User(
+                id,
+                "1234",
+                "nickname",
+                "kim",
+                "computer",
+                "20",
+                "test@example.com",
+                true,
+                new Date());
+    }
+
+    private Category createCategory(User manager) {
+        Category freeCategory = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
+        em.persist(freeCategory);
+        return freeCategory;
+    }
 }

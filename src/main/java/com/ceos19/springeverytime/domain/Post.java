@@ -1,13 +1,19 @@
 package com.ceos19.springeverytime.domain;
 
+import com.ceos19.springeverytime.domain.like.Like;
+import com.ceos19.springeverytime.domain.like.PostLike;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.lang.reflect.Member;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @RequiredArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+@Getter
 public class Post {
     @Id
     @GeneratedValue
@@ -40,4 +46,11 @@ public class Post {
     @ManyToOne
     private Category category;
 
+    @NonNull
+    @OneToMany(mappedBy = "post")
+    private List<PostLike> postLikes = new ArrayList<>();
+
+    public void addLike(PostLike postLike) {
+        postLikes.add(postLike);
+    }
 }
