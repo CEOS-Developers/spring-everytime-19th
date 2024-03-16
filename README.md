@@ -1,6 +1,7 @@
 # 연관관계 매핑 
 이번에 게시판 서비스를 만들면서 설계한 엔티티간의 연관관계 구조는 다음과 같다.
-![img.png](img.png)
+![iScreen Shoter - Microsoft Edge - 240316101650](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/3ca1c445-5d28-4505-831d-b5687fa17963)
+
 - School - User: 일대다
 - User - Post(게시물): 일대다
 - User - Message(쪽지): 일대다
