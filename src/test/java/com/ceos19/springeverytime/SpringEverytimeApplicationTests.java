@@ -51,6 +51,60 @@ class SpringEverytimeApplicationTests {
         // then
         Category testCategory = em.find(Category.class, freeCategory.getId());
         Assertions.assertEquals(testCategory.getPosts().size(), 3);
+
+        /** 위 테스트에 대한 쿼리
+         * Hibernate:
+         *     select
+         *         next_val as id_val
+         *     from
+         *         category_seq for update
+         * Hibernate:
+         *     update
+         *         category_seq
+         *     set
+         *         next_val= ?
+         *     where
+         *         next_val=?
+         * Hibernate:
+         *     select
+         *         null,
+         *         u1_0.admission_year,
+         *         u1_0.create_date,
+         *         u1_0.email,
+         *         u1_0.is_enrolled,
+         *         u1_0.major,
+         *         u1_0.name,
+         *         u1_0.nickname,
+         *         u1_0.pw
+         *     from
+         *         user u1_0
+         *     where
+         *         u1_0.id=?
+         * Hibernate:
+         *     select
+         *         next_val as id_val
+         *     from
+         *         post_seq for update
+         * Hibernate:
+         *     update
+         *         post_seq
+         *     set
+         *         next_val= ?
+         *     where
+         *         next_val=?
+         * Hibernate:
+         *     select
+         *         next_val as id_val
+         *     from
+         *         post_seq for update
+         * Hibernate:
+         *     update
+         *         post_seq
+         *     set
+         *         next_val= ?
+         *     where
+         *         next_val=?
+         * */
     }
 
     @Test
