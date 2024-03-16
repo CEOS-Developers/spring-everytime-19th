@@ -1,24 +1,22 @@
-package com.ceos19.springboot.reply.entity;
+package com.ceos19.springboot.commentlike.entity;
 
 import com.ceos19.springboot.comment.entity.Comment;
 import com.ceos19.springboot.user.entity.User;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "reply")
-public class Reply {
+@Table(name = "comment_like")
+public class CommentLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long replyId;
+    private Long commentLikeId;
 
-    private String content;
-
-    private Integer likes;
+    @OneToOne
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @OneToOne
-    private User user;
+
 }

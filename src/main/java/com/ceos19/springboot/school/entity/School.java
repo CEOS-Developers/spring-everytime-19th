@@ -1,5 +1,6 @@
 package com.ceos19.springboot.school.entity;
 
+import com.ceos19.springboot.board.entity.Board;
 import com.ceos19.springboot.common.BaseEntity;
 import jakarta.persistence.*;
 
@@ -12,4 +13,8 @@ public class School extends BaseEntity {
     private Long schoolId;
 
     private String schoolName;
+
+    @OneToOne
+    private Board board;
+
 }

@@ -31,5 +31,4 @@ public class Lecture extends BaseEntity {
 
     private List<WeekDayType> lectureDays;
 
-
 }
