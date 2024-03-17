@@ -23,6 +23,7 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="postId")
     private Posts post;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId")
     private Users user;
@@ -45,5 +46,9 @@ public class Comment {
         this.user = user;
         this.parent = parent;
         this.children = children;
+    }
+
+    public void addChildComment(Comment childComment) {
+        this.children.add(childComment);
     }
 }
