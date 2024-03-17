@@ -13,10 +13,10 @@ import lombok.Setter;
 
 @Entity
 @Getter @Setter
-public class Like {
+public class PostLike {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="like_id")
+    @Column(name ="postlike_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

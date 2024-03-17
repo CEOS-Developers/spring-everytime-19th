@@ -30,7 +30,7 @@ public class Comment{
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id")
+    @JoinColumn(name = "parent_id")
     private Comment parentComment;
 
     private String content;
