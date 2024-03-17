@@ -5,18 +5,18 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "post")
-public class Post {
+@Table(name = "comment")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_id", nullable = false)
+    @Column(name = "comment_id", nullable = false)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String title;
-
-    @Column(nullable = false, length = 65535)
+    @Column(nullable = true, length = 1000)
     private String content;
+
+    @Column(nullable = false)
+    private Boolean isDeleted;
 
     @Column(nullable = false, length = 10)
     private Long like;
@@ -24,23 +24,17 @@ public class Post {
     @Column(nullable = false, length = 10)
     private Long report;
 
-    @Column(nullable = false, length = 10)
-    private Long scrap;
-
     @Column(nullable = true, length = 20)
     private LocalDateTime createdAt;
 
     @Column(nullable = true, length = 20)
     private LocalDateTime editedAt;
 
-    @Column(nullable = false)
-    private boolean isAnonymous;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "post_id")
+    private Post post;
 }
