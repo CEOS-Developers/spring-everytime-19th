@@ -4,6 +4,9 @@ import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.domain.like.PostLike;
+import com.ceos19.springeverytime.repository.CategoryRepository;
+import com.ceos19.springeverytime.repository.PostRepository;
+import com.ceos19.springeverytime.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,31 +29,37 @@ class SpringEverytimeApplicationTests {
     @Autowired
     EntityManager em;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
+    PostRepository postRepository;
+
     @Test
-    void 채팅_메세지_작성_테스트() {
+    void 카테고리_하나에_여러_글_작성_테스트() {
 
         // given
         User member1 = createUser("user1");
-
         Category freeCategory = createCategory(member1);
 
+        // when
         Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), member1, freeCategory);
         Post post2 = new Post("두번째 글", "두번째 글입니다.", true, new Date(), new Date(), member1, freeCategory);
         Post post3 = new Post("세번째 글", "세번째 글입니다.", true, new Date(), new Date(), member1, freeCategory);
 
-        em.persist(member1);
-        em.persist(post1);
-        em.persist(post2);
-        em.persist(post3);
+        postRepository.save(post1);
+        postRepository.save(post2);
+        postRepository.save(post3);
 
-        // when
-        freeCategory.addPost(post1);
-        freeCategory.addPost(post2);
-        freeCategory.addPost(post3);
+        em.flush();
+        em.clear();
 
         // then
         Category testCategory = em.find(Category.class, freeCategory.getCategoryId());
-        Assertions.assertEquals(testCategory.getPosts().size(), 3);
+        Assertions.assertEquals(3, testCategory.getPosts().size());
 
         /** 위 테스트에 대한 쿼리
          * Hibernate:
@@ -114,9 +123,7 @@ class SpringEverytimeApplicationTests {
         User user2 = createUser("user2");
         Category freeCategory = createCategory(user1);
         Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, freeCategory);
-        em.persist(user1);
-        em.persist(user2);
-        em.persist(post1);
+        postRepository.save(post1);
 
         //when
         PostLike like1 = new PostLike(user1, new Date(), post1);
@@ -132,21 +139,24 @@ class SpringEverytimeApplicationTests {
     }
 
     private User createUser(String id) {
-        return new User(
-                id,
-                "1234",
-                "nickname",
-                "kim",
-                "computer",
-                "20",
-                "test@example.com",
-                true,
-                new Date());
+        User user = new User(
+            id,
+            "1234",
+            "nickname",
+            "kim",
+            "computer",
+            "20",
+            "test@example.com",
+            true,
+            new Date());
+
+        userRepository.save(user);
+        return user;
     }
 
     private Category createCategory(User manager) {
-        Category freeCategory = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
-        em.persist(freeCategory);
-        return freeCategory;
+        Category category = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
+        categoryRepository.save(category);
+        return category;
     }
 }

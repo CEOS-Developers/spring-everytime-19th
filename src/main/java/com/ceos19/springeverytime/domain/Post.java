@@ -44,6 +44,7 @@ public class Post {
 
     @NonNull
     @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @OneToMany(mappedBy = "post")
