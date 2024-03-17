@@ -36,6 +36,9 @@ public class Post {
     @Column(nullable = false)
     private boolean isAnonymous;
 
+    @Column(nullable = false, length = 65535)
+    private String filePath;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
