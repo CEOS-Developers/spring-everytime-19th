@@ -3,6 +3,7 @@ package com.ceos19.springeverytime.repository;
 import com.ceos19.springeverytime.domain.Comment;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +16,8 @@ public class CommentRepository {
         em.persist(comment);
     }
 
-    public Comment findOne(Long id){
-        return em.find(Comment.class,id);
+    public Optional<Comment> findOne(Long id){
+        return Optional.ofNullable(em.find(Comment.class,id));
     }
 
     public List<Comment> findAll(){

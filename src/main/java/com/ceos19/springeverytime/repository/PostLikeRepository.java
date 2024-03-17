@@ -3,6 +3,7 @@ package com.ceos19.springeverytime.repository;
 import com.ceos19.springeverytime.domain.PostLike;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +16,8 @@ public class PostLikeRepository {
         em.persist(postLike);
     }
 
-    public PostLike findOne(Long id){
-        return em.find(PostLike.class, id);
+    public Optional<PostLike> findOne(Long id){
+        return Optional.ofNullable(em.find(PostLike.class, id));
     }
 
     public List<PostLike> findByPost(Long id){

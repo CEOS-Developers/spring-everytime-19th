@@ -3,6 +3,7 @@ package com.ceos19.springeverytime.repository;
 import com.ceos19.springeverytime.domain.Post;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +16,8 @@ public class PostRepository {
         em.persist(post);
     }
 
-    public Post findOne(Long id){
-        return em.find(Post.class, id);
+    public Optional<Post> findOne(Long id){
+        return Optional.ofNullable(em.find(Post.class, id));
     }
 
     public List<Post> findAll(){
