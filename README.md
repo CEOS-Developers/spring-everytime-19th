@@ -82,37 +82,43 @@ CEOS 19th BE study - everytime clone coding
 - 대략적으로 누군가를 **대신하여**  뭔가를 수행하는 권한 자체 또는 그 권한을 받은 주체
 
 - 프록시 패턴
-- 원래 객체를 감싸고 있는 같은 타입의 객체 -> 프록시 객체가 원래 객체를 감싸서 client의 요청을 처리하기 하는 패턴
-  - 접근을 제어하고 싶거나, 부가 기능을 추가하고 싶을 때 주로 사용
-    - ex)
-    - DisplayImage()
+  - 원래 객체를 감싸고 있는 같은 타입의 객체 -> 프록시 객체가 원래 객체를 감싸서 client의 요청을 처리하기 하는 패턴
+    - 접근을 제어하고 싶거나, 부가 기능을 추가하고 싶을 때 주로 사용
+      - ex)
+      - DisplayImage()
 
-          public interface Image {
-          void displayImage();
-          }
-    - RealImage
+        ```java
+        public interface Image {
+                  void displayImage();
+                  }
+        ```
+      - RealImage
+      ```java
+      public class RealImage implements Image {
+
+            private String fileName;
     
-          public class RealImage implements Image {
+            public RealImage(String fileName) {
+            this.fileName = fileName;
+            loadFromDisk(fileName);
+            }
     
-          private String fileName;
+            private void loadFromDisk(String fileName) {
+            System.out.println("Loading " + fileName);
+            }
     
-          public RealImage(String fileName) {
-          this.fileName = fileName;
-          loadFromDisk(fileName);
-          }
+            @Override
+            public void displayImage() {
+            System.out.println("Displaying " + fileName);
     
-          private void loadFromDisk(String fileName) {
-          System.out.println("Loading " + fileName);
-          }
-    
-          @Override
-          public void displayImage() {
-          System.out.println("Displaying " + fileName);
-    
-          }
-          }
+            }
+            }
+    - 
     - ProxyImage
-    ```  public class ProxyImage implements Image {
+```java
+          
+    
+      public class ProxyImage implements Image {
       private RealImage realImage;
       private String fileName;
 
@@ -127,19 +133,21 @@ CEOS 19th BE study - everytime clone coding
       }
       realImage.displayImage();
       }
-      }```
-  
-  - Main
-    ```public class Main {
-      public static void main(String[] args) {
-      Image image1 = new Proxy_Image("test1.png");
-      Image image2 = new Proxy_Image("test2.png");
-
-      image1.displayImage();
-      System.out.println();
-      image2.displayImage();
       }
-      }````
+  ```
+  - Main
+  ```java
+  public class Main {
+  public static void main(String[] args) {
+    Image image1 = new Proxy_Image("test1.png");
+    Image image2 = new Proxy_Image("test2.png");
+
+    image1.displayImage();
+    System.out.println();
+    image2.displayImage();
+  }
+}
+```
   - 상대적으로 오래걸리는 이미지 로딩 전에 로딩 텍스트를 먼저 출력할 수 있도록 프록시 객체가 흐름을 제어
 
   - 프록시 : 어떠한 클래스(빈)가 AOP 대상이면 원본 클래스 대신 프록시가 감싸진 클래스가 자동으로 만들어져 프록시 클래스가 빈에 등록이 된다
@@ -157,7 +165,7 @@ How??? 동적으로 프록시를 생성할까??
   - 즉 리플렉션을 이용해서 **동적으로** 메소드와 클래스를 .class 바이트 파일로 만들어준다
     
       - ex) RepositoryFactorySupport
-        ```
+        ```java
         public <T> T getRepository(Class<T> repositoryInterface, RepositoryFragments fragments) {
     
         // Create proxy
@@ -185,7 +193,8 @@ How??? 동적으로 프록시를 생성할까??
     - 해결 : 컬렉션 fetch에 firstResult나 maxResults를 사용하지 않도록 하거나, 쿼리를 변경하여 데이터베이스에서 이러한 제한을 적용
     - ex)
   
-    ```  List<Order> orders = entityManager.createQuery(
+    ```java
+      List<Order> orders = entityManager.createQuery(
       "SELECT o FROM Order o JOIN FETCH o.orderItems",
       Order.class)
       .setFirstResult(0)
@@ -210,7 +219,8 @@ How??? 동적으로 프록시를 생성할까??
       - 부모 엔티티 key하나하나를 자식 엔티티 조회로 사용한다 -> How about 1개씩 사용되는 조건문을 in절로 묶어서 조회?
       - 엔티티에서 여러 개의 컬렉션을 fetch join하려고 시도
 
-    ```    @Entity
+    ```java
+        @Entity
         public class Order {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
