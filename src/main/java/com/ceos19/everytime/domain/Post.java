@@ -28,7 +28,7 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,7 +42,7 @@ public class Post {
     private int likes;
 
     @Builder
-    public Post(String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Member author,  boolean isAnonymous, int likes){
+    public Post(String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Member author,  boolean isAnonymous){
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;

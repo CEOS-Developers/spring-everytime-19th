@@ -50,12 +50,12 @@ public class Comment {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime updatedAt;
 
 
     @Builder
-    public Comment(Post postId, Comment parentComment, List<Comment> childrenComment, Member author, String content, boolean isAnonymous, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Comment(Post postId, Comment parentComment, List<Comment> childrenComment, Member author, String content, boolean isAnonymous, LocalDateTime createdAt) {
         this.postId = postId;
         this.parentComment = parentComment;
         this.childrenComment = childrenComment;
@@ -65,7 +65,6 @@ public class Comment {
         this.isAnonymous = isAnonymous;
         this.isDeleted = false;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
 }
