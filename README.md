@@ -150,11 +150,12 @@ public void searchPostsTest() throws Exception {
         //then
         Assertions.assertThat(saveComment.getContent()).isEqualTo(findComment.getContent());
     }
-    ```
+    ```  
+   
    게시글을 작성할 사용자 한명과 게시글에 댓글을 달 사용자를 생성하고, 게시글을 생성한다. 그 이후에 해당 게시글에 댓글을 다는 로직을 추가하였다.  
    디비에 저장된 댓글 내용과 방금 디비에 저장한 댓글 내용이 같은지를 통해서 테스트를 진행했다.  
-   <img width="1440" alt="스크린샷 2024-03-17 오후 5 35 54" src="https://github.com/The-Sculptor/Server/assets/97235034/0dde6afa-83df-4605-a283-b639edeef6cd">
-이미지를 통해 댓글이 디비에 잘 저장된 것을 볼 수 있다.  
+   <img width="1440" alt="스크린샷 2024-03-17 오후 5 35 54" src="https://github.com/The-Sculptor/Server/assets/97235034/0dde6afa-83df-4605-a283-b639edeef6cd">  
+    이미지를 통해 댓글이 디비에 잘 저장된 것을 볼 수 있다.  
 
 3. 대댓글 기능  
     ```java
