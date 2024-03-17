@@ -2,6 +2,8 @@ package com.ceos19.springeverytime.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,11 +27,13 @@ public class Message {
     private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "user_id")
-    private User recipient;
+    @Column(name = "room_id")
+    private Room room;
 
     private String content;
-    private boolean isRead;
+
+    @Enumerated(EnumType.STRING)
+    private ReadStatus isRead;
     private LocalDateTime createdAt;
 
 }
