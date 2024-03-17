@@ -28,7 +28,6 @@ public class Member {
     @Column(nullable = false)
     private String email;
 
-
     @Builder
     public Member(final String userName, final String loginId, final String userPw, final String email) {
         this.userName = userName;
@@ -36,6 +35,5 @@ public class Member {
         this.userPw = userPw;
         this.email = email;
     }
-
 
 }

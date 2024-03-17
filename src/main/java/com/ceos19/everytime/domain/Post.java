@@ -34,8 +34,6 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member author;
 
-    @OneToMany(mappedBy = "post")
-    private List<Photo> photos = new ArrayList<>();
 
     @Column(nullable = false)
     private boolean isAnonymous;
@@ -44,13 +42,12 @@ public class Post {
     private int likes;
 
     @Builder
-    public Post(String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Member author, List<Photo> photos, boolean isAnonymous, int likes){
+    public Post(String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Member author,  boolean isAnonymous, int likes){
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.author = author;
-        this.photos = photos;
         this.isAnonymous = isAnonymous;
         this.likes = 0;
     }
