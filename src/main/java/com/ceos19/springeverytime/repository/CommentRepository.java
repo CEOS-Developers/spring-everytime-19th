@@ -43,4 +43,8 @@ public class CommentRepository {
                 .getResultList();
     }
 
+    public void delete(Comment comment){
+        em.remove(comment);
+    }
+
 }

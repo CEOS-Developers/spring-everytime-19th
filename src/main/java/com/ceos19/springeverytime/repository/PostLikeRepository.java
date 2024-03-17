@@ -36,4 +36,8 @@ public class PostLikeRepository {
                 .setParameter("id", id)
                 .getResultList();
     }
+
+    public void delete(PostLike postLike){
+        em.remove(postLike);
+    }
 }
