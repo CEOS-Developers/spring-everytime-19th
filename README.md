@@ -12,9 +12,9 @@
 
 ### 모델링 결과
 
-![Screenshot 2024-03-17 at 10.22.42 PM.png](..%2F..%2F..%2F..%2FDesktop%2FScreenshot%202024-03-17%20at%2010.22.42%E2%80%AFPM.png)
+![Screenshot 2024-03-17 at 10 22 42 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/2fb7b3c3-2a1d-416f-aeb8-c3859a8bb1d1)
 
-![Screenshot 2024-03-17 at 10.29.37 PM.png](..%2F..%2F..%2F..%2FDesktop%2FScreenshot%202024-03-17%20at%2010.29.37%E2%80%AFPM.png)
+![Screenshot 2024-03-17 at 10 29 37 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/e9bd44a0-5ea0-419f-a9f6-28f4ee7c998d)
 
 #### 1. Comment
 - id : Comment의 기본키다. `@GeneratedValue`라는 기본 키를 자동으로 생성해주는 어노테이션을 사용했다.
@@ -78,13 +78,13 @@
 
 
 ### Repository 테스트
-![Screenshot 2024-03-17 at 11.30.24 PM.png](..%2F..%2F..%2F..%2FDesktop%2FScreenshot%202024-03-17%20at%2011.30.24%E2%80%AFPM.png)
+![Screenshot 2024-03-17 at 11 30 24 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/e76ebdde-8998-4a60-952a-ab10ff4fe54c)
 회원이 3명 이상 가입했을 때, 회원 3명의 기본키가 올바르게 생성됐다.
 
-![Screenshot 2024-03-17 at 11.30.32 PM.png](..%2F..%2F..%2F..%2FDesktop%2FScreenshot%202024-03-17%20at%2011.30.32%E2%80%AFPM.png)
+![Screenshot 2024-03-17 at 11 30 32 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/1f4c18f4-b700-4e9a-9b53-cdab0255cbe7)
 amy라는 회원만 가입된 상태에서, amy로 회원을 조회하면 올바르게 나온다. 하지만 sarah라는 이름으로 조회하면 null값이 뜬다.
 
-![Screenshot 2024-03-17 at 11.32.28 PM.png](..%2F..%2F..%2F..%2FDesktop%2FScreenshot%202024-03-17%20at%2011.32.28%E2%80%AFPM.png)
+![Screenshot 2024-03-17 at 11 32 28 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/9f1f78ea-b493-4076-8ee7-e669702980d7)
 게시글을 작성하고 기본키로 조회했을 때, DB에 게시글이 올바르게 저장된 것을 확인할 수 있다.
 
 
