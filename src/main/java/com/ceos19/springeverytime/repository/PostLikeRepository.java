@@ -1,6 +1,6 @@
 package com.ceos19.springeverytime.repository;
 
-import com.ceos19.springeverytime.domain.Like;
+import com.ceos19.springeverytime.domain.PostLike;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -8,22 +8,22 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class LikeRepository {
+public class PostLikeRepository {
     private final EntityManager em;
 
-    public void save(Like like){
-        em.persist(like);
+    public void save(PostLike postLike){
+        em.persist(postLike);
     }
 
-    public Like findOne(Long id){
-        return em.find(Like.class, id);
+    public PostLike findOne(Long id){
+        return em.find(PostLike.class, id);
     }
 
-    public List<Like> findByPost(Long id){
+    public List<PostLike> findByPost(Long id){
         return em.createQuery("select l "
-                + "from Like l "
+                + "from PostLike l "
                 + "join fetch Post p "
-                + "where p.id =: postId", Like.class)
+                + "where p.id =: postId", PostLike.class)
                 .setParameter("postId", id)
                 .getResultList();
     }
