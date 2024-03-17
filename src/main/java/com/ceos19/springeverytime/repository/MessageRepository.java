@@ -22,7 +22,7 @@ public class MessageRepository {
     public List<Message> findByUser(Long id){
         return em.createQuery("select m "
                 + "from Message m "
-                + "join fetch User u "
+                + "join fetch m.sender u "
                 + "where u.id =: userId",Message.class)
                 .setParameter("userId",id)
                 .getResultList();
@@ -31,7 +31,7 @@ public class MessageRepository {
     public List<Message> findByRoom(Long id){
         return em.createQuery("select m "
                 + "from Message m "
-                + "join fetch Room r "
+                + "join fetch m.room r "
                 + "where r.id =: roomId",Message.class)
                 .setParameter("roomId",id)
                 .getResultList();

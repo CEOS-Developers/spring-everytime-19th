@@ -22,7 +22,7 @@ public class PostLikeRepository {
     public List<PostLike> findByPost(Long id){
         return em.createQuery("select l "
                 + "from PostLike l "
-                + "join fetch Post p "
+                + "join fetch l.post p "
                 + "where p.id =: postId", PostLike.class)
                 .setParameter("postId", id)
                 .getResultList();
