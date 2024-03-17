@@ -150,7 +150,7 @@ public void searchPostsTest() throws Exception {
         //then
         Assertions.assertThat(saveComment.getContent()).isEqualTo(findComment.getContent());
     }
-    ```  
+   ```  
    
    게시글을 작성할 사용자 한명과 게시글에 댓글을 달 사용자를 생성하고, 게시글을 생성한다. 그 이후에 해당 게시글에 댓글을 다는 로직을 추가하였다.  
    디비에 저장된 댓글 내용과 방금 디비에 저장한 댓글 내용이 같은지를 통해서 테스트를 진행했다.  
