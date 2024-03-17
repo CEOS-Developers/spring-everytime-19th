@@ -24,10 +24,10 @@ public class Comment {
     @Column(nullable = false, length = 10)
     private Long report;
 
-    @Column(nullable = true, length = 20)
+    @Column(nullable = false, length = 20)
     private LocalDateTime createdAt;
 
-    @Column(nullable = true, length = 20)
+    @Column(nullable = false, length = 20)
     private LocalDateTime editedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

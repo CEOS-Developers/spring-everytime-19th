@@ -27,10 +27,10 @@ public class Post {
     @Column(nullable = false, length = 10)
     private Long scrap;
 
-    @Column(nullable = true, length = 20)
+    @Column(nullable = false, length = 20)
     private LocalDateTime createdAt;
 
-    @Column(nullable = true, length = 20)
+    @Column(nullable = false, length = 20)
     private LocalDateTime editedAt;
 
     @Column(nullable = false)

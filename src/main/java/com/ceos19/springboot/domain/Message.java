@@ -12,7 +12,7 @@ public class Message {
     @Column(name = "message_id", nullable = false)
     private Long id;
 
-    @Column(nullable = true, length = 1000)
+    @Column(nullable = false, length = 1000)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
