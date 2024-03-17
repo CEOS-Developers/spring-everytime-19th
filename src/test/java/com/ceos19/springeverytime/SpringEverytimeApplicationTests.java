@@ -5,6 +5,7 @@ import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.domain.like.PostLike;
 import com.ceos19.springeverytime.repository.CategoryRepository;
+import com.ceos19.springeverytime.repository.LikeRepository;
 import com.ceos19.springeverytime.repository.PostRepository;
 import com.ceos19.springeverytime.repository.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -37,6 +38,9 @@ class SpringEverytimeApplicationTests {
 
     @Autowired
     PostRepository postRepository;
+
+    @Autowired
+    LikeRepository likeRepository;
 
     @Test
     void 카테고리_하나에_여러_글_작성_테스트() {
@@ -195,8 +199,8 @@ class SpringEverytimeApplicationTests {
         //when
         PostLike like1 = new PostLike(user1, new Date(), post1);
         PostLike like2 = new PostLike(user2, new Date(), post1);
-        em.persist(like1);
-        em.persist(like2);
+        likeRepository.save(like1);
+        likeRepository.save(like2);
 
         em.flush();
         em.clear();
