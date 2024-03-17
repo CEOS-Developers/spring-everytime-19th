@@ -2,7 +2,10 @@ package com.ceos19.springboot.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jdk.incubator.foreign.SymbolLookup;
 import jdk.jfr.Timestamp;
+import jdk.jshell.Snippet;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
@@ -54,4 +57,24 @@ public class User {
     @JoinColumn(name = "school_id")
     private School school;
 
+    @Builder
+    public User(final String username, final String password, final String nickname,
+                final Boolean isAdmin, final String userLast, final School school,
+                final String userFirst, final String email, final Boolean isBoardManager,
+                final String board, final Boolean isBanned, final LocalDateTime createdAt,
+                final LocalDateTime lastLogin) {
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.isAdmin = isAdmin;
+        this.userLast = userLast;
+        this.userFirst = userFirst;
+        this.email = email;
+        this.isBoardManager = isBoardManager;
+        this.board = board;
+        this.isBanned = isBanned;
+        this.createdAt = createdAt;
+        this.lastLogin = lastLogin;
+        this.school = school;
+    }
 }
