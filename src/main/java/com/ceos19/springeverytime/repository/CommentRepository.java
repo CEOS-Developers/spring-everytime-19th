@@ -27,7 +27,7 @@ public class CommentRepository {
     public List<Comment> findByUser(Long id){
         return em.createQuery("select c "
                 + "from Comment c "
-                + "join fetch User u "
+                + "join fetch c.user u "
                 + "where u.id =: userId",
                 Comment.class)
                 .setParameter("userId",id)
@@ -37,7 +37,7 @@ public class CommentRepository {
     public List<Comment> findByPost(Long id){
         return em.createQuery("select c "
                 + "from Comment c "
-                + "join fetch Post p "
+                + "join fetch c.post p "
                 + "where p.id =: postId", Comment.class)
                 .setParameter("postId",id)
                 .getResultList();
