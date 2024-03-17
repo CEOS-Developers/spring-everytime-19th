@@ -6,6 +6,7 @@ import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -86,5 +87,18 @@ class CommentRepositoryTest {
         List<Comment> allCommentsByPost = commentRepository.findByPost(post.getId());
 
         assertEquals(2, allCommentsByPost.size());
+    }
+
+    @Test
+    void delete() {
+        //given
+        Comment comment = new Comment();
+        //when
+        commentRepository.save(comment);
+        commentRepository.delete(comment);
+
+        //then
+        assertThrows(EntityNotFoundException.class, () -> commentRepository.findOne(comment.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Not found")));
     }
 }

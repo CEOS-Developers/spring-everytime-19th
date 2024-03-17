@@ -6,6 +6,7 @@ import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.PostLike;
 import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,5 +82,18 @@ class PostLikeRepositoryTest {
 
         //then
         assertEquals(2, AllPostLikes.size());
+    }
+
+    @Test
+    void delete() {
+        //given
+        PostLike postLike = new PostLike();
+        //when
+        postLikeRepository.save(postLike);
+        postLikeRepository.delete(postLike);
+
+        //then
+        assertThrows(EntityNotFoundException.class, () -> postLikeRepository.findOne(postLike.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Not found")));
     }
 }
