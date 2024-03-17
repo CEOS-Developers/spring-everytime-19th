@@ -46,6 +46,17 @@
 ---
 ## Repository 단위 테스트
 school_id라는 외래키를 포함하는 'User' entity로 repository 단위 테스트를 진행
+0. '@BeforeEach'를 통해 필요한 환경 세팅
+- **@BeforeEach란?** @BeforeEach는 각 테스트 메소드가 실행되기 전에 먼저 실행되어야 하는 메소드를 지정하는 데 사용됨. 테스트 환경을 초기화하거나 테스트에 필요한 데이터를 준비하는 데 주로 사용됨.
+```java
+@BeforeEach
+void setup() { //School 객체 미리 생성
+    testSchool = new School("Sogang", Timestamp.valueOf(LocalDateTime.now()), Timestamp.valueOf(LocalDateTime.now()), 5000L);
+    testSchool = entityManager.persistFlushFind(testSchool);
+}
+```
+User에서 School을 참조하기 위해 school_id라는 외래키를 가지므로, school이라는 객체를 미리 생성하여 User 생성자에 넣기 위해 '@BeforeEach'를 활용
+
 1. Given/When/Then에 따라 테스트 작성
 ```java
 // Given
@@ -88,5 +99,106 @@ assertNotEquals(testUser3.getUsername(), testedUser3.getUsername(), "It is not e
 - assertNotEquals(): 1st 인자는 기대되는 값, 2nd 인자는 실제 값, 마지막은 같지 않을 경우 출력되는 메시지
   - cf) **삽질 기록...** 처음에 assertEquals() 써놓고 왜 test가 자꾸 실패하지...라는 엄청난 삽질을 했었다... 앞으로는 같은 실수를 반복하지 말아야겠다는 다짐을 하며 기록...
 - JPA 쿼리 결과(application.yml 파일에서 show-sql: true라고 작성했기 때문에 테스트 실행 시 콘솔에서 직접 SQL을 확인할 수 있다)
+0. '@BeforeEach'를 통해 school 객체 생성
+```java
+Hibernate: 
+    insert 
+    into
+        school
+        (created_at, school_name, student_num, updated_at) 
+    values
+        (?, ?, ?, ?)
+```
+새로 생성한 school 객체가 School에 잘 저장된 걸 확인할 수 있다.
+
+1. 본격적인 test 시작 -> 생성자를 통해 user 객체 생성 
+```java
+Hibernate: 
+    select
+        s1_0.school_id,
+        s1_0.created_at,
+        s1_0.school_name,
+        s1_0.student_num,
+        s1_0.updated_at 
+    from
+        school s1_0 
+    where
+        s1_0.school_id=?
+```
+앞서 만든 school 객체가 school_id를 외래키로 삼아 user와 잘 결합되는 걸 확인할 수 있다.
+```java
+Hibernate: 
+    insert 
+    into
+        user
+        (department, email, is_active, join_at, latest_login_at, login_at, login_id, login_password, nickname, school_id, student_id, updated_at, username) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+```
+생성자를 통해 생성된 user 객체가 User에 잘 insert된 걸 확인할 수 있다. 아까 객체를 3개 만들었으므로 해당 쿼리문도 3번 반복되지만 여기서는 생략하여 작성한다.
+
+2. findByUsername 실행
+```java
+Hibernate: 
+    select
+        u1_0.user_id,
+        u1_0.department,
+        u1_0.email,
+        u1_0.is_active,
+        u1_0.join_at,
+        u1_0.latest_login_at,
+        u1_0.login_at,
+        u1_0.login_id,
+        u1_0.login_password,
+        u1_0.nickname,
+        u1_0.school_id,
+        u1_0.student_id,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        user u1_0 
+    where
+        u1_0.username=?
+```
+findByUsername의 파라미터로 전달받은 username과 같은 user가 있는지 SELECT문을 통해 조사하는 걸 확인할 수 있다.
+
+---
+## [옵션] JPA 관련 문제 해결
+### 어떻게 data jpa는 interface만으로도 함수가 구현이 되는가?
+1. Repository 인터페이스 정의
+- 개발자는 JPA의 Repository 인터페이스를 확장하는 자신만의 리포지토리 인터페이스를 정의 -> 이 인터페이스에는 엔티티를 저장, 삭제하는 것과 같은 기능을 위한 메소드 선언이 포함됨.
+
+2. 쿼리 메소드 규칙
+- JPA는 메소드 이름을 분석하여 해당 메소드의 목적에 맞는 SQL 또는 JPQL 쿼리를 생성 -> 개발자가 복잡한 쿼리를 직접 작성하지 않아도 되게 해주는 편리성 제공
+- ex) findByUserId이라는 메소드 이름은 "UserId" 필드를 기준으로 엔티티를 찾는 쿼리를 생성하도록 지시
+
+3. 프록시 객체 생성
+- JPA는 ApplicationContext가 초기화될 때 개발자가 정의한 Repository 인터페이스에 대한 프록시 객체를 생성
+- 이 프록시 객체는 인터페이스의 메소드 호출을 가로채어 적절한 JPA 쿼리를 실행하는 역할을 합니다.
+
+4. 쿼리 실행
+- 개발자가 리포지토리 인터페이스의 메소드를 호출 -> 해당 호출은 프록시 객체가 가로챔
+- 프록시 객체는 메소드 이름, 파라미터 등을 분석하여 동적으로 쿼리를 생성하고 이를 실행한 뒤 결과를 반환
+
+### data jpa를 찾다보면 SimpleJpaRepository에서  entity manager를 생성자 주입을 통해서 주입 받는다. 근데 싱글톤 객체는 한번만 할당을 받는데, 한번 연결될 때 마다 생성이 되는 entity manager를 생성자 주입을 통해서 받는 것은 수상하지 않는가? 어떻게 되는 것일까? 
+- EntityManagerFactory는 애플리케이션에서 단 하나만 존재하는 싱글톤 객체인 반면, EntityManager는 보통 한 개의 데이터베이스 트랜잭션 또는 요청을 처리하는 데 사용되며 사용 후에는 닫힘   -> 따라서 EntityManager는 각 트랜잭션마다 새로운 인스턴스가 생성되어야 함.
+- SimpleJpaRepository에 EntityManager를 생성자 주입하는 것은 실제로는 EntityManager의 프록시에 대한 주입
+- 이 프록시는 애플리케이션의 생명 주기 동안 재사용될 수 있으며, 실제 작업이 필요할 때마다 적절한 EntityManager 인스턴스를 제공
+
+### fetch join 할 때 distinct를 안하면 생길 수 있는 문제
+- fetch join: 연관관계의 entity를 함께 조회할 때 사용됨
+- 이는 '중복 문제'를 발생시킬 수 있음
+- ex) 하나의 'Post'에 여러 개의 'Comment'가 연관관계에 있을 때: fetch join으로 함께 조회하면, SQL문의 결과는 Post 데이터가 중복된 채로 포함되어 나올 수 있음. 각 Comment에 대응되는 Post 정보도 함께 조회되기 때문!
+
+### fetch join 을 할 때 생기는 에러가 생기는 3가지 에러 메시지의 원인과 해결 방안
+1. `HHH000104: firstResult/maxResults specified with collection fetch; applying in memory!`
+- 원인:
+- 해결법:
   
-  
+2. `query specified join fetching, but the owner of the fetched association was not present in the select list`
+- 원인:
+- 해결법:
+
+3. `org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags`
+- 원인:
+- 해결법: 
