@@ -48,8 +48,4 @@ public class Post {
 
     @OneToMany(mappedBy = "post")
     private List<PostLike> postLikes = new ArrayList<>();
-
-    public void addLike(PostLike postLike) {
-        postLikes.add(postLike);
-    }
 }

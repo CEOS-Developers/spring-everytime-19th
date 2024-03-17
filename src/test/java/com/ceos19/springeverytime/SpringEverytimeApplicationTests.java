@@ -108,7 +108,6 @@ class SpringEverytimeApplicationTests {
     }
 
     @Test
-    @Rollback(value = false)
     public void 좋아요_생성_테스트() throws Exception {
         //given
         User user1 = createUser("user1");
@@ -119,17 +118,17 @@ class SpringEverytimeApplicationTests {
         em.persist(user2);
         em.persist(post1);
 
+        //when
         PostLike like1 = new PostLike(user1, new Date(), post1);
-        em.persist(like1);
         PostLike like2 = new PostLike(user2, new Date(), post1);
+        em.persist(like1);
         em.persist(like2);
 
-        //when
-        post1.addLike(like1);
-        post1.addLike(like2);
+        em.flush();
+        em.clear();
 
         //then
-        Assertions.assertEquals(post1.getPostLikes().size(), 2);
+        Assertions.assertEquals(2, em.find(Post.class, post1.getPostId()).getPostLikes().size());
     }
 
     private User createUser(String id) {
