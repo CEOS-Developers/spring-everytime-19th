@@ -192,13 +192,13 @@ findByUsername의 파라미터로 전달받은 username과 같은 user가 있는
 
 ### fetch join 을 할 때 생기는 에러가 생기는 3가지 에러 메시지의 원인과 해결 방안
 1. `HHH000104: firstResult/maxResults specified with collection fetch; applying in memory!`
-- 원인:
-- 해결법:
+- 원인: 컬렉션(fetch)과 페이징(pagination)이 함께 사용될 때(컬렉션 데이터를 메모리 상에서 페이징으로 가져오려고 할때) 발생하는 에러. 
+- 해결법: 컬렉션을 fetch join하는 대신 @BatchSize또는 Hibernate의 setFetchSize()를 사용하여 N+1 문제를 최소화하면서 페이징 처리를 수행하면 해결 가능
   
 2. `query specified join fetching, but the owner of the fetched association was not present in the select list`
-- 원인:
-- 해결법:
+- 원인: 연관된 entity를 select하려고 하지만 해당 연관 entity의 소유자가 select list에 없어서 발생
+- 해결법: SELECT문에 연관 entity의 소유자를 포함시키키
 
 3. `org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags`
-- 원인:
-- 해결법: 
+- 원인: 2개 이상의 OneToMany 자식 테이블에 Fetch Join을 선언했을때
+- 해결법: hibernate.default_batch_fetch_size 옵션 추가하기
