@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.Date;
 
@@ -45,5 +46,6 @@ public class CommentRepositoryTest {
 
         //then
         Assertions.assertEquals(3, em.find(Post.class, post1.getPostId()).getComments().size());
+        Assertions.assertEquals(3, commentRepository.findAllByPost(post1).size());
     }
 }
