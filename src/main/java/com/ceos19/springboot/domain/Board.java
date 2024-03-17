@@ -17,7 +17,7 @@ public class Board {
     @Column(nullable = false, length = 20)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "school_id")
     private School school;
 

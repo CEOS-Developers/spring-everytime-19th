@@ -1,6 +1,7 @@
 package com.ceos19.springboot.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 
 @Entity
 @Table(name = "school")
@@ -12,4 +13,9 @@ public class School {
 
     @Column(nullable = false, length = 10)
     private String name;
+
+    @Builder
+    public School(final String name) {
+        this.name = name;
+    }
 }

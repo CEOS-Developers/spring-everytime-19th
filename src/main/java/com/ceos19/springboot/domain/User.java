@@ -1,10 +1,5 @@
 package com.ceos19.springboot.domain;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import jdk.incubator.foreign.SymbolLookup;
-import jdk.jfr.Timestamp;
-import jdk.jshell.Snippet;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -53,7 +48,7 @@ public class User {
     @Column(nullable = true, length = 20)
     private LocalDateTime lastLogin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "school_id")
     private School school;
 
