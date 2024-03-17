@@ -16,8 +16,10 @@ public class ChatMessage {
     private Date sendDate;
 
     @ManyToOne
+    @JoinColumn(name = "room_id")
     private ChatRoom room;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User sender;
 }

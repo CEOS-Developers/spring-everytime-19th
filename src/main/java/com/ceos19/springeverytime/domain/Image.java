@@ -15,5 +15,6 @@ public class Image {
     private String imageUrl;
 
     @ManyToOne
+    @JoinColumn(name = "post_id")
     private Post post;
 }

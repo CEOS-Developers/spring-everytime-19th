@@ -8,8 +8,10 @@ public class ChatRoom {
     private Long roomId;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User member1;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User member2;
 }

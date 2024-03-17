@@ -14,11 +14,14 @@ public class Comment {
     private boolean isAnonymous;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User author;
 
     @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
     @ManyToOne
+    @JoinColumn(name = "post_id")
     private Post post;
 }
