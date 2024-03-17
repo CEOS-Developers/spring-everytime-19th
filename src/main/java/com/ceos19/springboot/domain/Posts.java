@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -18,9 +20,14 @@ public class Posts {
     @Id
     @GeneratedValue
     private UUID postId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private Users user;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
 
     private String title;
     private String content;
@@ -40,5 +47,17 @@ public class Posts {
         this.createdAt = createdAt;
         this.likes = likes;
         this.imageUrl = imageUrl;
+    }
+    public void plusLike() {
+        this.likes += 1;
+    }
+    public void minusLike(){ this.likes -= 1; }
+
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
+    }
+
+    public void removeComment(Comment comment) {
+        this.comments.remove(comment);
     }
 }
