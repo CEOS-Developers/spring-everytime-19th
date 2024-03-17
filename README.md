@@ -18,8 +18,16 @@
 
 #### 1. Comment
 - id : Comment의 기본키다. `@GeneratedValue`라는 기본 키를 자동으로 생성해주는 어노테이션을 사용했다.
-  전략은 `GenerationType.IDENTITY`를 사용하여, AUTO_INCREMENT처럼 데이터베이스에 값을 저장하고 나서 기본 키 값을 구할 수 있을 때 사용한다.
+  전략은 `GenerationType.IDENTITY`를 사용하여, 기본 키 생성을 데이터베이스에 위임했다. 따라서 id 값을 null로 하면 DB가 알아서 AUTO_INCREMENT해준다.
 - postId : 해당 댓글이 달린 게시글의 아이디다. `@ManyToOne(fetch = FetchType.LAZY)`를 이용하여 조인했다.
+```java
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parentComment;          //댓글
+
+    @OneToMany(mappedBy = "parentComment", orphanRemoval = true)        //대댓글
+    private List<Comment> childrenComment = new ArrayList<>();
+```
 - parentComment : 만약 대댓글이 아닌 댓글일 경우, 값이 null이 된다.
 - childrenComment : 대댓글은 여러 개일 수 있다. 따라서 List로 저장한다.
 - author : 댓글 작성자다. `@ManyToOne`을 이용하여 Member와 조인했다.
