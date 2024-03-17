@@ -80,6 +80,13 @@ CEOS 19th BE study - everytime clone coding
 좋아요 하나는 한명의 유저에 의해서 생성된다.   
 따라서 유저와 좋아요 사이의 관계는 1:N 이다.
 
+#### 좋아요 모델링 특이사항
+좋아요는 댓글 좋아요와 게시글 좋아요가 좋아요의 대상만 다르고 나머지 기능이 동일하다.    
+<img src="readme_img/img8.png" width="400"/>   
+따라서 Like 라는 추상클래스를 상속받아서 PostLike, CommentLike 를 구현하도록 하였다.   
+<img src="readme_img/img9.png" width="400"/>   
+실제 DB에는 likes 라는 테이블 하나만 존재하고, 이 테이블에 댓글 좋아요와 게시글 좋아요 데이터가 모두 저장된다. 
+
 ### 쪽지
 <img src="readme_img/img7.png" width="600"/>
 쪽지는 유저와 유저 사이 1:1로 진행되며, 쪽지를 주고받는 공간을 '쪽지함'으로 부른다.
