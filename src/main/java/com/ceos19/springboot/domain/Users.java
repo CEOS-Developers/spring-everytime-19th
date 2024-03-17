@@ -1,15 +1,14 @@
 package com.ceos19.springboot.domain;
 
 import com.ceos19.springboot.repository.UserRepository;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -25,6 +24,10 @@ public class Users {
 
     @Column(nullable = false)
     private String username;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<Posts> posts = new ArrayList<>();
 
     @Column(nullable = false)
     private String university;
@@ -46,5 +49,23 @@ public class Users {
         this.email = email;
         this.loginId = loginId;
         this.password = password;
+    }
+
+    public Posts pressLike(Posts post) {
+        post.plusLike();
+        return post;
+    }
+
+    public Posts unlike(Posts post) {
+        post.minusLike();
+        return post;
+    }
+
+    public void addPosts(Posts post) {
+        this.posts.add(post);
+    }
+
+    public void removePost(Posts post) {
+        this.posts.remove(post);
     }
 }
