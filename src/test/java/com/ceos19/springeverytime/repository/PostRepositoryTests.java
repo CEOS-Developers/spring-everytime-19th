@@ -17,20 +17,24 @@ import java.util.Date;
 public class PostRepositoryTests {
     @Autowired
     EntityManager em;
+
     @Autowired
     PostRepository postRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
 
     @Test
     public void 게시글_생성_테스트() throws Exception {
         //given
         User user1 = createUser("user1");
         Category category = createCategory(user1);
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, category);
-
-        em.persist(user1);
-        em.persist(category);
 
         //when
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, category);
         postRepository.save(post1);
 
         //then
@@ -38,7 +42,7 @@ public class PostRepositoryTests {
     }
 
     private User createUser(String id) {
-        return new User(
+        User user = new User(
                 id,
                 "1234",
                 "nickname",
@@ -48,11 +52,15 @@ public class PostRepositoryTests {
                 "test@example.com",
                 true,
                 new Date());
+
+        userRepository.save(user);
+        return user;
     }
 
     private Category createCategory(User manager) {
-        Category freeCategory = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
-        return freeCategory;
+        Category category = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
+        categoryRepository.save(category);
+        return category;
     }
 
 }
