@@ -67,124 +67,124 @@ public class CategoryRepositoryTest {
         Assertions.assertEquals(3, categoryRepository.findOne(freeCategory.getCategoryId()).getPosts().size());
 
         /** 위 테스트에 대한 쿼리
-         Hibernate:
-         select
-         next_val as id_val
-         from
-         category_seq for update
-         Hibernate:
-         update
-         category_seq
-         set
-         next_val= ?
-         where
-         next_val=?
-         Hibernate:
-         select
-         next_val as id_val
-         from
-         post_seq for update
-         Hibernate:
-         update
-         post_seq
-         set
-         next_val= ?
-         where
-         next_val=?
-         Hibernate:
-         select
-         next_val as id_val
-         from
-         post_seq for update
-         Hibernate:
-         update
-         post_seq
-         set
-         next_val= ?
-         where
-         next_val=?
-         Hibernate:
-         insert
-         into
-         user
-         (admission_year,create_date,email,is_enrolled,major,name,nickname,pw,id)
-         values
-         (?,?,?,?,?,?,?,?,?)
-         Hibernate:
-         insert
-         into
-         category
-         (create_date,description,manager_id,name,category_id)
-         values
-         (?,?,?,?,?)
-         Hibernate:
-         insert
-         into
-         post
-         (author_id,category_id,content,create_date,is_anonymous,modify_date,title,post_id)
-         values
-         (?,?,?,?,?,?,?,?)
-         Hibernate:
-         insert
-         into
-         post
-         (author_id,category_id,content,create_date,is_anonymous,modify_date,title,post_id)
-         values
-         (?,?,?,?,?,?,?,?)
-         Hibernate:
-         insert
-         into
-         post
-         (author_id,category_id,content,create_date,is_anonymous,modify_date,title,post_id)
-         values
-         (?,?,?,?,?,?,?,?)
-         Hibernate:
-         select
-         c1_0.category_id,
-         c1_0.create_date,
-         c1_0.description,
-         m1_0.id,
-         m1_0.admission_year,
-         m1_0.create_date,
-         m1_0.email,
-         m1_0.is_enrolled,
-         m1_0.major,
-         m1_0.name,
-         m1_0.nickname,
-         m1_0.pw,
-         c1_0.name
-         from
-         category c1_0
-         left join
-         user m1_0
-         on m1_0.id=c1_0.manager_id
-         where
-         c1_0.category_id=?
-         Hibernate:
-         select
-         p1_0.category_id,
-         p1_0.post_id,
-         a1_0.id,
-         a1_0.admission_year,
-         a1_0.create_date,
-         a1_0.email,
-         a1_0.is_enrolled,
-         a1_0.major,
-         a1_0.name,
-         a1_0.nickname,
-         a1_0.pw,
-         p1_0.content,
-         p1_0.create_date,
-         p1_0.is_anonymous,
-         p1_0.modify_date,
-         p1_0.title
-         from
-         post p1_0
-         left join
-         user a1_0
-         on a1_0.id=p1_0.author_id
-         where
-         p1_0.category_id=?
+         * Hibernate:
+         *     select
+         *         next_val as id_val
+         *     from
+         *         category_seq for update
+         * Hibernate:
+         *     update
+         *         category_seq
+         *     set
+         *         next_val= ?
+         *     where
+         *         next_val=?
+         * Hibernate:
+         *     select
+         *         next_val as id_val
+         *     from
+         *         post_seq for update
+         * Hibernate:
+         *     update
+         *         post_seq
+         *     set
+         *         next_val= ?
+         *     where
+         *         next_val=?
+         * Hibernate:
+         *     select
+         *         next_val as id_val
+         *     from
+         *         post_seq for update
+         * Hibernate:
+         *     update
+         *         post_seq
+         *     set
+         *         next_val= ?
+         *     where
+         *         next_val=?
+         * Hibernate:
+         *     insert
+         *     into
+         *         user
+         *         (admission_year,create_date,email,is_enrolled,major,name,nickname,pw,id)
+         *     values
+         *         (?,?,?,?,?,?,?,?,?)
+         * Hibernate:
+         *     insert
+         *     into
+         *         category
+         *         (create_date,description,manager_id,name,category_id)
+         *     values
+         *         (?,?,?,?,?)
+         * Hibernate:
+         *     insert
+         *     into
+         *         post
+         *         (author_id,category_id,content,create_date,is_anonymous,modify_date,title,post_id)
+         *     values
+         *         (?,?,?,?,?,?,?,?)
+         * Hibernate:
+         *     insert
+         *     into
+         *         post
+         *         (author_id,category_id,content,create_date,is_anonymous,modify_date,title,post_id)
+         *     values
+         *         (?,?,?,?,?,?,?,?)
+         * Hibernate:
+         *     insert
+         *     into
+         *         post
+         *         (author_id,category_id,content,create_date,is_anonymous,modify_date,title,post_id)
+         *     values
+         *         (?,?,?,?,?,?,?,?)
+         * Hibernate:
+         *     select
+         *         c1_0.category_id,
+         *         c1_0.create_date,
+         *         c1_0.description,
+         *         m1_0.id,
+         *         m1_0.admission_year,
+         *         m1_0.create_date,
+         *         m1_0.email,
+         *         m1_0.is_enrolled,
+         *         m1_0.major,
+         *         m1_0.name,
+         *         m1_0.nickname,
+         *         m1_0.pw,
+         *         c1_0.name
+         *     from
+         *         category c1_0
+         *     left join
+         *         user m1_0
+         *             on m1_0.id=c1_0.manager_id
+         *     where
+         *         c1_0.category_id=?
+         * Hibernate:
+         *     select
+         *         p1_0.category_id,
+         *         p1_0.post_id,
+         *         a1_0.id,
+         *         a1_0.admission_year,
+         *         a1_0.create_date,
+         *         a1_0.email,
+         *         a1_0.is_enrolled,
+         *         a1_0.major,
+         *         a1_0.name,
+         *         a1_0.nickname,
+         *         a1_0.pw,
+         *         p1_0.content,
+         *         p1_0.create_date,
+         *         p1_0.is_anonymous,
+         *         p1_0.modify_date,
+         *         p1_0.title
+         *     from
+         *         post p1_0
+         *     left join
+         *         user a1_0
+         *             on a1_0.id=p1_0.author_id
+         *     where
+         *         p1_0.category_id=?
          * */
     }
 
