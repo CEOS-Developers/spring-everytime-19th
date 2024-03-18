@@ -43,7 +43,7 @@
 작성한 도메인 목록은 위와 같다.
 
 
-```
+```java
 public class Comment{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
