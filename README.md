@@ -82,7 +82,7 @@ public class Comment{
 
 각 엔티티에 대한 리포지토리를 전부 생성해주었다.
 
-```
+```java
 @Repository
 @RequiredArgsConstructor
 public class CommentRepository {
@@ -140,7 +140,7 @@ CRUD 연산을 수행하는 메서드들이 작성되어 있으며
 * findOne : 하나의 댓글을 조회한다. 이때 존재하지 않는다면 `find` 메서드는 null을 반환하므로 `Optional`을 통해 null 값을 관리하도록 했다.
 
 ### Test
-```
+```java
 @Transactional
 @SpringBootTest
 class CommentRepositoryTest {
