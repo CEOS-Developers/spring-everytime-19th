@@ -164,8 +164,7 @@ class PostRepositoryTest {
 이렇게 설정하고 테스트를 실행하면 테스트가 성공하고 다음과 같은 쿼리가 출력됩니다.
 
 ```sql
-Hibernate
-: 
+Hibernate: 
     insert 
     into
         users
@@ -194,3 +193,68 @@ Hibernate:
     values
         (?, ?, ?, ?, ?, ?, ?)
 ````
+
+## 어떻게 data jpa는 interface만으로도 함수가 구현이 되는가?
+
+이렇게 인터페이스로 구현할 수 있다는 것이 놀랍지 않은가요?
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/145d4dcb-dfd9-498b-9534-e0e691eaa85f)
+
+우리는 어떻게 구현체도 없이 findByName을 사용할 수 있을까요?
+
+MemberService에서 memberRepository에 주입되는 빈을 살펴봅시다.
+디버깅을 했더니 memberRepository에는 SimpleJpaRepository를 프록시로 주입하고 있었습니다.
+
+![img](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/9418d160-3cca-4768-8657-0d4428c381f2))
+
+Spring data jpa는 JpaRepositoryFactory에서 개발자가 정의한 MemberRepository를 참조하여 JpaRepository를 대신 구현해주는 역할을 합니다.
+
+```java
+public class JpaRepositoryFactory extends RepositoryFactorySupport {
+    ...
+}
+```
+
+RepositoryFactorySupport는 전달받은 Repository 인터페이스로 프록시 인스턴스를 생성하는 추상 클래스입니다.
+Spring data XXX는 `RepositoryFactorySupport`를 확장해서 Repository를 생성합니다.
+getRepository를 통해 Repository 인터페이스를 구현할 프록시를 생성합니다.
+
+```java
+public abstract class RepositoryFactorySupport implements BeanClassLoaderAware, BeanFactoryAware {
+    ...
+
+    // 첫 번째 파라미터 repositoryInterface로 MemberRepository가 전달됩니다.
+    public <T> T getRepository(Class<T> repositoryInterface, RepositoryComposition.RepositoryFragments fragments) {
+        ...
+
+        // repositoryInterface로 전달된 MemberRepository의 인터페이스를 구현합니다.
+        ProxyFactory result = new ProxyFactory();
+        result.setTarget(target);
+        result.setInterfaces(new Class[]{repositoryInterface, Repository.class, TransactionalProxy.class});
+        
+        ...
+
+        T repository = result.getProxy(this.classLoader);
+        
+        ...
+        
+        // 프록시 인스턴스를 반환합니다.
+        return repository;
+    }
+}
+```
+
+Spring data jpa에서는 `JpaRepositoryFactory`가 추상 메서드인 getRepositoryBaseClass가 `SimpleJpaRepository.class`를 반환하도록 오버라이드했습니다.
+
+```java
+protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
+    return SimpleJpaRepository.class;
+}
+```
+
+정리하자면 빈으로 생성되는 MemberRepository는 프록시 인스턴스이고 
+JpaRepository는 프록시 인스턴스를 생성해 SimpleJpaRepsitory에 주입합니다.
+그리고 프록시 인스턴스 내부에서 SimpleJpaRepsitory가 구현체를 실행합니다.
+
+## References
+- [https://brunch.co.kr/@anonymdevoo/40](https://brunch.co.kr/@anonymdevoo/40)
