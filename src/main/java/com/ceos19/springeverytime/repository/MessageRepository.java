@@ -3,6 +3,7 @@ package com.ceos19.springeverytime.repository;
 import com.ceos19.springeverytime.domain.Message;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +16,8 @@ public class MessageRepository {
         em.persist(message);
     }
 
-    public Message findOne(Long id){
-        return em.find(Message.class,id);
+    public Optional<Message> findOne(Long id){
+        return Optional.ofNullable(em.find(Message.class,id));
     }
 
     public List<Message> findByUser(Long id){

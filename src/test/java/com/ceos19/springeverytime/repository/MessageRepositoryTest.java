@@ -32,7 +32,8 @@ class MessageRepositoryTest {
     @Test
     void findByUser() {
         //given
-        User user = new User();
+        User user = User.builder()
+                .build();
         em.persist(user);
         Message message1 = new Message();
         Message message2 = new Message();

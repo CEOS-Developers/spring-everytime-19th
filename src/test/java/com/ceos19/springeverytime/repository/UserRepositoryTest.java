@@ -17,7 +17,8 @@ class UserRepositoryTest {
     @Test
     void findOne() {
         //given
-        User user = new User();
+        User user = User.builder()
+                .build();
 
         //when
         userRepository.save(user);
@@ -29,11 +30,16 @@ class UserRepositoryTest {
     @Test
     void findAll() {
         //given
-        User user1 = new User();
-        User user2 = new User();
-        User user3 = new User();
-        User user4 = new User();
-        User user5 = new User();
+        User user1 = User.builder()
+                .build();
+        User user2 = User.builder()
+                .build();
+        User user3 = User.builder()
+                .build();
+        User user4 = User.builder()
+                .build();
+        User user5 = User.builder()
+                .build();
 
         //when
         userRepository.save(user1);

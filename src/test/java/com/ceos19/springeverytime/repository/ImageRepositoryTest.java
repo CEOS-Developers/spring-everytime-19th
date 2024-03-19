@@ -22,7 +22,8 @@ class ImageRepositoryTest {
     @Test
     void FindOne() {
         //given
-        Image image = new Image();
+        Image image = Image.builder()
+                .build();
         //when
         imageRepository.save(image);
         //then
@@ -32,8 +33,10 @@ class ImageRepositoryTest {
     @Test
     void findAll() {
         //given
-        Image image1 = new Image();
-        Image image2 = new Image();
+        Image image1 = Image.builder()
+                .build();
+        Image image2 = Image.builder()
+                .build();
         //when
         imageRepository.save(image1);
         imageRepository.save(image2);
@@ -47,11 +50,13 @@ class ImageRepositoryTest {
         //given
         Post post = new Post();
         em.persist(post);
-        Image image1 = new Image();
-        Image image2 = new Image();
+        Image image1 = Image.builder()
+                .post(post)
+                .build();
+        Image image2 = Image.builder()
+                .post(post)
+                .build();
         //when
-        image1.setPost(post);
-        image2.setPost(post);
         imageRepository.save(image1);
         imageRepository.save(image2);
         //then

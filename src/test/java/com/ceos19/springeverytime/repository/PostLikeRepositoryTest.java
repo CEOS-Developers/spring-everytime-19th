@@ -23,8 +23,10 @@ class PostLikeRepositoryTest {
     @Test
     void findOne() {
         //given
-        PostLike postLike1 = new PostLike();
-        PostLike postLike2 = new PostLike();
+        PostLike postLike1 = PostLike.builder()
+                .build();
+        PostLike postLike2 = PostLike.builder()
+                .build();
         //when
         postLikeRepository.save(postLike1);
         postLikeRepository.save(postLike2);
@@ -39,9 +41,12 @@ class PostLikeRepositoryTest {
         Post nonTargetPost = new Post();
         em.persist(targetPost);
         em.persist(nonTargetPost);
-        PostLike postLike1 = new PostLike();
-        PostLike postLike2 = new PostLike();
-        PostLike postLike3 = new PostLike();
+        PostLike postLike1 = PostLike.builder()
+                .build();
+        PostLike postLike2 = PostLike.builder()
+                .build();
+        PostLike postLike3 = PostLike.builder()
+                .build();
 
         //when
         postLike1.setPost(targetPost);
@@ -61,13 +66,18 @@ class PostLikeRepositoryTest {
     @Test
     void findByUser() {
         //given
-        User targetUser = new User();
-        User nonTargetUser = new User();
+        User targetUser = User.builder()
+                .build();
+        User nonTargetUser = User.builder()
+                .build();
         em.persist(targetUser);
         em.persist(nonTargetUser);
-        PostLike postLike1 = new PostLike();
-        PostLike postLike2 = new PostLike();
-        PostLike postLike3 = new PostLike();
+        PostLike postLike1 = PostLike.builder()
+                .build();
+        PostLike postLike2 = PostLike.builder()
+                .build();
+        PostLike postLike3 = PostLike.builder()
+                .build();
 
         //when
         postLike1.setUser(targetUser);
@@ -87,7 +97,8 @@ class PostLikeRepositoryTest {
     @Test
     void delete() {
         //given
-        PostLike postLike = new PostLike();
+        PostLike postLike = PostLike.builder()
+                .build();
         //when
         postLikeRepository.save(postLike);
         postLikeRepository.delete(postLike);

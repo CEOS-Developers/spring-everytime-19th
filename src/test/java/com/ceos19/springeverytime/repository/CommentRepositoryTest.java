@@ -48,8 +48,10 @@ class CommentRepositoryTest {
     @Test
     void findByUser() {
         //given
-        User user = new User();
-        User nonTargetUser = new User();
+        User user = User.builder()
+                .build();
+        User nonTargetUser = User.builder()
+                .build();
         em.persist(user);
         em.persist(nonTargetUser);
         Comment comment1 = new Comment();
