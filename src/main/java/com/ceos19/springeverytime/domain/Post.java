@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,10 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User author;
 
+    @OneToOne
+    @JoinColumn(name = "category_id")
+    private PostCategory category;
+    private String title;
     private String content;
     private LocalDateTime createAt;
 }
