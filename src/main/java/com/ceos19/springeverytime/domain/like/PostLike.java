@@ -19,7 +19,7 @@ import java.util.Date;
 public class PostLike extends Like {
     @ManyToOne
     @JoinColumn(name = "post_id")
-    Post post;
+    private Post post;
 
     public PostLike(@NonNull User user, @NonNull Date createDate, @NonNull Post post) {
         super(user, createDate);

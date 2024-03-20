@@ -17,7 +17,7 @@ import java.util.Date;
 public class CommentLike extends Like {
     @ManyToOne
     @JoinColumn(name = "comment_id")
-    Comment comment;
+    private Comment comment;
 
     public CommentLike(@NonNull User user, @NonNull Date createDate, Comment comment) {
         super(user, createDate);

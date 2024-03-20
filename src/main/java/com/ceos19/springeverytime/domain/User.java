@@ -15,8 +15,11 @@ import java.util.Date;
 public class User {
 
     @Id
-    @Column(length = 30, nullable = false)
-    private String id;
+    @GeneratedValue
+    private Long memberId;
+
+    @Column(length = 30, nullable = false, name = "id")
+    private String loginId;
 
     @Column(length = 30, nullable = false)
     private String pw;
