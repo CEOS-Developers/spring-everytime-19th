@@ -11,12 +11,14 @@ import jakarta.persistence.ManyToOne;
 
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@EqualsAndHashCode(of = {"id"}, callSuper = false)
 public class Post extends BaseEntity {
 
     @Id
@@ -35,20 +37,19 @@ public class Post extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User writer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
 
     @Builder
-    public Post(final Long id, final String title, final String content, final boolean isAnonymous, final User user,
+    public Post(final String title, final String content, final boolean isAnonymous, final User writer,
                 final Board board) {
-        this.id = id;
         this.title = title;
         this.content = content;
         this.isAnonymous = isAnonymous;
-        this.user = user;
+        this.writer = writer;
         this.board = board;
     }
 
@@ -56,6 +57,6 @@ public class Post extends BaseEntity {
         if (isAnonymous) {
             return "익명";
         }
-        return user.getNickname();
+        return writer.getNickname();
     }
 }
