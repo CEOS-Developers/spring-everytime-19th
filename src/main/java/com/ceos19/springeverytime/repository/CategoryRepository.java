@@ -13,8 +13,9 @@ public class CategoryRepository {
     @Autowired
     final EntityManager em;
 
-    public void save(Category category) {
+    public Long save(Category category) {
         em.persist(category);
+        return category.getCategoryId();
     }
 
     public Category findOne(Long categoryId) {
