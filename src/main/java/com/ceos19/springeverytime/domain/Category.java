@@ -35,4 +35,13 @@ public class Category {
     @NonNull
     @OneToMany(mappedBy = "category")
     private List<Post> posts = new ArrayList<>();
+
+    /**
+     * 비즈니스 로직
+     * */
+
+    // 관리자 변경
+    public void changeManager(User newManager) {
+        this.manager = newManager;
+    }
 }
