@@ -5,10 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import com.ceos19.everytime.domain.Board;
-import com.ceos19.everytime.domain.Post;
-import com.ceos19.everytime.domain.User;
-
 class PostTest {
 
     @ParameterizedTest
@@ -22,7 +18,7 @@ class PostTest {
                 .name("boardName")
                 .build();
         final Post post = Post.builder()
-                .user(user)
+                .writer(user)
                 .board(board)
                 .isAnonymous(isAnonymous)
                 .build();

@@ -39,17 +39,17 @@ class PostRepositoryTest {
                 .build();
         post1 = Post.builder()
                 .title("title1")
-                .user(user)
+                .writer(user)
                 .content("content1")
                 .build();
         post2 = Post.builder()
                 .title("title1")
-                .user(user)
+                .writer(user)
                 .content("content1")
                 .build();
         post3 = Post.builder()
                 .title("title1")
-                .user(user)
+                .writer(user)
                 .content("content1")
                 .build();
         userRepository.save(user);
