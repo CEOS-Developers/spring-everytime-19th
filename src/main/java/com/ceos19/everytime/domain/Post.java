@@ -42,10 +42,20 @@ public class Post extends BaseEntity {
     private Board board;
 
     @Builder
-    public Post(final String title, final String content, final User user, final Board board) {
+    public Post(final Long id, final String title, final String content, final boolean isAnonymous, final User user,
+                final Board board) {
+        this.id = id;
         this.title = title;
         this.content = content;
+        this.isAnonymous = isAnonymous;
         this.user = user;
         this.board = board;
+    }
+
+    public String getWriterNickname() {
+        if (isAnonymous) {
+            return "익명";
+        }
+        return user.getNickname();
     }
 }
