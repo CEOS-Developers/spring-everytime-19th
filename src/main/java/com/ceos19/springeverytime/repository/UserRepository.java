@@ -16,7 +16,7 @@ public class UserRepository {
         em.persist(user);
     }
 
-    public User findOne(String userId) {
+    public User findOne(Long userId) {
         return em.find(User.class, userId);
     }
 }
