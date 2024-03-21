@@ -23,10 +23,8 @@ public class PostLikeService {
 
     @Transactional
     public void like(final PostLikeRequestDto request) {
-        final Post post = postRepository.findById(request.postId())
-                .orElseThrow(IllegalArgumentException::new);
-        final User user = userRepository.findById(request.userId())
-                .orElseThrow(IllegalArgumentException::new);
+        final Post post = getPost(request);
+        final User user = getUser(request);
         if (postLikeRepository.existsByPostAndUser(post, user)) {
             throw new IllegalArgumentException();
         }
@@ -38,14 +36,22 @@ public class PostLikeService {
 
     @Transactional
     public void cancelLike(final PostLikeRequestDto request) {
-        final Post post = postRepository.findById(request.postId())
-                .orElseThrow(IllegalArgumentException::new);
-        final User user = userRepository.findById(request.userId())
-                .orElseThrow(IllegalArgumentException::new);
+        final Post post = getPost(request);
+        final User user = getUser(request);
         final PostLike postLike = postLikeRepository.findByPostAndUser(post, user)
                 .orElseThrow(IllegalArgumentException::new);
         post.decreaseLikeNumber();
 
         postLikeRepository.delete(postLike);
+    }
+
+    private Post getPost(final PostLikeRequestDto request) {
+        return postRepository.findById(request.postId())
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    private User getUser(final PostLikeRequestDto request) {
+        return userRepository.findById(request.userId())
+                .orElseThrow(IllegalArgumentException::new);
     }
 }

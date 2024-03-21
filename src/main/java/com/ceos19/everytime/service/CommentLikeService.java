@@ -23,10 +23,8 @@ public class CommentLikeService {
 
     @Transactional
     public void like(final CommentLikeRequestDto request) {
-        final Comment comment = commentRepository.findById(request.commentId())
-                .orElseThrow(IllegalArgumentException::new);
-        final User user = userRepository.findById(request.userId())
-                .orElseThrow(IllegalArgumentException::new);
+        final Comment comment = getComment(request);
+        final User user = getUser(request);
         if (commentLikeRepository.existsByCommentAndUser(comment, user)) {
             throw new IllegalArgumentException();
         }
@@ -38,14 +36,22 @@ public class CommentLikeService {
 
     @Transactional
     public void cancel(final CommentLikeRequestDto request) {
-        final Comment comment = commentRepository.findById(request.commentId())
-                .orElseThrow(IllegalArgumentException::new);
-        final User user = userRepository.findById(request.userId())
-                .orElseThrow(IllegalArgumentException::new);
+        final Comment comment = getComment(request);
+        final User user = getUser(request);
         final CommentLike commentLike = commentLikeRepository.findByCommentAndUser(comment, user)
                 .orElseThrow(IllegalArgumentException::new);
         comment.decreaseLikeNumber();
 
         commentLikeRepository.delete(commentLike);
+    }
+
+    private Comment getComment(final CommentLikeRequestDto request) {
+        return commentRepository.findById(request.commentId())
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    private User getUser(final CommentLikeRequestDto request) {
+        return userRepository.findById(request.userId())
+                .orElseThrow(IllegalArgumentException::new);
     }
 }

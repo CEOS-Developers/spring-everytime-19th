@@ -29,8 +29,7 @@ public class PostService {
     public void createPost(final PostCreateRequestDto request) {
         final User writer = userRepository.findById(request.userId())
                 .orElseThrow(IllegalArgumentException::new);
-        final Board board = boardRepository.findById(request.boardId())
-                .orElseThrow(IllegalArgumentException::new);
+        final Board board = getBoard(request.boardId());
         final Post post = Post.builder()
                 .title(request.title())
                 .content(request.content())
@@ -51,9 +50,13 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public BoardPostsResponseDto getPosts(final BoardPostsRequestDto request) {
-        final Board findBoard = boardRepository.findById(request.boardId())
-                .orElseThrow(IllegalArgumentException::new);
+        final Board findBoard = getBoard(request.boardId());
         final Posts posts = new Posts(postRepository.findAllFetchJoin(findBoard));
         return new BoardPostsResponseDto(posts.toResponseDto());
+    }
+
+    private Board getBoard(final Long boardId) {
+        return boardRepository.findById(boardId)
+                .orElseThrow(IllegalArgumentException::new);
     }
 }
