@@ -76,4 +76,8 @@ public class Comment extends BaseEntity {
                 .parentComment(parentComment)
                 .build();
     }
+
+    public void increaseLikeNumber() {
+        likeNumber++;
+    }
 }
