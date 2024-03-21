@@ -6,12 +6,14 @@ import com.ceos19.springboot.common.BaseEntity;
 import com.ceos19.springboot.postlike.entity.Postlike;
 import com.ceos19.springboot.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name ="post")
+@Getter
 public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,5 +42,11 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy ="post",fetch = FetchType.LAZY)
     private List<Postlike>postLikeList = new ArrayList<>();
+
+    public Post(String title, String content, Boolean anonymous) {
+        this.title = title;
+        this.content = content;
+        this.anonymous = anonymous;
+    }
 }
 

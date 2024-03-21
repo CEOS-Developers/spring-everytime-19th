@@ -3,8 +3,8 @@ package com.ceos19.springboot.common;
 import lombok.Getter;
 
 @Getter
-public class ErrorType {
-
+public enum ErrorType {
+    NOT_FOUND(400, "해당 데이터가 존재하지 않습니다");
     private int code;
     private String message;
 
