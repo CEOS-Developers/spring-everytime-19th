@@ -16,7 +16,7 @@ public class PostService {
         return postRepository.findOne(postId);
     }
 
-    public void save(Post post) {
-        postRepository.save(post);
+    public Long save(Post post) {
+        return postRepository.save(post);
     }
 }

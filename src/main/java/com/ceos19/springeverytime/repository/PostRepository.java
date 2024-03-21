@@ -10,8 +10,9 @@ import org.springframework.stereotype.Repository;
 public class PostRepository {
     private final EntityManager em;
 
-    public void save(Post post) {
+    public Long save(Post post) {
         em.persist(post);
+        return post.getPostId();
     }
 
     public Post findOne(Long postId) {
