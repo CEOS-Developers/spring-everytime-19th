@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.ceos19.everytime.domain.Post;
+import com.ceos19.everytime.domain.PostLike;
 import com.ceos19.everytime.domain.User;
 import com.ceos19.everytime.dto.request.PostLikeRequestDto;
 import com.ceos19.everytime.repository.PostLikeRepository;
@@ -62,5 +63,36 @@ class PostLikeServiceTest {
 
         // then
         verify(postLikeRepository).save(any());
+    }
+
+    @Test
+    void 게시글에_좋아요를_취소한다() {
+        // given
+        final User user = User.builder()
+                .nickname("nickname")
+                .build();
+        final Post post = Post.builder()
+                .title("test")
+                .content("content")
+                .isAnonymous(false)
+                .writer(user)
+                .build();
+        final PostLike postLike = new PostLike(user, post);
+
+        given(postRepository.findById(anyLong()))
+                .willReturn(Optional.of(post));
+        given(userRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+        given(postLikeRepository.findByPostAndUser(any(), any()))
+                .willReturn(Optional.of(postLike));
+
+        final PostLikeRequestDto request = new PostLikeRequestDto(1L, 1L);
+        postLikeService.like(request);
+
+        // when
+        postLikeService.cancelLike(request);
+
+        // then
+        verify(postLikeRepository).delete(any());
     }
 }

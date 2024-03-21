@@ -1,7 +1,9 @@
 package com.ceos19.everytime.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -28,5 +30,21 @@ class PostTest {
 
         // then
         assertThat(nickname).isEqualTo(expected);
+    }
+
+    @Test
+    void 좋아요_수가_0보다_같거나_작은_게시글의_좋아요_수를_감소시키면_예외가_발생한다() {
+        // given
+        final User user = User.builder()
+                .nickname("nickname")
+                .build();
+        final Post post = Post.builder()
+                .writer(user)
+                .isAnonymous(false)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> post.decreaseLikeNumber())
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
