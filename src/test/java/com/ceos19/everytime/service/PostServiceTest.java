@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -16,8 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.User;
+import com.ceos19.everytime.dto.request.BoardPostsRequestDto;
 import com.ceos19.everytime.dto.request.PostCreateRequestDto;
-import com.ceos19.everytime.dto.request.PostRequestDto;
+import com.ceos19.everytime.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.dto.response.PostResponseDto;
 import com.ceos19.everytime.repository.BoardRepository;
 import com.ceos19.everytime.repository.PostRepository;
@@ -78,7 +80,6 @@ class PostServiceTest {
     @Test
     void 게시글을_조회한다() {
         // given
-        final PostRequestDto request = new PostRequestDto(1L);
         final User user = User.builder()
                 .nickname("hello")
                 .build();
@@ -97,13 +98,62 @@ class PostServiceTest {
                 .willReturn(Optional.of(post));
 
         // when
-        final PostResponseDto response = postService.getPost(request);
+        final PostResponseDto response = postService.getPost(1L);
 
         // then
         assertSoftly(softly -> {
             softly.assertThat(response.title()).isEqualTo("title");
             softly.assertThat(response.content()).isEqualTo("안녕하세요~");
             softly.assertThat(response.username()).isEqualTo("익명");
+        });
+    }
+
+    @Test
+    void 게시판에_해당하는_모든_게시글을_조회한다() {
+        // given
+        final BoardPostsRequestDto request = new BoardPostsRequestDto(1L);
+        final User user = User.builder()
+                .nickname("hello")
+                .build();
+        final Board board = Board.builder()
+                .name("자유 게시판")
+                .build();
+        final Post post1 = Post.builder()
+                .title("title")
+                .writer(user)
+                .content("안녕하세요~")
+                .board(board)
+                .isAnonymous(true)
+                .build();
+        final Post post2 = Post.builder()
+                .title("title")
+                .writer(user)
+                .content("안녕하세요~")
+                .board(board)
+                .isAnonymous(true)
+                .build();
+        final Post post3 = Post.builder()
+                .title("title")
+                .writer(user)
+                .content("안녕하세요~")
+                .board(board)
+                .isAnonymous(true)
+                .build();
+
+        given(boardRepository.findById(anyLong()))
+                .willReturn(Optional.of(board));
+        given(postRepository.findAllFetchJoin(board))
+                .willReturn(List.of(post1, post2, post3));
+
+        // when
+        final BoardPostsResponseDto response = postService.getPosts(request);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(response.responses().size()).isEqualTo(3);
+            softly.assertThat(response.responses().get(0)).isEqualTo(post1.toResponseDto());
+            softly.assertThat(response.responses().get(1)).isEqualTo(post2.toResponseDto());
+            softly.assertThat(response.responses().get(2)).isEqualTo(post3.toResponseDto());
         });
     }
 }
