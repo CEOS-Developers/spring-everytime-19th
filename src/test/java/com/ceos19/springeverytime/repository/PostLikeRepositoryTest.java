@@ -1,0 +1,110 @@
+package com.ceos19.springeverytime.repository;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.domain.PostLike;
+import com.ceos19.springeverytime.domain.User;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+@SpringBootTest
+@Transactional
+class PostLikeRepositoryTest {
+
+    @Autowired PostLikeRepository postLikeRepository;
+    @Autowired EntityManager em;
+
+    @Test
+    void findOne() {
+        //given
+        PostLike postLike1 = PostLike.builder()
+                .build();
+        PostLike postLike2 = PostLike.builder()
+                .build();
+        //when
+        postLikeRepository.save(postLike1);
+        postLikeRepository.save(postLike2);
+        //then
+        assertEquals(postLike1, postLikeRepository.findOne(postLike1.getId()));
+    }
+
+    @Test
+    void findByPost() {
+        //given
+        Post targetPost = new Post();
+        Post nonTargetPost = new Post();
+        em.persist(targetPost);
+        em.persist(nonTargetPost);
+        PostLike postLike1 = PostLike.builder()
+                .build();
+        PostLike postLike2 = PostLike.builder()
+                .build();
+        PostLike postLike3 = PostLike.builder()
+                .build();
+
+        //when
+        postLike1.setPost(targetPost);
+        postLike2.setPost(targetPost);
+
+        postLike3.setPost(nonTargetPost);
+        postLikeRepository.save(postLike1);
+        postLikeRepository.save(postLike2);
+        postLikeRepository.save(postLike3);
+
+        List<PostLike> AllPostLikes = postLikeRepository.findByPost(targetPost.getId());
+
+        //then
+        assertEquals(2, AllPostLikes.size());
+    }
+
+    @Test
+    void findByUser() {
+        //given
+        User targetUser = User.builder()
+                .build();
+        User nonTargetUser = User.builder()
+                .build();
+        em.persist(targetUser);
+        em.persist(nonTargetUser);
+        PostLike postLike1 = PostLike.builder()
+                .build();
+        PostLike postLike2 = PostLike.builder()
+                .build();
+        PostLike postLike3 = PostLike.builder()
+                .build();
+
+        //when
+        postLike1.setUser(targetUser);
+        postLike2.setUser(targetUser);
+
+        postLike3.setUser(nonTargetUser);
+        postLikeRepository.save(postLike1);
+        postLikeRepository.save(postLike2);
+        postLikeRepository.save(postLike3);
+
+        List<PostLike> AllPostLikes = postLikeRepository.findByUser(targetUser.getId());
+
+        //then
+        assertEquals(2, AllPostLikes.size());
+    }
+
+    @Test
+    void delete() {
+        //given
+        PostLike postLike = PostLike.builder()
+                .build();
+        //when
+        postLikeRepository.save(postLike);
+        postLikeRepository.delete(postLike);
+
+        //then
+        assertThrows(EntityNotFoundException.class, () -> postLikeRepository.findOne(postLike.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Not found")));
+    }
+}
