@@ -85,6 +85,18 @@ public class User {
     - PK를 변경하는 작업은 매우 값비싼데, UUID가 PK와 별개로 사용되는 경우 UUID를 변경하는 작업은 훨씬 저렴하다.
 
 
+### 예약어
+<div align="center">
+  <img src="imgs/post.png" alt="drawing" width=500"/>
+</div>
+
+<div align="center">
+  <img src="imgs/post_error.png" alt="drawing" width=500"/>
+</div>
+
+`like`와 같은 SQL 예약어를 사용하게 되면 table이 정상적으로 만들어지지 않는다.
+
+-> Post, Comment, CommentReply 테이블의 '좋아요' 변수명을 like가 아닌 likeCount 등으로 변경
 
 
 ### Hibernate: ddl-auto
