@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,6 +41,27 @@ class PostServiceTest {
     @InjectMocks
     private PostService postService;
 
+    private User user;
+    private Board board;
+    private Post post;
+
+    @BeforeEach
+    void setUp() {
+        user = User.builder()
+                .nickname("nickname")
+                .build();
+        board = Board.builder()
+                .name("boardName")
+                .build();
+        post = Post.builder()
+                .title("title")
+                .content("안녕하세요~")
+                .board(board)
+                .isAnonymous(true)
+                .writer(user)
+                .build();
+    }
+
     @Test
     void 게시글_생성_테스트() {
         // given
@@ -49,20 +71,6 @@ class PostServiceTest {
                 .content("안녕하세요~")
                 .isAnonymous(true)
                 .userId(1L)
-                .build();
-
-        final User user = User.builder()
-                .nickname("hello")
-                .build();
-        final Board board = Board.builder()
-                .name("boardName")
-                .build();
-        final Post post = Post.builder()
-                .title("title")
-                .writer(user)
-                .content("안녕하세요~")
-                .board(board)
-                .isAnonymous(true)
                 .build();
 
         given(userRepository.findById(anyLong()))
@@ -80,20 +88,6 @@ class PostServiceTest {
     @Test
     void 게시글을_조회한다() {
         // given
-        final User user = User.builder()
-                .nickname("hello")
-                .build();
-        final Board board = Board.builder()
-                .name("boardName")
-                .build();
-        final Post post = Post.builder()
-                .title("title")
-                .writer(user)
-                .content("안녕하세요~")
-                .board(board)
-                .isAnonymous(true)
-                .build();
-
         given(postRepository.findById(anyLong()))
                 .willReturn(Optional.of(post));
 
@@ -112,30 +106,17 @@ class PostServiceTest {
     void 게시판에_해당하는_모든_게시글을_조회한다() {
         // given
         final BoardPostsRequestDto request = new BoardPostsRequestDto(1L);
-        final User user = User.builder()
-                .nickname("hello")
-                .build();
-        final Board board = Board.builder()
-                .name("자유 게시판")
-                .build();
-        final Post post1 = Post.builder()
-                .title("title")
-                .writer(user)
-                .content("안녕하세요~")
-                .board(board)
-                .isAnonymous(true)
-                .build();
         final Post post2 = Post.builder()
-                .title("title")
+                .title("title2")
                 .writer(user)
-                .content("안녕하세요~")
+                .content("안녕하세요~2")
                 .board(board)
                 .isAnonymous(true)
                 .build();
         final Post post3 = Post.builder()
-                .title("title")
+                .title("title3")
                 .writer(user)
-                .content("안녕하세요~")
+                .content("안녕하세요~3")
                 .board(board)
                 .isAnonymous(true)
                 .build();
@@ -143,7 +124,7 @@ class PostServiceTest {
         given(boardRepository.findById(anyLong()))
                 .willReturn(Optional.of(board));
         given(postRepository.findAllFetchJoin(board))
-                .willReturn(List.of(post1, post2, post3));
+                .willReturn(List.of(post, post2, post3));
 
         // when
         final BoardPostsResponseDto response = postService.getPosts(request);
@@ -151,7 +132,7 @@ class PostServiceTest {
         // then
         assertSoftly(softly -> {
             softly.assertThat(response.responses().size()).isEqualTo(3);
-            softly.assertThat(response.responses().get(0)).isEqualTo(post1.toResponseDto());
+            softly.assertThat(response.responses().get(0)).isEqualTo(post.toResponseDto());
             softly.assertThat(response.responses().get(1)).isEqualTo(post2.toResponseDto());
             softly.assertThat(response.responses().get(2)).isEqualTo(post3.toResponseDto());
         });

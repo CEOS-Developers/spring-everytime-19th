@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,24 +38,31 @@ class CommentLikeServiceTest {
     @InjectMocks
     private CommentLikeService commentLikeService;
 
-    @Test
-    void 댓글에_좋아요를_누른다() {
-        // given
-        final User user = User.builder()
+    private User user;
+    private Post post;
+    private Comment comment;
+
+    @BeforeEach
+    void setUp() {
+        user = User.builder()
                 .nickname("nickname")
                 .build();
-        final Post post = Post.builder()
+        post = Post.builder()
                 .title("test")
                 .content("content")
                 .isAnonymous(false)
                 .writer(user)
                 .build();
-        final Comment comment = Comment.builder()
+        comment = Comment.builder()
                 .content("content")
                 .post(post)
                 .user(user)
                 .build();
+    }
 
+    @Test
+    void 댓글에_좋아요를_누른다() {
+        // given
         given(commentRepository.findById(anyLong()))
                 .willReturn(Optional.of(comment));
         given(userRepository.findById(anyLong()))
@@ -74,20 +82,6 @@ class CommentLikeServiceTest {
     @Test
     void 댓글에_좋아요를_취소한다() {
         // given
-        final User user = User.builder()
-                .nickname("nickname")
-                .build();
-        final Post post = Post.builder()
-                .title("test")
-                .content("content")
-                .isAnonymous(false)
-                .writer(user)
-                .build();
-        final Comment comment = Comment.builder()
-                .content("content")
-                .post(post)
-                .user(user)
-                .build();
         final CommentLike commentLike = new CommentLike(user, comment);
 
         given(commentRepository.findById(anyLong()))

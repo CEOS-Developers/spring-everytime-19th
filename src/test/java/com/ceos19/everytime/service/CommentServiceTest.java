@@ -7,13 +7,13 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Comment;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.User;
@@ -37,24 +37,27 @@ class CommentServiceTest {
     @InjectMocks
     private CommentService commentService;
 
+    private User user;
+    private Post post;
+
+    @BeforeEach
+    void setUp() {
+        user = User.builder()
+                .nickname("nickname")
+                .build();
+        post = Post.builder()
+                .title("test")
+                .content("content")
+                .isAnonymous(false)
+                .writer(user)
+                .build();
+    }
+
     @Test
     void 댓글_테스트() {
         // given
-        final User user = User.builder()
-                .nickname("nickname")
-                .build();
         final User user1 = User.builder()
                 .nickname("nickname1")
-                .build();
-        final Board board = Board.builder()
-                .name("자유 게시판")
-                .build();
-        final Post post = Post.builder()
-                .board(board)
-                .writer(user)
-                .content("content")
-                .title("title")
-                .isAnonymous(true)
                 .build();
 
         final CommentWriteRequestDto request = new CommentWriteRequestDto(1L, 2L, null, "댓글!", true);
@@ -74,21 +77,8 @@ class CommentServiceTest {
     @Test
     void 대댓글_테스트() {
         // given
-        final User user = User.builder()
-                .nickname("nickname")
-                .build();
         final User user1 = User.builder()
                 .nickname("nickname1")
-                .build();
-        final Board board = Board.builder()
-                .name("자유 게시판")
-                .build();
-        final Post post = Post.builder()
-                .board(board)
-                .writer(user)
-                .content("content")
-                .title("title")
-                .isAnonymous(true)
                 .build();
         final Comment parentComment = Comment.builder()
                 .content("댓글")

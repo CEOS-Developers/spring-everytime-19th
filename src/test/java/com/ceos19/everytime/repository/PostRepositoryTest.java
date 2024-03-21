@@ -4,8 +4,6 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +23,6 @@ class PostRepositoryTest {
 
     @Autowired
     private BoardRepository boardRepository;
-
-    @Autowired
-    private EntityManager em;
 
     private User user;
     private Board board;
