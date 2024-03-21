@@ -3,15 +3,12 @@ CEOS 19th BE study - everytime clone coding
 
 ## ERD Overview
 <div align="center">
-  <img src="imgs/erd_overview.png" alt="drawing" width=700"/>
+  <img src="imgs/erd_overview.png" alt="drawing" width=600"/>
 </div>
 
 <div align="center">
-  <img src="imgs/erd.png" alt="drawing" width=700"/>
+  <img src="imgs/erd.png" alt="drawing" width=600"/>
 </div>
-
-## ERD Details
-Study 이후 개선점들! (User Entity example)
 
 ### User
 ```java
@@ -26,7 +23,7 @@ public class User {
     // skip...
 
     @Column(nullable = false)
-    private Boolean isBoardManager;
+    private Boolean isBoardManager = False;
 
     // TemporalType.TIMESTAMP
     @Column(nullable = true, length = 20)
@@ -57,7 +54,10 @@ public class User {
 
 ```
 
-### UUID(Universally Unique Identifier : 범용 고유 식별자)
+
+# 스터디 이후 개선점들!
+
+## UUID(Universally Unique Identifier : 범용 고유 식별자)
 
 - 중복이 되지 않는 유일한 값을 구성하고자 할때 주로 사용이 되는 고유 식별자
 - 주로 세션 식별자, 쿠키 값, 무작위 데이터베이스 키 등에 사용
@@ -85,13 +85,13 @@ public class User {
     - PK를 변경하는 작업은 매우 값비싼데, UUID가 PK와 별개로 사용되는 경우 UUID를 변경하는 작업은 훨씬 저렴하다.
 
 
-### 예약어
+## Refactoring: SQL 예약어 유의
 <div align="center">
-  <img src="imgs/post.png" alt="drawing" width=500"/>
+  <img src="imgs/post.png" alt="drawing" width=400"/>
 </div>
 
 <div align="center">
-  <img src="imgs/post_error.png" alt="drawing" width=500"/>
+  <img src="imgs/post_error.png" alt="drawing" width=400"/>
 </div>
 
 `like`와 같은 SQL 예약어를 사용하게 되면 table이 정상적으로 만들어지지 않는다.
@@ -99,7 +99,69 @@ public class User {
 -> Post, Comment, CommentReply 테이블의 '좋아요' 변수명을 like가 아닌 likeCount 등으로 변경
 
 
-### Hibernate: ddl-auto
+## BaseEntity
+대부분 엔티티에 필요할 경우, BaseEntity로 관리할 수 있다.
+everytime 프로젝트의 경우, TimeEntity가 중복되어, 이를 BaseTimeEntity로 분리해주었다.
+
+```java
+@Getter
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)  // Auditing 기능 포함
+public abstract class BaseTimeEntity {
+
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    private LocalDateTime modifiedDate;
+}
+
+```
+
+아래와 같이 extends 하여 BaseEntity의 속성을 가져올 수 있다.
+
+```java
+@Entity
+public class User extends BaseTimeEntity{
+  // skip... 
+}
+```
+
+## Fetch 전략
+한 사람이 여러 개의 메세지를 보낼 수 있다.
+FetchType이란 JPA가 하나의 Entity를 조회할 때, 연관관계에 있는 객체들을 어떻게 가져올지에 대한 설정값이다.
+이 경우 Message 클래스는 @ManyToOne으로 User와 연관되며, @ManyToOne의 default FetchType 은  EAGER 이다.
+
+```java
+@Entity
+public class Message {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "message_id", nullable = false)
+    private Long id;
+
+    @Column(nullable = false, length = 1000)
+    private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+}
+```
+
+대부분의 FetchType은 LAZY가 권장된다.
+하지만 xToOne의 경우, LAZY FetchType은 N+1 문제를 야기할 수 있다.
+- ex. Message를 불러온 뒤, 각 User에 대해 무언가를 하는 for Loop가 있을 경우
+
+### How to prevent N+1 problem?
+N+1 이 발생하는 Entity 연관관계를 발견하였다면, 한 Entity 가 Managed 상태로 올라올 때, N+1 문제를 일으키는 Entity Collections 들도 동시에 Managed 상태로 올라오게 하면 된다.
+1. JPQL 의 Fetch Join 을 이용한다. (QueryDSL 과 같은 쿼리빌더의 도움을 받을 수도 있다.)
+2. ManyToOne, OneToOne 의 FetchType = LAZY → EAGER 로 변경한다.
+3. @EntityGraph 를 이용해, 한 쿼리에 대해서만 EAGER load 를 지정한다.
+
+
+## Hibernate: ddl-auto
 
 ddl-auto 옵션은 DB 테이블 관리 옵션
 
@@ -121,7 +183,7 @@ ddl-auto 옵션은 DB 테이블 관리 옵션
 -> 가능하면 update로 개발할 것!
 
 
-### ignore가 필요한 파일이 remote에 업로드 됐을 때
+## ignore가 필요한 파일이 remote에 업로드 됐을 때
   - .gitignore에 yml 파일 추가
   - `git rm -r --cached .` 명령어로 캐시 제거
 
@@ -195,5 +257,8 @@ class UserRepositryTest {
 ## References
 - [UUID 이해 및 사용방법](https://adjh54.tistory.com/142)
 - [UUID 장단점](https://mr-popo.tistory.com/199)
+- [빌더 패턴을 사용해보자](https://velog.io/@haerong22/Java-%EB%B9%8C%EB%8D%94-%ED%8C%A8%ED%84%B4%EC%9D%84-%EC%8D%A8%EB%B3%B4%EC%9E%90)
+- [BaseTimeEntity](https://europani.github.io/spring/2021/10/05/027-baseTimeEntity.html)
+- [N+1 problem with LAZY FetchType](https://jaynewho.com/post/39)
 - [ddl-auto 옵션 관련 주의할 점](https://smpark1020.tistory.com/140)
 - [이미 commit 이후에 gitignore 적용이 안될 때](https://junlab.tistory.com/237)
