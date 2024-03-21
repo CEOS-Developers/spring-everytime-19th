@@ -13,8 +13,9 @@ import java.util.List;
 public class ChatRoomRepository {
     private final EntityManager em;
 
-    public void save(ChatRoom room) {
+    public Long save(ChatRoom room) {
         em.persist(room);
+        return room.getRoomId();
     }
 
     public ChatRoom findOne(Long roomId) {
@@ -25,5 +26,9 @@ public class ChatRoomRepository {
         return em.createQuery("select r from ChatRoom r where r.member1 = :user or r.member2 = :user", ChatRoom.class)
                 .setParameter("user", user)
                 .getResultList();
+    }
+
+    public void remove(ChatRoom room) {
+        em.remove(room);
     }
 }
