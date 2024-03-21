@@ -79,9 +79,9 @@ class PostRepositoryTest {
     @Test
     void 게시글_조회_테스트() {
         // given & when
-        final Post post1 = postRepository.findById(1L).get();
-        final Post post2 = postRepository.findById(2L).get();
-        final Post post3 = postRepository.findById(3L).get();
+        final Post post1 = postRepository.findById(this.post1.getId()).get();
+        final Post post2 = postRepository.findById(this.post2.getId()).get();
+        final Post post3 = postRepository.findById(this.post3.getId()).get();
 
         // then
         assertSoftly(softly -> {
