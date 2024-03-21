@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.ceos19.everytime.domain.Comment;
+import com.ceos19.everytime.domain.CommentLike;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.User;
 import com.ceos19.everytime.repository.CommentLikeRepository;
@@ -68,5 +69,41 @@ class CommentLikeServiceTest {
 
         // then
         verify(commentLikeRepository).save(any());
+    }
+
+    @Test
+    void 댓글에_좋아요를_취소한다() {
+        // given
+        final User user = User.builder()
+                .nickname("nickname")
+                .build();
+        final Post post = Post.builder()
+                .title("test")
+                .content("content")
+                .isAnonymous(false)
+                .writer(user)
+                .build();
+        final Comment comment = Comment.builder()
+                .content("content")
+                .post(post)
+                .user(user)
+                .build();
+        final CommentLike commentLike = new CommentLike(user, comment);
+
+        given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(comment));
+        given(userRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+        given(commentLikeRepository.findByCommentAndUser(any(), any()))
+                .willReturn(Optional.of(commentLike));
+
+        final CommentLikeRequestDto request = new CommentLikeRequestDto(1L, 1L);
+        commentLikeService.like(request);
+
+        // when
+        commentLikeService.cancel(request);
+
+        // then
+        verify(commentLikeRepository).delete(any());
     }
 }
