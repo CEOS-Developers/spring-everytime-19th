@@ -3,7 +3,6 @@ package com.ceos19.springboot.domain;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "CourseDetail")
 public class CourseDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

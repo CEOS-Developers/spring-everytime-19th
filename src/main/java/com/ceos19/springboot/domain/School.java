@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 
 @Entity
-@Table(name = "School")
 public class School {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

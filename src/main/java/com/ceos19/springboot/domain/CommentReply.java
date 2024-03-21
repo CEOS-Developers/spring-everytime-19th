@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "CommentReply")
 public class CommentReply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
