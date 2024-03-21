@@ -1,7 +1,9 @@
 package com.ceos19.everytime.repository;
 
+import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Post;
+import com.ceos19.everytime.domain.University;
 import org.junit.Before;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,21 +23,28 @@ public class PostRepositoryTest {
     PostRepository postRepository;
     @Autowired
     MemberRepository memberRepository;
+    @Autowired UniversityRepository universityRepository;
+    @Autowired BoardRepository boardRepository;
 
     Member member1;
-    LocalDateTime currentDateTime = LocalDateTime.now();
+    University university;
+    Board board;
 
     @Before
     void setup(){
-        member1 = new Member("amy", "abcd123", "password", "abcd123@gmail.com");
+        university = new University("홍익대학교");
+        universityRepository.save(university);
+        member1 = new Member("amy", "abcd123", "password", "abcd123@gmail.com", university);
         memberRepository.save(member1);
+        board = new Board("맛집추천", "맛집 추천하는 게시판", member1,university);
+        boardRepository.save(board);
     }
 
     @DisplayName("게시글이 올바르게 작성된다")
     @Test
     public void 게시글_작성() {
         //given
-        Post post = new Post("안녕하세요", "신입생입니다...", currentDateTime, null, member1, false);
+        Post post = new Post("안녕하세요", "신입생입니다...", member1, board, false);
 
         //when
         postRepository.save(post);

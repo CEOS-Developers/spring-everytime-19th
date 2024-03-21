@@ -6,12 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Message {
+public class Message extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,19 +27,17 @@ public class Message {
     @Column(length = 2000, nullable = false)
     private String content;
 
-    @Column
-    private boolean isRead;
-
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private ReadStatus readStatus;
+
 
     @Builder
-    public Message (Member sender, Member receiver, String content, LocalDateTime createdAt){
+    public Message (Member sender, Member receiver, String content){
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
-        this.isRead = false;
-        this.createdAt = createdAt;
+        this.readStatus = ReadStatus.NOT_READ;
     }
 
 }

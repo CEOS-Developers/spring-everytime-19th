@@ -28,12 +28,17 @@ public class Member {
     @Column(nullable = false)
     private String email;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "university_id")
+    private University university;
+
     @Builder
-    public Member(final String userName, final String loginId, final String userPw, final String email) {
+    public Member(final String userName, final String loginId, final String userPw, final String email, final University university) {
         this.userName = userName;
         this.loginId = loginId;
         this.userPw = userPw;
         this.email = email;
+        this.university = university;
     }
 
 }

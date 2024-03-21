@@ -6,14 +6,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
+public class Comment extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +27,10 @@ public class Comment {
     @JoinColumn(name = "parent_id")
     private Comment parentComment;          //댓글
 
+    /*
     @OneToMany(mappedBy = "parentComment", orphanRemoval = true)        //대댓글
     private List<Comment> childrenComment = new ArrayList<>();
+     */
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -47,24 +48,17 @@ public class Comment {
     @Column(nullable = false)
     private boolean isDeleted;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column
-    private LocalDateTime updatedAt;
-
 
     @Builder
-    public Comment(Post postId, Comment parentComment, List<Comment> childrenComment, Member author, String content, boolean isAnonymous, LocalDateTime createdAt) {
+    public Comment(Post postId, Comment parentComment, Member author, String content, boolean isAnonymous) {
         this.postId = postId;
         this.parentComment = parentComment;
-        this.childrenComment = childrenComment;
+        //this.childrenComment = childrenComment;
         this.author = author;
         this.content = content;
         this.likes = 0;
         this.isAnonymous = isAnonymous;
         this.isDeleted = false;
-        this.createdAt = createdAt;
     }
 
 }

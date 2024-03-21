@@ -5,14 +5,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,15 +24,12 @@ public class Post {
     @Column(length = 2000, nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column
-    private LocalDateTime updatedAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Member author;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    private Board board;
 
     @Column(nullable = false)
     private boolean isAnonymous;
@@ -42,12 +38,11 @@ public class Post {
     private int likes;
 
     @Builder
-    public Post(String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Member author,  boolean isAnonymous){
+    public Post(String title, String content, Member author, Board board, boolean isAnonymous){
         this.title = title;
         this.content = content;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
         this.author = author;
+        this.board = board;
         this.isAnonymous = isAnonymous;
         this.likes = 0;
     }
