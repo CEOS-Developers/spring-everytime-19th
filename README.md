@@ -57,7 +57,33 @@ public class User {
 
 ```
 
-- UUID의 도입
+### UUID(Universally Unique Identifier : 범용 고유 식별자)
+
+- 중복이 되지 않는 유일한 값을 구성하고자 할때 주로 사용이 되는 고유 식별자
+- 주로 세션 식별자, 쿠키 값, 무작위 데이터베이스 키 등에 사용
+- 100년 동안 생성했을 때 최소 1개가 중복 및 충돌 될 확률
+- 버전 5까지 있지만, 버전 5의 보안 취약점으로 인해 버전4가 대중적으로 사용됨
+
+<div align="center">
+  <img src="imgs/uuid.png" alt="drawing" width=600"/>
+</div>
+
+16바이트(128비트) 형태의 구조를 가지며 하나의 <U>**UUID 길이는 36자리이며 “4개의 하이픈(-)”과 “32개의 16진수 문자열”로 구성**</U>
+
+**Pros and Cons**
+- Pros
+  - 보안성
+  - 정렬했을 때 서비스 사이즈 규모 추정이 힘듬
+- Cons
+  - increment PK보다 더 많은 storage를 필요로 한다. (UUID: 128 bits)
+    -> DB와 메모리를 많이 사용한다.
+
+> Result: 애플리케이션 내부용 키로는 자동증가 pk, 외부에 공개할 키로는 uuid를 사용하는 것을 권장
+- 애플리케이션 내부에서 자동증가 pk를 사용하면 성능과 저장 장소 측면에서 이점이 있다.
+- 만약 식별 값이 외부로 노출될 수도 있는 서비스라면 UUID로 데이터를 식별하는 것이 좋다.
+- 어떤 이유로든(외부 노출 등) UUID가 손상된다면 UUID를 변경해야 한다.
+    - PK를 변경하는 작업은 매우 값비싼데, UUID가 PK와 별개로 사용되는 경우 UUID를 변경하는 작업은 훨씬 저렴하다.
+
 
 
 
@@ -155,5 +181,7 @@ class UserRepositryTest {
 
 
 ## References
+- [UUID 이해 및 사용방법](https://adjh54.tistory.com/142)
+- [UUID 장단점](https://mr-popo.tistory.com/199)
 - [ddl-auto 옵션 관련 주의할 점](https://smpark1020.tistory.com/140)
 - [이미 commit 이후에 gitignore 적용이 안될 때](https://junlab.tistory.com/237)
