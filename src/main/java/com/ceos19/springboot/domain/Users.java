@@ -1,15 +1,11 @@
 package com.ceos19.springboot.domain;
 
-import com.ceos19.springboot.repository.UserRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -20,52 +16,43 @@ public class Users {
 
     @Id
     @GeneratedValue
-    private UUID userId;
+    private Long userId;
 
     @Column(nullable = false)
     private String username;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Builder.Default
-    private List<Posts> posts = new ArrayList<>();
-
     @Column(nullable = false)
-    private String university;
     private String nickname;
     private String email;
     private String loginId;
     private String password;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "university_id")
+    private School university;
+
     @Builder
     public Users(String username,
-                 String university,
                  String nickname,
+                 School university,
                  String email,
                  String loginId,
                  String password){
         this.username = username;
-        this.university = university;
         this.nickname = nickname;
+        this.university = university;
         this.email = email;
         this.loginId = loginId;
         this.password = password;
     }
 
-    public Posts pressLike(Posts post) {
+    public Post pressLike(Post post) {
         post.plusLike();
         return post;
     }
 
-    public Posts unlike(Posts post) {
+    public Post unlike(Post post) {
         post.minusLike();
         return post;
-    }
-
-    public void addPosts(Posts post) {
-        this.posts.add(post);
-    }
-
-    public void removePost(Posts post) {
-        this.posts.remove(post);
     }
 }
