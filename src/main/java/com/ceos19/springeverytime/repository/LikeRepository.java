@@ -12,8 +12,9 @@ import java.util.List;
 public class LikeRepository {
     private final EntityManager em;
 
-    public void save(Like like) {
+    public Long save(Like like) {
         em.persist(like);
+        return like.getLikeId();
     }
 
     public Like findOne(Long likeId) {

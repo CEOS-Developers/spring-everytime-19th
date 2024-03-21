@@ -2,6 +2,7 @@ package com.ceos19.springeverytime.domain.like;
 
 import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.Date;
 @DiscriminatorColumn(name = "dtype")
 @RequiredArgsConstructor
 @NoArgsConstructor
+@Getter
 public abstract class Like {
     @Id
     @GeneratedValue
