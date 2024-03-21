@@ -13,8 +13,9 @@ import java.util.List;
 public class CommentRepository {
     final private EntityManager em;
 
-    public void save(Comment comment) {
+    public Long save(Comment comment) {
         em.persist(comment);
+        return comment.getCommentId();
     }
 
     public Comment findOne(Long commentId) {
@@ -29,5 +30,9 @@ public class CommentRepository {
         return em.createQuery("select c from Comment c where c.post = :post", Comment.class)
                 .setParameter("post", post)
                 .getResultList();
+    }
+
+    public void removeOne(Comment comment) {
+        em.remove(comment);
     }
 }
