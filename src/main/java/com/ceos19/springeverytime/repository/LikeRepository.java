@@ -1,27 +1,6 @@
 package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.domain.like.Like;
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
-@Repository
-@RequiredArgsConstructor
-public class LikeRepository {
-    private final EntityManager em;
-
-    public Long save(Like like) {
-        em.persist(like);
-        return like.getLikeId();
-    }
-
-    public Like findOne(Long likeId) {
-        return em.find(Like.class, likeId);
-    }
-
-    public List<Like> findAll() {
-        return em.createQuery("select l from Like l", Like.class).getResultList();
-    }
-}
+public interface LikeRepository extends JpaRepository<Like, Long> {}

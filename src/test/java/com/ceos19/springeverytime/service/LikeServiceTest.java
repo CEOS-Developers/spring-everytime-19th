@@ -74,13 +74,13 @@ public class LikeServiceTest {
     void 게시글_좋아요_생성() {
         // given
         PostLike postLike = new PostLike(user1, new Date(), post);
-        given(likeRepository.save(any(PostLike.class))).willReturn(1L);
+        given(likeRepository.save(any(PostLike.class))).willReturn(postLike);
 
         // when
-        Long postLikeId = likeService.createPostLike(post, user1);
+        PostLike testPostLike = likeService.createPostLike(post, user1);
 
         // then
-        Assertions.assertEquals(1L, postLikeId);
+        Assertions.assertEquals(postLike, testPostLike);
     }
 
     @Test
@@ -88,12 +88,12 @@ public class LikeServiceTest {
     void 댓글_좋아요_생성() {
         // given
         CommentLike commentLike = new CommentLike(user1, new Date(), comment);
-        given(likeRepository.save(any(CommentLike.class))).willReturn(1L);
+        given(likeRepository.save(any(CommentLike.class))).willReturn(commentLike);
 
         // when
-        Long commentLikeId = likeService.createCommentLike(comment, user1);
+        CommentLike testCommentLike = likeService.createCommentLike(comment, user1);
 
         // then
-        Assertions.assertEquals(1L, commentLikeId);
+        Assertions.assertEquals(commentLike, testCommentLike);
     }
 }
