@@ -19,15 +19,15 @@ public class LikeService {
     private final LikeRepository likeRepository;
 
     @Transactional
-    public void createPostLike(Post post, User user) {
+    public Long createPostLike(Post post, User user) {
         PostLike postLike = new PostLike(user, new Date(), post);
-        likeRepository.save(postLike);
+        return likeRepository.save(postLike);
     }
 
     @Transactional
-    public void createCommentLike(Comment comment, User user) {
+    public Long createCommentLike(Comment comment, User user) {
         CommentLike commentLike = new CommentLike(user, new Date(), comment);
-        likeRepository.save(commentLike);
+        return likeRepository.save(commentLike);
     }
 
     @Transactional
