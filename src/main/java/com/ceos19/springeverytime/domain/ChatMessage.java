@@ -1,6 +1,7 @@
 package com.ceos19.springeverytime.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Date;
 
 @Entity
+@Getter
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class ChatMessage {
