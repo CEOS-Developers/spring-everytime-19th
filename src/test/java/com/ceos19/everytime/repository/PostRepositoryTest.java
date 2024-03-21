@@ -9,18 +9,12 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 
-import com.ceos19.everytime.config.JpaAuditingConfig;
 import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.User;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(JpaAuditingConfig.class)
+@RepositoryTest
 class PostRepositoryTest {
 
     @Autowired
