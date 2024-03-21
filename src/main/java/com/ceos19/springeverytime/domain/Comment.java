@@ -1,14 +1,12 @@
 package com.ceos19.springeverytime.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
+@Getter
 public class Comment {
     @Id@GeneratedValue
     private Long commentId;
