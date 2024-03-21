@@ -5,6 +5,8 @@ import com.ceos19.springeverytime.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -16,6 +18,8 @@ public class UserService {
     }
 
     public User findOne(Long userId) {
-        return userRepository.findOne(userId);
+        Optional<User> findUser = userRepository.findById(userId);
+        if (findUser.isPresent()) return findUser.get();
+        throw new IllegalArgumentException("잘못된 유저 ID 입니다.");
     }
 }

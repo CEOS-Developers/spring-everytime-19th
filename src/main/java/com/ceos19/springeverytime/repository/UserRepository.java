@@ -1,22 +1,6 @@
 package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.domain.User;
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-@RequiredArgsConstructor
-public class UserRepository {
-    @Autowired
-    final EntityManager em;
-
-    public void save(User user) {
-        em.persist(user);
-    }
-
-    public User findOne(Long userId) {
-        return em.find(User.class, userId);
-    }
-}
+public interface UserRepository extends JpaRepository<User, Long> {}

@@ -33,15 +33,18 @@ public class CategoryService {
 
     @Transactional
     public void changeManager(Long categoryId, Long newManagerId) {
-        Optional<Category> category = categoryRepository.findById(categoryId);
-        User newManager = userRepository.findOne(newManagerId);
+        Optional<Category> findCategory = categoryRepository.findById(categoryId);
+        Optional<User> findManager = userRepository.findById(newManagerId);
 
-        if (category.isEmpty()) {
+        if (findCategory.isEmpty()) {
             throw new IllegalArgumentException("잘못된 카테고리 ID 입니다.");
         }
 
-        Category findCategory = category.get();
-        findCategory.changeManager(newManager);
+        if (findManager.isEmpty()) {
+            throw new IllegalArgumentException("잘못된 User ID 입니다.");
+        }
+
+        findCategory.get().changeManager(findManager.get());
     }
 
     public List<Post> getPosts(Long categoryId) {

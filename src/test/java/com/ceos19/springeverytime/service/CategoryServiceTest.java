@@ -69,10 +69,10 @@ public class CategoryServiceTest {
     void 게시판_관리자_변경_테스트() {
         // given
         Category category = new Category("자유게시판", "", user1);
-        given(categoryRepository.findOne(any())).willReturn(Optional.of(category));
+        given(categoryRepository.findById(any())).willReturn(Optional.of(category));
 
         // when
-        Category findCategory = categoryService.findById(category.getCategoryId());
+        Category findCategory = categoryService.findById(1L);
         findCategory.changeManager(user2);
 
         // then

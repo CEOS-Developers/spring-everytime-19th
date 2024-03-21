@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -35,7 +37,7 @@ public class UserServiceTest {
             "test@exmaple.com",
             true
         );
-        given(userRepository.findOne(any())).willReturn(user);
+        given(userRepository.findById(any())).willReturn(Optional.of(user));
 
         // when
         System.out.println(user.getUserId());
