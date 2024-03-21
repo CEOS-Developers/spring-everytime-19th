@@ -16,10 +16,10 @@ public class CommentReply {
     private String content;
 
     @Column(nullable = false, length = 10)
-    private Long like;
+    private Long likeCount;
 
     @Column(nullable = false, length = 10)
-    private Long report;
+    private Long reportCount;
 
     @Column(nullable = false, length = 20)
     private LocalDateTime createdAt;
