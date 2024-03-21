@@ -129,9 +129,9 @@ public class User extends BaseTimeEntity{
 ```
 
 ## Fetch 전략
-한 사람이 여러 개의 메세지를 보낼 수 있다.
-FetchType이란 JPA가 하나의 Entity를 조회할 때, 연관관계에 있는 객체들을 어떻게 가져올지에 대한 설정값이다.
-이 경우 Message 클래스는 @ManyToOne으로 User와 연관되며, @ManyToOne의 default FetchType 은  EAGER 이다.
+- 한 사람이 여러 개의 메세지를 보낼 수 있다.
+- FetchType이란 JPA가 하나의 Entity를 조회할 때, 연관관계에 있는 객체들을 어떻게 가져올지에 대한 설정값이다.
+- 이 경우 Message 클래스는 @ManyToOne으로 User와 연관되며, @ManyToOne의 default FetchType 은  EAGER 이다.
 
 ```java
 @Entity
@@ -151,11 +151,14 @@ public class Message {
 ```
 
 대부분의 FetchType은 LAZY가 권장된다.
+
 하지만 xToOne의 경우, LAZY FetchType은 N+1 문제를 야기할 수 있다.
 - ex. Message를 불러온 뒤, 각 User에 대해 무언가를 하는 for Loop가 있을 경우
 
 ### How to prevent N+1 problem?
-N+1 이 발생하는 Entity 연관관계를 발견하였다면, 한 Entity 가 Managed 상태로 올라올 때, N+1 문제를 일으키는 Entity Collections 들도 동시에 Managed 상태로 올라오게 하면 된다.
+N+1 이 발생하는 Entity 연관관계를 발견하였다면, 한 Entity 가 Managed 상태로 올라올 때 N+1 문제를 일으키는 Entity Collections 들도 동시에 Managed 상태로 올라오게 하면 된다.
+
+**Detail Suggestions**
 1. JPQL 의 Fetch Join 을 이용한다. (QueryDSL 과 같은 쿼리빌더의 도움을 받을 수도 있다.)
 2. ManyToOne, OneToOne 의 FetchType = LAZY → EAGER 로 변경한다.
 3. @EntityGraph 를 이용해, 한 쿼리에 대해서만 EAGER load 를 지정한다.
