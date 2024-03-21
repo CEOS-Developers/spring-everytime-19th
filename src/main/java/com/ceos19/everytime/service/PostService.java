@@ -5,9 +5,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Post;
+import com.ceos19.everytime.domain.Posts;
 import com.ceos19.everytime.domain.User;
+import com.ceos19.everytime.dto.request.BoardPostsRequestDto;
 import com.ceos19.everytime.dto.request.PostCreateRequestDto;
-import com.ceos19.everytime.dto.request.PostRequestDto;
+import com.ceos19.everytime.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.dto.response.PostResponseDto;
 import com.ceos19.everytime.repository.BoardRepository;
 import com.ceos19.everytime.repository.PostRepository;
@@ -40,10 +42,18 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponseDto getPost(final PostRequestDto request) {
-        return postRepository.findById(request.id())
+    public PostResponseDto getPost(final Long postId) {
+        return postRepository.findById(postId)
                 .map(post -> new PostResponseDto(post.getTitle(), post.getContent(), post.getWriterNickname(),
                         post.getBoard().getName()))
                 .orElseThrow(IllegalArgumentException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public BoardPostsResponseDto getPosts(final BoardPostsRequestDto request) {
+        final Board findBoard = boardRepository.findById(request.boardId())
+                .orElseThrow(IllegalArgumentException::new);
+        final Posts posts = new Posts(postRepository.findAllFetchJoin(findBoard));
+        return new BoardPostsResponseDto(posts.toResponseDto());
     }
 }

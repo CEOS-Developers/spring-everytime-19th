@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+import com.ceos19.everytime.dto.response.PostResponseDto;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -58,5 +60,9 @@ public class Post extends BaseEntity {
             return "익명";
         }
         return writer.getNickname();
+    }
+
+    public PostResponseDto toResponseDto() {
+        return new PostResponseDto(title, content, getWriterNickname(), board.getName());
     }
 }
