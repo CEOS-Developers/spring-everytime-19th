@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -65,13 +66,13 @@ public class PostServiceTest {
                 "프롤로그 진짜 어케해요..?",
                 true,
                 new Date(), new Date(), user2, category);
-        given(postRepository.save(any(Post.class))).willReturn(post.getPostId());
+        given(postRepository.save(any(Post.class))).willReturn(post);
 
         // when
-        Long newPostId = postService.save(post);
+        Post newPost = postService.save(post);
 
         // then
-        Assertions.assertEquals(post.getPostId(), newPostId);
+        Assertions.assertEquals(post, newPost);
     }
 
     @Test
@@ -83,10 +84,10 @@ public class PostServiceTest {
                 "프롤로그 진짜 어케해요..?",
                 true,
                 new Date(), new Date(), user2, category);
-        given(postRepository.findOne(any())).willReturn(post);
+        given(postRepository.findById(any())).willReturn(Optional.of(post));
 
         // when
-        Post foundPost = postService.findOne(1L);
+        Post foundPost = postService.findById(1L);
 
         // then
         Assertions.assertEquals(post, foundPost);
