@@ -9,9 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +55,7 @@ public class CategoryServiceTest {
     void 게시판_생성_테스트() {
         // given
         Category category = new Category("자유게시판", "", user1);
-        given(categoryRepository.save(any(Category.class))).willReturn(category.getCategoryId());
+        given(categoryRepository.save(any(Category.class))).willReturn(category);
 
         // when
         Long newCategoryId = categoryService.create(category);
@@ -68,13 +69,13 @@ public class CategoryServiceTest {
     void 게시판_관리자_변경_테스트() {
         // given
         Category category = new Category("자유게시판", "", user1);
-        given(categoryRepository.findOne(any())).willReturn(category);
+        given(categoryRepository.findOne(any())).willReturn(Optional.of(category));
 
         // when
-        Category test_category = categoryService.findOne(category.getCategoryId());
-        test_category.changeManager(user2);
+        Category findCategory = categoryService.findById(category.getCategoryId());
+        findCategory.changeManager(user2);
 
         // then
-        assertThat(categoryService.findOne(category.getCategoryId()).getManager()).isEqualTo(user2);
+        assertThat(categoryService.findById(category.getCategoryId()).getManager()).isEqualTo(user2);
     }
 }

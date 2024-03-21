@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional(readOnly = true)
@@ -18,8 +19,10 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
-    public Category findOne(Long categoryId) {
-        return categoryRepository.findOne(categoryId);
+    public Category findById(Long categoryId) {
+        Optional<Category> findCategory = categoryRepository.findById(categoryId);
+        if (findCategory.isPresent()) return findCategory.get();
+        throw new IllegalArgumentException("잘못된 카테고리 ID 입니다.");
     }
 
     @Transactional
@@ -30,13 +33,22 @@ public class CategoryService {
 
     @Transactional
     public void changeManager(Long categoryId, Long newManagerId) {
-        Category category = categoryRepository.findOne(categoryId);
+        Optional<Category> category = categoryRepository.findById(categoryId);
         User newManager = userRepository.findOne(newManagerId);
-        category.changeManager(newManager);
+
+        if (category.isEmpty()) {
+            throw new IllegalArgumentException("잘못된 카테고리 ID 입니다.");
+        }
+
+        Category findCategory = category.get();
+        findCategory.changeManager(newManager);
     }
 
     public List<Post> getPosts(Long categoryId) {
-        Category category = categoryRepository.findOne(categoryId);
-        return category.getPosts();
+        Optional<Category> category = categoryRepository.findById(categoryId);
+        if (category.isEmpty()) {
+            throw new IllegalArgumentException("잘못된 카테고리 ID 입니다.");
+        }
+        return category.get().getPosts();
     }
 }
