@@ -35,4 +35,17 @@ public class PostLikeService {
 
         postLikeRepository.save(postLike);
     }
+
+    @Transactional
+    public void cancelLike(final PostLikeRequestDto request) {
+        final Post post = postRepository.findById(request.postId())
+                .orElseThrow(IllegalArgumentException::new);
+        final User user = userRepository.findById(request.userId())
+                .orElseThrow(IllegalArgumentException::new);
+        final PostLike postLike = postLikeRepository.findByPostAndUser(post, user)
+                .orElseThrow(IllegalArgumentException::new);
+        post.decreaseLikeNumber();
+
+        postLikeRepository.delete(postLike);
+    }
 }

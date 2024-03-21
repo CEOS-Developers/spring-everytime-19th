@@ -74,4 +74,11 @@ public class Post extends BaseEntity {
     public PostResponseDto toResponseDto() {
         return new PostResponseDto(title, content, getWriterNickname(), board.getName());
     }
+
+    public void decreaseLikeNumber() {
+        if (likeNumber <= 0) {
+            throw new IllegalArgumentException();
+        }
+        likeNumber--;
+    }
 }
