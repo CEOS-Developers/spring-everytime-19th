@@ -30,4 +30,9 @@ public class PostLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    public PostLike(final User user, final Post post) {
+        this.user = user;
+        this.post = post;
+    }
 }

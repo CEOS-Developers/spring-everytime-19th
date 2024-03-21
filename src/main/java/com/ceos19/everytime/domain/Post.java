@@ -16,11 +16,13 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode(of = {"id"}, callSuper = false)
+@ToString
 public class Post extends BaseEntity {
 
     @Id
@@ -36,6 +38,9 @@ public class Post extends BaseEntity {
 
     @Column(nullable = false)
     private boolean isAnonymous;
+
+    @Column(nullable = false)
+    private int likeNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -60,6 +65,10 @@ public class Post extends BaseEntity {
             return "익명";
         }
         return writer.getNickname();
+    }
+
+    public void increaseLikeNumber() {
+        likeNumber++;
     }
 
     public PostResponseDto toResponseDto() {
