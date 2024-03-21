@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Entity
-public class User {
+public class User extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
@@ -41,13 +41,6 @@ public class User {
     @Column(nullable = false)
     private Boolean isBanned;
 
-    // TemporalType.TIMESTAMP
-    @Column(nullable = true, length = 20)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = true, length = 20)
-    private LocalDateTime lastLogin;
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "school_id")
     private School school;
@@ -56,8 +49,7 @@ public class User {
     public User(final String username, final String password, final String nickname,
                 final Boolean isAdmin, final String userLast, final School school,
                 final String userFirst, final String email, final Boolean isBoardManager,
-                final String board, final Boolean isBanned, final LocalDateTime createdAt,
-                final LocalDateTime lastLogin) {
+                final String board, final Boolean isBanned) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
@@ -68,8 +60,6 @@ public class User {
         this.isBoardManager = isBoardManager;
         this.board = board;
         this.isBanned = isBanned;
-        this.createdAt = createdAt;
-        this.lastLogin = lastLogin;
         this.school = school;
     }
 }

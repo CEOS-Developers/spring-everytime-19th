@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-public class Comment {
+public class Comment extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id", nullable = false)
@@ -22,12 +22,6 @@ public class Comment {
 
     @Column(nullable = false, length = 10)
     private Long reportCount;
-
-    @Column(nullable = false, length = 20)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false, length = 20)
-    private LocalDateTime editedAt;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
