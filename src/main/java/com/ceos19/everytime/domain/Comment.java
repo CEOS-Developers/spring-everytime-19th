@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,10 +28,10 @@ public class Comment extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    private boolean isDeleted;
+    private boolean isDeleted = false;
 
     @Column(nullable = false)
-    private int likeNumber;
+    private int likeNumber = 0;
 
     @Column(nullable = false)
     private boolean isAnonymous;
@@ -46,4 +47,33 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
+
+    @Builder
+    public Comment(final String content, final boolean isAnonymous, final User user, final Post post,
+                   final Comment parentComment) {
+        this.content = content;
+        this.isAnonymous = isAnonymous;
+        this.user = user;
+        this.post = post;
+        this.parentComment = parentComment;
+    }
+
+    public static Comment createComment(final String content, final boolean isAnonymous, final User user,
+                                        final Post post, final Comment parentComment) {
+        if (parentComment == null) {
+            return Comment.builder()
+                    .content(content)
+                    .isAnonymous(isAnonymous)
+                    .user(user)
+                    .post(post)
+                    .build();
+        }
+        return Comment.builder()
+                .content(content)
+                .isAnonymous(isAnonymous)
+                .user(user)
+                .post(post)
+                .parentComment(parentComment)
+                .build();
+    }
 }
