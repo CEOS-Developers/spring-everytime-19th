@@ -3,7 +3,7 @@ package com.ceos19.springboot.domain;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "scrap")
+@Table(name = "Scrap")
 public class Scrap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

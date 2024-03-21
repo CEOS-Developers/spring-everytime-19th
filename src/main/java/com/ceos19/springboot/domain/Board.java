@@ -3,7 +3,7 @@ package com.ceos19.springboot.domain;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "board")
+@Table(name = "Board")
 public class Board {
 
     @Id

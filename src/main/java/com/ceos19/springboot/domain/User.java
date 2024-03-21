@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user")
+@Table(name = "User")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,12 +36,13 @@ public class User {
     @Column(nullable = false)
     private Boolean isBoardManager;
 
-    @Column(nullable = true, length = 20)
+    @Column(nullable = false, length = 20)
     private String board;
 
     @Column(nullable = false)
     private Boolean isBanned;
 
+    // TemporalType.TIMESTAMP
     @Column(nullable = true, length = 20)
     private LocalDateTime createdAt;
 
