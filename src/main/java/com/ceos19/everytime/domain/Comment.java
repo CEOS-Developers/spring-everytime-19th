@@ -80,4 +80,11 @@ public class Comment extends BaseEntity {
     public void increaseLikeNumber() {
         likeNumber++;
     }
+
+    public void decreaseLikeNumber() {
+        if (likeNumber <= 0) {
+            throw new IllegalArgumentException();
+        }
+        likeNumber--;
+    }
 }

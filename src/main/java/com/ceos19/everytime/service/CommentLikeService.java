@@ -35,4 +35,17 @@ public class CommentLikeService {
 
         commentLikeRepository.save(commentLike);
     }
+
+    @Transactional
+    public void cancel(final CommentLikeRequestDto request) {
+        final Comment comment = commentRepository.findById(request.commentId())
+                .orElseThrow(IllegalArgumentException::new);
+        final User user = userRepository.findById(request.userId())
+                .orElseThrow(IllegalArgumentException::new);
+        final CommentLike commentLike = commentLikeRepository.findByCommentAndUser(comment, user)
+                .orElseThrow(IllegalArgumentException::new);
+        comment.decreaseLikeNumber();
+
+        commentLikeRepository.delete(commentLike);
+    }
 }
