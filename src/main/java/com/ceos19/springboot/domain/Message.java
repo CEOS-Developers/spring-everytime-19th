@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,14 +15,14 @@ import java.util.UUID;
 public class Message {
     @Id
     @GeneratedValue
-    private UUID messageId;
+    private Long messageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "senderId")
+    @JoinColumn(name = "sender_id")
     private Users sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiverId")
+    @JoinColumn(name = "receiver_id")
     private Users receiver;
 
     private String content;
