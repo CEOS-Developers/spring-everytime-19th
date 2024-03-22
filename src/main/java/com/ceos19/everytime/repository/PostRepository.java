@@ -7,6 +7,10 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
+    Optional<Post> findById(Long id);
     Optional<Post> findByTitle(String title);
+
+    Optional<Post> findByUserName(String userName);
+    Optional<Post> findByLoginId(String loginId);
 
 }
