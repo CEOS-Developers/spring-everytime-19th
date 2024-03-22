@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class University {
+    public static final int MAX_NAME_LENGTH = 15;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +23,16 @@ public class University {
     @Builder
     public University(String name){
         this.name = name;
+    }
+
+    public void changeName(String name){
+        this.name = name;
+    }
+
+    private boolean validateName(String name){
+        if(name.isEmpty() || name.length()> MAX_NAME_LENGTH)
+            return false;
+        return true;
     }
 
 }
