@@ -2,8 +2,10 @@ package com.ceos19.springboot.comment.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class CommentResponseDto {
     private String content;

@@ -6,6 +6,7 @@ import com.ceos19.springboot.reply.entity.Reply;
 import com.ceos19.springboot.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "comment")
 public class Comment extends BaseEntity {
 
@@ -37,6 +39,11 @@ public class Comment extends BaseEntity {
     private List<Reply> replyList = new ArrayList<>();
 
 
+    public Comment(String content, User user, Post post) {
 
+        this.content = content;
+        this.user = user;
+        this.post = post;
+    }
 }
 

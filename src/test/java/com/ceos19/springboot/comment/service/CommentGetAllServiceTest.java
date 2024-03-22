@@ -1,6 +1,5 @@
 package com.ceos19.springboot.comment.service;
 
-import com.ceos19.springboot.comment.dto.CommentRequestDto;
 import com.ceos19.springboot.comment.dto.CommentResponseDto;
 import com.ceos19.springboot.comment.entity.Comment;
 import com.ceos19.springboot.comment.repository.CommentRepository;
@@ -17,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class CommentServiceTest {
+class CommentGetAllServiceTest {
 
     @Autowired
     private CommentService commentService;
@@ -53,20 +52,5 @@ class CommentServiceTest {
         assertEquals("Test comment 2", comments.get(1).getContent());
     }
 
-    @Test
-    void createComment() {
-        // Given
-        Post post = new Post("1","1",true);
-        postRepository.save(post);
 
-        CommentRequestDto commentRequestDto = new CommentRequestDto(post.getPostId(), "New test comment");
-
-        // When
-        commentService.createComment(commentRequestDto);
-
-        // Then
-        List<Comment> comments = commentRepository.findAll();
-        assertEquals(1, comments.size());
-        assertEquals("New test comment", comments.get(0).getContent());
-    }
 }
