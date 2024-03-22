@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,14 @@ public class LikeService {
     }
 
     @Transactional
-    public void removePostLike() {}
+    public void removePostLike(Post post, User user) {
+        Optional<PostLike> findPostLike = likeRepository.findPostLikeByPostAndUser(post, user);
+        if (findPostLike.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 좋아요 데이터가 없습니다.");
+        }
+
+        likeRepository.delete(findPostLike.get());
+    }
 
     @Transactional
     public void removeCommentLike() {}
