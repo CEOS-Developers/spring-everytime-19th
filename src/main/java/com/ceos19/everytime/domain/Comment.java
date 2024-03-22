@@ -14,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseTimeEntity{
 
+    public static final int MAX_CONTENT_LENGTH = 1000;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
@@ -36,7 +38,7 @@ public class Comment extends BaseTimeEntity{
     @JoinColumn(name = "member_id", nullable = false)
     private Member author;
 
-    @Column(length = 1000, nullable = false)
+    @Column(length = MAX_CONTENT_LENGTH, nullable = false)
     private String content;
 
     @Column(nullable = false)
@@ -59,6 +61,25 @@ public class Comment extends BaseTimeEntity{
         this.likes = 0;
         this.isAnonymous = isAnonymous;
         this.isDeleted = false;
+    }
+
+    public void addlikes(){
+        this.likes++;
+    }
+
+    public void changeContent(String content) {
+        validateContent(content);
+        this.content = content;
+    }
+
+    public void updateDeleteStatus(){
+        this.isDeleted = true;
+    }
+
+    private boolean validateContent(String content){
+        if(content.isEmpty() || content.length()> MAX_CONTENT_LENGTH)
+            return false;
+        return true;
     }
 
 }
