@@ -42,5 +42,12 @@ public class LikeService {
     }
 
     @Transactional
-    public void removeCommentLike() {}
+    public void removeCommentLike(Comment comment, User user) {
+        Optional<CommentLike> findCommentLike = likeRepository.findCommentLikeByCommentAndUser(comment, user);
+        if (findCommentLike.isEmpty()) {
+            throw new IllegalArgumentException("해당하는 좋아요 데이터가 없습니다.");
+        }
+
+        likeRepository.delete(findCommentLike.get());
+    }
 }
