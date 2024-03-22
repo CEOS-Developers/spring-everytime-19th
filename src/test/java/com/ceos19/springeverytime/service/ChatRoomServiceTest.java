@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -68,13 +69,13 @@ public class ChatRoomServiceTest {
     void 채팅방_생성_테스트() {
         // given
         ChatRoom chatRoom = new ChatRoom(user1, user2);
-        given(chatRoomRepository.save(any(ChatRoom.class))).willReturn(1L);
+        given(chatRoomRepository.save(any(ChatRoom.class))).willReturn(chatRoom);
 
         // when
-        Long chatRoomId = chatRoomService.createChatRoom(chatRoom);
+        ChatRoom createdChatRoom = chatRoomService.createChatRoom(chatRoom);
 
         // then
-        Assertions.assertEquals(1L, chatRoomId);
+        Assertions.assertEquals(chatRoom, createdChatRoom);
     }
 
     @Test
@@ -82,7 +83,7 @@ public class ChatRoomServiceTest {
     void 채팅방_조회_테스트() {
         // given
         ChatRoom chatRoom = new ChatRoom(user1, user2);
-        given(chatRoomRepository.findOne(any())).willReturn(chatRoom);
+        given(chatRoomRepository.findById(any())).willReturn(Optional.of(chatRoom));
 
         // when
         ChatRoom testChatRoom = chatRoomService.getChatRoom(1L);

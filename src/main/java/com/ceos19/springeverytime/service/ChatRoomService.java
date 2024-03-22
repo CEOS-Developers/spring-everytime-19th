@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -16,11 +17,15 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
 
     public ChatRoom getChatRoom(Long roomId) {
-        return chatRoomRepository.findOne(roomId);
+        Optional<ChatRoom> findChatRoom = chatRoomRepository.findById(roomId);
+        if (findChatRoom.isEmpty()) {
+            throw new IllegalArgumentException("잘못된 room ID 입니다.");
+        }
+        return findChatRoom.get();
     }
 
     @Transactional
-    public Long createChatRoom(ChatRoom chatRoom) {
+    public ChatRoom createChatRoom(ChatRoom chatRoom) {
         return chatRoomRepository.save(chatRoom);
     }
 
@@ -30,6 +35,6 @@ public class ChatRoomService {
 
     @Transactional
     public void removeChatRoom(ChatRoom chatRoom) {
-        chatRoomRepository.remove(chatRoom);
+        chatRoomRepository.delete(chatRoom);
     }
 }
