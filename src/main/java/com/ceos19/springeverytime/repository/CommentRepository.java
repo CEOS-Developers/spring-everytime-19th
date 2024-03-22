@@ -2,37 +2,14 @@ package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-@Repository
-@RequiredArgsConstructor
-public class CommentRepository {
-    final private EntityManager em;
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    public Long save(Comment comment) {
-        em.persist(comment);
-        return comment.getCommentId();
-    }
-
-    public Comment findOne(Long commentId) {
-        return em.find(Comment.class, commentId);
-    }
-
-    public List<Comment> findAll() {
-        return em.createQuery("select c from Comment c", Comment.class).getResultList();
-    }
-
-    public List<Comment> findAllByPost(Post post) {
-        return em.createQuery("select c from Comment c where c.post = :post", Comment.class)
-                .setParameter("post", post)
-                .getResultList();
-    }
-
-    public void removeOne(Comment comment) {
-        em.remove(comment);
-    }
+    @Query("select c from Comment c where c.post = :post")
+    public List<Comment> findAllByPost(@Param("post") Post post);
 }

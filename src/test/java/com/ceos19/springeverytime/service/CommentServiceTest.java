@@ -69,12 +69,12 @@ public class CommentServiceTest {
     void 댓글_작성_테스트() {
         // given
         Comment comment = new Comment("화이팅", true, user2, post);
-        given(commentRepository.save(any(Comment.class))).willReturn(comment.getCommentId());
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
 
         // when
-        Long commentId = commentService.createComment(comment);
+        Comment comment1 = commentService.createComment(comment);
 
         // then
-        Assertions.assertEquals(comment.getCommentId(), commentId);
+        Assertions.assertEquals(comment, comment1);
     }
 }
