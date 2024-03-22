@@ -83,7 +83,7 @@ public class ChatRoomServiceTest {
         given(chatRoomRepository.findById(any())).willReturn(Optional.of(chatRoom));
 
         // when
-        ChatRoom testChatRoom = chatRoomService.getChatRoom(1L);
+        ChatRoom testChatRoom = chatRoomService.findChatRoom(1L);
 
         // then
         Assertions.assertEquals(testChatRoom, chatRoom);
@@ -100,7 +100,7 @@ public class ChatRoomServiceTest {
         given(chatRoomRepository.findAllByUser(any(User.class))).willReturn(chatRooms);
 
         // when
-        List<ChatRoom> testChatRooms = chatRoomService.getChatRoomsForUser(user1);
+        List<ChatRoom> testChatRooms = chatRoomService.findChatRoomsForUser(user1);
 
         // then
         Assertions.assertEquals(testChatRooms, chatRooms);
