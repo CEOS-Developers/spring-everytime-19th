@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Board {
 
+    public static final int MAX_NAME_LENGTH = 20;
+    public static final int MAX_DESCRIPTION_LENGTH = 50;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_id")
@@ -36,6 +39,32 @@ public class Board {
         this.description = description;
         this.boardManager = boardManager;
         this.university = university;
+    }
+
+    public void changeBoardName(String boardName){
+        this.boardName = boardName;
+    }
+
+    public void changeDescription(String description){
+        this.description = description;
+    }
+
+    private boolean validateBoardName(String boardName){
+        if(boardName.isEmpty() || boardName.length()> MAX_NAME_LENGTH)
+            return false;
+        return true;
+    }
+
+    private boolean validateDescription(String description){
+        if(description.isEmpty() || description.length()> MAX_DESCRIPTION_LENGTH)
+            return false;
+        return true;
+    }
+
+    private boolean validateBoard(String boardName, String description){
+        if(!validateBoardName(boardName) || !validateDescription(description))
+            return false;
+        return true;
     }
 
 }
