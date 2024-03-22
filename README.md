@@ -268,15 +268,87 @@ How??? 동적으로 프록시를 생성할까??
 ## 로그인 기능
 ## 글 쓰기
 ## 글 조회
-## 글 수정
-## 글 삭제
 ## 댓글 달기
-## 댓글 삭제
 ## 글 좋아요
-## 글 좋아요 취소
 ## 댓글 좋아요
-## 댓글 좋아요 취소
 ## 학기에 시간표 추가
 ## 시간표를 table에 추가
 ## 메시지 보내기
-## 메시지 삭제
+
+를 하려고 했으니 시간상으로 진행을 거의 못했습니다.........ㅠㅠㅠㅠㅠㅠㅠㅠ
+
+## 댓글 달기 서비스
+```java
+        insert 
+        into
+            post
+            (anonymous, board_id, content, created_date, likes, modified_date, title, user_id, view) 
+        values
+            (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    Hibernate: 
+        select
+            p1_0.post_id,
+            p1_0.anonymous,
+            p1_0.board_id,
+            p1_0.content,
+            p1_0.created_date,
+            p1_0.likes,
+            p1_0.modified_date,
+            p1_0.title,
+            p1_0.user_id,
+            p1_0.view 
+        from
+            post p1_0 
+        where
+            p1_0.post_id=?
+    Hibernate: 
+        insert 
+        into
+            comment
+            (content, content_like, created_date, modified_date, post_id, user_id) 
+        values
+            (?, ?, ?, ?, ?, ?)
+    Hibernate: 
+        select
+            c1_0.comment_id,
+            c1_0.content,
+            c1_0.content_like,
+            c1_0.created_date,
+            c1_0.modified_date,
+            c1_0.post_id,
+            c1_0.user_id 
+        from
+            comment c1_0
+    Hibernate: 
+        insert 
+        into
+            post
+            (anonymous, board_id, content, created_date, likes, modified_date, title, user_id, view) 
+        values
+            (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    Hibernate: 
+        insert 
+        into
+            comment
+            (content, content_like, created_date, modified_date, post_id, user_id) 
+        values
+            (?, ?, ?, ?, ?, ?)
+    Hibernate: 
+        insert 
+        into
+            comment
+            (content, content_like, created_date, modified_date, post_id, user_id) 
+        values
+            (?, ?, ?, ?, ?, ?)
+    Hibernate: 
+        select
+            c1_0.comment_id,
+            c1_0.content,
+            c1_0.content_like,
+            c1_0.created_date,
+            c1_0.modified_date,
+            c1_0.post_id,
+            c1_0.user_id 
+        from
+            comment c1_0        
+```
