@@ -29,7 +29,7 @@ public class Category {
     private Date createDate = new Date();
 
     @NonNull
-    @OneToOne
+    @ManyToOne
     private User manager;
 
     @NonNull
