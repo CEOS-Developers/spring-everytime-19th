@@ -2,7 +2,8 @@ package com.ceos19.springeverytime.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.domain.PostCategory;
+import com.ceos19.springeverytime.postcategory.domain.PostCategory;
+import com.ceos19.springeverytime.postcategory.repository.PostCategoryRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @Transactional
 class PostCategoryRepositoryTest {
-    @Autowired PostCategoryRepository postCategoryRepository;
+    @Autowired
+    PostCategoryRepository postCategoryRepository;
 
     @Test
     void findByName() {

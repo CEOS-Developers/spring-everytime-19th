@@ -2,7 +2,9 @@ package com.ceos19.springeverytime.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.domain.Room;
+import com.ceos19.springeverytime.room.domain.Room;
+import com.ceos19.springeverytime.room.repository.RoomRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @Transactional
 class RoomRepositoryTest {
-    @Autowired RoomRepository roomRepository;
+    @Autowired
+    RoomRepository roomRepository;
 
     @Test
     void findOne() {
@@ -23,7 +26,8 @@ class RoomRepositoryTest {
         roomRepository.save(room);
 
         //then
-        Room result = roomRepository.findById(room.getId()).orElseThrow(IllegalStateException::new);
+        Room result = roomRepository.findById(room.getId())
+                .orElseThrow(EntityNotFoundException::new);
         assertEquals(room, result);
     }
 

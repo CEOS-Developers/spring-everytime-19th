@@ -2,9 +2,10 @@ package com.ceos19.springeverytime.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.domain.Message;
-import com.ceos19.springeverytime.domain.Room;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.message.domain.Message;
+import com.ceos19.springeverytime.room.domain.Room;
+import com.ceos19.springeverytime.message.repository.MessageRepository;
+import com.ceos19.springeverytime.user.domain.User;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import org.junit.jupiter.api.Test;

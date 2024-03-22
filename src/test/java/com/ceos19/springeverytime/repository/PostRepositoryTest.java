@@ -2,7 +2,8 @@ package com.ceos19.springeverytime.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.post.domain.Post;
+import com.ceos19.springeverytime.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class PostRepositoryTest {
 
-    @Autowired PostRepository postRepository;
+    @Autowired
+    PostRepository postRepository;
 
     @Test
     void findOne() {

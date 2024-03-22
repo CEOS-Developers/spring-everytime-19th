@@ -2,9 +2,10 @@ package com.ceos19.springeverytime.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.comment.domain.Comment;
+import com.ceos19.springeverytime.comment.repository.CommentRepository;
+import com.ceos19.springeverytime.post.domain.Post;
+import com.ceos19.springeverytime.user.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;

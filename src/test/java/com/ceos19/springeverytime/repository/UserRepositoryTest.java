@@ -2,7 +2,8 @@ package com.ceos19.springeverytime.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.user.domain.User;
+import com.ceos19.springeverytime.user.repository.UserRepository;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @Transactional
 class UserRepositoryTest {
-    @Autowired UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
     @Test
     void findOne() {

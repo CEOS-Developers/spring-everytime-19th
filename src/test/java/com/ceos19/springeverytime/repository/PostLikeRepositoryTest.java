@@ -2,9 +2,10 @@ package com.ceos19.springeverytime.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.PostLike;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.post.domain.Post;
+import com.ceos19.springeverytime.postlike.domain.PostLike;
+import com.ceos19.springeverytime.postlike.repository.PostLikeRepository;
+import com.ceos19.springeverytime.user.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
@@ -17,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class PostLikeRepositoryTest {
 
-    @Autowired PostLikeRepository postLikeRepository;
+    @Autowired
+    PostLikeRepository postLikeRepository;
     @Autowired EntityManager em;
 
     @Test
@@ -44,6 +46,7 @@ class PostLikeRepositoryTest {
         Post nonTargetPost = Post.builder().build();
         em.persist(targetPost);
         em.persist(nonTargetPost);
+
         PostLike postLike1 = PostLike.builder().
                 post(targetPost)
                 .build();

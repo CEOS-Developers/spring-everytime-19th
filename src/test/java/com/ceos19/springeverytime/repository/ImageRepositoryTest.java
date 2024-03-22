@@ -2,8 +2,9 @@ package com.ceos19.springeverytime.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.domain.Image;
-import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.Image.repository.ImageRepository;
+import com.ceos19.springeverytime.Image.domain.Image;
+import com.ceos19.springeverytime.post.domain.Post;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import org.junit.jupiter.api.Test;
