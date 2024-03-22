@@ -8,7 +8,6 @@ import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,21 +23,23 @@ class CommentRepositoryTest {
     @Test
     void FindOne() {
         //given
-        Comment comment = new Comment();
+        Comment comment = Comment.builder().build();
         //when
         commentRepository.save(comment);
         //then
-        Assertions.assertEquals(comment, commentRepository.findOne(comment.getId()));
+        Comment result = commentRepository.findById(comment.getId()).orElseThrow(IllegalStateException::new);
+        assertEquals(comment, result);
     }
 
     @Test
     void findAll() {
         //given
-        Comment comment1 = new Comment();
-        Comment comment2 = new Comment();
+        Comment comment1 = Comment.builder().build();
+        Comment comment2 = Comment.builder().build();
         //when
         commentRepository.save(comment1);
         commentRepository.save(comment2);
+        //when
         List<Comment> allComments = commentRepository.findAll();
         //then
 
@@ -54,20 +55,18 @@ class CommentRepositoryTest {
                 .build();
         em.persist(user);
         em.persist(nonTargetUser);
-        Comment comment1 = new Comment();
-        Comment comment2 = new Comment();
-        Comment comment3 = new Comment();
-        comment1.setUser(user);
-        comment2.setUser(user);
-        comment3.setUser(nonTargetUser);
+        Comment comment1 = Comment.builder()
+                .user(user).build();
+        Comment comment2 = Comment.builder()
+                .user(user).build();
+        Comment comment3 = Comment.builder()
+                .user(nonTargetUser).build();
 
         //when
-        commentRepository.save(comment1);
-        commentRepository.save(comment2);
-        commentRepository.save(comment3);
+        commentRepository.saveAll(List.of(comment1, comment2, comment3));
 
         //then
-        List<Comment> allCommentsByUser = commentRepository.findByUser(user.getId());
+        List<Comment> allCommentsByUser = commentRepository.findCommentsByUserId(user.getId());
 
         assertEquals(2, allCommentsByUser.size());
     }
@@ -75,18 +74,20 @@ class CommentRepositoryTest {
     @Test
     void findByPost() {
         //given
-        Post post = new Post();
+        Post post = Post.builder().build();
         em.persist(post);
-        Comment comment1 = new Comment();
-        Comment comment2 = new Comment();
-        comment1.setPost(post);
-        comment2.setPost(post);
+
+        Comment comment1 = Comment.builder()
+                .post(post).build();
+        Comment comment2 = Comment.builder()
+                .post(post).build();
 
         //when
         commentRepository.save(comment1);
         commentRepository.save(comment2);
+
         //then
-        List<Comment> allCommentsByPost = commentRepository.findByPost(post.getId());
+        List<Comment> allCommentsByPost = commentRepository.findCommentsByPostId(post.getId());
 
         assertEquals(2, allCommentsByPost.size());
     }
@@ -94,13 +95,13 @@ class CommentRepositoryTest {
     @Test
     void delete() {
         //given
-        Comment comment = new Comment();
+        Comment comment = Comment.builder().build();
         //when
         commentRepository.save(comment);
         commentRepository.delete(comment);
 
         //then
-        assertThrows(EntityNotFoundException.class, () -> commentRepository.findOne(comment.getId())
+        assertThrows(EntityNotFoundException.class, () -> commentRepository.findById(comment.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Not found")));
     }
 }

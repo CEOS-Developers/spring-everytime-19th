@@ -19,10 +19,10 @@ class UserRepositoryTest {
         //given
         User user = User.builder()
                 .build();
-
         //when
         userRepository.save(user);
-        User result = userRepository.findOne(user.getId());
+        User result = userRepository.findById(user.getId()).orElseThrow(IllegalStateException::new);
+
         //then
         assertEquals(user.getId(), result.getId());
     }

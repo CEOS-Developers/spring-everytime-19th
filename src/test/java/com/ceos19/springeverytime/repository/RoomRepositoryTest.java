@@ -17,21 +17,22 @@ class RoomRepositoryTest {
     @Test
     void findOne() {
         //given
-        Room room = new Room();
+        Room room = Room.builder().build();
 
         //when
         roomRepository.save(room);
 
         //then
-        assertEquals(room, roomRepository.findOne(room.getId()));
+        Room result = roomRepository.findById(room.getId()).orElseThrow(IllegalStateException::new);
+        assertEquals(room, result);
     }
 
     @Test
     void findAll() {
         //given
-        Room room1 = new Room();
-        Room room2 = new Room();
-        Room room3 = new Room();
+        Room room1 = Room.builder().build();
+        Room room2 = Room.builder().build();
+        Room room3 = Room.builder().build();
 
         //when
         roomRepository.save(room1);

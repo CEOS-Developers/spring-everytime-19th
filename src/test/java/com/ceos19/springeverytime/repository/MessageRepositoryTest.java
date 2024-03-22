@@ -7,7 +7,6 @@ import com.ceos19.springeverytime.domain.Room;
 import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.EntityManager;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,11 +21,12 @@ class MessageRepositoryTest {
     @Test
     void FindOne() {
         //given
-        Message message = new Message();
+        Message message = Message.builder().build();
         //when
         messageRepository.save(message);
         //then
-        Assertions.assertEquals(message, messageRepository.findOne(message.getId()));
+        Message result = messageRepository.findById(message.getId()).orElseThrow(IllegalStateException::new);
+        assertEquals(message, result);
     }
 
     @Test
@@ -35,14 +35,17 @@ class MessageRepositoryTest {
         User user = User.builder()
                 .build();
         em.persist(user);
-        Message message1 = new Message();
-        Message message2 = new Message();
+        Message message1 = Message.builder().
+                sender(user)
+                .build();
+        Message message2 = Message.builder().
+                sender(user)
+                .build();
+
         //when
-        message1.setSender(user);
-        message2.setSender(user);
         messageRepository.save(message1);
         messageRepository.save(message2);
-        List<Message> allMessages = messageRepository.findByUser(user.getId());
+        List<Message> allMessages = messageRepository.findMessagesBySender_Id(user.getId());
         //then
         assertEquals(2, allMessages.size());
     }
@@ -50,17 +53,17 @@ class MessageRepositoryTest {
     @Test
     void findByRoom() {
         //given
-        Room room = new Room();
+        Room room = Room.builder().build();
         em.persist(room);
-        Message message1 = new Message();
-        Message message2 = new Message();
+        Message message1 = Message.builder()
+                .room(room).build();
+        Message message2 = Message.builder()
+                .room(room).build();
         //when
-        message1.setRoom(room);
-        message2.setRoom(room);
         messageRepository.save(message1);
         messageRepository.save(message2);
         //then
-        List<Message> allMessagesByPost = messageRepository.findByRoom(room.getId());
+        List<Message> allMessagesByPost = messageRepository.findMessagesByRoom_Id(room.getId());
 
         assertEquals(2,allMessagesByPost.size());
     }

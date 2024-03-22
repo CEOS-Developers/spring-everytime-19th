@@ -31,33 +31,35 @@ class PostLikeRepositoryTest {
         postLikeRepository.save(postLike1);
         postLikeRepository.save(postLike2);
         //then
-        assertEquals(postLike1, postLikeRepository.findOne(postLike1.getId()));
+        PostLike result = postLikeRepository.findById(postLike1.getId())
+                .orElseThrow(IllegalStateException::new);
+
+        assertEquals(postLike1, result);
     }
 
     @Test
     void findByPost() {
         //given
-        Post targetPost = new Post();
-        Post nonTargetPost = new Post();
+        Post targetPost = Post.builder().build();
+        Post nonTargetPost = Post.builder().build();
         em.persist(targetPost);
         em.persist(nonTargetPost);
-        PostLike postLike1 = PostLike.builder()
+        PostLike postLike1 = PostLike.builder().
+                post(targetPost)
                 .build();
-        PostLike postLike2 = PostLike.builder()
+        PostLike postLike2 = PostLike.builder().
+                post(targetPost)
                 .build();
-        PostLike postLike3 = PostLike.builder()
+        PostLike postLike3 = PostLike.builder().
+                post(nonTargetPost)
                 .build();
 
         //when
-        postLike1.setPost(targetPost);
-        postLike2.setPost(targetPost);
-
-        postLike3.setPost(nonTargetPost);
         postLikeRepository.save(postLike1);
         postLikeRepository.save(postLike2);
         postLikeRepository.save(postLike3);
 
-        List<PostLike> AllPostLikes = postLikeRepository.findByPost(targetPost.getId());
+        List<PostLike> AllPostLikes = postLikeRepository.findByPostId(targetPost.getId());
 
         //then
         assertEquals(2, AllPostLikes.size());
@@ -73,22 +75,21 @@ class PostLikeRepositoryTest {
         em.persist(targetUser);
         em.persist(nonTargetUser);
         PostLike postLike1 = PostLike.builder()
+                .user(targetUser)
                 .build();
         PostLike postLike2 = PostLike.builder()
+                .user(targetUser)
                 .build();
         PostLike postLike3 = PostLike.builder()
+                .user(nonTargetUser)
                 .build();
 
         //when
-        postLike1.setUser(targetUser);
-        postLike2.setUser(targetUser);
-
-        postLike3.setUser(nonTargetUser);
         postLikeRepository.save(postLike1);
         postLikeRepository.save(postLike2);
         postLikeRepository.save(postLike3);
 
-        List<PostLike> AllPostLikes = postLikeRepository.findByUser(targetUser.getId());
+        List<PostLike> AllPostLikes = postLikeRepository.findByUserId(targetUser.getId());
 
         //then
         assertEquals(2, AllPostLikes.size());
@@ -104,7 +105,7 @@ class PostLikeRepositoryTest {
         postLikeRepository.delete(postLike);
 
         //then
-        assertThrows(EntityNotFoundException.class, () -> postLikeRepository.findOne(postLike.getId())
+        assertThrows(EntityNotFoundException.class, () -> postLikeRepository.findById(postLike.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Not found")));
     }
 }
