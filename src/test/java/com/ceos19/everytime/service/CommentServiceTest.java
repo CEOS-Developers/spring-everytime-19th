@@ -3,6 +3,7 @@ package com.ceos19.everytime.service;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
@@ -18,6 +19,7 @@ import com.ceos19.everytime.domain.Comment;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.User;
 import com.ceos19.everytime.dto.request.CommentWriteRequestDto;
+import com.ceos19.everytime.repository.CommentLikeRepository;
 import com.ceos19.everytime.repository.CommentRepository;
 import com.ceos19.everytime.repository.PostRepository;
 import com.ceos19.everytime.repository.UserRepository;
@@ -33,6 +35,9 @@ class CommentServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private CommentLikeRepository commentLikeRepository;
 
     @InjectMocks
     private CommentService commentService;
@@ -101,5 +106,25 @@ class CommentServiceTest {
 
         // then
         verify(commentRepository).save(any());
+    }
+
+    @Test
+    void 댓글을_삭제한다() {
+        final Comment comment = Comment.builder()
+                .user(user)
+                .post(post)
+                .content("content")
+                .build();
+        given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(comment));
+        doNothing().when(commentRepository).deleteById(anyLong());
+        doNothing().when(commentLikeRepository).deleteAllByComment(any());
+
+        // when
+        commentService.delete(1L);
+
+        // then
+        verify(commentRepository).deleteById(anyLong());
+        verify(commentLikeRepository).deleteAllByComment(any());
     }
 }
