@@ -74,6 +74,6 @@ public class CategoryServiceTest {
         findCategory.changeManager(user2);
 
         // then
-        assertThat(categoryService.findById(category.getCategoryId()).getManager()).isEqualTo(user2);
+        assertThat(findCategory.getManager()).isEqualTo(user2);
     }
 }
