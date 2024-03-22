@@ -26,9 +26,8 @@ public class CategoryService {
     }
 
     @Transactional
-    public Long create(Category category) {
-        categoryRepository.save(category);
-        return category.getCategoryId();
+    public Category create(Category category) {
+        return categoryRepository.save(category);
     }
 
     @Transactional

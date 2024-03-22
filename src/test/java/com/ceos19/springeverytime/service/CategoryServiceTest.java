@@ -56,10 +56,10 @@ public class CategoryServiceTest {
         given(categoryRepository.save(any(Category.class))).willReturn(category);
 
         // when
-        Long newCategoryId = categoryService.create(category);
+        Category newCategory = categoryService.create(category);
 
         // then
-        assertThat(newCategoryId).isEqualTo(category.getCategoryId());
+        assertThat(newCategory).isEqualTo(category);
     }
 
     @Test
