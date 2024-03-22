@@ -18,6 +18,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public void delete(User user) {
+        userRepository.delete(user);
+    }
+
     public User findOne(Long userId) {
         Optional<User> findUser = userRepository.findById(userId);
         if (findUser.isPresent()) return findUser.get();
