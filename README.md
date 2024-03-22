@@ -45,9 +45,9 @@
 
 ---
 ## Repository 단위 테스트
-school_id라는 외래키를 포함하는 'User' entity로 repository 단위 테스트를 진행
+school_id라는 외래키를 포함하는 'User' entity로 repository 단위 테스트를 진행  
 0. '@BeforeEach'를 통해 필요한 환경 세팅
-- **@BeforeEach란?** @BeforeEach는 각 테스트 메소드가 실행되기 전에 먼저 실행되어야 하는 메소드를 지정하는 데 사용됨. 테스트 환경을 초기화하거나 테스트에 필요한 데이터를 준비하는 데 주로 사용됨.
+- **@BeforeEach란?**   @BeforeEach는 각 테스트 메소드가 실행되기 전에 먼저 실행되어야 하는 메소드를 지정하는 데 사용됨. 테스트 환경을 초기화하거나 테스트에 필요한 데이터를 준비하는 데 주로 사용됨.
 ```java
 @BeforeEach
 void setup() { //School 객체 미리 생성
