@@ -25,7 +25,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "author")
     private List<Post> posts;
 
 

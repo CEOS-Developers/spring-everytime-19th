@@ -26,15 +26,15 @@ public class Comment extends BaseTimeEntity{
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", referencedColumnName = "id") // referencedColumnName을 생략하면 해당 테이블의 pk를 자동으로 매핑해줌
+    @JoinColumn(name = "post_id") // referencedColumnName을 생략하면 해당 테이블의 pk를 자동으로 매핑해줌
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id", referencedColumnName = "id")
+    @JoinColumn(name = "parent_id")
     private Comment parentComment;
 
     private String content;
