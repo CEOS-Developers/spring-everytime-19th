@@ -54,6 +54,11 @@ public class Post extends BaseTimeEntity{
         likes++;
     }
 
+    public void deleteLike(){
+        if(this.likes!=0)
+            likes--;
+    }
+
     public void changeTitle(final String title) {
         validateTitle(title);
         this.title = title;
