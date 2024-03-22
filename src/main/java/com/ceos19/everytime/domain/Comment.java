@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -63,8 +60,13 @@ public class Comment extends BaseTimeEntity{
         this.isDeleted = false;
     }
 
-    public void addlikes(){
+    public void addLike(){
         this.likes++;
+    }
+
+    public void deleteLike(){
+        if(this.likes > 0)
+            this.likes--;
     }
 
     public void changeContent(String content) {
