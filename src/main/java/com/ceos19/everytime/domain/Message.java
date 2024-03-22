@@ -38,4 +38,11 @@ public class Message {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
     private User receiver;
+
+    public Message(final String content, final User sender, final User receiver) {
+        this.content = content;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.transferTime = LocalDateTime.now();
+    }
 }
