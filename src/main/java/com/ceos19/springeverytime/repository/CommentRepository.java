@@ -1,51 +1,13 @@
 package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.domain.Comment;
-import jakarta.persistence.EntityManager;
 import java.util.List;
-import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-@RequiredArgsConstructor
-public class CommentRepository {
-    private final EntityManager em;
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    public void save(Comment comment){
-        em.persist(comment);
-    }
+    List<Comment> findCommentsByUserId(Long userId);
 
-    public Optional<Comment> findOne(Long id){
-        return Optional.ofNullable(em.find(Comment.class,id));
-    }
-
-    public List<Comment> findAll(){
-        return em.createQuery("select c from Comment c", Comment.class)
-                .getResultList();
-    }
-
-    public List<Comment> findByUser(Long id){
-        return em.createQuery("select c "
-                + "from Comment c "
-                + "join fetch c.user u "
-                + "where u.id =: userId",
-                Comment.class)
-                .setParameter("userId",id)
-                .getResultList();
-    }
-
-    public List<Comment> findByPost(Long id){
-        return em.createQuery("select c "
-                + "from Comment c "
-                + "join fetch c.post p "
-                + "where p.id =: postId", Comment.class)
-                .setParameter("postId",id)
-                .getResultList();
-    }
-
-    public void delete(Comment comment){
-        em.remove(comment);
-    }
+    List<Comment> findCommentsByPostId(Long postId);
 
 }
