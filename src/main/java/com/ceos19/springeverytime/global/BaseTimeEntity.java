@@ -1,4 +1,4 @@
-package com.ceos19.springeverytime.domain;
+package com.ceos19.springeverytime.global;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

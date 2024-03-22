@@ -1,5 +1,8 @@
-package com.ceos19.springeverytime.domain;
+package com.ceos19.springeverytime.message.domain;
 
+import com.ceos19.springeverytime.room.domain.Room;
+import com.ceos19.springeverytime.global.BaseTimeEntity;
+import com.ceos19.springeverytime.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Message extends BaseTimeEntity{
+public class Message extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")

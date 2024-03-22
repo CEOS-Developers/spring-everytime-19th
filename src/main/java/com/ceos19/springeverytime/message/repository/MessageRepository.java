@@ -1,6 +1,6 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.message.repository;
 
-import com.ceos19.springeverytime.domain.Message;
+import com.ceos19.springeverytime.message.domain.Message;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 

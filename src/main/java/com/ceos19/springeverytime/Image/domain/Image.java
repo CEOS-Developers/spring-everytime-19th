@@ -1,5 +1,7 @@
-package com.ceos19.springeverytime.domain;
+package com.ceos19.springeverytime.Image.domain;
 
+import com.ceos19.springeverytime.global.BaseTimeEntity;
+import com.ceos19.springeverytime.post.domain.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

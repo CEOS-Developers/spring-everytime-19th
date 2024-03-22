@@ -1,5 +1,8 @@
-package com.ceos19.springeverytime.domain;
+package com.ceos19.springeverytime.comment.domain;
 
+import com.ceos19.springeverytime.global.BaseTimeEntity;
+import com.ceos19.springeverytime.post.domain.Post;
+import com.ceos19.springeverytime.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,7 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Comment extends BaseTimeEntity{
+public class Comment extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")

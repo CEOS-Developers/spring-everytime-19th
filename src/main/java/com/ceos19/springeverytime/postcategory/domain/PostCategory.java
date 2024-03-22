@@ -1,4 +1,4 @@
-package com.ceos19.springeverytime.domain;
+package com.ceos19.springeverytime.postcategory.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
