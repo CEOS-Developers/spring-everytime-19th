@@ -38,6 +38,9 @@ public class Post extends BaseTimeEntity {
     @Column(name="scrap_num", nullable = false)
     private Long scrapNum=0L;
 
+    @Column(name="is_anonymity", nullable = false)
+    private boolean isAnonymity=true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;

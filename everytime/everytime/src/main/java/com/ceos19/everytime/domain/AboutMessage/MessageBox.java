@@ -23,7 +23,7 @@ public class MessageBox extends BaseTimeEntity {
 
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name="partner_user_id")
     private User user;
 
 }
