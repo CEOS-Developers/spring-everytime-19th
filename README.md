@@ -109,7 +109,7 @@ CEOS 19th BE study - everytime clone coding
 #### 유저
 - [x] 유저 회원 가입
 - [x] 유저 회원 탈퇴
-- [ ] 유저 대학교 인증
+- [x] 유저 대학교 인증
 - [ ] ~~유저 로그인~~ (TODO)
 - [ ] ~~유저 로그아웃~~ (TODO)
 #### 게시판

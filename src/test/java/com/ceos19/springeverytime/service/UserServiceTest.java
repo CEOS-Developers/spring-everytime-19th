@@ -29,14 +29,13 @@ public class UserServiceTest {
     void 회원가입_테스트() {
         // given
         User user = new User(
-                "test",
-                "adsfbsa234@ad",
-                "nicnname",
-                "kim",
-                "computer",
-                "20",
-                "test@exmaple.com",
-                true
+            "test",
+            "adsfbsa234@ad",
+            "nicnname",
+            "kim",
+            "computer",
+            "20",
+            "test@exmaple.com"
         );
         given(userRepository.save(any(User.class))).willReturn(user);
 

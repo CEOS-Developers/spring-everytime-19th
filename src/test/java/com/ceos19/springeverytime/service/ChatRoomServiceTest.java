@@ -37,8 +37,7 @@ public class ChatRoomServiceTest {
                 "kim",
                 "computer",
                 "20",
-                "test@exmaple.com",
-                true
+                "test@exmaple.com"
         );
 
         user2 = new User(
@@ -48,8 +47,7 @@ public class ChatRoomServiceTest {
                 "kwon",
                 "data",
                 "21",
-                "test2@exmaple.com",
-                true
+                "test2@exmaple.com"
         );
 
         user3 = new User(
@@ -59,8 +57,7 @@ public class ChatRoomServiceTest {
                 "lee",
                 "math",
                 "22",
-                "test3@exmaple.com",
-                true
+                "test3@exmaple.com"
         );
     }
 

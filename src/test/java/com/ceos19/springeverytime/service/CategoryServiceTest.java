@@ -34,8 +34,7 @@ public class CategoryServiceTest {
             "kim",
             "computer",
             "20",
-            "test@exmaple.com",
-            true
+            "test@exmaple.com"
         );
 
         user2 = new User(
@@ -45,8 +44,7 @@ public class CategoryServiceTest {
                 "kwon",
                 "data",
                 "21",
-                "test2@exmaple.com",
-                true
+                "test2@exmaple.com"
         );
     }
 

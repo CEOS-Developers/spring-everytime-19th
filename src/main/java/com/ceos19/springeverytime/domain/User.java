@@ -43,11 +43,14 @@ public class User {
     @Column(length = 30, nullable = false)
     private String email;
 
-    @NonNull
     @Column(nullable = false)
-    private boolean isEnrolled;
+    private boolean isEnrolled = false;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false, updatable = false)
     private Date createDate;
+
+    public void authenticateUniversity() {
+        this.isEnrolled = true;
+    }
 }
