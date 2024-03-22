@@ -5,6 +5,7 @@ import com.ceos19.springeverytime.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -12,14 +13,21 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public Long register(User user) {
-        userRepository.save(user);
-        return user.getUserId();
+    public User register(User user) {
+        validateDuplicatedUser(user);
+        return userRepository.save(user);
     }
 
     public User findOne(Long userId) {
         Optional<User> findUser = userRepository.findById(userId);
         if (findUser.isPresent()) return findUser.get();
         throw new IllegalArgumentException("잘못된 유저 ID 입니다.");
+    }
+
+    private void validateDuplicatedUser(User user) {
+        Optional<User> findUser = userRepository.findByLoginId(user.getLoginId());
+        if (findUser.isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 회원 아이디입니다.");
+        }
     }
 }

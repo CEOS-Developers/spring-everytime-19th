@@ -3,6 +3,7 @@ package com.ceos19.springeverytime.service;
 import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.repository.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
@@ -25,26 +25,25 @@ public class UserServiceTest {
     UserRepository userRepository;
 
     @Test
-    void test() {
+    @DisplayName("회원 가입 테스트")
+    void 회원가입_테스트() {
         // given
         User user = new User(
-            "test",
-            "adsfbsa234@ad",
-            "nicnname",
-            "kim",
-            "computer",
-            "20",
-            "test@exmaple.com",
-            true
+                "test",
+                "adsfbsa234@ad",
+                "nicnname",
+                "kim",
+                "computer",
+                "20",
+                "test@exmaple.com",
+                true
         );
-        given(userRepository.findById(any())).willReturn(Optional.of(user));
+        given(userRepository.save(any(User.class))).willReturn(user);
 
         // when
-        System.out.println(user.getUserId());
-        User test_user = userService.findOne(user.getUserId());
+        User joinUser = userService.register(user);
 
         // then
-        Assertions.assertThat(test_user).isSameAs(user);
+        Assertions.assertThat(joinUser).isSameAs(user);
     }
-
 }
