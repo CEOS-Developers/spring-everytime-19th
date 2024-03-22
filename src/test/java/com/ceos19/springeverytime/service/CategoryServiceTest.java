@@ -3,6 +3,7 @@ package com.ceos19.springeverytime.service;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.repository.CategoryRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -75,5 +77,18 @@ public class CategoryServiceTest {
 
         // then
         assertThat(findCategory.getManager()).isEqualTo(user2);
+    }
+
+    @Test
+    @DisplayName("14일 이전 게시판 삭제시 오류 테스트")
+    void 게시판_생성_후_14일_이전_삭제_테스트() {
+        // given
+        Category category = new Category("자유게시판", "", user1);
+
+        // when
+        // then
+        assertThatThrownBy(() -> {categoryService.delete(category);})
+                .isInstanceOf(IllegalArgumentException.class);
+
     }
 }

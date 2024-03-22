@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +31,12 @@ public class CategoryService {
     @Transactional
     public Category create(Category category) {
         return categoryRepository.save(category);
+    }
+
+    @Transactional
+    public void delete(Category category) {
+        validateCategoryCreatedBefore14Days(category);
+        categoryRepository.delete(category);
     }
 
     @Transactional
@@ -52,5 +61,13 @@ public class CategoryService {
             throw new IllegalArgumentException("잘못된 카테고리 ID 입니다.");
         }
         return category.get().getPosts();
+    }
+
+    private void validateCategoryCreatedBefore14Days(Category category) {
+        Date today = new Date();
+
+        if (today.compareTo(category.getCreateDate()) < 14) {
+            throw new IllegalArgumentException("게시판을 삭제하려면 생성 후 14일이 지나야 합니다.");
+        }
     }
 }
