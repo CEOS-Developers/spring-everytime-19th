@@ -26,6 +26,7 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "parent_comment_id")
+    @Setter
     private Comment parentComment;
 
     @NonNull

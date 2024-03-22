@@ -48,7 +48,7 @@ public class User {
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false, updatable = false)
-    private Date createDate;
+    private Date createDate = new Date();
 
     public void authenticateUniversity() {
         this.isEnrolled = true;
