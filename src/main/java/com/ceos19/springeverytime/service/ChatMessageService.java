@@ -18,4 +18,9 @@ public class ChatMessageService {
     public List<ChatMessage> getMessagesFromChatRoom(ChatRoom chatRoom) {
         return chatMessageRepository.findAllByChatRoom(chatRoom);
     }
+
+    @Transactional
+    public ChatMessage send(ChatMessage chatMessage) {
+        return chatMessageRepository.save(chatMessage);
+    }
 }
