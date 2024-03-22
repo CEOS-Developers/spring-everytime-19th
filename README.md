@@ -262,7 +262,145 @@ How??? 동적으로 프록시를 생성할까??
     }
     
 ----------------------------------------------------------------------------------------------------------
+- test 조금 더 공부하자
 
+## 통합 테스트 - @SpringBootTest
+- 모든 빈을 등록하여 테스트를 진행 -> 애플리케이션 규모가 크면 테스트가 많이 느려진다
+- @RunWith : 해당 어노테이션을 사용하면 JUnit의 러너를 사용하는게 아니라 지정된 SpringRunner 클래스를 사용한다.
+- @SpringBootTest
+- @EnableConfigurationProperties : Configuration으로 사용하는 클래스를 빈으로 등록할 수 있게 해줌.
+```java
+    @RunWith(SpringRunner.class)
+@SpringBootTest(
+        properties = {
+                "property.value=propertyTest",
+                "value=test"
+        },
+        classes = {TestApplication.class},
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
+@EnableConfigurationProperties(StayGolfConfiguration.class)
+public class TestApplicationTests {
+
+  @Value("${value}")
+  private String value;
+
+  @Value("${property.value}")
+  private String propertyValue;
+
+  @Test
+  public void contextLoads() {
+    assertThat(value, is("test"));
+    assertThat(propertyValue, is("propertyTest"));
+  }
+
+}
+```
+## 컨트롤러 테스트 - @WebMvcTest
+- 웹상에서 요청과 응답에 대한 테스트
+```java
+      @RunWith(SpringRunner.class)
+    @WebMvcTest(BookApi.class)
+    public class BookApiTest {
+
+      @Autowired
+      private MockMvc mvc;
+
+      @MockBean
+      private BookService bookService;
+
+      @Test
+      public void getBook_test() throws Exception {
+          //given
+          final Book book = new Book(1L, "title", 1000D);
+
+          given(bookService.getBook()).willReturn(book);
+
+          //when
+          final ResultActions actions = mvc.perform(get("/books/{id}", 1L)
+                  .contentType(MediaType.APPLICATION_JSON_UTF8))
+                  .andDo(print());
+
+          //then
+          actions
+                  .andExpect(status().isOk())
+                  .andExpect(jsonPath("id").value(1L))
+                  .andExpect(jsonPath("title").value("title"))
+                  .andExpect(jsonPath("price").value(1000D))
+          ;
+
+      }
+    }
+```
+
+## JPA 관련 테스트 - @DataJpaTest
+- JPA 관련된 설정만 로드
+- @Entity 클래스를 스캔하여 스프링 데이터 JPA 저장소를 구성
+기본적으로 인메모리 데이터베이스를 이용
+- 데이터소스의 설정이 정상적인지, JPA를 사용하서 데이터를 제대로 생성, 수정, 삭제하는지 등의 테스트가 가능
+- @AutoConfigureTestDataBase : 데이터 소스를 어떤 걸로 사용할지에 대한 설정
+- Replace.Any : 기본적으로 내장된 데이터소스를 사용
+- Replace.NONE : @ActiveProfiles 기준으로 프로파일이 설정됨
+- @DataJpaTest : 테스트가 끝날 때마다 자동으로 테스트에 사용한 데이터를 롤백
+```java
+        /**
+     * What the test database can replace.
+     */ 
+    enum Replace {
+    
+      /**
+       * Replace any DataSource bean (auto-configured or manually defined).
+       */
+      ANY,
+    
+      /**
+       * Only replace auto-configured DataSource.
+       */
+      AUTO_CONFIGURED,
+    
+      /**
+       * Don't replace the application default DataSource.
+       */
+      NONE
+    
+    }
+```
+## REST 관련 테스트 - @RestClientTest
+- Rest 통신의 JSON 형식이 예상대로 응답을 반환하는지 등을 테스트
+- @RestClientTest : 테스트 대상이 되는 빈을 주입받음
+- @Rule
+- MockRestServiceServer : 클라이언트와 서버 사이의 REST 테스트를 위한 객체. 내부에서 RestTemplate을 바인딩하여 실제로 통신이 이루어지게끔 구성할 수 있음. 이 코드에서는 목 객체와 같이 실제 통신이 이루어지지는 않지만 지정한 경로에 예상되는 반환값을 명시
+```java
+        @RunWith(SpringRunner.class)
+    @RestClientTest(BookRestService.class)
+    public class BookRestServiceTest {
+    
+        @Rule
+        public ExpectedException thrown = ExpectedException.none();
+    
+        @Autowired
+        private BookRestService bookRestService;
+    
+        @Autowired
+        private MockRestServiceServer server;
+    
+        @Test
+        public void rest_test() {
+    
+            server.expect(requestTo("/rest/test"))
+                    .andRespond(
+                            withSuccess(new ClassPathResource("/test.json", getClass()), MediaType.APPLICATION_JSON));
+    
+            Book book = bookRestService.getRestBook();
+    
+            assertThat(book.getId(), is(notNullValue()));
+            assertThat(book.getTitle(), is("title"));
+            assertThat(book.getPrice(), is(1000D));
+    
+        }
+    }
+```
+-----------------------------------------------------------------
 # Service 구현해보기
 
 ## 로그인 기능
