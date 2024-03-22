@@ -4,18 +4,15 @@ import com.ceos19.springeverytime.domain.Image;
 import com.ceos19.springeverytime.domain.Post;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
-@RequiredArgsConstructor
-public class ImageRepository {
-    private final EntityManager em;
+public interface ImageRepository extends JpaRepository<Image, Long> {
 
-    public List<Image> findAllByPost(Post post) {
-        return em.createQuery("select i from Image i where i.post = :post",Image.class)
-                .setParameter("post", post)
-                .getResultList();
-    }
+    @Query("select i from Image i where i.post = :post")
+    public List<Image> findAllByPost(@Param("post") Post post);
 }
