@@ -134,3 +134,9 @@ CEOS 19th BE study - everytime clone coding
 - [ ] 최초 쪽지 전송 (쪽지방 생성 + 쪽지 전송)
 - [ ] 쪽지 전송
 - [ ] 쪽지방 삭제 (전체 쪽지 삭제)
+
+### 레포지토리 테스트
+@DataJpaTest 이용해 볼 예정
+
+### 서비스 단위 테스트
+서비스 단위 테스트는 레포지토리를 mocking 하여 진행
