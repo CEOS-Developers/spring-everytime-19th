@@ -6,12 +6,14 @@ import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Optional;
 
 @SpringBootTest
 @Transactional
@@ -27,10 +29,10 @@ public class CategoryRepositoryTest {
 
     User user1;
 
-//    @BeforeEach
-//    public void 테스트_셋업() {
-//        user1 = createUser("user1");
-//    }
+    @BeforeEach
+    public void 테스트_셋업() {
+        user1 = createUser("user1");
+    }
 
     @Test
     public void 카테고리_생성_테스트() throws Exception {
@@ -38,11 +40,10 @@ public class CategoryRepositoryTest {
         Category category = createCategory(user1);
 
         //when
-        categoryRepository.save(category);
-        Category findCategory = categoryRepository.findById(category.getCategoryId()).get();
+        Category saveCategory = categoryRepository.save(category);
 
         //then
-        Assertions.assertThat(category.getCategoryId()).isEqualTo(findCategory.getCategoryId());
+        Assertions.assertThat(category.getCategoryId()).isEqualTo(saveCategory.getCategoryId());
     }
 
     @Test
@@ -64,29 +65,41 @@ public class CategoryRepositoryTest {
         em.clear();
 
         // then
-//        Assertions.assertEquals(3, categoryRepository.findOne(freeCategory.getCategoryId()).getPosts().size());
+        Assertions.assertThat(3)
+                .isEqualTo(categoryRepository.findById(freeCategory.getCategoryId()).get().getPosts().size());
     }
 
-//    private User createUser(String id) {
-////        User user = new User(
-////                id,
-////                "1234",
-////                "nickname",
-////                "kim",
-////                "computer",
-////                "20",
-////                "test@example.com",
-////                true,
-////                new Date());
-//
-//        userRepository.save(user);
-//        return user;
-//    }
+    @Test
+    @DisplayName("카테고리 조회 테스트")
+    void 카테고리_조회_테스트() {
+        // given
+        Category freeCategory = createCategory(user1);
+
+        // when
+        Optional<Category> findCategory = categoryRepository.findById(freeCategory.getCategoryId());
+
+        // then
+        Assertions.assertThat(findCategory.get()).isSameAs(freeCategory);
+    }
+
+    private User createUser(String id) {
+        User user = new User(
+            id,
+            "1234",
+            "nickname",
+            "kim",
+            "computer",
+            "20",
+            "test@example.com"
+        );
+
+        userRepository.save(user);
+        return user;
+    }
 
     private Category createCategory(User manager) {
         Category category = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
-        categoryRepository.save(category);
-        return category;
+        return categoryRepository.save(category);
     }
 
 }
