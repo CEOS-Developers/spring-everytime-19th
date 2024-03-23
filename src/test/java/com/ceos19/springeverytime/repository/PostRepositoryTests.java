@@ -5,20 +5,21 @@ import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.Optional;
 
 @SpringBootTest
 @Transactional
 public class PostRepositoryTests {
-    @Autowired
-    EntityManager em;
-
     @Autowired
     PostRepository postRepository;
 
@@ -28,35 +29,73 @@ public class PostRepositoryTests {
     @Autowired
     CategoryRepository categoryRepository;
 
+    User user;
+    Category category;
+
+    @BeforeEach
+    void 테스트_셋업() {
+        user = createUser("user1");
+        category = createCategory(user);
+    }
+
     @Test
     public void 게시글_생성_테스트() throws Exception {
         //given
-//        User user1 = createUser("user1");
-//        Category category = createCategory(user1);
-//
-//        //when
-//        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, category);
-//        postRepository.save(post1);
-//
-//        //then
-//        Assertions.assertEquals(em.find(Post.class, post1.getPostId()), post1);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user, category);
+
+        //when
+        postRepository.save(post1);
+
+        //then
+        Assertions.assertEquals(postRepository.findById(post1.getPostId()).get(), post1);
     }
 
-//    private User createUser(String id) {
-//        User user = new User(
-//                id,
-//                "1234",
-//                "nickname",
-//                "kim",
-//                "computer",
-//                "20",
-//                "test@example.com",
-//                true,
-//                new Date());
-//
-//        userRepository.save(user);
-//        return user;
-//    }
+    @Test
+    @DisplayName("게시글 수정 테스트")
+    public void 게시글_수정_테스트() throws Exception {
+        //given
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user, category);
+        postRepository.save(post1);
+
+        //when
+        post1.modify("첫번째 글 수정", "첫번째 글 수정입니다.");
+
+        //then
+        Post testPost = postRepository.findById(post1.getPostId()).get();
+        Assertions.assertEquals(testPost, post1);
+        Assertions.assertEquals(testPost.getTitle(), "첫번째 글 수정");
+        Assertions.assertEquals(testPost.getContent(), "첫번째 글 수정입니다.");
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 테스트")
+    public void 게시글_삭제_테스트() throws Exception {
+        //given
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user, category);
+        postRepository.save(post1);
+
+        //when
+        postRepository.delete(post1);
+
+        //then
+        Optional<Post> testPost = postRepository.findById(post1.getPostId());
+        Assertions.assertTrue(testPost.isEmpty());
+    }
+
+    private User createUser(String id) {
+        User user = new User(
+                id,
+                "1234",
+                "nickname",
+                "kim",
+                "computer",
+                "20",
+                "test@example.com"
+        );
+
+        userRepository.save(user);
+        return user;
+    }
 
     private Category createCategory(User manager) {
         Category category = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
