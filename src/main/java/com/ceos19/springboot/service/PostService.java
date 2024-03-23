@@ -3,6 +3,8 @@ package com.ceos19.springboot.service;
 import com.ceos19.springboot.domain.Post;
 import com.ceos19.springboot.domain.PostLike;
 import com.ceos19.springboot.domain.Users;
+import com.ceos19.springboot.repository.CommentRepository;
+import com.ceos19.springboot.repository.PostLikeRepository;
 import com.ceos19.springboot.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,8 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class PostService {
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
 
     // 게시글 저장
     @Transactional
@@ -45,5 +49,21 @@ public class PostService {
         Post findPost = postRepository.findById(post.getPostId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
         findPost.plusLike();
+    }
+
+    @Transactional
+    public void unLike(Post post) {
+        Post findPost = postRepository.findById(post.getPostId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
+        findPost.minusLike();
+    }
+
+    //게시글 삭제
+    @Transactional
+    public void deletePost(Post post) {
+        commentRepository.deleteByPost(post);
+        postLikeRepository.deleteByPost(post);
+
+        postRepository.delete(post);
     }
 }
