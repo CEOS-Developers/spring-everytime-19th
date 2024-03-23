@@ -55,4 +55,12 @@ public class Post {
 
     @OneToMany(mappedBy = "post")
     private List<Image> images = new ArrayList<>();
+
+    /**
+     * 비즈니스 로직
+     * */
+    public void modify(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }
