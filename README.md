@@ -52,9 +52,10 @@ public class User {
 ## Service Business Logic 목록
 **User**
 - 유저 회원가입
-- 대학교 인증
-- 유저 로그인
-- 유저 로그아웃
+- 유저 회원탈퇴
+- 유저 로그인 (ToDo)
+- 유저 로그아웃 (ToDo) 
+- 대학교 인증 (ToDo)
 
 **Board**
 - 게시판 생성
@@ -84,6 +85,28 @@ public class User {
 **Image**
 - 이미지 업로드 (DB 저장)
 - 이미지 삭제 (DB 삭제)
+
+### Spring naming convention
+
+서비스 클래스 안에서 메서드 명을 작성 할 때는 아래와 같은 접두사를 붙인다.
+
+- findOrder() - 조회 유형의 service 메서드
+- addOrder() - 등록 유형의 service 메서드
+- modifyOrder() - 변경 유형의 service 메서드
+- removeOrder() - 삭제 유형의 service 메서드
+- saveOrder() – 등록/수정/삭제 가 동시에 일어나는 유형의 service 메서드
+
+[Reference](https://cocobi.tistory.com/27)
+
+
+### Service 생성자 주입 (DI)
+
+생성자 주입 장점 요약
+- 객체의 불변성을 확보할 수 있다.
+- 테스트 코드의 작성이 용이해진다.
+- final 키워드를 사용할 수 있고, Lombok과의 결합을 통해 코드를 간결하게 작성할 수 있다.
+- 스프링에 침투적이지 않은 코드를 작성할 수 있다.
+- 순환 참조 에러를 애플리케이션 구동(객체의 생성) 시점에 파악하여 방지할 수 있다.
 
 
 # 스터디 이후 개선점들!
