@@ -39,7 +39,7 @@ public class ReplyService {
                 () -> new RestApiException(ErrorType.NOT_FOUND)
         );
 
-        List<Reply> replies = replyRepository.findAllByComment(comment)g;
+        List<Reply> replies = replyRepository.findAllByComment(comment);
         return replies.stream()
                 .map(reply -> new ReplyResponseDto(
                         reply.getComment().getCommentId(),
