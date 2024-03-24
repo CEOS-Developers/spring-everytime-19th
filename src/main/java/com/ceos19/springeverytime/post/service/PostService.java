@@ -23,6 +23,7 @@ public class PostService {
     private PostCategoryService postCategoryService;
     private ImageService imageService;
 
+    @Transactional
     public void createPost(CreatePostDto postDto) {
         User user = userService.getUser(postDto.getUserId());
         PostCategory category = postCategoryService.getPostCategoryByCategoryId(postDto.getCategoryId());
@@ -36,15 +37,17 @@ public class PostService {
                 .orElseThrow(IllegalStateException::new);
     }
 
+    @Transactional
     public void deletePost(Long postId) {
         postRepository.deletePostById(postId);
     }
 
+    @Transactional
     public void increaseLike(Long postId){
         Post post = getPost(postId);
         post.increaseLikeCount();
     }
-
+    @Transactional
     public void decreaseLike(Long postId){
 
         Post post = getPost(postId);
