@@ -142,17 +142,17 @@ public class Message { // 쪽지, message는 user의 비즈니스 연관관계 �
 ~~~
 6. 유지 보수간의 문제를 최소화하기 위해서 setter의 사용은 최대한 배제하였다.
 
-# fetch join 할 때 distinct를 안하면 생길 수 있는 문제
+## fetch join 할 때 distinct를 안하면 생길 수 있는 문제
 일대다 관계에서 다에 속한 테이블을 fetch join으로 조회시에 각각의 컬렉션 엔티티에 속한 엔티티가 중복 조회되는 문제 발생
 Team : Member = 일대다
 query = "select t from Team t join fetch t.members"라는 쿼리로 조회를 하는 경우 만일 해당 team에 3개의 member가 조인된 경우
 team이 세번 조회되는 문제가 발생함.
 따라서 이 경우 query = "select t from Team t distinct join fetch t.members"와 같이 distinct 키워드를 통해서 중복 조회가 되는 문제를 해결한다.
 
-### 서비스 계층 구현
+# 서비스 계층 구현
 총 10개의 엔티티에 대해 서비스를 구현했다.
 
-- UserService
+### UserService
  유저 가입, 조회 로직을 구현했다.
 ~~~java
 public Long join(User user) {
@@ -256,7 +256,8 @@ List<User> findBySchoolId(Long schoolId);
 ~~~
 와 같이 연관된 필드로 조회하는 경우, 해당 필드를 User에서 다시 get을 할 일은 없을 것 같아서 이 경우 조인을 적용하지 않았다.
 
-- PostService 게시물 등록, 조회, 제거 기능을 구현했다.
+### PostService 
+게시물 등록, 조회, 제거 기능을 구현했다.
 ~~~java
 @Service
 @Transactional
@@ -322,7 +323,7 @@ postService에는 deletePost()라는 제거 메서드가 존재한다. 게시물
 올바른 제거를 위해서 deletePost() 내부에는 먼저 해당 게시물의 외래키를 갖고있는 다른 엔티티들을 먼저 제거하였다.
 그리고 첨부파일(Attachement) 엔티티는 Post에 cascade 설정을 통해서 Post를 제거시 자동으로 같이 제거가 되도록 하였다.
 
-### N+1 문제 테스트 코드
+## N+1 문제 테스트 코드
 N+1 문제는 조인을 사용하지 않는 경우에 발생할 수 있는 문제로, 연관된 엔티티를 조회 시 별도의 쿼리가 나가는 문제를 말한다.  
 EAGER 로딩이든 LAZY 로딩이든 연관된 엔티티를 조회시 별도의 쿼리가 나가는 것은 동일하므로, 조인을 사용하지 않는다면 로딩 전략에는 관계 없이 해당 문제가 발생한다.
 다만 LAZY 로딩의 경우 연관된 엔티티를 사용하는 경우에 쿼리가 나가서 즉시 별도의 쿼리가 발생하는 EAGER와는 쿼리 발생 시점이 다르다는 차이점이 존재한다.
@@ -366,7 +367,7 @@ public void nPlus1() throws Exception {
 위의 예시에서는 하나의 Post에 두개의 Attachment를 넣어서 저장한다. 따라서 만일 @EntityGraph나 join fetch를 사용하지 않는다면 
 두개의 Attachment 조회 쿼리가 발생할 것임을 예상할 수 있다.
 
-- @EntityGraph나 join fetch 전략을 사용하지 않은 경우
+### @EntityGraph나 join fetch 전략을 사용하지 않은 경우
 ~~~
 2024-03-24T19:29:18.771+09:00 DEBUG 9712 --- [           main] org.hibernate.SQL                        : 
     select
@@ -400,7 +401,7 @@ public void nPlus1() throws Exception {
 hibernate에서는 @OneToMany 또는 @ManyToOne과 같은 연관 관계 매핑에 대해 컬렉션의 모든 항목을 한 번의 쿼리로 조회할 수 있도록 최적화하고 있어 하나의 쿼리만 나간다고 한다.
 즉, 위의 예시에서는 총 두개의 Attachment 모두가 조회되었으나 두개의 Attachment를 하나의 쿼리만을 사용하여 가져온 것이다.
 
-- @EntityGraph, join fetch 전략을 사용한 경우
+### @EntityGraph, join fetch 전략을 사용한 경우
 만일 위의 경우와 달리 @EntityGraph를 적용한 경우 발생하는 쿼리는 다음과 같다.
 ~~~
 2024-03-24T19:39:09.329+09:00 DEBUG 13048 --- [           main] org.hibernate.SQL                        : 
