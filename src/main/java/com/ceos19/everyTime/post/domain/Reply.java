@@ -10,6 +10,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,23 +33,50 @@ public class Reply extends BaseEntity {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id",nullable = false,updatable = false)
+    @JoinColumn(name = "member_id")
     private Member member;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id",updatable = false)
-    private Reply parentId;
+    @JoinColumn(name = "parent_id")
+    private Reply parent;
 
     @Column(nullable = false,length = 100)
     private String contents;
+
+    private boolean isHideNickName;
+
+
+    private int likeCount;
+
+    private String writer;
     @Builder
-    public Reply(Post post,Member member,Reply parentId,String contents){
+    public Reply(Post post,Member member,Reply parent,String contents,boolean isHideNickName,String writer){
         this.post=post;
         this.member=member;
-        this.parentId=parentId;
+        this.parent =parent;
         this.contents=contents;
+        this.isHideNickName = isHideNickName;
+        this.likeCount = 0;
+        this.writer = writer;
     }
+
+    public void changeParentByDeleteOnlyHaveChild(String deletedContents){
+        this.member=null;
+        this.contents = deletedContents;
+    }
+
+    public void increaseLikeCount(){
+        this.likeCount++;
+    }
+    public void decreaseLikeCount(){
+        if(this.likeCount>0){
+            this.likeCount--;
+        }
+    }
+
+    @OneToMany(mappedBy = "parent")
+    List<Reply> childList = new ArrayList<>();
 
 
 
