@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
-    @Query("select u from User u left join fetch u.school")
+    @Query("select distinct u from User u join fetch u.school")
     List<User> findUserFetchJoin();
 
     @EntityGraph(attributePaths = {"school"})

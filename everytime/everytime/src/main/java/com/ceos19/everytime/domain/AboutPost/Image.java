@@ -26,7 +26,7 @@ public class Image extends BaseTimeEntity {
     @Column(name="file_size", nullable = false)
     private Long fileSize;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="post_id")
     private Post post;
 
