@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class User extends BaseTimeEntity{
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
@@ -48,10 +48,10 @@ public class User extends BaseTimeEntity{
     private School school;
 
     @Builder
-    public User(final String username, final String password, final String nickname,
-                final Boolean isAdmin, final String userLast, final School school,
-                final String userFirst, final String email, final Boolean isBoardManager,
-                final String board, final Boolean isBanned) {
+    public User(String username, String password, String nickname,
+                  Boolean isAdmin, String userLast, School school,
+                  String userFirst, String email, Boolean isBoardManager,
+                  String board, Boolean isBanned) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
