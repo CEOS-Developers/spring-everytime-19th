@@ -1,5 +1,7 @@
 package com.ceos19.springboot.post.service;
 
+import com.ceos19.springboot.board.entity.Board;
+import com.ceos19.springboot.board.repository.BoardRepository;
 import com.ceos19.springboot.common.ErrorType;
 import com.ceos19.springboot.common.RestApiException;
 import com.ceos19.springboot.common.api.ApiResponseDto;
@@ -20,6 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final BoardRepository boardRepository;
 
     // post 한개 가져오기
     @Transactional
@@ -38,7 +41,11 @@ public class PostService {
             Long boardId, PostRequestDto postRequestDto
     )
     {
-        Post post = new Post(postRequestDto.getTitle(),  postRequestDto.getContent(),postRequestDto.getAnonymous());
+        Board board = boardRepository.findById(boardId).orElseThrow(
+                ()-> new RestApiException(ErrorType.NOT_FOUND)
+        );
+        Post post = new Post(board ,postRequestDto.getTitle(),  postRequestDto.getContent(),postRequestDto.getAnonymous());
+        postRepository.save(post);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"Post create success"));
     }
 }

@@ -414,80 +414,82 @@ public class TestApplicationTests {
 ## 메시지 보내기
 
 를 하려고 했으니 시간상으로 진행을 거의 못했습니다.........ㅠㅠㅠㅠㅠㅠㅠㅠ
+spring security가 그 뒤에 한다는걸 못보고 이걸 login을 구현해나?해서 이거에 시간을 많이 쏟았네요 ㅠㅠ
 저를 발표시켜서 여러분의 시간을 낭비하지 말아주세요 ㅠㅠ
 ## 댓글 달기 서비스
 ```java
-        insert 
+        insert
         into
-            post
-            (anonymous, board_id, content, created_date, likes, modified_date, title, user_id, view) 
+        post
+        (anonymous, board_id, content, created_date, likes, modified_date, title, user_id, view)
         values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    Hibernate: 
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        Hibernate:
         select
-            p1_0.post_id,
-            p1_0.anonymous,
-            p1_0.board_id,
-            p1_0.content,
-            p1_0.created_date,
-            p1_0.likes,
-            p1_0.modified_date,
-            p1_0.title,
-            p1_0.user_id,
-            p1_0.view 
+        p1_0.post_id,
+        p1_0.anonymous,
+        p1_0.board_id,
+        p1_0.content,
+        p1_0.created_date,
+        p1_0.likes,
+        p1_0.modified_date,
+        p1_0.title,
+        p1_0.user_id,
+        p1_0.view
         from
-            post p1_0 
+        post p1_0
         where
-            p1_0.post_id=?
-    Hibernate: 
-        insert 
+        p1_0.post_id=?
+        Hibernate:
+        insert
         into
-            comment
-            (content, content_like, created_date, modified_date, post_id, user_id) 
+        comment
+        (content, content_like, created_date, modified_date, post_id, user_id)
         values
-            (?, ?, ?, ?, ?, ?)
-    Hibernate: 
+        (?, ?, ?, ?, ?, ?)
+        Hibernate:
         select
-            c1_0.comment_id,
-            c1_0.content,
-            c1_0.content_like,
-            c1_0.created_date,
-            c1_0.modified_date,
-            c1_0.post_id,
-            c1_0.user_id 
+        c1_0.comment_id,
+        c1_0.content,
+        c1_0.content_like,
+        c1_0.created_date,
+        c1_0.modified_date,
+        c1_0.post_id,
+        c1_0.user_id
         from
-            comment c1_0
-    Hibernate: 
-        insert 
+        comment c1_0
+        Hibernate:
+        insert
         into
-            post
-            (anonymous, board_id, content, created_date, likes, modified_date, title, user_id, view) 
+        post
+        (anonymous, board_id, content, created_date, likes, modified_date, title, user_id, view)
         values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    Hibernate: 
-        insert 
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        Hibernate:
+        insert
         into
-            comment
-            (content, content_like, created_date, modified_date, post_id, user_id) 
+        comment
+        (content, content_like, created_date, modified_date, post_id, user_id)
         values
-            (?, ?, ?, ?, ?, ?)
-    Hibernate: 
-        insert 
+        (?, ?, ?, ?, ?, ?)
+        Hibernate:
+        insert
         into
-            comment
-            (content, content_like, created_date, modified_date, post_id, user_id) 
+        comment
+        (content, content_like, created_date, modified_date, post_id, user_id)
         values
-            (?, ?, ?, ?, ?, ?)
-    Hibernate: 
+        (?, ?, ?, ?, ?, ?)
+        Hibernate:
         select
-            c1_0.comment_id,
-            c1_0.content,
-            c1_0.content_like,
-            c1_0.created_date,
-            c1_0.modified_date,
-            c1_0.post_id,
-            c1_0.user_id 
+        c1_0.comment_id,
+        c1_0.content,
+        c1_0.content_like,
+        c1_0.created_date,
+        c1_0.modified_date,
+        c1_0.post_id,
+        c1_0.user_id
         from
-            comment c1_0        
+        comment c1_0
 ```
+
 데이터가 잘 넣어지는 것을 확인가능합니다.!
