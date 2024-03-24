@@ -142,7 +142,86 @@ CEOS 19th BE study - everytime clone coding
 
 ### 레포지토리 테스트
 @SpringBootTest 사용    
-- ChatRoom 삭제 테스트 (N+1)
+- **ChatRoom 삭제 테스트 (N+1 테스트)**    
+  이번 스터디를 통해 공부한 fetch를 연관관계 매핑에 적용해보았다.
+  ![image](https://github.com/kckc0608/kckc0608/assets/64959010/63448be0-c9ab-4220-8d95-5a00cb1b5795)
+  채팅 메세지를 전송할 때, 채팅 메세지 객체를 직접 생성하면서 채팅방을 직접 매핑하는 것보다, 채팅방 객체에서 채팅 전송 메서드를 호출하는 것이 더 객체지향적인 설계라고 생각하여 `CascaseType.ALL`로 설정하였다.
+  
+  ```java
+    @Test
+    @DisplayName("채팅방 삭제시 채팅 데이터 삭제 테스트")
+    void 채팅방_삭제시_채팅_데이터_삭제_테스트() {
+        // given
+        ChatRoom chatRoom = chatRoomRepository.save(new ChatRoom(user1, user2));
+        chatRoom.send(user1, "hello");
+        chatRoom.send(user2, "hello!");
+    
+        System.out.println("--------------------");
+        System.out.println("create Chat Message Data");
+        System.out.println("--------------------");
+
+        em.flush();
+        em.clear();
+    
+        // when
+        System.out.println("--------------------");
+        System.out.println("Delete Chat Message Data");
+        System.out.println("--------------------");
+        chatRoomRepository.delete(chatRoom);
+        
+        // then
+        Assertions.assertThat(chatRoomRepository.findChatRoomByUser1AndUser2(user1, user2).isEmpty()).isTrue();
+        Assertions.assertThat(chatRoomRepository.findChatRoomByUser1AndUser2(user2, user1).isEmpty()).isTrue();
+        Assertions.assertThat(chatMessageRepository.findAllByChatRoom(chatRoom).isEmpty()).isTrue();
+    }
+  ```
+  N+1을 테스트하기 위해 위와 같은 테스트 코드를 작성하였다.   
+  영속성 전이를 설정해 둔 ChatRoom 객체를 삭제하면, 해당 ChatRoom과 연관관계가 있는 모든 ChatMessage에 대해 아래와 같은 쿼리가 함께 나간다.
+  ```mysql
+  Hibernate:
+      delete
+      from
+          chat_message
+      where
+          message_id=?
+  Hibernate:
+      delete
+      from
+          chat_message
+      where
+          message_id=?
+  Hibernate:
+      delete
+      from
+          chat_room
+      where
+          room_id=?
+  ```
+  chat_message 들이 먼저 삭제된 이후, chat_room 을 삭제하는 것을 알 수 있었다. 
 
 ### 서비스 단위 테스트
-서비스 단위 테스트는 레포지토리를 mocking 하여 진행 (Mockito)
+서비스 단위 테스트는 Mockito를 이용해 레포지토리를 mocking 하여 진행하였다.   
+과제 PR 리뷰를 통해 `@SpringBootTest` 는 단위테스트를 위한 어노테이션인지 통합테스트를 위한 어노테이션인지 공부를 다시 하게 되었다.   
+그리고 2주차 과제에서 Repository 테스트를 `@SpringBootTest` 를 통해 진행한 것은 단위 테스트가 아니라 통합테스트였다는 것을 새로 공부하게 되었다.      
+그래서 이번 과제에서는 단위 테스트 / 통합 테스트를 모두 작성해야 하는 만큼 확실하게 분리해서 테스트를 해보고자 했다.   
+
+#### @Mock, @InjectMock
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/7ef925c4-ba31-4d5b-bca4-b8857a75bf7a)
+서비스 계층 단위테스트를 진행할 때는 Repository 계층과 연결을 끊고 서비스 계층의 로직만을 테스트 해야한다.   
+따라서 레포지토리를 `@Mock` 어노테이션을 사용해 Mocking하고 service는 이 Mock을 대신 주입받도록 하였다.
+
+```java
+void 게시판_생성_테스트() {
+    // given
+    Category category = EntityGenerator.generateCategory(user1);
+    given(categoryRepository.save(any(Category.class))).willReturn(category);
+
+    // when
+    Category newCategory = categoryService.create(category);
+
+    // then
+    assertThat(newCategory).isEqualTo(category);
+}
+```
+Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 보이게 하기 위해 `given()` 을 사용하여 return 값을 정해주었다.   
+이렇게 repository 의 메서드 방식을 정해주면, service 계층의 코드를 실행할 때, mocking한 레포지토리의 코드가 대신 실행된다.

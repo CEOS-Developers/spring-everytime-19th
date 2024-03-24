@@ -11,12 +11,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoryServiceTest {
@@ -68,12 +71,26 @@ public class CategoryServiceTest {
     void 게시판_생성_후_14일_이전_삭제_테스트() {
         // given
         Category category = EntityGenerator.generateCategory(user1);
-        category.setDateForTest();
+        category.setDateForTest(LocalDateTime.now());
 
         // when
         // then
         assertThatThrownBy(() -> {categoryService.delete(category);})
                 .isInstanceOf(IllegalArgumentException.class);
 
+    }
+
+    @Test
+    @DisplayName("14일 이후 게시판 삭제 테스트")
+    void 게시판_생성_후_14일_이후_삭제_테스트() {
+        // given
+        Category category = EntityGenerator.generateCategory(user1);
+        category.setDateForTest(LocalDateTime.of(2024, 3, 1, 0, 0));
+
+        // when
+        categoryService.delete(category);
+
+        // then
+        verify(categoryRepository, times(1)).delete(category);
     }
 }

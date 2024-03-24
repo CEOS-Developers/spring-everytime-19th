@@ -76,28 +76,6 @@ public class ChatRoomRepositoryTest {
         System.out.println("--------------------");
         chatRoomRepository.delete(chatRoom);
 
-        /**
-         * 채팅방을 삭제하면서 채팅 메세지도 같이 삭제한다. (1+N)
-         * Hibernate:
-         *     delete
-         *     from
-         *         chat_message
-         *     where
-         *         message_id=?
-         * Hibernate:
-         *     delete
-         *     from
-         *         chat_message
-         *     where
-         *         message_id=?
-         * Hibernate:
-         *     delete
-         *     from
-         *         chat_room
-         *     where
-         *         room_id=?
-         */
-
         // then
         Assertions.assertThat(chatRoomRepository.findChatRoomByUser1AndUser2(user1, user2).isEmpty()).isTrue();
         Assertions.assertThat(chatRoomRepository.findChatRoomByUser1AndUser2(user2, user1).isEmpty()).isTrue();

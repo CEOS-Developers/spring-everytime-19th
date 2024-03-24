@@ -29,9 +29,8 @@ public class BaseEntity {
         modifyDate = LocalDateTime.now();
     }
 
-    public void setDateForTest() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createDate = now;
-        this.modifyDate = now;
+    public void setDateForTest(LocalDateTime time) {
+        this.createDate = time;
+        this.modifyDate = time;
     }
 }
