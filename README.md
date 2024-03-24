@@ -464,6 +464,152 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 이는 Spring에서 제공하는 proxy 기능과 관련이 있다고 한다.  
 EntityManager 인스턴스는 실제로 각 데이터베이스 연결/트랜잭션에 대해 새로 생성되는 것이 아니라, Spring이 관리하는 proxy 객체를 통해 접근된다.  
 이 프록시 객체는 실제 EntityManager의 메서드 호출을 가로채서 현재 실행 중인 트랜잭션과 관련된 실제 EntityManager 인스턴스로 연결하는 것이다.  
-따라서, 각각의 데이터베이스 작업은 고유한 EntityManager를 사용하는 것처럼 보이지만, 실제로는 proxy를 통한 대리 접근 방식을 사용하는 것이다.
+따라서, 각각의 데이터베이스 작업은 고유한 EntityManager를 사용하는 것처럼 보이지만, 실제로는 proxy를 통한 대리 접근 방식을 사용하는 것이다.  
+***
+***
+***
+## Service 계층 구현
+이번 과제에도 저번에 소개했던 다음의 6가지 기능에 집중하여 구현을 했다.  
+- 게시글 조회
+- 게시글에 사진과 함께 글 작성하기
+- 게시글에 댓글 및 대댓글 기능
+- 게시글에 좋아요 기능
+- 게시글, 댓글, 좋아요 삭제 기능
+- 1:1 쪽지 기능
+
+### 1. PostService 
+```java
+@Transactional
+public Long savePost(Post post) {
+    Post savePost = postRepository.save(post);
+    return savePost.getPostId();
+}
+// 게시글 전체 조회
+public List<Post> retrievePost() {
+    return postRepository.findAll();
+}
+
+//게시글을 페이징 하여 조회
+public Page<Post> retrievePostsPaged(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size); // page는 조회하고자 하는 페이지 번호, size는 페이지 당 게시글 수
+    return postRepository.findAll(pageable);
+}
+```
+가장 먼저 게시글을 저장하고 조회하는 로직을 구현했다.  
+게시글을 조회하는 로직은 두가지로 나누어 구현했다.  
+1. 게시글 전체를 조회함.
+2. 게시글을 페이징 하여 조회함.  
+   Pageable 을 사용하여 구현했고, 위와 같이 구현하면 원하는 개수만큼 게시글을 조회할 수 있다.
+
+
+```java
+//게시글에 좋아요 누르기
+@Transactional
+public void pressLike(Post post) {
+    Post findPost = postRepository.findById(post.getPostId())
+            .orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
+    findPost.plusLike();
+}
+
+@Transactional
+public void unLike(Post post) {
+    Post findPost = postRepository.findById(post.getPostId())
+            .orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
+    findPost.minusLike();
+}
+
+//게시글 삭제
+@Transactional
+public void deletePost(Post post) {
+    commentRepository.deleteByPost(post);
+    postLikeRepository.deleteByPost(post);
+
+    postRepository.delete(post);
+}
+```
+- Transactional 어노테이션 사용이유  
+  데이터베이스 작업의 일관성과 무결성을 보장하기 위해서이다. **@Transactional** 어노테이션을 사용하는 것은 비즈니스 로직이 실행되는 동안 여러 데이터베이스 연산이 하나의 작업 단위로 묶이도록 하여, 모든 연산이 성공적으로 완료되거나 하나라도 실패할 경우 전체가 취소(롤백)되도록 하는 것입니다.  
+  **readOnly = true** 를 설정하는 것은 주로 데이터를 조회하는 작업에 트랜잭션을 적용할 때 사용한다. 데이터 변경이 없음을 알기 때문에 성능상에서 이점이 있다고 한다.  
+- deletePost() 메서드  
+  해당 메서드에서는 게시글을 삭제하는 로직이 핵심로직이다. 하지만 다른 로직이 위에 추가적으로 있는것을 볼 수 있다.  
+  게시글에 연관되어 있는 댓글과 좋아요를 전부 삭제하고 게시글을 삭제 하는 것이 맞기 때문에, **deleteByPost()** 를 생성하여 댓글과 좋아요를 먼저 삭제 했다.  
+
+### 2. CommentService
+```java
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class CommentService {
+    private final CommentRepository commentRepository;
+
+    // 댓글 저장 기능
+    @Transactional
+    public Long saveComment(Comment comment) {
+        Comment saveComment = commentRepository.save(comment);
+        return saveComment.getCommentId();
+    }
+
+    // 대댓글 기능
+    @Transactional
+    public void setChildComment(Comment parentComment, Comment childComment) {
+        parentComment.addChildComment(childComment);
+        childComment.setParent(parentComment);
+    }
+}
+```
+댓글 저장하는 기능과 대댓글을 작성하는 기능을 구현했다.  
+대댓글은 자기 자신의 엔티티를 참조하는 방식으로 구현했기 때문에 양방향 연관관계가 되게끔 만들었다.  
+## 3. UserService
+```java
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class UserService {
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
+
+    @Transactional
+    public Long saveUser(Users user) {
+        Users saveUser = userRepository.save(user);
+        return saveUser.getUserId();
+    }
+
+    @Transactional
+    public void deleteUser(Users user) {
+        /** 사용자 탈퇴 이전에 관련된 것들 모두 삭제*/
+        postLikeRepository.deleteByUser(user);
+        postRepository.deleteByUser(user);
+        commentRepository.deleteByUser(user);
+
+        userRepository.delete(user);
+    }
+}
+```
+UserService에서도 사용자를 저장하는 로직과 사용자가 탈퇴하는 로직을 구현했다.  
+> deleteUser 에서는 사용자 탈퇴 이전에 사용자가 작성한 게시글, 누른 좋아요, 작성한 댓글을 모두 삭제 한 뒤에 탈퇴가 진행되도록 했다.  
+## 4. MessageService
+
+```java
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class MessageService {
+
+    private final MessageRepository messageRepository;
+    @Transactional
+    public Long sendMessage(String content, Users sender, Users receiver) {
+        Message message = Message.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .content(content)
+                .build();
+        Message saveMessage = messageRepository.save(message);
+        return saveMessage.getMessageId();
+    }
+}
+```
+쪽지를 보낼 경우에는 사용자가 입력한 쪽지 내용(content)과, 보내는 사람(sender), 받는 사람(receiver)가 정해져 있기 때문에 위와 같이 작성했다.  
 
   

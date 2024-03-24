@@ -91,12 +91,11 @@ class CommentServiceTest {
         Long saveComment = commentService.saveComment(comment);
         commentService.saveComment(comment2);
         commentService.saveComment(comment3);
-        //Comment findComment = commentRepository.findById(saveComment)
-                //.orElseThrow(() -> new EntityNotFoundException("해당 ID를 가진 댓글이 없습니다"));
+        Comment findComment = commentRepository.findById(saveComment)
+                .orElseThrow(() -> new EntityNotFoundException("해당 ID를 가진 댓글이 없습니다"));
 
-        postService.deletePost(savePost);
         //then
-        //Assertions.assertThat(findComment.getContent()).isEqualTo("댓글 내용ㅇ오오옹ㅇ");
+        Assertions.assertThat(findComment.getContent()).isEqualTo("댓글 내용ㅇ오오옹ㅇ");
     }
 
     @Test
