@@ -6,7 +6,7 @@ import com.ceos19.springboot.common.LoginType;
 import com.ceos19.springboot.common.UserRoleEnum;
 import com.ceos19.springboot.friend.entity.Friend;
 import com.ceos19.springboot.post.entity.Post;
-import com.ceos19.springboot.postlike.entity.Postlike;
+import com.ceos19.springboot.postlike.entity.postLike;
 import com.ceos19.springboot.reply.entity.Reply;
 import com.ceos19.springboot.school.entity.School;
 import com.ceos19.springboot.timetable.entity.TimeTable;
@@ -56,7 +56,7 @@ public class User {
     private List<Comment> commentList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
-    private List<Postlike> postLikeList = new ArrayList<>();
+    private List<postLike> postLikeList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<CommentLike> commentLikesList = new ArrayList<>();

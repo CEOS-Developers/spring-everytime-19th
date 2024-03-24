@@ -3,7 +3,7 @@ package com.ceos19.springboot.post.entity;
 import com.ceos19.springboot.board.entity.Board;
 import com.ceos19.springboot.comment.entity.Comment;
 import com.ceos19.springboot.common.BaseEntity;
-import com.ceos19.springboot.postlike.entity.Postlike;
+import com.ceos19.springboot.postlike.entity.postLike;
 import com.ceos19.springboot.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -45,7 +45,7 @@ public class Post extends BaseEntity {
     private Board board;
 
     @OneToMany(mappedBy ="post",fetch = FetchType.LAZY)
-    private List<Postlike>postLikeList = new ArrayList<>();
+    private List<postLike>postLikeList = new ArrayList<>();
 
     public Post(Board board, String title, String content, Boolean anonymous) {
         this.board = board;
