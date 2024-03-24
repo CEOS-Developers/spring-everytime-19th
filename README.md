@@ -211,16 +211,16 @@ class UserRepositoryTest {
     }
 }
 ```
-실행하면 select문이 List 조회 한 번, user2, user3에 대한 조회 2번 총 3번이 나와야 하는데..?
+FetchType.EAGER로 설정하고 테스트를 실행하면, select문이 List 조회 한 번, user2, user3에 대한 조회 2번 총 3번이 나와야 하는데..?
 
 <div align="center">
-  <img src="imgs/n_plus_one.png" alt="drawing" width=400"/>
+  <img src="imgs/n_plus_one.png" alt="drawing" width=500"/>
 </div>
-
 spring.jpa.properties.hibrnate.format_sql = false여서 쿼리가 한 줄로 보여진다.
 
+select 문이 왜 하나만 호출되죠?
 결국 해결 못 했습니다..  
-FetchType.EAGER로 설정해뒀는데..
+
 
 
 ### 해결법
