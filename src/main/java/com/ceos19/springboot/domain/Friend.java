@@ -15,13 +15,17 @@ public class Friend {
     @Column(nullable = false)
     private Boolean isAccepted;
 
+    @Column(nullable = false)
+    private Long myId;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "friend_id")
     private User friendUser;
 
     @Builder
-    public Friend(Boolean isAccepted, User friendUser) {
+    public Friend(Boolean isAccepted, Long myId, User friendUser) {
         this.isAccepted = isAccepted;
+        this.myId = myId;
         this.friendUser = friendUser;
     }
 }

@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class UserService {
 
 //    private static final Logger Logger = (java.util.logging.Logger) LoggerFactory.getLogger(UserService.class);
-    final UserRepository userRepository;
+    UserRepository userRepository;
 
     private UserService(UserRepository userRepository) {
         this.userRepository = userRepository;

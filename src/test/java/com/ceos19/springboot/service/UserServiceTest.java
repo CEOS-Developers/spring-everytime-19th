@@ -6,10 +6,6 @@ import com.ceos19.springboot.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 //@ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
 //    @InjectMocks
     @Autowired
@@ -71,5 +67,6 @@ public class UserServiceTest {
         assertEquals(signUpUser.getNickname(), findUser.getNickname());
         assertEquals(signUpUser.getPassword(), findUser.getPassword());
     }
+
 
 }

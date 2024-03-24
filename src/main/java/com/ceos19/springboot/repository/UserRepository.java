@@ -5,15 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-//    List<User> findAll();
-
     Optional<User> findByUsername(@Param("username")String username);
 
-    Optional<User> findByUserId(@Param("user_id")Long userId);
+//    Optional<User> findByUserId(@Param("user_id")Long userId);
 }
