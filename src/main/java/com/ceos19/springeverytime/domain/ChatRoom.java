@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
 @Getter
-public class ChatRoom {
+public class ChatRoom extends BaseEntity {
     @Id
     @GeneratedValue
     private Long roomId;

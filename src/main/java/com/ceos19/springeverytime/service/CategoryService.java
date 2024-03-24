@@ -64,7 +64,7 @@ public class CategoryService {
     }
 
     private void validateCategoryCreatedBefore14Days(Category category) {
-        Date today = new Date();
+        LocalDateTime today = LocalDateTime.now();
 
         if (today.compareTo(category.getCreateDate()) < 14) {
             throw new IllegalArgumentException("게시판을 삭제하려면 생성 후 14일이 지나야 합니다.");

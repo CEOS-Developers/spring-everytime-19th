@@ -25,7 +25,7 @@ public class EntityGenerator {
     }
 
     public static Post generatePost(User author, Category category) {
-        return new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), author, category);
+        return new Post("첫번째 글", "첫번째 글입니다.", true, author, category);
     }
 
     public static Comment generateComment(User author, Post post) {

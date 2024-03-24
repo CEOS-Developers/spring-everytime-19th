@@ -57,9 +57,9 @@ public class CategoryRepositoryTest {
         categoryRepository.save(freeCategory);
 
         // when
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, freeCategory);
-        Post post2 = new Post("두번째 글", "두번째 글입니다.", true, new Date(), new Date(), user1, freeCategory);
-        Post post3 = new Post("세번째 글", "세번째 글입니다.", true, new Date(), new Date(), user1, freeCategory);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user1, freeCategory);
+        Post post2 = new Post("두번째 글", "두번째 글입니다.", true, user1, freeCategory);
+        Post post3 = new Post("세번째 글", "세번째 글입니다.", true, user1, freeCategory);
 
         postRepository.save(post1);
         postRepository.save(post2);

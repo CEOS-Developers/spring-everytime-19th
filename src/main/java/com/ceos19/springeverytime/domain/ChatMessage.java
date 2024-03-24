@@ -8,7 +8,7 @@ import java.util.Date;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatMessage {
+public class ChatMessage extends BaseEntity {
     @Id
     @GeneratedValue
     private Long messageId;
@@ -26,9 +26,6 @@ public class ChatMessage {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User sender;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    final private Date sendDate = new Date();
 
     @Builder
     public ChatMessage(@NonNull String content, @NonNull ChatRoom room, @NonNull User sender) {

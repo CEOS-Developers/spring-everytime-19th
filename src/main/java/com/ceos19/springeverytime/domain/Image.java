@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @RequiredArgsConstructor
-public class Image {
+public class Image extends BaseEntity {
     @Id
     @GeneratedValue
     private Long imageId;

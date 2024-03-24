@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
-public class Post {
+public class Post extends BaseEntity {
     @Id
     @GeneratedValue
     private Long postId;
@@ -29,14 +29,6 @@ public class Post {
 
     @NonNull
     private boolean isAnonymous;
-
-    @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createDate;
-
-    @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modifyDate;
 
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)

@@ -9,7 +9,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -45,10 +45,6 @@ public class User {
 
     @Column(nullable = false)
     private boolean isEnrolled = false;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false)
-    private Date createDate = new Date();
 
     public void authenticateUniversity() {
         this.isEnrolled = true;

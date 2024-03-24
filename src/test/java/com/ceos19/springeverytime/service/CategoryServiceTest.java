@@ -68,6 +68,7 @@ public class CategoryServiceTest {
     void 게시판_생성_후_14일_이전_삭제_테스트() {
         // given
         Category category = EntityGenerator.generateCategory(user1);
+        category.setDateForTest();
 
         // when
         // then

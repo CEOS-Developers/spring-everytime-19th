@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
 @Getter
-public class Comment {
+public class Comment extends BaseEntity {
     @Id@GeneratedValue
     private Long commentId;
 

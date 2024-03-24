@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.domain.like;
 
+import com.ceos19.springeverytime.domain.BaseEntity;
 import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @NoArgsConstructor
 @Getter
-public abstract class Like {
+public abstract class Like extends BaseEntity {
     @Id
     @GeneratedValue
     private Long likeId;
@@ -24,7 +25,4 @@ public abstract class Like {
     @NonNull
     @ManyToOne
     private User user;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    final private Date createDate = new Date();
 }

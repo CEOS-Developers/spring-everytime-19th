@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
 @Getter
-public class Category {
+public class Category extends BaseEntity {
     @Id
     @GeneratedValue
     private Long categoryId;
@@ -23,10 +23,6 @@ public class Category {
     @NonNull
     @Column(length = 300, nullable = false)
     private String description;
-
-    @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createDate = new Date();
 
     @NonNull
     @ManyToOne

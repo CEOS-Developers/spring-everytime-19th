@@ -51,7 +51,7 @@ public class LikeRepositoryTest {
     @DisplayName("게시글 좋아요 생성 테스트")
     void 게시글_좋아요_생성_테스트() throws Exception {
         //given
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, category);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user1, category);
         postRepository.save(post1);
 
         //when
@@ -66,7 +66,7 @@ public class LikeRepositoryTest {
     @DisplayName("게시글 좋아요 취소 테스트")
     void 게시글_좋아요_취소_테스트() throws Exception {
         //given
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, category);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user1, category);
         postRepository.save(post1);
         PostLike like1 = post1.like(user1);
         likeRepository.save(like1);
@@ -84,7 +84,7 @@ public class LikeRepositoryTest {
     @DisplayName("댓글 좋아요 취소 테스트")
     void 댓글_좋아요_취소_테스트() throws Exception {
         //given
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, category);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user1, category);
         Comment comment = new Comment("댓글1", false, user2, post1);
 
         postRepository.save(post1);

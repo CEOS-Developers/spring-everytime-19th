@@ -40,7 +40,7 @@ public class PostRepositoryTests {
     @Test
     public void 게시글_생성_테스트() throws Exception {
         //given
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user, category);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user, category);
 
         //when
         postRepository.save(post1);
@@ -53,7 +53,7 @@ public class PostRepositoryTests {
     @DisplayName("게시글 수정 테스트")
     public void 게시글_수정_테스트() throws Exception {
         //given
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user, category);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user, category);
         postRepository.save(post1);
 
         //when
@@ -70,7 +70,7 @@ public class PostRepositoryTests {
     @DisplayName("게시글 삭제 테스트")
     public void 게시글_삭제_테스트() throws Exception {
         //given
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user, category);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user, category);
         postRepository.save(post1);
 
         //when
@@ -85,7 +85,7 @@ public class PostRepositoryTests {
     @DisplayName("게시글 & 댓글 동시 삭제 테스트")
     public void 게시글과_댓글_삭제_테스트() throws Exception {
         //given
-        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user, category);
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user, category);
         postRepository.save(post1);
         post1.addComment(user, "test1", true);
         post1.addComment(user, "test2", true);
