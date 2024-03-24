@@ -501,6 +501,16 @@ public Page<Post> retrievePostsPaged(int page, int size) {
 2. 게시글을 페이징 하여 조회함.  
    Pageable 을 사용하여 구현했고, 위와 같이 구현하면 원하는 개수만큼 게시글을 조회할 수 있다.
 
+### Pageable
+Pageable 인터페이스는 사용자가 한번에 너무 많은 데이터를 로드하여 애플리케이션의 성능이 저하되는 것을 방지하는 데 도움이 된다.  
+```java
+Pageable pageable = PageRequest.of(page, size);
+Pageable sortedByLastName = PageRequest.of(0, 5, Sort.by("lastName"));
+```
+위와 같이 PageRequest.of() 를 통해 직접 인스턴스를 생성할 수 있다.  
+PageRequest.of() 의 세번째 파라미터로 정렬 기준을 넘겨줄 수도 있다.  
+<img width="1020" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/81bd3996-9431-44b1-b893-77b005cc5387">
+JpaRepository의 ```Page<T> findAll(Pageable pageable);``` 는 위의 이미지와 같이 찾을 수 있다. 
 
 ```java
 //게시글에 좋아요 누르기
