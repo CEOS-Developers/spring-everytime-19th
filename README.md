@@ -10,20 +10,20 @@ CEOS 19th BE study - everytime clone coding
 
 ### 학교
 
-![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/30e09e4a-cd85-448e-ac4a-2eda6a09be09)
+<img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/30e09e4a-cd85-448e-ac4a-2eda6a09be09" width=700>
 
 - 학교마다 다른 게시판을 만들 수 있습니다.
 - 회원은 학교에 소속되어야 합니다.
 
 ### 회원/메시지
 
-![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/791c136f-c387-4d25-8fd7-e2be54301225)
+<img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/791c136f-c387-4d25-8fd7-e2be54301225" width=700>
 
 - 회원은 여러 개의 메시지를 주고 받을 수 있습니다.
 
 ### 회원/댓글
 
-![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/fe6f36f6-7847-4d39-a6e0-79ca20429c36)
+<img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/fe6f36f6-7847-4d39-a6e0-79ca20429c36" width=700>
 
 - 회원은 댓글을 여러 개 달 수 있습니다.
 - 회원은 댓글에 좋아요를 누를 수 있습니다.
@@ -31,26 +31,26 @@ CEOS 19th BE study - everytime clone coding
 
 ### 게시글/댓글
 
-![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/be705f67-b66c-44f7-a211-1ddce9eca8f6)
+<img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/be705f67-b66c-44f7-a211-1ddce9eca8f6" height=500>
 
 - 하나의 게시글에 여러 개의 댓글을 달 수 있습니다.
 
 ### 게시판/게시글
 
-![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/0c63d084-f75f-4f53-8d04-13827cc536a1)
+<img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/0c63d084-f75f-4f53-8d04-13827cc536a1" width=700>
 
 - 하나의 게시판에 여러 개의 게시글을 작성할 수 있습니다.
 
 ### 회원/게시글
 
-![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/ce4986ee-eb39-47d3-bf93-b6a952bac63d)
+<img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/ce4986ee-eb39-47d3-bf93-b6a952bac63d" width=700>
 
 - 회원은 여러 게시글에 좋아요를 누를 수 있습니다.
 - 회원은 여러 게시글을 작성할 수 있습니다.
 
 ### 게시글/이미지
 
-![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/7d4211f6-e13a-40db-bd98-e440d6bbf9cc)
+<img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/7d4211f6-e13a-40db-bd98-e440d6bbf9cc" width=700>
 
 - 게시글에 여러 개의 이미지를 올릴 수 있습니다.
 
