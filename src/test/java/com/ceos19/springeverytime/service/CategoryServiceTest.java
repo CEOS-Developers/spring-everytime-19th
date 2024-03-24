@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.service;
 
+import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.repository.CategoryRepository;
@@ -29,32 +30,15 @@ public class CategoryServiceTest {
 
     @BeforeEach
     void 테스트_셋업() {
-        user1 = new User(
-            "test",
-            "adsfbsa234@ad",
-            "nicnname",
-            "kim",
-            "computer",
-            "20",
-            "test@exmaple.com"
-        );
-
-        user2 = new User(
-                "test2",
-                "adsfbsa234@ad",
-                "nickname2",
-                "kwon",
-                "data",
-                "21",
-                "test2@exmaple.com"
-        );
+        user1 = EntityGenerator.generateUser("test1");
+        user2 = EntityGenerator.generateUser("test2");
     }
 
     @Test
     @DisplayName("게시판 생성 테스트")
     void 게시판_생성_테스트() {
         // given
-        Category category = new Category("자유게시판", "", user1);
+        Category category = EntityGenerator.generateCategory(user1);
         given(categoryRepository.save(any(Category.class))).willReturn(category);
 
         // when
@@ -68,7 +52,7 @@ public class CategoryServiceTest {
     @DisplayName("게시판 관리자 변경 테스트")
     void 게시판_관리자_변경_테스트() {
         // given
-        Category category = new Category("자유게시판", "", user1);
+        Category category = EntityGenerator.generateCategory(user1);
         given(categoryRepository.findById(any())).willReturn(Optional.of(category));
 
         // when
@@ -83,7 +67,7 @@ public class CategoryServiceTest {
     @DisplayName("14일 이전 게시판 삭제시 오류 테스트")
     void 게시판_생성_후_14일_이전_삭제_테스트() {
         // given
-        Category category = new Category("자유게시판", "", user1);
+        Category category = EntityGenerator.generateCategory(user1);
 
         // when
         // then

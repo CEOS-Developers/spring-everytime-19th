@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.repository;
 
+import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
@@ -34,8 +35,8 @@ public class PostRepositoryTests {
 
     @BeforeEach
     void 테스트_셋업() {
-        user = createUser("user1");
-        category = createCategory(user);
+        user = userRepository.save(EntityGenerator.generateUser("user1"));
+        category = categoryRepository.save(EntityGenerator.generateCategory(user));
     }
 
     @Test
@@ -81,26 +82,4 @@ public class PostRepositoryTests {
         Optional<Post> testPost = postRepository.findById(post1.getPostId());
         Assertions.assertTrue(testPost.isEmpty());
     }
-
-    private User createUser(String id) {
-        User user = new User(
-                id,
-                "1234",
-                "nickname",
-                "kim",
-                "computer",
-                "20",
-                "test@example.com"
-        );
-
-        userRepository.save(user);
-        return user;
-    }
-
-    private Category createCategory(User manager) {
-        Category category = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
-        categoryRepository.save(category);
-        return category;
-    }
-
 }

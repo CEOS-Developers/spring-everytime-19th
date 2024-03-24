@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.service;
 
+import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
@@ -36,35 +37,11 @@ public class LikeServiceTest {
 
     @BeforeEach
     void 테스트_셋업() {
-        user1 = new User(
-                "test",
-                "adsfbsa234@ad",
-                "nicnname",
-                "kim",
-                "computer",
-                "20",
-                "test@exmaple.com"
-        );
-
-        user2 = new User(
-                "test2",
-                "adsfbsa234@ad",
-                "nickname2",
-                "kwon",
-                "data",
-                "21",
-                "test2@exmaple.com"
-        );
-
-        category = new Category("자유게시판", "", user1);
-
-        post = new Post(
-                "송프언 과제 질문이요",
-                "프롤로그 진짜 어케해요..?",
-                true,
-                new Date(), new Date(), user2, category);
-
-        new Comment("화이팅", true, user2, post);
+        user1 = EntityGenerator.generateUser("test1");
+        user2 = EntityGenerator.generateUser("test2");
+        category = EntityGenerator.generateCategory(user1);
+        post = EntityGenerator.generatePost(user1, category);
+        comment = EntityGenerator.generateComment(user2, post);
     }
 
     @Test

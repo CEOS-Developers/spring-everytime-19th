@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.repository;
 
+import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
@@ -30,11 +31,11 @@ public class CommentRepositoryTest {
 
     @BeforeEach
     void 테스트_셋업() {
-        user1 = createUser("id1");
-        user2 = createUser("id2");
-        category = createCategory(user1);
-        post1 = createPost(user1, category);
-        post2 = createPost(user2, category);
+        user1 = userRepository.save(EntityGenerator.generateUser("id1"));
+        user2 = userRepository.save(EntityGenerator.generateUser("id2"));
+        category = categoryRepository.save(EntityGenerator.generateCategory(user1));
+        post1 = postRepository.save(EntityGenerator.generatePost(user1, category));
+        post2 = postRepository.save(EntityGenerator.generatePost(user2, category));
     }
 
     @Test
@@ -122,29 +123,5 @@ public class CommentRepositoryTest {
         Assertions.assertThat(findComment1.isPresent()).isEqualTo(true);
         Assertions.assertThat(findComment2.isPresent()).isEqualTo(true);
         Assertions.assertThat(findComment2.get().getParentComment()).isSameAs(comment1);
-    }
-
-    private User createUser(String id) {
-        User user = new User(
-                id,
-                "1234",
-                "nickname",
-                "kim",
-                "computer",
-                "20",
-                "test@example.com");
-
-        return userRepository.save(user);
-    }
-
-    private Category createCategory(User manager) {
-        Category category = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
-        return categoryRepository.save(category);
-    }
-
-    private Post createPost(User author, Category category) {
-        Post post = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), author, category);
-        return postRepository.save(post);
-
     }
 }

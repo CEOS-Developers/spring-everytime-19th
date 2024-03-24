@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.repository;
 
+import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
@@ -41,9 +42,9 @@ public class LikeRepositoryTest {
 
     @BeforeEach
     void 테스트_환경_세팅() {
-        user1 = createUser("user1");
-        user2 = createUser("user2");
-        category = createCategory(user1);
+        user1 = userRepository.save(EntityGenerator.generateUser("user1"));
+        user2 = userRepository.save(EntityGenerator.generateUser("user2"));
+        category = categoryRepository.save(EntityGenerator.generateCategory(user1));
     }
 
     @Test
@@ -95,23 +96,5 @@ public class LikeRepositoryTest {
         //then
         Optional<CommentLike> findLike = likeRepository.findCommentLikeByCommentAndUser(comment, user1);
         Assertions.assertTrue(findLike.isEmpty());
-    }
-
-    private User createUser(String id) {
-        User user = new User(
-                id,
-                "1234",
-                "nickname",
-                "kim",
-                "computer",
-                "20",
-                "test@example.com");
-
-        return userRepository.save(user);
-    }
-
-    private Category createCategory(User manager) {
-        Category category = new Category("자유게시판", "자유롭게 이야기 해봐요", manager);
-        return categoryRepository.save(category);
     }
 }

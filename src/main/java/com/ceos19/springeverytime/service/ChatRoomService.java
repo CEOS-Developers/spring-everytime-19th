@@ -56,6 +56,7 @@ public class ChatRoomService {
     }
 
     private void validateDuplicatedChatRoomByUserIds(Long user1Id, Long user2Id) {
+        System.out.println(userRepository);
         Optional<User> user1 = userRepository.findById(user1Id);
         Optional<User> user2 = userRepository.findById(user2Id);
 

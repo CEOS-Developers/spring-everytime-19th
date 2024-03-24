@@ -1,8 +1,10 @@
 package com.ceos19.springeverytime.service;
 
+import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.ChatRoom;
 import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.repository.ChatRoomRepository;
+import com.ceos19.springeverytime.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +25,8 @@ import static org.mockito.BDDMockito.given;
 public class ChatRoomServiceTest {
     @Mock
     ChatRoomRepository chatRoomRepository;
+    @Mock
+    UserRepository userRepository;
     @InjectMocks
     ChatRoomService chatRoomService;
 
@@ -30,35 +34,9 @@ public class ChatRoomServiceTest {
 
     @BeforeEach
     void 테스트_셋업() {
-        user1 = new User(
-                "test",
-                "adsfbsa234@ad",
-                "nicnname",
-                "kim",
-                "computer",
-                "20",
-                "test@exmaple.com"
-        );
-
-        user2 = new User(
-                "test2",
-                "adsfbsa234@ad",
-                "nickname2",
-                "kwon",
-                "data",
-                "21",
-                "test2@exmaple.com"
-        );
-
-        user3 = new User(
-                "test3",
-                "adsfbsa234@ad",
-                "nickname3",
-                "lee",
-                "math",
-                "22",
-                "test3@exmaple.com"
-        );
+        user1 = EntityGenerator.generateUser("test1");
+        user2 = EntityGenerator.generateUser("test2");
+        user3 = EntityGenerator.generateUser("test3");
     }
 
     @Test
@@ -67,6 +45,8 @@ public class ChatRoomServiceTest {
         // given
         ChatRoom chatRoom = new ChatRoom(user1, user2);
         given(chatRoomRepository.save(any(ChatRoom.class))).willReturn(chatRoom);
+        given(userRepository.findById(user1.getUserId())).willReturn(Optional.of(user1));
+        given(userRepository.findById(user2.getUserId())).willReturn(Optional.of(user2));
 
         // when
         ChatRoom createdChatRoom = chatRoomService.createChatRoom(chatRoom);

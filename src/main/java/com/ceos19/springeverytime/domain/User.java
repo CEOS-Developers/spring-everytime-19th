@@ -16,7 +16,7 @@ public class User {
     private Long userId;
 
     @NonNull
-    @Column(length = 30, nullable = false, name = "id")
+    @Column(length = 30, nullable = false, name = "id", unique = true)
     private String loginId;
 
     @NonNull

@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.service;
 
+import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.repository.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -28,15 +29,7 @@ public class UserServiceTest {
     @DisplayName("회원 가입 테스트")
     void 회원가입_테스트() {
         // given
-        User user = new User(
-            "test",
-            "adsfbsa234@ad",
-            "nicnname",
-            "kim",
-            "computer",
-            "20",
-            "test@exmaple.com"
-        );
+        User user = EntityGenerator.generateUser("test1");
         given(userRepository.save(any(User.class))).willReturn(user);
 
         // when

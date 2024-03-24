@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.service;
 
+import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.ChatMessage;
 import com.ceos19.springeverytime.domain.ChatRoom;
 import com.ceos19.springeverytime.domain.User;
@@ -33,26 +34,8 @@ public class ChatMessageServiceTest {
 
     @BeforeEach
     void 테스트_셋업() {
-        user1 = new User(
-                "test",
-                "adsfbsa234@ad",
-                "nicnname",
-                "kim",
-                "computer",
-                "20",
-                "test@exmaple.com"
-        );
-
-        user2 = new User(
-                "test2",
-                "adsfbsa234@ad",
-                "nickname2",
-                "kwon",
-                "data",
-                "21",
-                "test2@exmaple.com"
-        );
-
+        user1 = EntityGenerator.generateUser("test1");
+        user2 = EntityGenerator.generateUser("test2");
         chatRoom = new ChatRoom(user1, user2);
     }
 
