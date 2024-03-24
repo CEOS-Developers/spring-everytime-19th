@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.util.Arrays;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,12 +35,16 @@ public class PostImage {
     @Column(nullable = false)
     private String originalName;
 
+
+
+
     @Builder
     public PostImage(Post post,String accessUrl,String originalName){
         this.post = post;
         this.accessUrl=accessUrl;
-        this.originalName=originalName;
+        this.originalName = originalName;
     }
+
 
 
 

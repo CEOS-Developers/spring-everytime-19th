@@ -104,7 +104,7 @@ public class PostRepositoryTest {
         return   Post.builder()
             .member(member)
             .community(community)
-            .writer(member.getNickName())
+            .isHideNickName(true)
             .isQuestion(false)
             .title("에붕이")
             .contents("좋아!"+i)
