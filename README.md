@@ -144,7 +144,7 @@ CEOS 19th BE study - everytime clone coding
 @SpringBootTest 사용    
 - **ChatRoom 삭제 테스트 (N+1 테스트)**    
   이번 스터디를 통해 공부한 fetch를 연관관계 매핑에 적용해보았다.
-  ![image](https://github.com/kckc0608/kckc0608/assets/64959010/63448be0-c9ab-4220-8d95-5a00cb1b5795)
+  ![image](https://github.com/kckc0608/kckc0608/assets/64959010/63448be0-c9ab-4220-8d95-5a00cb1b5795)   
   채팅 메세지를 전송할 때, 채팅 메세지 객체를 직접 생성하면서 채팅방을 직접 매핑하는 것보다, 채팅방 객체에서 채팅 전송 메서드를 호출하는 것이 더 객체지향적인 설계라고 생각하여 `CascaseType.ALL`로 설정하였다.
   
   ```java
@@ -240,8 +240,8 @@ CEOS 19th BE study - everytime clone coding
           Assertions.assertThat(commentRepository.findAllByPost(post1).size()).isEqualTo(2);
       }
   ```
-  그러나 이렇게 구현했을 때 Delete 쿼리가 나가지 않는 문제가 있었다.
-  ![image](https://github.com/kckc0608/kckc0608/assets/64959010/1f261789-bbd4-4f4e-9261-1ebf3e263bb9)   
+  그러나 이렇게 구현했을 때 Delete 쿼리가 나가지 않는 문제가 있었다.   
+  ![image](https://github.com/kckc0608/kckc0608/assets/64959010/1f261789-bbd4-4f4e-9261-1ebf3e263bb9)    
   이에 대해 찾아본 결과, 위와 같이 자식 댓글을 조회해서 1차 캐시에 남아있는 상태에서 그에 대한 부모 댓글을 delete하면 이미 조회했던 자식 댓글들에는 해당 부모 댓글 정보가 남아있지만 실제 DB에서는 남아있지 않는 동기화 문제가 발생하므로 delete 쿼리를 실행시키지 않는다고 한다.   
   그래서 이를 해결하기 위해 1차 캐시를 깔끔하게 비운 뒤, 다시 조회하도록 `em.clear()` 를 해주었다.
   
@@ -293,7 +293,7 @@ CEOS 19th BE study - everytime clone coding
 그래서 이번 과제에서는 단위 테스트 / 통합 테스트를 모두 작성해야 하는 만큼 확실하게 분리해서 테스트를 해보고자 했다.   
 
 #### @Mock, @InjectMock
-![image](https://github.com/kckc0608/kckc0608/assets/64959010/7ef925c4-ba31-4d5b-bca4-b8857a75bf7a)
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/7ef925c4-ba31-4d5b-bca4-b8857a75bf7a)    
 서비스 계층 단위테스트를 진행할 때는 Repository 계층과 연결을 끊고 서비스 계층의 로직만을 테스트 해야한다.   
 따라서 레포지토리를 `@Mock` 어노테이션을 사용해 Mocking하고 service는 이 Mock을 대신 주입받도록 하였다.
 
