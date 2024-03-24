@@ -3,6 +3,9 @@ package com.ceos19.springeverytime.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
@@ -21,4 +24,7 @@ public class ChatRoom {
     @ManyToOne
     @JoinColumn(name = "user2_id")
     private User member2;
+
+    @OneToMany(mappedBy = "roomId")
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 }
