@@ -2,6 +2,7 @@ package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.Category;
+import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.EntityManager;
@@ -16,19 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
 @Transactional
 public class PostRepositoryTests {
-    @Autowired
-    PostRepository postRepository;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    CategoryRepository categoryRepository;
+    @Autowired PostRepository postRepository;
+    @Autowired UserRepository userRepository;
+    @Autowired CommentRepository commentRepository;
+    @Autowired CategoryRepository categoryRepository;
 
     User user;
     Category category;
@@ -81,5 +79,25 @@ public class PostRepositoryTests {
         //then
         Optional<Post> testPost = postRepository.findById(post1.getPostId());
         Assertions.assertTrue(testPost.isEmpty());
+    }
+
+    @Test
+    @DisplayName("게시글 & 댓글 동시 삭제 테스트")
+    public void 게시글과_댓글_삭제_테스트() throws Exception {
+        //given
+        Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user, category);
+        postRepository.save(post1);
+        post1.addComment(user, "test1", true);
+        post1.addComment(user, "test2", true);
+        post1.addComment(user, "test3", true);
+
+        //when
+        postRepository.delete(post1);
+
+        //then
+        Optional<Post> testPost = postRepository.findById(post1.getPostId());
+        List<Comment> comments = commentRepository.findAllByPost(post1);
+        Assertions.assertTrue(testPost.isEmpty());
+        Assertions.assertTrue(comments.isEmpty());
     }
 }
