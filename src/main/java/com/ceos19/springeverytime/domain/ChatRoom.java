@@ -25,6 +25,6 @@ public class ChatRoom {
     @JoinColumn(name = "user2_id")
     private User member2;
 
-    @OneToMany(mappedBy = "roomId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     private List<ChatMessage> chatMessages = new ArrayList<>();
 }
