@@ -86,7 +86,7 @@ public class User {
 - 이미지 업로드 (DB 저장)
 - 이미지 삭제 (DB 삭제)
 
-### Spring naming convention
+## Spring naming convention
 
 서비스 클래스 안에서 메서드 명을 작성 할 때는 아래와 같은 접두사를 붙인다.
 
@@ -99,7 +99,7 @@ public class User {
 [Reference](https://cocobi.tistory.com/27)
 
 
-### Service 생성자 주입 (DI)
+## Service 생성자 주입 (DI)
 
 ```java
 @Service
@@ -139,6 +139,45 @@ public class UserService {
   - 서버에 올리기 전, 애플리케이션 구동 시점(객체의 생성 시점)에 에러가 발생하기 때문에, 배포 전에 에러를 방지할 수 있다.
   - Bean에 등록하기 위해 객체를 생성하는 과정에서 다음과 같이 순환 참조가 발생하기 때문이다.  
   `new UserService(new MemberService(new UserService(new MemberService()...)))`
+
+
+## 1+N Problem
+When? 언제 발생하는건가요?
+- JPA Repository를 활용해 인터페이스 메소드를 호출 할 때(Read 시) 
+
+Who? 누가 발생시키나요?
+- 1:N 또는 N:1 관계를 가진 엔티티를 조회할 때 발생 
+
+How? 어떻게 하면 발생되나요?
+- JPA Fetch 전략(Fetch Type)이 EAGER 전략으로 데이터를 조회하는 경우
+- JPA Fetch 전략(Fetch Type)이 LAZY 전략으로, 전체 데이터를 가져온 이후 연관 관계인 하위 엔티티를 사용할 때 다시 조회하는 경우
+
+Why? 왜 발생하나요?
+- JPA Repository로 find 시 실행하는 첫 쿼리에서 하위 엔티티까지 한 번에 가져오지 않고, 하위 엔티티를 사용할 때 추가로 조회하기 때문에.
+- JPQL은 기본적으로 글로벌 Fetch 전략을 무시하고 JPQL만 가지고 SQL을 생성하기 때문에.
+
+## Test Example
+<div align="center">
+  <img src="imgs/friend_user.png" alt="drawing" width=400"/>
+</div>
+
+Friend와 User 는 다대일 관계
+
+
+
+
+### EAGER vs LAZY
+- EAGER(즉시 로딩)인 경우
+  1) JPQL에서 만든 SQL을 통해 데이터를 조회
+  2) 이후 JPA에서 Fetch 전략을 가지고(여기서는 즉시 로딩) 해당 데이터의 연관 관계인 하위 엔티티들을 추가 조회(LAZY - 지연 로딩 발생)
+  3) 앞의 과정으로 N+1 문제 발생함
+
+- LAZY(지연 로딩)인 경우
+  1) JPQL에서 만든 SQL을 통해 데이터를 조회
+  2) JPA에서 Fetch 전략을 가지지만, 여기서는 지연 로딩이기 때문에 추가 조회는 하지 않음
+  3) 하지만, 하위 엔티티를 가지고 작업하게 되면 추가 조회하기 때문에 결국 N+1 문제가 발생함
+
+
 
 
 # 스터디 이후 개선점들!
