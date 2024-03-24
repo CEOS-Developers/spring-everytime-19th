@@ -21,12 +21,15 @@ public class Comment extends BaseTimeEntity {
     private String contents;
 
     @Column(name="like_num", nullable = false)
+    @Builder.Default
     private Long likeNum=0L;
 
     @Column(name="is_deleted", nullable = false)
+    @Builder.Default
     private boolean isDeleted=false;
 
     @Column(name="is_reported", nullable = false)
+    @Builder.Default
     private boolean isReported=false;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,4 +43,9 @@ public class Comment extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="post_id")
     private Post post;
+
+    public void deleteSubcomment(long parentCommentId) {
+        this.parentComment = null;
+    }
+
 }

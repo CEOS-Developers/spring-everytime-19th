@@ -19,6 +19,7 @@ public class MessageBox extends BaseTimeEntity {
     private Long messageboxId;
 
     @Column(name="message_num", nullable = false)
+    @Builder.Default
     private Long messageNum=0L;
 
 

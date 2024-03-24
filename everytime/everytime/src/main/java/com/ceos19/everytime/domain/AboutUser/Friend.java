@@ -18,6 +18,7 @@ public class Friend extends BaseTimeEntity {
     private Long friendId;
 
     @Column(name="is_accepted", nullable = false)
+    @Builder.Default
     private boolean isAccepted=false;
 
     @ManyToOne

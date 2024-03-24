@@ -25,15 +25,15 @@ public class Board extends BaseTimeEntity {
     private String boardName;
 
     @Column(name="is_anonymity", nullable = false)
+    @Builder.Default
     private boolean isAnonymity=true;
 
     @Column(name="post_num", nullable = false)
+    @Builder.Default
     private Long postNum=0L;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="school_id")
     private School school;
 
-    @OneToMany(mappedBy = "board")
-    List<Post> posts = new ArrayList<Post>();
 }

@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 
@@ -34,7 +34,7 @@ public class UserRepositoryTest {
 
     @BeforeEach
     void setup() { //School 객체 미리 생성
-        testSchool = new School("Sogang",5000L);
+        testSchool = new School("Sogang", 5000L);
         testSchool = entityManager.persistFlushFind(testSchool);
     }
 
@@ -57,14 +57,14 @@ public class UserRepositoryTest {
 
         // Then
         assertTrue(testedUser1.isPresent(), "There is no user object.");// 사용자가 존재하는지 확인
-        assertEquals(testUser1.getUsername(), testedUser1.get().getUsername(), "Usernames don't match."); // 가져온 사용자의 이름이 기대한 값과 같은지 확인
+        assertThat(testedUser1.get().getUsername()).isEqualTo(testUser1.getUsername());
 
 
         assertTrue(testedUser2.isPresent(), "There is no user object.");// 사용자가 존재하는지 확인
-        assertEquals(testUser2.getUsername(), testedUser2.get().getUsername(), "Usernames don't match."); // 가져온 사용자의 이름이 기대한 값과 같은지 확인
+        assertThat(testedUser2.get().getUsername()).isEqualTo(testUser2.getUsername());
 
         assertTrue(testedUser3.isPresent(), "There is no user object.");// 사용자가 존재하는지 확인
-        assertEquals(testUser3.getUsername(), testedUser3.get().getUsername(), "Usernames don't match."); // 가져온 사용자의 이름이 기대한 값과 같은지 확인
+        assertThat(testedUser3.get().getUsername()).isEqualTo(testUser3.getUsername());
     }
 
     private User createUser(String username, String department) {
@@ -74,7 +74,7 @@ public class UserRepositoryTest {
                 .loginPassword(username + "password")
                 .nickname(username + "nick")
                 .department(department)
-                .studentId(20200000L)
+                .studentId(20190000L)
                 .email(username + "@gmail.com")
                 .isActive(true)
                 .school(testSchool)

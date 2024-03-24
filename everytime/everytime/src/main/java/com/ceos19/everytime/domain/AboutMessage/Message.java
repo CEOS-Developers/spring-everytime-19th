@@ -23,9 +23,11 @@ public class Message {
     private String contents;
 
     @Column(name="is_deleted", nullable = false)
+    @Builder.Default
     private boolean isDeleted=false;
 
     @Column(name="send_at", nullable = false)
+    @Builder.Default
     private Timestamp sendAt=Timestamp.valueOf(LocalDateTime.now());
 
     @ManyToOne

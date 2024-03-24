@@ -50,18 +50,18 @@ public class User extends BaseTimeEntity {
     private String email;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean isActive=true;
 
     @Column(name="login_at",nullable = false)
+    @Builder.Default
     private Timestamp loginAt=Timestamp.valueOf(LocalDateTime.now());
 
-
     //User->School
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="school_id")
     private School school;
 
-    //Timetable -> User
     @OneToMany(mappedBy = "user")
     @Builder.Default
     List<Timetable> timetables = new ArrayList<Timetable>();
@@ -74,26 +74,12 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     List<Post> posts = new ArrayList<Post>();
 
-    @OneToMany(mappedBy = "user1")
-    @Builder.Default
-    List<Friend> friends1 = new ArrayList<Friend>();
-
-    @OneToMany(mappedBy = "user2")
-    @Builder.Default
-    List<Friend> friends2 = new ArrayList<Friend>();
-
     @OneToMany(mappedBy = "user")
     @Builder.Default
     List<Comment> comments = new ArrayList<Comment>();
 
-    @OneToOne(mappedBy = "user")
-    private MessageBox messageBox;
-
-    @OneToMany(mappedBy = "user1")
-    @Builder.Default
-    List<Message> messages1 = new ArrayList<Message>();
-
-    @OneToMany(mappedBy = "user2")
-    @Builder.Default
-    List<Message> messages2 = new ArrayList<Message>();
+    public User(String username, School school){
+        this.username = username;
+        this.school = school;
+    }
 }

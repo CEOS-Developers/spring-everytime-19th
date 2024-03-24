@@ -24,12 +24,15 @@ public class School extends BaseTimeEntity {
     private String schoolName;
 
     @Column(name="student_num", nullable = false)
+    @Builder.Default
     private Long studentNum=0L;
 
-    @OneToMany(mappedBy = "school")
+    @OneToMany(mappedBy = "school",fetch = FetchType.EAGER)
+    @Builder.Default
     List<User> users = new ArrayList<User>();
 
-    @OneToMany(mappedBy = "school")
+    @OneToMany(mappedBy = "school",fetch = FetchType.LAZY)
+    @Builder.Default
     List<Board> boards = new ArrayList<Board>();
 
     public School(String schoolName, Long studentNum){

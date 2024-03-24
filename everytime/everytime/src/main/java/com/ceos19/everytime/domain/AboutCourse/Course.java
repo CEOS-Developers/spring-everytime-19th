@@ -65,7 +65,5 @@ public class Course extends BaseTimeEntity {
     //강의 설명
     private String description;
 
-    @OneToMany(mappedBy = "course")
-    List<AddedCourse> addedCourses = new ArrayList<AddedCourse>();
 
 }

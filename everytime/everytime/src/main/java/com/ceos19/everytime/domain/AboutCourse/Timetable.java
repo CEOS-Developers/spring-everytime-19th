@@ -29,5 +29,6 @@ public class Timetable extends BaseTimeEntity {
 
 
     @OneToMany(mappedBy = "timetable")
+    @Builder.Default
     List<AddedCourse> addedCourses = new ArrayList<AddedCourse>();
 }
