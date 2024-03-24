@@ -6,15 +6,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ceos19.everytime.board.domain.Board;
+import com.ceos19.everytime.board.dto.request.BoardPostsRequestDto;
+import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
+import com.ceos19.everytime.board.repository.BoardRepository;
+import com.ceos19.everytime.comment.domain.Comment;
+import com.ceos19.everytime.comment.repository.CommentRepository;
 import com.ceos19.everytime.post.domain.Post;
 import com.ceos19.everytime.post.domain.Posts;
-import com.ceos19.everytime.user.domain.User;
-import com.ceos19.everytime.board.dto.request.BoardPostsRequestDto;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
-import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.post.dto.response.PostResponseDto;
-import com.ceos19.everytime.board.repository.BoardRepository;
 import com.ceos19.everytime.post.repository.PostRepository;
+import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public void createPost(final PostCreateRequestDto request) {
@@ -44,10 +47,10 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostResponseDto getPost(final Long postId) {
-        return postRepository.findById(postId)
-                .map(post -> new PostResponseDto(post.getTitle(), post.getContent(), post.getWriterNickname(),
-                        post.getBoard().getName()))
+        final Post post = postRepository.findById(postId)
                 .orElseThrow(IllegalArgumentException::new);
+        List<Comment> comments = commentRepository.findByPost(post);
+        return PostResponseDto.of(post, comments);
     }
 
     @Transactional(readOnly = true)

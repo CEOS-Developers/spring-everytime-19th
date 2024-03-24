@@ -1,6 +1,7 @@
 package com.ceos19.everytime.post.service;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -16,15 +17,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.ceos19.everytime.board.domain.Board;
-import com.ceos19.everytime.post.domain.Post;
-import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.board.dto.request.BoardPostsRequestDto;
-import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
 import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
-import com.ceos19.everytime.post.dto.response.PostResponseDto;
-import com.ceos19.everytime.post.service.PostService;
 import com.ceos19.everytime.board.repository.BoardRepository;
+import com.ceos19.everytime.comment.domain.Comment;
+import com.ceos19.everytime.comment.repository.CommentRepository;
+import com.ceos19.everytime.post.domain.Post;
+import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
+import com.ceos19.everytime.post.dto.response.PostResponseDto;
 import com.ceos19.everytime.post.repository.PostRepository;
+import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +40,9 @@ class PostServiceTest {
 
     @Mock
     private BoardRepository boardRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
 
     @InjectMocks
     private PostService postService;
@@ -92,6 +97,13 @@ class PostServiceTest {
         given(postRepository.findById(anyLong()))
                 .willReturn(Optional.of(post));
 
+        final Comment comment1 = new Comment("content1", true, user, post, null);
+        final Comment comment2 = new Comment("content2", true, user, post, null);
+        final Comment comment3 = new Comment("content3", true, user, post, null);
+
+        given(commentRepository.findByPost(any()))
+                .willReturn(List.of(comment1, comment2, comment3));
+
         // when
         final PostResponseDto response = postService.getPost(1L);
 
@@ -100,6 +112,7 @@ class PostServiceTest {
             softly.assertThat(response.title()).isEqualTo("title");
             softly.assertThat(response.content()).isEqualTo("안녕하세요~");
             softly.assertThat(response.username()).isEqualTo("익명");
+            softly.assertThat(response.comments().size()).isEqualTo(3);
         });
     }
 
