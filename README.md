@@ -141,7 +141,8 @@ CEOS 19th BE study - everytime clone coding
 - [x] 이미지 DB에서 삭제
 
 ### 레포지토리 테스트
-ChatRoom 삭제 테스트 (N+1)
+@SpringBootTest 사용    
+- ChatRoom 삭제 테스트 (N+1)
 
 ### 서비스 단위 테스트
 서비스 단위 테스트는 레포지토리를 mocking 하여 진행 (Mockito)
