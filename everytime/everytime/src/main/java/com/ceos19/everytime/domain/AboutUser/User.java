@@ -58,7 +58,7 @@ public class User extends BaseTimeEntity {
     private Timestamp loginAt=Timestamp.valueOf(LocalDateTime.now());
 
     //User->School
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="school_id")
     private School school;
 

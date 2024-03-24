@@ -27,7 +27,7 @@ public class School extends BaseTimeEntity {
     @Builder.Default
     private Long studentNum=0L;
 
-    @OneToMany(mappedBy = "school",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "school",fetch = FetchType.LAZY)
     @Builder.Default
     List<User> users = new ArrayList<User>();
 
