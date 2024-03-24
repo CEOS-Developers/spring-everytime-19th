@@ -707,4 +707,569 @@ A는 Team 에서 Team 의 이미지와 Team 의 Member 에 대한 내용 을 함
 
 여러 객체에 대해 페치조인을 사용하지 말라는 오류를 발생시킨다. 
 
- 
+ ---
+## 코드 작성 중 어려웠던 점
+
+### (알수없음) 및 삭제 된 메시지 
+
+에브리타임에서 댓글을 삭제 시에 대댓글이 존재하지 않을 경우 그냥 삭제가 되나<br>
+대댓글이 존재할 경우 작성자가 익명 혹은 닉네임 에서 (알수없음) 으로 바뀌고 <br>
+내용은 삭제된 메시지 입니다. 라고 표시되는 것을 본 적이 있다. 
+
+때문에 아래와 같이 코드를 작성했다. 
+
+```java
+@Transactional
+    public void deleteComment(Long replyId,Member currentMember){
+        Reply reply=findReply(replyId);
+
+        if(reply.getMember().getId()!=currentMember.getId()){
+            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
+
+        Post post= findPost(reply.getPost().getId());
+        post.decreaseReplyCount();
+
+        if(reply.getParent()==null&&replyRepository.existsByParentId(reply.getId())){
+           ChangeMessageByDelete(reply);
+           return;
+        }
+
+        replyRepository.delete(reply);
+    }
+```
+
+- reply.getParent()==null && replyRepository.existsByParentId(reply.getId) 를 통해서 대댓글이 아닌 댓글 이고 이에 대한 대댓글이 달린 경우에 
+ChangeMessageByDelete(reply) 라는 코드를 수행하고 ```delete``` 쿼리를 수행하는 대신 changeMessageByDelete(reply) 라는 메서드를 수행했다. 
+
+  <br>
+이 메서드는 
+```java
+private static final String DELETED_CONTENTS="(삭제된 댓글)";
+private void ChangeMessageByDelete(Reply reply){
+        reply.changeParentByDeleteOnlyHaveChild(DELETED_CONTENTS);
+    }
+```
+다시 이 메서드를 수행하게 하고, 다시 이 메서드는 아래와 같이 
+
+```java
+public void changeParentByDeleteOnlyHaveChild(String deletedContents){
+        this.member=null;
+        this.contents = deletedContents;
+    }
+```
+
+직접 member 에 대한 연관관계를 끊어주고 답글의 내용을 삭제된 댓글로 바꾸어 준다. 
+
+하지만 이렇게 연관관계를 직접 끊어 주었기 때문에 상당 부분의 코드에 ```reply.getMember``` 의 값이 Null 일 떄를 체크를
+해주어야 했다. 
+
+아래와 같이 말이다. 
+
+```java
+private String makeNickNameByReply(Reply reply){
+        if(reply.getMember()==null){
+            return FOR_NULL_NICKNAME;
+        }
+        return reply.isHideNickName()?POST_DEFAULT_NICK_NAME:reply.getMember().getNickName();
+    }
+```
+
+이제 위 코드 뿐만 아니라 ```reply.getMember()``` 을 사용하는 부분은 
+항상 NPE 방지를 위해 null 인지 여부를 체크해야 한다. 
+
+실제로 이렇게 하는 것이 맞는 방법이 맞는지 확신이 없다. 
+
+## 알게 된점 
+
+### Editor 
+
+평소에 수정을 할때 아래 코드와 같이 하였다. 
+
+```java
+@Transactional
+    public void updatePost(PostEditDto postEditDto,Long postId,Member currentMember){
+        Post post=findPost(postId);
+
+        //질문글일 경우 수정 불가 
+        if(post.isQuestion()==true){
+            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
+
+        // 현재 member 와 post 작성자가 다른 경우는 수정 불가
+        if(post.getMember().getId()!=currentMember.getId()){
+            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
+
+        //post에 대해 title,content,질문글 여부, 익명 여부를 수정. 
+        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditDto.getTitle(), postEditDto.getContents(),
+             postEditDto.isQuestion(),postEditDto.isHideNickName());
+```
+
+```post.change...``` 로 모든 것을 수정했다. 
+
+하지만 https://velog.io/@gundorit/Spring-%EC%A0%9C%EB%8C%80%EB%A1%9C-%EB%90%9C-CRUD-Update
+이 블로그는 이를 통한 수정 방식은 필드의 순서에 맞게 값을 넘기니 실수가 발생할 수 있고, 
+컴파일에 문제가 없기 때문에 문제 발견이 어렵다는 내용을 담고 있다. 
+그렇기 때문에 이전까지 했던 내용을 안좋은 예시라고 소개하고 있다.
+
+그에 따라 대처 방안으로 ```Editor``` 라는 것을 사용하고 소개하고 있는데 
+그 필요성이 공감되지 않으므로 한 번 해보고 좋은 것인지 알아보겠다. 
+
+```java
+@Getter
+public class PostEditor {
+    private final String title;
+    private final String content;
+    private final boolean isQuestion;
+    private final boolean hideNickName;
+    @Builder
+    public PostEditor(String title,String content,boolean isQuestion,boolean hideNickName){
+        this.title= title;
+        this.content=content;
+        this.isQuestion = isQuestion;
+        this.hideNickName = hideNickName;
+    }
+
+}
+```
+
+위와 같이 Editor를 선언하고 
+아래와 같이 post 라는 엔티티에 메서드를 선언한다. 
+```java
+ public PostEditor.PostEditorBuilder toEditor(){
+       return PostEditor.builder()
+           .title(this.title)
+           .content(this.contents)
+           .isQuestion(this.isQuestion)
+           .hideNickName(this.isHideNickName);
+   }
+
+   public void edit(PostEditor postEditor){
+       this.title= postEditor.getTitle();
+       this.contents = postEditor.getContent();
+       this.isQuestion = postEditor.isQuestion();
+       this.isHideNickName = postEditor.isHideNickName();
+   }
+```
+또한 PostService 의 수정 메서드에 아래 코드를 추가한다. 
+```java
+  //post에 대해 title,content,질문글 여부, 익명 여부를 수정.
+/*
+        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditDto.getTitle(), postEditDto.getContents(),
+             postEditDto.isQuestion(),postEditDto.isHideNickName());
+        */
+         PostEditor.PostEditorBuilder editorBuilder = post.toEditor();
+
+
+                 PostEditor postEditor = editorBuilder.title(postEditDto.getTitle())
+                 .isQuestion(postEditDto.isQuestion())
+                 .hideNickName(postEditDto.isHideNickName())
+                 .content(postEditDto.getContents())
+                 .build();
+
+                 post.edit(postEditor);
+```
+editor 를 이용하여 수정한다. 
+
+또한 Post 엔티티에 
+
+
+
+위와 같이 선언해 준다. 
+수정은 잘된다 . 근데 좋은지 잘 모르겠다. 
+1) DTO 랑 EDITOR 가 무엇이 다른지 잘 모르겠다.
+2) 영한님이 했던 말씀 중에 DTO 는 엔티티를 참조할수있지만 엔티티는 DTO 를 참조하게 하지 말라고 했다. 이 경우는 그런 경우가 아닌지
+
+
+### 테스트 코드 알게 된 점 
+
+```java
+//given
+Member member1=Member.builder().loginId("dionisos198").name("이진우").nickName("dionisos198").password("ddd").build();
+        Member member2 = Member.builder().loginId("dionisos1982").name("이진우2").nickName("dionisos1982").password("ddd2").build();
+
+    when(jjokjiRoomRepository.findJjokjiRoomByMemberId(anyLong())).thenReturn(List.of(room1,room2));
+    ...
+    //when
+    List<JjokjiLatestResponse> jjokjiLatestResponses = jjokjiService.showJjokjiRoomByLatestJjokji(member2);
+```
+
+위와 같은 테스트 코드 작성 중 궁금한 것이 생겼다.
+
+
+
+서비스 로직 상 ```jjokjiService.showJJokjiRoom ...``` 내부에서 
+member.getId() 를 사용하는 로직이 있었다.
+
+하지만 Member 에서의 ID 는 자동으로 생성되기에 빌더를 사용할 때 굳이 ID에 대한 빌더를 
+선언하지 않았다. 
+
+이를 해결하기 위해서 Member 엔티티에 Setter 를 열거나, Member 의 ID 까지 빌더에 포함시키는 
+생각밖에 나지 않아서 이에 대해 알아보았다. 
+
+https://dncjf64.tistory.com/314
+
+이 블로그에서 그에 대한 답을 찾을 수 있었다. 
+
+```java
+//given
+Member member1=Member.builder().loginId("dionisos198").name("이진우").nickName("dionisos198").password("ddd").build();
+        Member member2 = Member.builder().loginId("dionisos1982").name("이진우2").nickName("dionisos1982").password("ddd2").build();
+    ReflectionTestUtils.setField(member2,"id",3L);
+    when(jjokjiRoomRepository.findJjokjiRoomByMemberId(anyLong())).thenReturn(List.of(room1,room2));
+    ...
+    //when
+    List<JjokjiLatestResponse> jjokjiLatestResponses = jjokjiService.showJjokjiRoomByLatestJjokji(member2);
+```
+
+이런 식으로 ```ReflectionTestUtils``` 를 선언하면 이에 대해 해결을 할 수 있었다.
+
+### 1대 다 페치 조인 적용하기
+
+평소에 1대 다 페치 조인을 적용할 상황이 오면 
+페이징 처리를 해야 할 경우가 많았던 것 같아서 결국 1대 다 페치 조인을 적용하지 않았다. 
+이번 기회에 1대다 페치 조인을 적용하는 연습을 기록해 본다. 
+
+
+```java
+public PostResponseDto showDetailsPost(Long postId){
+        Post post = findPost(postId);
+        List<Reply> parentReply = replyRepository.findParentReplyByPostId(postId);
+
+        List<ReplyDto> replyDtoList = new ArrayList<>();
+
+
+        for(Reply parent: parentReply){
+            replyDtoList.add(new ReplyDto(parent,makeNickNameByReply(parent)));
+            
+            List<Reply> childList = replyRepository.findChildByParentId(parent.getId());
+            childList.stream().forEach(r->{
+                replyDtoList.add(new ReplyDto(r,makeNickNameByReply(r)));
+            });
+
+        }
+
+        List<String> accessUrlList = post.getPostImageList().stream().map(postImage -> {
+            return postImage.getAccessUrl();
+        }).collect(Collectors.toList());
+
+        return new PostResponseDto(post,makeNickNameByPost(post),accessUrlList,replyDtoList);
+    }
+```
+
+처음에는 이렇게 쿼리를 작성했었다. 
+fetch join 을 하나도 안한 코드이다 보니까 쿼리양이 많았다. 
+
+```java
+Hibernate: 
+        //처음 findpost 에서 post 찾는 쿼리 
+    select
+        p1_0.post_id,
+        p1_0.community_id,
+        p1_0.contents,
+        p1_0.created_at,
+        p1_0.is_hide_nick_name,
+        p1_0.is_question,
+        p1_0.like_count,
+        p1_0.member_id,
+        p1_0.reply_count,
+        p1_0.title,
+        p1_0.updated_at 
+    from
+        post p1_0 
+    where
+        p1_0.post_id=?
+Hibernate: 
+        //대댓글이 아닌 댓글을 찾는 쿼리
+    select
+        r1_0.reply_id,
+        r1_0.contents,
+        r1_0.created_at,
+        r1_0.is_hide_nick_name,
+        r1_0.like_count,
+        r1_0.member_id,
+        r1_0.parent_id,
+        r1_0.post_id,
+        r1_0.updated_at 
+    from
+        reply r1_0 
+    where
+        r1_0.post_id=? 
+        and r1_0.parent_id is null
+Hibernate: 
+        // 댓글을 단 사람이 익명으로 표시하지 않았을 경우 member 의 닉네임을 가져오기 위해 발생되는 쿼리 
+    select
+        m1_0.member_id,
+        m1_0.login_id,
+        m1_0.name,
+        m1_0.nick_name,
+        m1_0.password 
+    from
+        member m1_0 
+    where
+        m1_0.member_id=?
+Hibernate: 
+        //첫 번째 부모 댓글에 대해 대댓글 찾는 쿼리 
+    select
+        r1_0.reply_id,
+        r1_0.contents,
+        r1_0.created_at,
+        r1_0.is_hide_nick_name,
+        r1_0.like_count,
+        r1_0.member_id,
+        r1_0.parent_id,
+        r1_0.post_id,
+        r1_0.updated_at 
+    from
+        reply r1_0 
+    where
+        r1_0.parent_id=?
+Hibernate:
+//대댓글이 익명이 아닐 경우 발생되는 쿼리
+    select
+        m1_0.member_id,
+        m1_0.login_id,
+        m1_0.name,
+        m1_0.nick_name,
+        m1_0.password 
+    from
+        member m1_0 
+    where
+        m1_0.member_id=?
+Hibernate: 
+        
+    select
+        m1_0.member_id,
+        m1_0.login_id,
+        m1_0.name,
+        m1_0.nick_name,
+        m1_0.password 
+    from
+        member m1_0 
+    where
+        m1_0.member_id=?
+Hibernate: 
+    select
+        r1_0.reply_id,
+        r1_0.contents,
+        r1_0.created_at,
+        r1_0.is_hide_nick_name,
+        r1_0.like_count,
+        r1_0.member_id,
+        r1_0.parent_id,
+        r1_0.post_id,
+        r1_0.updated_at 
+    from
+        reply r1_0 
+    where
+        r1_0.parent_id=?
+Hibernate: 
+    select
+        m1_0.member_id,
+        m1_0.login_id,
+        m1_0.name,
+        m1_0.nick_name,
+        m1_0.password 
+    from
+        member m1_0 
+    where
+        m1_0.member_id=?
+Hibernate: 
+    select
+        r1_0.reply_id,
+        r1_0.contents,
+        r1_0.created_at,
+        r1_0.is_hide_nick_name,
+        r1_0.like_count,
+        r1_0.member_id,
+        r1_0.parent_id,
+        r1_0.post_id,
+        r1_0.updated_at 
+    from
+        reply r1_0 
+    where
+        r1_0.parent_id=?
+Hibernate: 
+    select
+        r1_0.reply_id,
+        r1_0.contents,
+        r1_0.created_at,
+        r1_0.is_hide_nick_name,
+        r1_0.like_count,
+        r1_0.member_id,
+        r1_0.parent_id,
+        r1_0.post_id,
+        r1_0.updated_at 
+    from
+        reply r1_0 
+    where
+        r1_0.parent_id=?
+Hibernate: 
+    select
+        p1_0.post_id,
+        p1_0.post_image_id,
+        p1_0.access_url,
+        p1_0.original_name 
+    from
+        post_image p1_0 
+    where
+        p1_0.post_id=?  :post 에 대한 post_image 쿼리 
+
+```
+
+등등등 이렇게 많은 양의 쿼리를 줄이기 위해<br>
+Post 를 찾아올 때 PostImage를 1대다 Fetch Join 으로 함께 가져오고 <br>
+Post 를 찾아올 때 작성자의 Member 에 대해 다대1 Fetch Join 으로 함께 가져온다.
+
+```java
+@Query("select distinct p from Post p left join fetch p.postImageList join fetch p.member where p.id=:postId")
+    Optional<Post>  findPostByPostIdWithFetchMemberAndPostImageList(@Param("postId") Long postId);
+```
+
+또한 부모 댓글을 가져올 때 자식 댓글을 1대다 Fetch Join 으로 함께 가져오고 <br>
+부모 댓글을 찾아올때 작성자 Member 에 대해 다대 1 페치 조인으로 함께 가지고 온다.<br>
+```java
+ @Query("select distinct r from Reply r  left join fetch r.childList join fetch r.member where r.post.id=:postId and r.parent=null")
+    List<Reply> findParentReplyByPostIdWithFetchMember(@Param("postId")Long postId);
+```
+
+결과적으로 아래와 같이 쿼리의 개수가 매우 적게 나간다. 
+
+```java
+select
+        distinct p1_0.post_id,
+        p1_0.community_id,
+        p1_0.contents,
+        p1_0.created_at,
+        p1_0.is_hide_nick_name,
+        p1_0.is_question,
+        p1_0.like_count,
+        m1_0.member_id,
+        m1_0.login_id,
+        m1_0.name,
+        m1_0.nick_name,
+        m1_0.password,
+        p2_0.post_id,
+        p2_0.post_image_id,
+        p2_0.access_url,
+        p2_0.original_name,
+        p1_0.reply_count,
+        p1_0.title,
+        p1_0.updated_at
+        from
+        post p1_0
+        left join
+        post_image p2_0
+        on p1_0.post_id=p2_0.post_id
+        join
+        member m1_0
+        on m1_0.member_id=p1_0.member_id
+        where
+        p1_0.post_id=?
+        
+        
+        Hibernate:
+        select
+        distinct r1_0.reply_id,
+        c1_0.parent_id,
+        c1_0.reply_id,
+        c1_0.contents,
+        c1_0.created_at,
+        c1_0.is_hide_nick_name,
+        c1_0.like_count,
+        c1_0.member_id,
+        c1_0.post_id,
+        c1_0.updated_at,
+        r1_0.contents,
+        r1_0.created_at,
+        r1_0.is_hide_nick_name,
+        r1_0.like_count,
+        m1_0.member_id,
+        m1_0.login_id,
+        m1_0.name,
+        m1_0.nick_name,
+        m1_0.password,
+        r1_0.parent_id,
+        r1_0.post_id,
+        r1_0.updated_at
+        from
+        reply r1_0
+        left join
+        reply c1_0
+        on r1_0.reply_id=c1_0.parent_id
+        join
+        member m1_0
+        on m1_0.member_id=r1_0.member_id
+        where
+        r1_0.post_id=?
+        and r1_0.parent_id is null
+        
+        
+        Hibernate:
+        select
+        m1_0.member_id,
+        m1_0.login_id,
+        m1_0.name,
+        m1_0.nick_name,
+        m1_0.password
+        from
+        member m1_0
+        where
+        m1_0.member_id=?
+
+
+
+```
+
+## 알아봐야 할 점
+
+```java
+
+@Transactional
+public void savePost(PostSaveDto postSaveDto, Long communityId, Member currentMember){
+        Community community = communityRepository.findById(communityId).orElseThrow(()->new NotFoundException(
+        ErrorCode.MESSAGE_NOT_FOUND));
+
+        //post 내용 저장
+        Post post = Post.builder()
+        .member(currentMember)
+        .community(community)
+        .title(postSaveDto.getTitle())
+        .contents(postSaveDto.getContents())
+        .isQuestion(postSaveDto.isQuestion())
+        .isHideNickName(postSaveDto.isHideNickName())
+        .build();
+
+
+        //post 사진 저장.
+        postSaveDto.getMultipartFileList().forEach(multipartFile -> {
+        String accessUrl = postImageService.saveImage(multipartFile,POST_IMAGE,
+        multipartFile.getOriginalFilename());
+
+        post.saveImage(multipartFile.getOriginalFilename(),accessUrl);
+        });
+
+         postRepository.save(post);
+        }
+
+
+```
+
+Service 에서 post 를 저장할 때 위와 같이 void 형을 선언하여서 지금까지 저장하였었다.
+
+하지만 이번에 저장이 잘 되었는지 테스트 코드를 짜려면 아래와 같이 코드를 짜야만 했던 것 같다. 
+
+```java
+    //when
+        Post findPost = postService.savePost(postSaveDto,1L,member);
+
+        //then
+        Assertions.assertThat(findPost.getContents()).isEqualTo("사실 안갔다옴 ㅋ");
+        Assertions.assertThat(findPost.getCommunity().getName()).isEqualTo("자유게시판");
+```
+
+따래서` void `를 사용하고 싶은데 강제로 Service 의 반환형을 선언하는 수 밖에 생각이 나지 않았다.
+
+어떻게 해야 할 지 알아봐야 되겠다. 
+
