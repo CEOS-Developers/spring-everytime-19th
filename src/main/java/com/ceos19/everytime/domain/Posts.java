@@ -2,7 +2,7 @@ package com.ceos19.everytime.domain;
 
 import java.util.List;
 
-import com.ceos19.everytime.dto.response.PostResponseDto;
+import com.ceos19.everytime.dto.response.BoardPostsResponseDto;
 
 public class Posts {
 
@@ -12,7 +12,7 @@ public class Posts {
         this.posts = posts;
     }
 
-    public List<PostResponseDto> toResponseDto() {
+    public List<BoardPostsResponseDto> toResponseDto() {
         return posts.stream()
                 .map(Post::toResponseDto)
                 .toList();

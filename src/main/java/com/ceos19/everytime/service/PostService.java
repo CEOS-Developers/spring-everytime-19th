@@ -1,5 +1,7 @@
 package com.ceos19.everytime.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,10 +51,10 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public BoardPostsResponseDto getPosts(final BoardPostsRequestDto request) {
+    public List<BoardPostsResponseDto> getPosts(final BoardPostsRequestDto request) {
         final Board findBoard = getBoard(request.boardId());
         final Posts posts = new Posts(postRepository.findAllFetchJoin(findBoard));
-        return new BoardPostsResponseDto(posts.toResponseDto());
+        return posts.toResponseDto();
     }
 
     private Board getBoard(final Long boardId) {

@@ -127,14 +127,14 @@ class PostServiceTest {
                 .willReturn(List.of(post, post2, post3));
 
         // when
-        final BoardPostsResponseDto response = postService.getPosts(request);
+        final List<BoardPostsResponseDto> response = postService.getPosts(request);
 
         // then
         assertSoftly(softly -> {
-            softly.assertThat(response.responses().size()).isEqualTo(3);
-            softly.assertThat(response.responses().get(0)).isEqualTo(post.toResponseDto());
-            softly.assertThat(response.responses().get(1)).isEqualTo(post2.toResponseDto());
-            softly.assertThat(response.responses().get(2)).isEqualTo(post3.toResponseDto());
+            softly.assertThat(response.size()).isEqualTo(3);
+            softly.assertThat(response.get(0)).isEqualTo(post.toResponseDto());
+            softly.assertThat(response.get(1)).isEqualTo(post2.toResponseDto());
+            softly.assertThat(response.get(2)).isEqualTo(post3.toResponseDto());
         });
     }
 }
