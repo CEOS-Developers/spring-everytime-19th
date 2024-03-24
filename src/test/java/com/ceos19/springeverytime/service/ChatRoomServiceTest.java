@@ -56,6 +56,23 @@ public class ChatRoomServiceTest {
     }
 
     @Test
+    @DisplayName("채팅방 중복 생성 에러 테스트")
+    void 채팅방_중복_생성_에러_테스트() {
+        // given
+        ChatRoom chatRoom = new ChatRoom(user1, user2);
+        given(userRepository.findById(user1.getUserId())).willReturn(Optional.of(user1));
+        given(userRepository.findById(user2.getUserId())).willReturn(Optional.of(user2));
+        given(chatRoomRepository.findChatRoomByUser1AndUser2(any(User.class), any(User.class))).willReturn(Optional.of(chatRoom));
+
+        // when
+
+        // then
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> {
+            chatRoomService.createChatRoom(new ChatRoom(user1, user2));
+        }).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("채팅방 조회 테스트")
     void 채팅방_조회_테스트() {
         // given

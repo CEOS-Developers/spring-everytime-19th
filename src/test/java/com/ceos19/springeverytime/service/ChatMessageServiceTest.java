@@ -43,8 +43,8 @@ public class ChatMessageServiceTest {
     @DisplayName("채팅 내역 조회 테스트")
     void 채팅_내역_조회_테스트() {
         // given
-        ChatMessage chatMessage1 = new ChatMessage("안녕하세요", new Date(), chatRoom, user1);
-        ChatMessage chatMessage2= new ChatMessage("안녕하세요", new Date(), chatRoom, user2);
+        ChatMessage chatMessage1 = ChatMessage.builder().room(chatRoom).content("안녕하세요").sender(user1).build();
+        ChatMessage chatMessage2 = ChatMessage.builder().room(chatRoom).content("안녕하세요").sender(user2).build();
 
         List<ChatMessage> messageList = new ArrayList<>();
         messageList.add(chatMessage1);

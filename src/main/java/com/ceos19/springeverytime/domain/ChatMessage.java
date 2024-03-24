@@ -8,7 +8,6 @@ import java.util.Date;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@RequiredArgsConstructor
 public class ChatMessage {
     @Id
     @GeneratedValue
@@ -19,10 +18,6 @@ public class ChatMessage {
     private String content;
 
     @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date sendDate;
-
-    @NonNull
     @ManyToOne
     @JoinColumn(name = "room_id")
     private ChatRoom room;
@@ -31,4 +26,14 @@ public class ChatMessage {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User sender;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    final private Date sendDate = new Date();
+
+    @Builder
+    public ChatMessage(@NonNull String content, @NonNull ChatRoom room, @NonNull User sender) {
+        this.content = content;
+        this.room = room;
+        this.sender = sender;
+    }
 }
