@@ -45,8 +45,6 @@ class UserRepositryTest {
                 .isBoardManager(false)
                 .board(null)
                 .isBanned(false)
-                .createdAt(currentDateTime)
-                .lastLogin(currentDateTime)
                 .school(univ).build()
         );
 
