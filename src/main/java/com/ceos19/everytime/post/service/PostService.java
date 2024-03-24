@@ -33,7 +33,7 @@ public class PostService {
     @Transactional
     public void createPost(final PostCreateRequestDto request) {
         final User writer = userRepository.findById(request.userId())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", request.userId())));
         final Board board = getBoard(request.boardId());
         final Post post = Post.builder()
                 .title(request.title())
@@ -48,8 +48,8 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponseDto getPost(final Long postId) {
         final Post post = postRepository.findById(postId)
-                .orElseThrow(IllegalArgumentException::new);
-        List<Comment> comments = commentRepository.findByPost(post);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Post not found: %d", postId)));
+        final List<Comment> comments = commentRepository.findByPost(post);
         return PostResponseDto.of(post, comments);
     }
 
@@ -62,6 +62,6 @@ public class PostService {
 
     private Board getBoard(final Long boardId) {
         return boardRepository.findById(boardId)
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Board not found: %d", boardId)));
     }
 }

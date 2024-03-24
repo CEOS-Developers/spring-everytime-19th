@@ -26,7 +26,7 @@ public class CommentLikeService {
         final Comment comment = getComment(request);
         final User user = getUser(request);
         if (commentLikeRepository.existsByCommentAndUser(comment, user)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(String.format("CommentLike not found: %d", request.userId()));
         }
         final CommentLike commentLike = new CommentLike(user, comment);
         comment.increaseLikeNumber();
@@ -39,7 +39,8 @@ public class CommentLikeService {
         final Comment comment = getComment(request);
         final User user = getUser(request);
         final CommentLike commentLike = commentLikeRepository.findByCommentAndUser(comment, user)
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("CommentLike not found: %d", request.userId())));
         comment.decreaseLikeNumber();
 
         commentLikeRepository.delete(commentLike);
@@ -47,11 +48,11 @@ public class CommentLikeService {
 
     private Comment getComment(final CommentLikeRequestDto request) {
         return commentRepository.findById(request.commentId())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Comment not found: %d", request.userId())));
     }
 
     private User getUser(final CommentLikeRequestDto request) {
         return userRepository.findById(request.userId())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", request.userId())));
     }
 }

@@ -24,10 +24,8 @@ public class MessageService {
 
     @Transactional
     public void sendMessage(final MessageRequestDto request) {
-        final User sender = userRepository.findById(request.senderId())
-                .orElseThrow(IllegalArgumentException::new);
-        final User receiver = userRepository.findById(request.receiverId())
-                .orElseThrow(IllegalArgumentException::new);
+        final User sender = getUser(request.senderId());
+        final User receiver = getUser(request.receiverId());
 
         final Message message = new Message(request.content(), sender, receiver);
         messageRepository.save(message);
@@ -35,12 +33,16 @@ public class MessageService {
 
     @Transactional(readOnly = true)
     public List<MessageResponseDto> readMessage(final MessageReadRequestDto request) {
-        final User receiver = userRepository.findById(request.receiverId())
-                .orElseThrow(IllegalArgumentException::new);
+        final User receiver = getUser(request.receiverId());
         final List<Message> messages = messageRepository.findByIdAndReceiver(request.messageId(), receiver);
         return messages.stream()
                 .map(message -> new MessageResponseDto(message.getSender().getNickname(), message.getContent(),
                         message.getTransferTime()))
                 .toList();
+    }
+
+    private User getUser(final Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", userId)));
     }
 }

@@ -26,9 +26,9 @@ public class CommentService {
     @Transactional
     public void writeComment(final CommentWriteRequestDto request) {
         final User writer = userRepository.findById(request.writerId())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", request.writerId())));
         final Post post = postRepository.findById(request.postId())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Post not found: %d", request.postId())));
         final Comment parentComment = findParent(request.parentCommentId());
         final Comment comment = Comment.createComment(request.content(), request.isAnonymous(), writer, post, parentComment);
 
@@ -38,7 +38,7 @@ public class CommentService {
     @Transactional
     public void delete(final Long commentId) {
         final Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Comment not found: %d", commentId)));
         commentRepository.deleteById(commentId);
         commentLikeRepository.deleteAllByComment(comment);
     }

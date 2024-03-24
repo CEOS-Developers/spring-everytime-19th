@@ -26,7 +26,7 @@ public class PostLikeService {
         final Post post = getPost(request);
         final User user = getUser(request);
         if (postLikeRepository.existsByPostAndUser(post, user)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(String.format("PostLike not found: %d", request.postId()));
         }
         final PostLike postLike = new PostLike(user, post);
         post.increaseLikeNumber();
@@ -39,7 +39,7 @@ public class PostLikeService {
         final Post post = getPost(request);
         final User user = getUser(request);
         final PostLike postLike = postLikeRepository.findByPostAndUser(post, user)
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("PostLike not found: %d", request.postId())));
         post.decreaseLikeNumber();
 
         postLikeRepository.delete(postLike);
@@ -47,11 +47,11 @@ public class PostLikeService {
 
     private Post getPost(final PostLikeRequestDto request) {
         return postRepository.findById(request.postId())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Post not found: %d", request.postId())));
     }
 
     private User getUser(final PostLikeRequestDto request) {
         return userRepository.findById(request.userId())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", request.userId())));
     }
 }
