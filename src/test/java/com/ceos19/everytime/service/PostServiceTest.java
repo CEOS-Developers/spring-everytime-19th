@@ -155,6 +155,7 @@ class PostServiceTest {
 
         // post1 저장시 attachment1도 해당 게시물에 저장함
         post1.addAttachment(attachment1);
+        post1.addAttachment(attachment2);
         postRepository.save(post1);
 
         em.flush();
@@ -166,6 +167,5 @@ class PostServiceTest {
         for (Attachment attachment : post.getAttachments()) {
             attachment.getId();
         }
-
     }
 }

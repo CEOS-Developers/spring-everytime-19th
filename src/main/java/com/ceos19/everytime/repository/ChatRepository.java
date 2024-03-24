@@ -4,6 +4,7 @@ import com.ceos19.everytime.domain.Chat;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,5 +20,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     @EntityGraph(attributePaths = {"author"})
     List<Chat> findBySentAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 
+    void deleteAllByAuthorId(Long authorId);
     void deleteAllByChattingRoomId(Long chattingRoomId);
 }

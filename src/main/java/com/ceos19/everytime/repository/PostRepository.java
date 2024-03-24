@@ -9,13 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+
 @Transactional
 public interface PostRepository extends JpaRepository<Post, Long> {
-//    @EntityGraph(attributePaths = {"author", "attachments"})
+    @EntityGraph(attributePaths = {"author", "attachments"})
     Optional<Post> findById(Long postId);
 
     @EntityGraph(attributePaths = {"author", "attachments"})
-    List<Post> findByBoardIdAndTitle(Long boardId, String title);  // 특정 게시판의 제목으로 검색
+    List<Post> findByBoardIdAndTitle(Long boardId, String title);
 
     @EntityGraph(attributePaths = {"author", "attachments"})
     List<Post> findByAuthorId(Long userId);
@@ -23,7 +24,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @EntityGraph(attributePaths = {"author", "attachments"})
     List<Post> findByBoardId(Long boardId);
 
-//    @Query("delete from Post p where p.user.id = :userId")
     @EntityGraph(attributePaths = {"author", "attachments"})
     void deleteAllByAuthorId(Long userId);
 }

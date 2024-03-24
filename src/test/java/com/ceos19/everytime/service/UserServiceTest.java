@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @Transactional
@@ -28,23 +30,21 @@ class UserServiceTest {
     @Autowired
     CourseRepository courseRepository;
     @Autowired
-    TimeTableRepository timeTableRepository;
+    TimeTableService timeTableService;
     @Autowired
     TimeTableCourseRepository timeTableCourseRepository;
     @Autowired
-    ChattingRoomRepository chattingRoomRepository;
+    ChattingRoomService chattingRoomService;
+    @Autowired
+    ChatService chatService;
     @Autowired
     ChatRepository chatRepository;
     @Autowired
-    PostRepository postRepository;
+    PostService postService;
     @Autowired
-    CommentRepository commentRepository;
-    @Autowired
-    UserRepository userRepository;
+    CommentService commentService;
     @Autowired
     EntityManager em;
-    @Autowired
-    PostService postService;
 
     User user1;
     School school;
@@ -81,8 +81,8 @@ class UserServiceTest {
         // 시간표 생성
         TimeTable timeTable1 = new TimeTable("22년 2학기", 2022, Semester.SECOND, user1);
         TimeTable timeTable2 = new TimeTable("23년 1학기", 2023, Semester.FIRST, user1);
-        timeTableRepository.save(timeTable1);
-        timeTableRepository.save(timeTable2);
+        timeTableService.save(timeTable1);
+        timeTableService.save(timeTable2);
 
         // 시간표에 수업 추가
         TimeTableCourse timeTableCourse1 = new TimeTableCourse(timeTable1, course1);
@@ -94,17 +94,17 @@ class UserServiceTest {
 
         // ChattingRoom 생성
         ChattingRoom chattingRoom = new ChattingRoom(user1, user2);
-        chattingRoomRepository.save(chattingRoom);
+        chattingRoomService.save(chattingRoom);
 
         // Chat 생성
         Chat chat1 = new Chat("안녕?", user1, chattingRoom);
         Chat chat2 = new Chat("반가워", user2, chattingRoom);
         Chat chat3 = new Chat("안녕 ㅎㅎ", user1, chattingRoom);
-        chatRepository.save(chat1);
-        chatRepository.save(chat2);
-        chatRepository.save(chat3);
+        chatService.save(chat1);
+        chatService.save(chat2);
+        chatService.save(chat3);
 
-        // Post 생성
+        /*// Post 생성
         Post post = new Post("새로운 포스팅", "ㅈㄱㄴ", false, false, board, user1);
         // Post에 좋아요 추가
 
@@ -115,13 +115,13 @@ class UserServiceTest {
                 .attachmentType(AttachmentType.IMAGE)
                 .build();
         post.addAttachment(attachment);
-        postRepository.save(post);
+        postRepository.save(post);*/
 
         Comment comment1 = new Comment("comment1", user2, null, null);
         Comment comment2 = new Comment("comment2", user2, null, null);
-        commentRepository.save(comment1);
+        commentService.save(comment1);
         Comment reply = new Comment("reply", user2, null, comment2);
-        commentRepository.save(comment2);
+        commentService.save(comment2);
 
 
     }
@@ -134,5 +134,17 @@ class UserServiceTest {
         em.clear();
 
         Assert.assertEquals(userService.findById(user1.getId()).getName(), "업데이트이름");
+    }
+
+    @Test
+    public void deleteUser() throws Exception{
+        //given
+
+        //when
+
+
+//        userService.deleteUser(user1.getId());
+        //then
+
     }
 }

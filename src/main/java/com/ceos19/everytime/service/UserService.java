@@ -3,11 +3,13 @@ package com.ceos19.everytime.service;
 import com.ceos19.everytime.domain.*;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.repository.*;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.ceos19.everytime.exception.ErrorCode.*;
@@ -21,10 +23,12 @@ public class UserService {
     private final TimeTableRepository timeTableRepository;
     private final ChattingRoomRepository chattingRoomRepository;
     private final TimeTableCourseRepository timeTableCourseRepository;
-    private final PostService postRepository;
+    private final PostRepository postRepository;
     private final ChatRepository chatRepository;
     private final CommentRepository commentRepository;
     private final SchoolRepository schoolRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final EntityManager em;
 
     public Long join(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
@@ -37,7 +41,7 @@ public class UserService {
                     "발생 원인: 이미 존재하는 이메일로 가입 시도");
             throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 이메일입니다");
         }
-        if (userRepository.findBySchoolIdAndStudentNo(user.getSchool().getId(),user.getStudentNo()).isPresent()) {
+        if (userRepository.findBySchoolIdAndStudentNo(user.getSchool().getId(), user.getStudentNo()).isPresent()) {
             log.error("에러 내용: 유저 가입 실패 " +
                     "발생 원인: 이미 존재하는 학번으로 가입 시도");
             throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 학번입니다");
@@ -91,5 +95,4 @@ public class UserService {
         }
         return optionalUser.get();
     }
-
 }
