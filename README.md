@@ -405,17 +405,22 @@ public class TestApplicationTests {
 
 ## 로그인 기능
 ## 글 쓰기
+- user정보를 가져오고 boardId로 boardRepository에서 Board를 가져오고 postRequestDto를 통하여 값들을 받아와서 post에 값을 넣어주고 postRepository를 통해 저장해줍니다
 ## 글 조회
+- postId를 통해 postRepository에서 post를 조회하여서 글의 내용을 postResponseDto를 통하여 가져옵니다
 ## 댓글 달기
+- user정보와 postId를 통해 postRepository에서 post를 조회하고 commentRequestDto를 통하여 정보를 가져와서 Comment를 작성합니다
 ## 글 좋아요
+- user정보와 PostId를 통해 PostLikeRepository에 해당 데이터가 있는지 확인하고 없으면 저장해준다
 ## 댓글 좋아요
+- user정보와 CommnetId를 통해 CommentLikeRepository에 해당데이터가 있는지 확인하고 없으면 저장해준다
 ## 학기에 시간표 추가
 ## 시간표를 table에 추가
 ## 메시지 보내기
 
-를 하려고 했으니 시간상으로 진행을 거의 못했습니다.........ㅠㅠㅠㅠㅠㅠㅠㅠ
+를 하려고 했으니 마지막 3개와 test코드 검증들을 시간상으로 진행을 거의 못했습니다.........ㅠㅠㅠㅠㅠㅠㅠㅠ
 spring security가 그 뒤에 한다는걸 못보고 이걸 login을 구현해나?해서 이거에 시간을 많이 쏟았네요 ㅠㅠ
-저를 발표시켜서 여러분의 시간을 낭비하지 말아주세요 ㅠㅠ
+
 ## 댓글 달기 서비스
 ```java
         insert
@@ -493,3 +498,104 @@ spring security가 그 뒤에 한다는걸 못보고 이걸 login을 구현해�
 ```
 
 데이터가 잘 넣어지는 것을 확인가능합니다.!
+
+- PostServiceTest 작성
+
+```java
+@BeforeEach
+    void setUp() {
+            MockitoAnnotations.openMocks(this);
+            }
+```
+- Mockito test 세팅
+```java
+    @Test
+    void postLikeCreate_Success() {
+
+            User user = new User();
+            user.setUsername("testUser");
+
+            UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+
+        Post post = new Post();
+        post.setPostId(1L);
+
+        // Mocking repositories
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+        when(postLikeRepository.findByUserAndComment(user, post)).thenReturn(Optional.empty());
+
+        ApiResponseDto<SuccessResponse> response = postLikeService.postLikeCreate(userDetails, 1L);
+
+        verify(postLikeRepository, times(1)).save(any(postLike.class));
+
+        assertEquals(HttpStatus.OK, response.getResponse().getStatus());
+        assertEquals("commentLike Create Success", response.getError().getMessage());
+        }
+```
+- 사용자가 유효하고 존재하는 경우에 좋아요를 성공적으로 만드는지 확인
+- 이를 위해 모의 객체를 사용하여 사용자, UserDetails 및 게시물을 설정하고, 해당 사용자가 게시물을 좋아요했는지 확인
+```java
+    @Test
+    void postLikeCreate_UserNotFound() {
+
+            UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("nonExistingUser");
+
+        when(userRepository.findByUsername("nonExistingUser")).thenReturn(Optional.empty());
+
+        assertThrows(RestApiException.class, () -> postLikeService.postLikeCreate(userDetails, 1L),
+        "Expected RestApiException to be thrown");
+
+        verify(postLikeRepository, never()).save(any(postLike.class));
+        }
+```
+- 사용자가 존재하지 않는 경우, 즉 userRepository가 빈 Optional을 반환할 때 RestApiException이 발생하는지 확인
+```java
+    @Test
+    void postLikeCreate_PostNotFound() {
+
+            UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+
+        User user = new User();
+        user.setUsername("testUser");
+
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(postRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(RestApiException.class, () -> postLikeService.postLikeCreate(userDetails, 1L),
+        "Expected RestApiException to be thrown");
+
+        verify(postLikeRepository, never()).save(any(postLike.class));
+        }
+```
+- 게시물이 존재하지 않는 경우, 즉 postRepository가 빈 Optional을 반환할 때 RestApiException이 발생하는지 확인
+```java
+
+@Test
+    void postLikeCreate_AlreadyExists() {
+
+            User user = new User();
+            user.setUsername("testUser");
+
+            UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+
+        Post post = new Post();
+        post.setPostId(1L);
+
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+        when(postLikeRepository.findByUserAndComment(user, post)).thenReturn(Optional.of(new postLike()));
+
+        assertThrows(RestApiException.class, () -> postLikeService.postLikeCreate(userDetails, 1L),
+        "Expected RestApiException to be thrown");
+
+        verify(postLikeRepository, never()).save(any(postLike.class));
+        }
+```
+- 이미 사용자가 게시물에 좋아요를 한 경우, 즉 postLikeRepository가 비어 있지 않은 Optional을 반환할 때 RestApiException이 발생하는지 확인
+
+*** 코드에러(뭘 잘못 작성했나봐요)...로 결과 값 도출은 못했습니다.. 시간이슈로 다시 작성을 못했는데 추후에 하겠습니다. 죄송합니다.

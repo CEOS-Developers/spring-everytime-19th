@@ -1,7 +1,9 @@
 package com.ceos19.springboot.common.api;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class ApiResponseDto<T> {
 
     private boolean success;
