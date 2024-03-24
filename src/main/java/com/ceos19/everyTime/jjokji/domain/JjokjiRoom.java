@@ -49,4 +49,6 @@ public class JjokjiRoom extends BaseEntity {
 
 
 
+
+
 }
