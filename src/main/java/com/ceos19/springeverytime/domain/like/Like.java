@@ -25,7 +25,6 @@ public abstract class Like {
     @ManyToOne
     private User user;
 
-    @NonNull
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createDate;
+    final private Date createDate = new Date();
 }

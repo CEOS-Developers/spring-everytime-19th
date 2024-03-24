@@ -21,13 +21,13 @@ public class LikeService {
 
     @Transactional
     public PostLike createPostLike(Post post, User user) {
-        PostLike postLike = new PostLike(user, new Date(), post);
+        PostLike postLike = new PostLike(user, post);
         return likeRepository.save(postLike);
     }
 
     @Transactional
     public CommentLike createCommentLike(Comment comment, User user) {
-        CommentLike commentLike = new CommentLike(user, new Date(), comment);
+        CommentLike commentLike = new CommentLike(user, comment);
         return likeRepository.save(commentLike);
     }
 

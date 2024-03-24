@@ -8,19 +8,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 
-import java.util.Date;
-
 @Entity
 @DiscriminatorValue("P")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class PostLike extends Like {
+    @NonNull
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", updatable = false)
     private Post post;
 
-    public PostLike(@NonNull User user, @NonNull Date createDate, @NonNull Post post) {
-        super(user, createDate);
+    public PostLike(@NonNull User user, @NonNull Post post) {
+        super(user);
         this.post = post;
     }
 }

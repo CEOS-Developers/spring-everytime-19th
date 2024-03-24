@@ -1,5 +1,7 @@
 package com.ceos19.springeverytime.domain;
 
+import com.ceos19.springeverytime.domain.like.CommentLike;
+import com.ceos19.springeverytime.domain.like.PostLike;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -64,7 +66,7 @@ public class Comment {
         return comment;
     }
 
-    public void setParentCommentOfChildCommentsNull() {
-        this.childComments.stream().map(comment -> {comment.parentComment = null; return comment;});
+    public CommentLike like(User user) {
+        return new CommentLike(user, this);
     }
 }

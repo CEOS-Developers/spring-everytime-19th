@@ -48,7 +48,7 @@ public class LikeServiceTest {
     @DisplayName("게시글_좋아요_생성")
     void 게시글_좋아요_생성() {
         // given
-        PostLike postLike = new PostLike(user1, new Date(), post);
+        PostLike postLike = new PostLike(user1, post);
         given(likeRepository.save(any(PostLike.class))).willReturn(postLike);
 
         // when
@@ -62,7 +62,7 @@ public class LikeServiceTest {
     @DisplayName("댓글_좋아요_생성")
     void 댓글_좋아요_생성() {
         // given
-        CommentLike commentLike = new CommentLike(user1, new Date(), comment);
+        CommentLike commentLike = new CommentLike(user1, comment);
         given(likeRepository.save(any(CommentLike.class))).willReturn(commentLike);
 
         // when

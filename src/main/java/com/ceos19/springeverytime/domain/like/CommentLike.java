@@ -21,8 +21,8 @@ public class CommentLike extends Like {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    public CommentLike(@NonNull User user, @NonNull Date createDate, Comment comment) {
-        super(user, createDate);
+    public CommentLike(@NonNull User user, Comment comment) {
+        super(user);
         this.comment = comment;
     }
 }

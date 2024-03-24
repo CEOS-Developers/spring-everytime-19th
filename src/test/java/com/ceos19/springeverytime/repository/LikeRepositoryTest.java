@@ -55,7 +55,7 @@ public class LikeRepositoryTest {
         postRepository.save(post1);
 
         //when
-        PostLike like1 = new PostLike(user1, new Date(), post1);
+        PostLike like1 = new PostLike(user1, post1);
         PostLike saveLike1 = likeRepository.save(like1);
 
         //then
@@ -68,7 +68,7 @@ public class LikeRepositoryTest {
         //given
         Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, new Date(), new Date(), user1, category);
         postRepository.save(post1);
-        PostLike like1 = likeRepository.save(new PostLike(user1, new Date(), post1));
+        PostLike like1 = likeRepository.save(new PostLike(user1, post1));
 
         //when
         likeRepository.delete(like1);
@@ -88,7 +88,7 @@ public class LikeRepositoryTest {
         postRepository.save(post1);
         commentRepository.save(comment);
 
-        CommentLike like1 = likeRepository.save(new CommentLike(user1, new Date(), comment));
+        CommentLike like1 = likeRepository.save(new CommentLike(user1, comment));
 
         //when
         likeRepository.delete(like1);

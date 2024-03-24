@@ -69,4 +69,8 @@ public class Post {
         this.comments.add(comment);
         return comment;
     }
+
+    public PostLike like(User user) {
+        return new PostLike(user, this);
+    }
 }
