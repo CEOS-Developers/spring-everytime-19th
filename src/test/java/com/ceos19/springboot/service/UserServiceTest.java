@@ -72,5 +72,4 @@ public class UserServiceTest {
         assertEquals(signUpUser.getPassword(), findUser.getPassword());
     }
 
-
 }
