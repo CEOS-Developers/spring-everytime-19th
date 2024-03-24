@@ -197,8 +197,95 @@ CEOS 19th BE study - everytime clone coding
       where
           room_id=?
   ```
-  chat_message 들이 먼저 삭제된 이후, chat_room 을 삭제하는 것을 알 수 있었다. 
+  chat_message 들이 먼저 삭제된 이후, chat_room 을 삭제하는 것을 알 수 있었다.
 
+- **새로 공부한 부분**   
+  ![image](https://github.com/kckc0608/kckc0608/assets/64959010/931c4d3f-1717-426b-b9c8-af078e4068c8)   
+  에브리타임에서 대댓글이 달린 댓글(이하 '부모 댓글')을 삭제해도, 대댓글(이하 '자식 댓글')은 모두 남아있는 것을 볼 수 있다.   
+  이 부분을 구현하는 방법을 공부하고, 적용하는 과정에서 문제를 만났다.
+
+  <br/>
+  처음에는 부모 댓글만 삭제하면 자식 댓글들의 FK값이 Null이 아니더라도 더 이상 존재하지 않는 부모 댓글 PK를 가리키므로 그냥 부모 댓글만 지우면 될 거라고 생각했다.<br/>
+  하지만 이렇게 구현하면 DB의 Constraint 제약 조건에 따라 에러가 발생하였다.<br><br>    
+  
+  그래서 FK값이 일단 Null이 되어야 하니 부모댓글을 지우면 자동으로 자식 댓글들의 FK를 NULL로 설정하도록 하는 방법을 찾고 싶었다.     
+  하지만 같은 고민을 했던 사람의 질문에 대해 김영한님이 남겨주신 답변은 for 문을 돌면서 연관된 자식 댓글들의 FK를 수동으로 Null로 설정하는 것이 맞다고 한다.      
+  
+  [관련 글 링크](https://www.inflearn.com/questions/39769/%EB%B6%80%EB%AA%A8-%EC%9E%90%EC%8B%9D%EA%B4%80%EA%B3%84%EC%97%90%EC%84%9C-%EB%B6%80%EB%AA%A8-%EC%82%AD%EC%A0%9C%EC%8B%9C-set-null%EB%B0%A9%EB%B2%95%EC%97%90-%EB%8C%80%ED%95%B4%EA%B6%81%EA%B8%88%ED%95%A9%EB%8B%88%EB%8B%A4)   
+  
+  그래서 해당 내용을 아래와 같이 구현하였다.
+  ```java
+      @Test
+      @DisplayName("부모 댓글 삭제 테스트")
+      void 부모댓글_삭제_테스트() {
+          // given
+          Comment parent = post1.addComment(user2, "댓글1", true);
+          parent.addReply(user1, "댓글2", true);
+          parent.addReply(user1, "댓글3", true);
+          em.flush();
+  
+          // when
+          for (int i = 0; i < 2; i++) {
+              parent.getChildComments().get(i).setParentComment(null);
+          }
+          em.flush();
+    
+          System.out.println("--------------------------");
+          commentRepository.delete(commentRepository.findById(parent.getCommentId()).get());
+          em.flush();
+          em.clear();
+          System.out.println("--------------------------");
+  
+          // then
+          Assertions.assertThat(commentRepository.findAllByPost(post1).size()).isEqualTo(2);
+      }
+  ```
+  그러나 이렇게 구현했을 때 Delete 쿼리가 나가지 않는 문제가 있었다.
+  ![image](https://github.com/kckc0608/kckc0608/assets/64959010/1f261789-bbd4-4f4e-9261-1ebf3e263bb9)   
+  이에 대해 찾아본 결과, 위와 같이 자식 댓글을 조회해서 1차 캐시에 남아있는 상태에서 그에 대한 부모 댓글을 delete하면 이미 조회했던 자식 댓글들에는 해당 부모 댓글 정보가 남아있지만 실제 DB에서는 남아있지 않는 동기화 문제가 발생하므로 delete 쿼리를 실행시키지 않는다고 한다.   
+  그래서 이를 해결하기 위해 1차 캐시를 깔끔하게 비운 뒤, 다시 조회하도록 `em.clear()` 를 해주었다.
+  
+  ```java
+  // when
+  for (int i = 0; i < 2; i++) {
+  parent.getChildComments().get(i).setParentComment(null);
+  }
+  em.flush();
+  em.clear();
+  // 연관관계가 있는 child 가 1차 캐시에 있는 상태에서는 parent를 지워도 쿼리가 안나감.
+  // https://velog.io/@jkijki12/JPA-Entity%EA%B0%80-delete%EA%B0%80-%EC%95%88%EB%90%9C%EB%8B%A4 참고
+  
+  System.out.println("--------------------------");
+  commentRepository.delete(commentRepository.findById(parent.getCommentId()).get());
+  em.flush();
+  em.clear();
+  System.out.println("--------------------------");
+  ```
+  실행결과는 아래와 같다.
+  ```mysql
+  --------------------------
+  Hibernate:
+    select
+        c1_0.comment_id,
+        c1_0.user_id,
+        c1_0.content,
+        c1_0.create_date,
+        c1_0.is_anonymous,
+        c1_0.modify_date,
+        c1_0.parent_comment_id,
+        c1_0.post_id
+    from
+        comment c1_0
+    where
+        c1_0.comment_id=?
+  Hibernate:
+    delete
+    from
+        comment
+    where
+        comment_id=?
+  --------------------------
+  ```
 ### 서비스 단위 테스트
 서비스 단위 테스트는 Mockito를 이용해 레포지토리를 mocking 하여 진행하였다.   
 과제 PR 리뷰를 통해 `@SpringBootTest` 는 단위테스트를 위한 어노테이션인지 통합테스트를 위한 어노테이션인지 공부를 다시 하게 되었다.   
@@ -225,3 +312,21 @@ void 게시판_생성_테스트() {
 ```
 Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 보이게 하기 위해 `given()` 을 사용하여 return 값을 정해주었다.   
 이렇게 repository 의 메서드 방식을 정해주면, service 계층의 코드를 실행할 때, mocking한 레포지토리의 코드가 대신 실행된다.
+
+```java
+    @Test
+    @DisplayName("14일 이후 게시판 삭제 테스트")
+    void 게시판_생성_후_14일_이후_삭제_테스트() {
+        // given
+        Category category = EntityGenerator.generateCategory(user1);
+        category.setDateForTest(LocalDateTime.of(2024, 3, 1, 0, 0));
+
+        // when
+        categoryService.delete(category);
+
+        // then
+        verify(categoryRepository, times(1)).delete(category);
+    }
+```
+게시판 삭제와 같은 로직을 테스트할 때는 특정 데이터를 return 하는 로직이 없으므로 `given()` 함수를 사용할 일이 없다.   
+이런 경우에는 `verify()` 를 사용하여 함수 호출 여부 및 횟수를 검증하여 테스트할 수 있다.
