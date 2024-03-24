@@ -31,8 +31,15 @@ public class ReplyService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ReplyRepository replyRepository;
-    public List<ReplyResponseDto> getAllReplies() {
-        List<Reply> replies = replyRepository.findAll();
+    public List<ReplyResponseDto> getAllReplies(
+            Long commentId
+    ) {
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        Comment comment = optionalComment.orElseThrow(
+                () -> new RestApiException(ErrorType.NOT_FOUND)
+        );
+
+        List<Reply> replies = replyRepository.findAllByComment(comment)g;
         return replies.stream()
                 .map(reply -> new ReplyResponseDto(
                         reply.getComment().getCommentId(),
