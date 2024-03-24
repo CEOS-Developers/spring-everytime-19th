@@ -25,13 +25,6 @@ public class User {
     @Column(nullable = false)
     private Boolean isBoardManager = False;
 
-    // TemporalType.TIMESTAMP
-    @Column(nullable = true, length = 20)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = true, length = 20)
-    private LocalDateTime lastLogin;
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "school_id")
     private School school;
@@ -53,6 +46,44 @@ public class User {
 }
 
 ```
+
+# 3주차 - JPA 심화
+
+## Service Business Logic 목록
+**User**
+- 유저 회원가입
+- 대학교 인증
+- 유저 로그인
+- 유저 로그아웃
+
+**Board**
+- 게시판 생성
+- 게시판 관리자 변경
+- 게시판 삭제
+  - 하위 테이블(Post, Comment) 삭제
+
+**Post**
+- 게시글 작성
+- 게시글 조회
+- 게시글 수정
+- 게시글 삭제
+- 게시글 좋아요 및 취소
+
+**Comment**
+- 댓글 작성
+- 댓글 수정
+- 댓글 삭제
+- 대댓글 기능
+- 댓글 좋아요 및 취소
+
+**Message**
+- 쪽지 전송 (최초 방 생성 및 전송)
+- 쪽지 조회
+- 쪽지방 나가기 (방 삭제)
+
+**Image**
+- 이미지 업로드 (DB 저장)
+- 이미지 삭제 (DB 삭제)
 
 
 # 스터디 이후 개선점들!
