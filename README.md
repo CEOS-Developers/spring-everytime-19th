@@ -239,3 +239,185 @@ class CommentRepositoryTest {
 * `delete` : 리포지토리에서 `Optional`을 사용하고 있기 때문에 댓글을 저장하고 삭제했을 때 `findOne`을 호출하면 null 객체가 반환된다. 이를 `assertThrow`를 통해 `EntityNotFoundException`을 반환하는 지 확인하도록 작성했다.
 * `findByPost` : 해당 게시물의 댓글들을 전부 조회하는 지 확인하는 테스트이다. 메서드를 실행했을 때 Post에 저장된 2개의 Comment가 반환되는 지를 테스트했다.
 * `findByUser` : 해당 유저가 작성한 댓글들을 전부 조회하는 지 확인하는 테스트이다. `targetUser`가 작성한 세 개중 두개의 댓글만 조회되는 지를 확인한다.
+
+### Service
+
+이번 주차 과제를 진행하면서 도메인형 패키지 구조로 수정했다.
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/4bb55200-9ce4-4486-8a99-78f84348eab0">
+</p>
+
+게시물을 의미하는 post 도메인을 위주로 설명하겠다.
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/fc7a039d-dade-4510-a421-7fb8d5d50c76">
+</p>
+
+dto를 사용해 계층간 데이터 통신을 수행했다.
+
+***외부 api가 없는 구조***라면 엔티티를 사용해도 크게 문제가 되진 않지만
+
+만약 스펙이 다른 api가 연결되어 있고 서비스를 호출하는 구조라면
+
+서비스에 맞는 스펙으로 정보를 전달해야하기 때문에 dto를 활용해 확장성을 높혔다.
+
+```java
+package com.ceos19.springeverytime.post.dto;
+
+import com.ceos19.springeverytime.Image.domain.Image;
+import com.ceos19.springeverytime.postcategory.domain.PostCategory;
+import com.ceos19.springeverytime.post.domain.Post;
+import com.ceos19.springeverytime.user.domain.User;
+import java.util.List;
+import lombok.Data;
+
+@Data
+public class CreatePostDto {
+    private Long id;
+    private String title;
+    private String content;
+    private Long userId;
+    private Long categoryId;
+    private List<Long> imageId;
+
+    public Post toEntity(User user, PostCategory postCategory, List<Image> images) {
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .author(user)
+                .image(images)
+                .category(postCategory)
+                .likeCount(0)
+                .build();
+    }
+}
+```
+
+위 dto는 `@Data`를 선언해 사용한다.
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/8045a80e-f1ce-4403-bb01-27fab600bc7b">
+</p>
+
+`@Data` 소스 코드를 보면 `Getter` , `Setter` 같은 어노테이션을 포함하는 것을 알 수 있다.
+
+이를 통해 다양한 어노테이션들을 붙이지 않고 사용할 수 있어 가독성을 높힐 수 있다.
+
+또한 해당 Dto에는 `toEntity` 메서드가 포함되어 있다.
+
+이는 Dto를 Entity로 변환하는 메서드로 리포지토리에 저장하거나 컨트롤러에 반환할 때 사용하도록 했다.
+
+정확하게는 Response와 Request에 대한 Dto를 각각 가지는 것이 가장 좋은 방식이나,
+
+아직 컨트롤러가 구현되어 있지 않아 추후에 리팩토링할 예정이다.
+
+```java
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class PostService {
+    private PostRepository postRepository;
+    private UserService userService;
+    private PostCategoryService postCategoryService;
+    private ImageService imageService;
+
+    @Transactional
+    public void createPost(CreatePostDto postDto) {
+        User user = userService.getUser(postDto.getUserId());
+        PostCategory category = postCategoryService.getPostCategoryByCategoryId(postDto.getCategoryId());
+        List<Image> images = imageService.getImagesByImageIds(postDto.getImageId());
+
+        postRepository.save(postDto.toEntity(user, category, images));
+    }
+
+    public Post getPost(Long postId) {
+        return postRepository.findPostById(postId)
+                .orElseThrow(IllegalStateException::new);
+    }
+
+    @Transactional
+    public void deletePost(Long postId) {
+        postRepository.deletePostById(postId);
+    }
+
+    @Transactional
+    public void increaseLike(Long postId){
+        Post post = getPost(postId);
+        post.increaseLikeCount();
+    }
+    @Transactional
+    public void decreaseLike(Long postId){
+
+        Post post = getPost(postId);
+        post.decreaseLikeCount();
+    }
+
+}
+```
+
+`PostService`에는 비지니스 로직을 구현한다
+
+포스트를 생성, 수정, 삭제하는 CRUD 연산 뿐 아니라 좋아요를 집계하는 로직도 포함되어 있다.
+
+Service에서는 트랜잭션을 관리하기 때문에 `@Transactional`을 통해 트랙잭션으로 작업을 처리할 것을 명시했다.
+
+단 `readOnly = true` 옵션을 통해 db에서 단순 조회만 하도록 디폴트 값을 설정했다.
+
+이러한 방식의 장점은 DB 성능 최적화에 있다.
+
+데이터베이스는 dirty checking을 통해 영속성 컨텍스트의 객체가 변경되었는 지를 감지하고 추적한다.
+
+하지만 `readOnly = true`가 적용된 transaction은 변경이 발생하지 않음을 알기 때문에 이러한 기능을 수행하지 않는다.
+
+그렇기에 자연스럽게 이에 대한 오버헤드가 줄면서 성능 최적화가 이루어진다.
+
+각 메소드에 대한 설명은 다음과 같다.
+
+* createPost : 새로운 게시물을 생성한다. 글쓴이와 카테고리에 대한 정보를 각 도메인의 서비스에서 불러와 리포지토리에 저장한다.
+여기서 dto에 `user`와 `category`를 직접 저장하지 않고 id에 대한 정보만 담고 있다.
+이는 사용하지 않을 객체를 들고 있는 것 자체가 오버헤드라고 생각해 `toEntity`를 통해 직접 사용할 때 조회해 저장하도록 로직을 구현했다.
+* getPost : 게시물의 id를 통해 리포지토리에 객체를 조회하도록 한다. Optional을 통해 null 일 때의 처리를 동반한다.
+* deletePost : 게시물의 id를 통해 리포지토리에 객체를 삭제하도록 한다.
+* increaseLike,decreaseLike : 좋아요가 생성, 삭제됨에 따라 값을 증가시키거나 감소시킨다.
+좋아요 수를 조회 쿼리를 날리지 않고 알 수 있도록 하는 로직이며, Post 내부의 메소드를 통해 이를 관리하도록 했다.
+```java
+@Entity
+@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+public class Post extends BaseTimeEntity {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User author;
+
+    @OneToOne
+    @JoinColumn(name = "category_id")
+    private PostCategory category;
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> Comments;
+
+    @OneToMany(mappedBy = "post")
+    private List<Image> image;
+
+    private int likeCount;
+    private String title;
+    private String content;
+
+    public void increaseLikeCount(){
+        likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+        likeCount--;
+    }
+}
+```
+
+핵심은 setter를 사용하지 않는 것이다. 해당 로직의 의미가 명확하게 드러나도록 메소드를 구현했다.
+
+
