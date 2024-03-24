@@ -33,7 +33,7 @@ public class Category {
     private User manager;
 
     @NonNull
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
     private List<Post> posts = new ArrayList<>();
 
     /**
