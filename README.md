@@ -164,8 +164,6 @@ Why? 왜 발생하나요?
 Friend와 User 는 다대일 관계
 
 
-
-
 ### EAGER vs LAZY
 - EAGER(즉시 로딩)인 경우
   1) JPQL에서 만든 SQL을 통해 데이터를 조회
@@ -178,7 +176,58 @@ Friend와 User 는 다대일 관계
   3) 하지만, 하위 엔티티를 가지고 작업하게 되면 추가 조회하기 때문에 결국 N+1 문제가 발생함
 
 
+## Test Code
 
+```java
+class UserRepositoryTest {
+    User insertUser1;
+    User insertUser2;
+    User insertUser3;
+
+    Friend friend1;
+    Friend friend2;
+    Friend friend3;
+
+    friend2 = friendRepository.save(Friend.builder()
+        .isAccepted(true)
+        .myId(insertUser1.getUserId())
+        .friendUser(insertUser2)
+        .build()
+    );
+
+    friend3 = friendRepository.save(Friend.builder()
+            .isAccepted(true)
+            .myId(insertUser1.getUserId())
+            .friendUser(insertUser3)
+            .build()
+    );
+
+    @Test
+    @Transactional
+    @DisplayName("N+1 문제 테스트")
+    void n1IssueTracking() {
+        List<Friend> friendList = friendRepository.findAll();
+        System.out.println("total friend data size:" + friendList.size());
+    }
+}
+```
+실행하면 select문이 List 조회 한 번, user2, user3에 대한 조회 2번 총 3번이 나와야 하는데..?
+
+<div align="center">
+  <img src="imgs/n_plus_one.png" alt="drawing" width=400"/>
+</div>
+
+spring.jpa.properties.hibrnate.format_sql = false여서 쿼리가 한 줄로 보여진다.
+
+결국 해결 못 했습니다..  
+FetchType.EAGER로 설정해뒀는데..
+
+
+### 해결법
+1. JPA : JPQL 에서 지원하는 fetch join 을 사용
+2. 스프링데이터JPA : @EntityGraph 로 fetch join 사용
+
+[Reference](https://maivve.tistory.com/340)
 
 # 스터디 이후 개선점들!
 
@@ -256,7 +305,7 @@ public class User extends BaseTimeEntity{
 ## Fetch 전략
 - 한 사람이 여러 개의 메세지를 보낼 수 있다.
 - FetchType이란 JPA가 하나의 Entity를 조회할 때, 연관관계에 있는 객체들을 어떻게 가져올지에 대한 설정값이다.
-- 이 경우 Message 클래스는 @ManyToOne으로 User와 연관되며, @ManyToOne의 default FetchType 은  EAGER 이다.
+- 이 경우 Message 클래스는 @ManyToOne으로 User와 연관되며, @ManyToOne의 default FetchType 은 EAGER 이다.
 
 ```java
 @Entity
