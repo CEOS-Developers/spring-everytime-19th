@@ -1,14 +1,16 @@
 package com.ceos19.springboot.domain;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 public class User extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column( nullable = false)
+    @Column(nullable = false)
     private Long userId;
 
     @Column(nullable = false, length = 20)

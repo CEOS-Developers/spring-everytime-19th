@@ -1,10 +1,12 @@
 package com.ceos19.springboot.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
