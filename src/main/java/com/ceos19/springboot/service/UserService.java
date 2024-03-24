@@ -3,7 +3,7 @@ package com.ceos19.springboot.service;
 import com.ceos19.springboot.domain.User;
 import com.ceos19.springboot.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.junit.platform.commons.logging.LoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
