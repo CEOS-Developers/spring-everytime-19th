@@ -45,18 +45,23 @@ class UserServiceTest {
     CommentService commentService;
     @Autowired
     EntityManager em;
+    @Autowired
+    SchoolService schoolService;
+    @Autowired
+    PostLikeService postLikeService;
 
-    User user1;
+    Long userId;
     School school;
     Board board;
+
     @BeforeEach
     public void each() {
         // 학교 저장
-        school = new School("홍익대학교");
-        schoolRepository.save(school);
+        School school = new School("홍익대학교");
+        schoolService.save(school);
 
         // 게시판 저장
-        board = new Board("컴공게시판", school);
+        Board board = new Board("컴공게시판", school);
         boardRepository.save(board);
 
         // 과목 저장
@@ -73,8 +78,8 @@ class UserServiceTest {
         courseRepository.save(course2);
 
         // 유저 가입
-        user1 = new User("myUsername", "myPassword", "김상덕", "A000011", "um@naver.com", school);
-        userService.join(user1);
+        User user1 = new User("myUsername", "myPassword", "김상덕", "A000011", "um@naver.com", school);
+        userId = userService.join(user1);
         User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "um1@naver.com", school);
         userService.join(user2);
 
@@ -104,47 +109,55 @@ class UserServiceTest {
         chatService.save(chat2);
         chatService.save(chat3);
 
-        /*// Post 생성
+        // Post 생성
         Post post = new Post("새로운 포스팅", "ㅈㄱㄴ", false, false, board, user1);
-        // Post에 좋아요 추가
-
         // Post에 사진 추가
-        Attachment attachment = Attachment.builder()
+        Attachment attachment1 = Attachment.builder()
                 .originFileName("사진")
                 .storePath("/usr")
                 .attachmentType(AttachmentType.IMAGE)
                 .build();
-        post.addAttachment(attachment);
-        postRepository.save(post);*/
+        post.addAttachment(attachment1);
+        Attachment attachment2 = Attachment.builder()
+                .originFileName("사진")
+                .storePath("/usr")
+                .attachmentType(AttachmentType.IMAGE)
+                .build();
+        post.addAttachment(attachment2);
+        postService.save(post);
 
-        Comment comment1 = new Comment("comment1", user2, null, null);
-        Comment comment2 = new Comment("comment2", user2, null, null);
+        // Post에 좋아요 추가
+        postLikeService.save(post.getId(), user1.getId());
+        postLikeService.save(post.getId(), user2.getId());
+
+        Comment comment1 = new Comment("comment1", user2, post, null);
+        Comment comment2 = new Comment("comment2", user2, post, null);
         commentService.save(comment1);
-        Comment reply = new Comment("reply", user2, null, comment2);
         commentService.save(comment2);
-
-
+        Comment reply = new Comment("reply", user2, post, comment2);
+        commentService.save(reply);
     }
 
     @Test
     public void 유저이름변경() throws Exception {
-        User user = userService.findById(user1.getId());
+        User user = userService.findById(userId);
         user.updateName("업데이트이름");
         em.flush();
         em.clear();
 
-        Assert.assertEquals(userService.findById(user1.getId()).getName(), "업데이트이름");
+        Assert.assertEquals(userService.findById(user.getId()).getName(), "업데이트이름");
     }
 
     @Test
-    public void deleteUser() throws Exception{
+    public void deleteUser() throws Exception {
         //given
 
         //when
 
+        User user = userService.findById(userId);
+        System.out.println("user.getName() = " + user.getName());
 
-//        userService.deleteUser(user1.getId());
         //then
-
+        userService.deleteUser(userId);
     }
 }

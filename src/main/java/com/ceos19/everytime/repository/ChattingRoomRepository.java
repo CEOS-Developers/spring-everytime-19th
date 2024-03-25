@@ -12,9 +12,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long> {
-    @EntityGraph(attributePaths = {"participant1","participant2"})
-    List<ChattingRoom> findByParticipant1Id(Long userId);
-    @EntityGraph(attributePaths = {"participant1","participant2"})
+
+    @Query("select c from ChattingRoom c " +
+            "where c.participant1.id = :userId")
+    List<ChattingRoom> findByParticipant1Id(@Param("userId") Long userId);
+
+    @Query("select c from ChattingRoom c " +
+            "where c.participant2.id = :userId")
     List<ChattingRoom> findByParticipant2Id(Long userId);
 
     @Query("SELECT c FROM ChattingRoom c " +

@@ -40,6 +40,7 @@ public class Comment extends BaseTimeEntity {
         this.content = content;
         this.commenter = commenter;
         this.post = post;
+        this.parentComment = parentComment;
     }
 
     // 연관관계 제거
