@@ -42,7 +42,7 @@ public class BoardService {
     }
 
     public void delete(Long boardId, Long memberId){
-        Optional<Board> board = boardRepository.findByIdAndMemberId(boardId,memberId);
+        Optional<Board> board = boardRepository.findByIdAndBoardManager(boardId,memberRepository.findById(memberId).get());
 
         if(board.isEmpty()){
             log.info("[Service][deleteBoard] FAIL");

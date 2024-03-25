@@ -18,7 +18,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public Member join(Member member) {
-        Optional<Member> byUserName = memberRepository.findByUserName(member.getUsername());
+        Optional<Member> byUserName = memberRepository.findByUsername(member.getUsername());
         Optional<Member> byUserId = memberRepository.findByLoginId(member.getLoginId());
 
         if (byUserName.isEmpty() && byUserId.isEmpty()) {

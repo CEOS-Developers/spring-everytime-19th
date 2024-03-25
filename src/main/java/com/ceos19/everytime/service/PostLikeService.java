@@ -46,7 +46,7 @@ public class PostLikeService {
             log.info("[Service][cancelPostLike] FAIL");
         }
         else{
-            Optional<PostLike> postLike = postLikeRepository.findByPostIdAndMemberId(postId,memberId);
+            Optional<PostLike> postLike = postLikeRepository.findByPostIdAndUser(postRepository.findById(postId).get(),memberRepository.findById(memberId).get());
             if(postLike.isPresent()){
                 post.get().deleteLike();
                 postLikeRepository.delete(postLike.get());

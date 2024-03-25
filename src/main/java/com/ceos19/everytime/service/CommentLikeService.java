@@ -43,7 +43,7 @@ public class CommentLikeService {
             log.info("[Service][deleteCommentLike] FAIL");
         }
         else{
-            Optional<CommentLike> commentLike = commentLikeRepository.findByCommentIdAndMemberId(commentId,memberId);
+            Optional<CommentLike> commentLike = commentLikeRepository.findByCommentIdAndUser(commentRepository.findById(commentId).get(),memberRepository.findById(memberId).get());
             if(commentLike.isPresent()){
                 comment.get().deleteLike();
                 commentLikeRepository.delete(commentLike.get());
