@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private UserRepository userRepository;
 
+    @Transactional
     public void join(UserJoinDto userJoinDto) {
         if (userRepository.existsUserByLoginId(userJoinDto.getId())) {
             throw new IllegalStateException("User already exists");

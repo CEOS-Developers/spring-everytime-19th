@@ -21,6 +21,7 @@ public class MessageService {
     private UserRepository userRepository;
     private RoomRepository roomRepository;
 
+    @Transactional
     public void createMessage(MessageDto messageDto) {
         User user = userRepository.findUserById(messageDto.getSenderId())
                 .orElseThrow(EntityNotFoundException::new);
@@ -30,6 +31,7 @@ public class MessageService {
         messageRepository.save(messageDto.toEntity(room, user));
     }
 
+    @Transactional
     public void deleteMessage(Long messageId){
         messageRepository.deleteById(messageId);
     }

@@ -19,6 +19,7 @@ public class CommentService {
     private UserService userService;
     private PostService postService;
 
+    @Transactional
     public void createComment(CommentDto commentDto){
         User user = userService.getUser(commentDto.getUserId());
         Post post = postService.getPost(commentDto.getPostId());
@@ -39,6 +40,7 @@ public class CommentService {
                 .orElseThrow(IllegalStateException::new);
     }
 
+    @Transactional
     public void deleteComment(Long commentId){
         commentRepository.deleteById(commentId);
     }

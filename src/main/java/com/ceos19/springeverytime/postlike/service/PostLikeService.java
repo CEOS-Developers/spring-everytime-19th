@@ -20,6 +20,7 @@ public class PostLikeService {
     private PostService postService;
     private UserService userService;
 
+    @Transactional
     public void createLike(PostLikeDto postLikeDto){
         User user = userService.getUser(postLikeDto.getUserId());
         Post post = postService.getPost(postLikeDto.getPostId());
@@ -33,6 +34,7 @@ public class PostLikeService {
                 .orElseThrow(EntityNotFoundException::new);
     }
 
+    @Transactional
     public void deleteLike(Long postLikeId){
         postService.decreaseLike(postLikeId);
         postLikeRepository.deleteById(postLikeId);

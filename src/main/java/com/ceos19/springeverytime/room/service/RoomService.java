@@ -18,6 +18,7 @@ public class RoomService {
     private RoomRepository roomRepository;
     private UserService userService;
 
+    @Transactional
     public void createRoom(RoomDto roomDto){
         User participant1 = userService.getUser(roomDto.getParticipant1Id());
         User participant2 = userService.getUser(roomDto.getParticipant2Id());
@@ -25,14 +26,15 @@ public class RoomService {
         roomRepository.save(roomDto.toEntity(participant1,participant2));
     }
 
-    public List<Room> readAllRooms(){
+    public List<Room> getAllRooms(){
         return roomRepository.findAll();
     }
 
-    public Room readRoomById(Long roomId){
+    public Room getRoomById(Long roomId){
         return roomRepository.findById(roomId).orElseThrow(EntityNotFoundException::new);
     }
 
+    @Transactional
     public void deleteRoomById(Long roomId){
         roomRepository.deleteById(roomId);
     }

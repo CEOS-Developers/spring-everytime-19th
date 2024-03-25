@@ -22,12 +22,12 @@ public class ImageService {
         return imageRepository.findImagesByImageIds(imageIds)
                 .orElseThrow(IllegalAccessError::new);
     }
-
+    @Transactional
     public void createImage(ImageDto imageDto){
         Post post = postService.getPost(imageDto.getPostId());
         imageRepository.save(imageDto.toEntity(post));
     }
-
+    @Transactional
     public void deleteImage(Long imageId){
         imageRepository.deleteById(imageId);
     }

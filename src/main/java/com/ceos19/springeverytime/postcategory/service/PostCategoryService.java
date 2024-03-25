@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostCategoryService {
     private PostCategoryRepository postCategoryRepository;
 
+    @Transactional
     public void createCategory(String categoryName){
         if(postCategoryRepository.existsPostCategoryByName(categoryName))
         {
