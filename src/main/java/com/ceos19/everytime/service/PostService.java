@@ -68,7 +68,9 @@ public class PostService {
         for (Comment comment : comments) {
             comment.removeParentComment();
         }
-        commentRepository.deleteAll(comments);
+
+        // 연관관계 제거
+        commentRepository.deleteAllByPostId(postId);
 
         // 연관관계 제거
         postLikeRepository.deleteAllByPostId(postId);

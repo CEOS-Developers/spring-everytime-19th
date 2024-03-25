@@ -3,6 +3,7 @@ package com.ceos19.everytime.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
@@ -25,14 +26,21 @@ public class ChattingRoom {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "participant1_id")
+    @Setter
     private User participant1;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "participant2_id")
+    @Setter
     private User participant2;
 
     public ChattingRoom(User participant1, User participant2) {
         this.participant1 = participant1;
         this.participant2 = participant2;
+    }
+
+    public void removeRelation() {
+        participant1 = null;
+        participant2 = null;
     }
 }

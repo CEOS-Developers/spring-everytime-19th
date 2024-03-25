@@ -95,4 +95,45 @@ public class UserService {
         }
         return optionalUser.get();
     }
+
+    public void deleteUser(Long userId) {
+        List<TimeTable> timeTables = timeTableRepository.findByUserId(userId);
+        for (TimeTable timeTable : timeTables) {
+            timeTableCourseRepository.deleteAllByTimeTableId(timeTable.getId());
+        }
+        timeTableRepository.deleteAll(timeTables);
+
+        List<Post> posts = postRepository.findByAuthorId(userId);
+
+        for (Post post : posts) {
+            // Post와 연관된 PostLike 제거
+            List<PostLike> postLikes = postLikeRepository.findByPostId(post.getId());
+            postLikeRepository.deleteAllByPostId(post.getId());
+
+            // Post와 연관된 Comment 제거
+            List<Comment> comments = commentRepository.findByPostId(post.getId());
+            for (Comment comment : comments) {
+                comment.removeParentComment();
+            }
+            commentRepository.deleteAll(comments);
+        }
+        postRepository.deleteAllByAuthorId(userId);
+
+        // User가 다른 Post에 쓴 comments 제거
+        List<Comment> comments = commentRepository.findByCommenterId(userId);
+        for (Comment comment : comments) {
+            comment.removeParentComment();
+        }
+        commentRepository.deleteAllByCommenterId(userId);
+
+        List<ChattingRoom> chattingRooms = chattingRoomRepository.findByParticipantId(userId);
+        for (ChattingRoom chattingRoom : chattingRooms) {
+            chattingRoom.setParticipant1(null);
+            chattingRoom.setParticipant2(null);
+            chatRepository.deleteAllByChattingRoomId(chattingRoom.getId());  // 채팅 삭제가 안됨
+        }
+        chattingRoomRepository.deleteAllByParticipantId(userId);
+
+        userRepository.deleteById(userId);
+    }
 }

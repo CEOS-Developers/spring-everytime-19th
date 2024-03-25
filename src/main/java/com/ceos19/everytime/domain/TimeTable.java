@@ -34,7 +34,7 @@ public class TimeTable extends BaseTimeEntity {
     @Column(nullable = false)
     private Semester semester;
 
-    @ManyToOne(fetch = LAZY, cascade = ALL)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
