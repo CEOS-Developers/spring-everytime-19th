@@ -1,9 +1,8 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.user.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ceos19.springeverytime.user.domain.User;
-import com.ceos19.springeverytime.user.repository.UserRepository;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

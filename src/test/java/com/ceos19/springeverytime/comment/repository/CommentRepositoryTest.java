@@ -1,9 +1,8 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.comment.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ceos19.springeverytime.comment.domain.Comment;
-import com.ceos19.springeverytime.comment.repository.CommentRepository;
 import com.ceos19.springeverytime.post.domain.Post;
 import com.ceos19.springeverytime.user.domain.User;
 import jakarta.persistence.EntityManager;

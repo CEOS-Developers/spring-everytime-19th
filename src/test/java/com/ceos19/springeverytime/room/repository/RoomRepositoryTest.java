@@ -1,9 +1,8 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.room.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ceos19.springeverytime.room.domain.Room;
-import com.ceos19.springeverytime.room.repository.RoomRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.Test;

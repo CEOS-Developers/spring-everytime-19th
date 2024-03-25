@@ -1,9 +1,8 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.postcategory.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ceos19.springeverytime.postcategory.domain.PostCategory;
-import com.ceos19.springeverytime.postcategory.repository.PostCategoryRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

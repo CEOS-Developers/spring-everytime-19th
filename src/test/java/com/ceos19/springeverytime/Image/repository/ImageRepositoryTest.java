@@ -1,8 +1,7 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.Image.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ceos19.springeverytime.Image.repository.ImageRepository;
 import com.ceos19.springeverytime.Image.domain.Image;
 import com.ceos19.springeverytime.post.domain.Post;
 import jakarta.persistence.EntityManager;

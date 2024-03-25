@@ -1,9 +1,8 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.post.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ceos19.springeverytime.post.domain.Post;
-import com.ceos19.springeverytime.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.List;

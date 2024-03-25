@@ -1,10 +1,9 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.postlike.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ceos19.springeverytime.post.domain.Post;
 import com.ceos19.springeverytime.postlike.domain.PostLike;
-import com.ceos19.springeverytime.postlike.repository.PostLikeRepository;
 import com.ceos19.springeverytime.user.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
