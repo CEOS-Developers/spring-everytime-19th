@@ -277,7 +277,7 @@ Optional로 감싸면 메소드가 결과값을 반환하지 않을 경우 Optio
 이는 null 체크를 강제로 하므로 NullPointerException(실제 값이 아닌 null을 가지고 있는 객체/변수를 호출할 때 발생하는 예외)을 방지할 수 있기 때문에 Optional을 사용하는 것이 좋다.  
 
 7. `GenerationType.AUTO`에서 `GenerationType.IDENTITY`로 변경  
-모든 entity의 pk인 id를 `@GeneratedValue(strategy=GenerationType.AUTO)`로 수정하였다.  
+모든 entity의 pk인 id를 `@GeneratedValue(strategy=GenerationType.IDENTITY)`로 수정하였다.  
 사실 처음에 조사를 했을 때는 AUTO가 DB 종류에 상관없이 가장 적합한 방식을 선택하도록 한다고 해서 베스트인줄 알고 처음에 다 AUTO로 했었다.  
 하지만 나중에 더 찾아보니 IDENTITY가 구현이 더 간단하고 DB에 맡기는 방식이라 더 편리하다고 하여 3주차 Refactoring에서는 모두 IDENTITY로 수정하였다.  
 ---
