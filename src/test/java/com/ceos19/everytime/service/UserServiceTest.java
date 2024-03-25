@@ -4,10 +4,12 @@ import static com.ceos19.everytime.domain.Weekend.FRI;
 import static com.ceos19.everytime.domain.Weekend.TUE;
 
 import com.ceos19.everytime.domain.*;
+import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.repository.*;
 import jakarta.persistence.EntityManager;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,15 +151,17 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("유저 제거")
     public void deleteUser() throws Exception {
         //given
-
-        //when
-
         User user = userService.findById(userId);
         System.out.println("user.getName() = " + user.getName());
 
-        //then
+        //when
         userService.deleteUser(userId);
+
+
+        //then
+        Assert.assertThrows(AppException.class, () -> userService.findById(userId));
     }
 }

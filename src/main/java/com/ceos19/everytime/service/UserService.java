@@ -126,13 +126,12 @@ public class UserService {
         }
         commentRepository.deleteAllByCommenterId(userId);
 
+        // 유저가 속한 채팅방 제거
         List<ChattingRoom> chattingRooms = chattingRoomRepository.findByParticipantId(userId);
         for (ChattingRoom chattingRoom : chattingRooms) {
-            chattingRoom.setParticipant1(null);
-            chattingRoom.setParticipant2(null);
-            chatRepository.deleteAllByChattingRoomId(chattingRoom.getId());  // 채팅 삭제가 안됨
+            chatRepository.deleteAllByChattingRoomId(chattingRoom.getId());
+            chattingRoomRepository.deleteById(userId);
         }
-        chattingRoomRepository.deleteAllByParticipantId(userId);
 
         userRepository.deleteById(userId);
     }

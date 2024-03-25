@@ -67,7 +67,7 @@ public class InitDB {
             courseRepository.save(course2);
 
             // 유저 가입
-            User user1 = new User("myUsername", "myPassword", "김상덕", "A000011", "um@naver.com", school);
+            User user1 = new User("myUsername", "myPassword", "김재석", "B000011", "um@naver.com", school);
             userService.join(user1);
             User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "um1@naver.com", school);
             userService.join(user2);
@@ -128,7 +128,7 @@ public class InitDB {
         }
 
         public void deleteUser() {
-//            userService.deleteUser(1L);
+            userService.deleteUser(1L);
         }
 
         public void deletePost() {
