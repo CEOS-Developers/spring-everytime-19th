@@ -21,8 +21,8 @@ public class InitDB {
 
     @PostConstruct  // 빈으로 등록될 시 자동으로 실행됨
     public void init() {
-        initService.init();
-        initService.deleteUser();
+//        initService.init();
+//        initService.deleteUser();
 //        initService.deletePost();
     }
 
