@@ -67,25 +67,6 @@ public class Comment extends BaseEntity {
         this.parentComment = parentComment;
     }
 
-    public static Comment createComment(final String content, final boolean isAnonymous, final User user,
-                                        final Post post, final Comment parentComment) {
-        if (parentComment == null) {
-            return Comment.builder()
-                    .content(content)
-                    .isAnonymous(isAnonymous)
-                    .user(user)
-                    .post(post)
-                    .build();
-        }
-        return Comment.builder()
-                .content(content)
-                .isAnonymous(isAnonymous)
-                .user(user)
-                .post(post)
-                .parentComment(parentComment)
-                .build();
-    }
-
     public void increaseLikeNumber() {
         likeNumber++;
     }

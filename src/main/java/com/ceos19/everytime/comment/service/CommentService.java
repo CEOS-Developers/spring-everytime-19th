@@ -30,7 +30,13 @@ public class CommentService {
         final Post post = postRepository.findById(request.postId())
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Post not found: %d", request.postId())));
         final Comment parentComment = findParent(request.parentCommentId());
-        final Comment comment = Comment.createComment(request.content(), request.isAnonymous(), writer, post, parentComment);
+        final Comment comment = Comment.builder()
+                .content(request.content())
+                .isAnonymous(request.isAnonymous())
+                .user(writer)
+                .post(post)
+                .parentComment(parentComment)
+                .build();
 
         commentRepository.save(comment);
     }
