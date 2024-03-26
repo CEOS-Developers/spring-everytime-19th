@@ -9,10 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-import com.ceos19.everytime.global.BaseEntity;
 import com.ceos19.everytime.board.domain.Board;
+import com.ceos19.everytime.global.BaseEntity;
 import com.ceos19.everytime.user.domain.User;
-import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -72,10 +71,6 @@ public class Post extends BaseEntity {
 
     public void increaseLikeNumber() {
         likeNumber++;
-    }
-
-    public BoardPostsResponseDto toResponseDto() {
-        return new BoardPostsResponseDto(title, getWriterNickname());
     }
 
     public void decreaseLikeNumber() {
