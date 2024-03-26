@@ -70,21 +70,15 @@ public class Post extends BaseTimeEntity{
     }
 
     private boolean validateTitle(String title){
-        if(title.isEmpty() || title.length()> MAX_TITLE_LENGTH)
-            return false;
-        return true;
+        return !title.isEmpty() && title.length() <= MAX_TITLE_LENGTH;
     }
 
     private boolean validateContent(String content){
-        if(content.isEmpty() || content.length()> MAX_CONTENT_LENGTH)
-            return false;
-        return true;
+        return !content.isEmpty() && content.length() <= MAX_CONTENT_LENGTH;
     }
 
     private boolean validatePost(String title, String content){
-        if(!validateTitle(title) || !validateContent(content))
-            return false;
-        return true;
+        return validateTitle(title) && validateContent(content);
     }
 
 

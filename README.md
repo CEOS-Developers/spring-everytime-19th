@@ -1,4 +1,4 @@
-# spring-everytime-19th
+# spring-everytime-19th : 1st. DB Modeling
 * * *
 
 ## 에브리타임 DB 모델링
@@ -98,6 +98,32 @@ amy라는 회원만 가입된 상태에서, amy로 회원을 조회하면 올바
 
 게시글을 작성하고 기본키로 조회했을 때, DB에 게시글이 올바르게 저장된 것을 확인할 수 있다.
 
+* * *
+# spring-everytime-19th : 2nd. Service Layer
+## Refactoring
+1. `BaseTimeEntity` 생성
+  - 대다수의 domain에 들어가는 공통적인 컬럼인 생성 시간과 업데이트 시간을 추상클래스 BaseTimeEntity을 이용하여 구현했다.
+2. 추가된 도메인
+  - University, Board 
+3. ReadStatus 적용
+  - 메시지 읽음 여부를 확인하기 위해서 enum인 ReadStatus를 생성했다.
+  - 값은 READ, NOT_READ가 있다.
 
+
+
+## Service Test
+1. MemberService
+- 회원가입, 중복 이름 불가, 이름 변경, 멤버 삭제가 제대로 진행되는지 확인했다.
+![Screenshot 2024-03-26 at 12.49.04 PM.png](..%2F..%2F..%2F..%2FDesktop%2FScreenshot%202024-03-26%20at%2012.49.04%E2%80%AFPM.png)
+2. BoardService
+- 게시판 생성과 삭제가 제대로 진행되는지 확인했다.
+![Screenshot 2024-03-26 at 12.50.53 PM.png](..%2F..%2F..%2F..%2FDesktop%2FScreenshot%202024-03-26%20at%2012.50.53%E2%80%AFPM.png)
+
+
+## 수정해야 하는 부분
+1. 검증을 진행하는 시기
+  - service 단계에서 진행해야 하는지, 생성 단계에서 진행해야 하는지
+2. 에러 처리
+  - 현재는 에러처리를 하지 않고, log로 성공/실패 여부를 확인한다.
 
 
