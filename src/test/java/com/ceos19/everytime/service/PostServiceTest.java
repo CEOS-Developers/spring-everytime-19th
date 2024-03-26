@@ -50,14 +50,19 @@ class PostServiceTest {
     @Autowired
     EntityManager em;
 
-   /* @BeforeEach
+    User user1;
+    Long postId;
+    Board board;
+
+
+    @BeforeEach
     public void each() {
         // 학교 저장
         School school = new School("홍익대학교");
         schoolRepository.save(school);
 
         // 게시판 저장
-        Board board = new Board("컴공게시판", school);
+        board = new Board("컴공게시판", school);
         boardRepository.save(board);
 
         // 과목 저장
@@ -91,8 +96,6 @@ class PostServiceTest {
         commentRepository.save(comment2);
         commentRepository.save(reply);
         commentRepository.save(reply2);
-
-
     }
 
     @Test
@@ -107,29 +110,6 @@ class PostServiceTest {
         assertEquals(comments.size(), 0);  // 연관된 comment 제거
         assertThrows(AppException.class, () -> postService.findById(postId));  //post 제거됨
 
-    }*/
-
-    User user;
-    School school;
-    Board board;
-
-    @BeforeEach
-    public void each() {
-        // 학교 저장
-        school = new School("홍익대학교");
-        schoolRepository.save(school);
-
-        // 게시판 저장
-        board = new Board("컴공게시판", school);
-        boardRepository.save(board);
-
-        User user = User.builder()
-                .name("유저1")
-                .username("id").password("qwer1234")
-                .email("user@naver.com").studentNo("B911111")
-                .school(school)
-                .build();
-        userService.join(user);
     }
 
     @Test
@@ -148,24 +128,24 @@ class PostServiceTest {
                 .build();
 
         Post post1 = Post.builder()
-                .board(board).author(user)
+                .board(board).author(user1)
                 .title("게시물1").content("내용...")
                 .isAnonymous(false).isQuestion(true)
                 .build();
+        postRepository.save(post1);
 
         // post1 저장시 attachment1도 해당 게시물에 저장함
         post1.addAttachment(attachment1);
         post1.addAttachment(attachment2);
-        postRepository.save(post1);
-
         em.flush();
         em.clear();
+        postRepository.save(post1);
 
         //when
         System.out.println("====== findPost =======");
         Post post = postRepository.findById(post1.getId()).get();
         for (Attachment attachment : post.getAttachments()) {
-            attachment.getId();
+//            attachment.getId();
         }
     }
 }
