@@ -24,7 +24,6 @@ public class ClassTime {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "course_id")
-    @Setter(value = PROTECTED)
     private Course course;
 
     @Builder
