@@ -710,176 +710,6 @@ A는 Team 에서 Team 의 이미지와 Team 의 Member 에 대한 내용 을 함
  ---
 ## 코드 작성 중 어려웠던 점
 
-### (알수없음) 및 삭제 된 메시지 
-
-에브리타임에서 댓글을 삭제 시에 대댓글이 존재하지 않을 경우 그냥 삭제가 되나<br>
-대댓글이 존재할 경우 작성자가 익명 혹은 닉네임 에서 (알수없음) 으로 바뀌고 <br>
-내용은 삭제된 메시지 입니다. 라고 표시되는 것을 본 적이 있다. 
-
-때문에 아래와 같이 코드를 작성했다. 
-
-```java
-@Transactional
-    public void deleteComment(Long replyId,Member currentMember){
-        Reply reply=findReply(replyId);
-
-        if(reply.getMember().getId()!=currentMember.getId()){
-            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
-        }
-
-        Post post= findPost(reply.getPost().getId());
-        post.decreaseReplyCount();
-
-        if(reply.getParent()==null&&replyRepository.existsByParentId(reply.getId())){
-           ChangeMessageByDelete(reply);
-           return;
-        }
-
-        replyRepository.delete(reply);
-    }
-```
-
-- reply.getParent()==null && replyRepository.existsByParentId(reply.getId) 를 통해서 대댓글이 아닌 댓글 이고 이에 대한 대댓글이 달린 경우에 
-ChangeMessageByDelete(reply) 라는 코드를 수행하고 ```delete``` 쿼리를 수행하는 대신 changeMessageByDelete(reply) 라는 메서드를 수행했다. 
-
-  <br>
-이 메서드는 
-```java
-private static final String DELETED_CONTENTS="(삭제된 댓글)";
-private void ChangeMessageByDelete(Reply reply){
-        reply.changeParentByDeleteOnlyHaveChild(DELETED_CONTENTS);
-    }
-```
-다시 이 메서드를 수행하게 하고, 다시 이 메서드는 아래와 같이 
-
-```java
-public void changeParentByDeleteOnlyHaveChild(String deletedContents){
-        this.member=null;
-        this.contents = deletedContents;
-    }
-```
-
-직접 member 에 대한 연관관계를 끊어주고 답글의 내용을 삭제된 댓글로 바꾸어 준다. 
-
-하지만 이렇게 연관관계를 직접 끊어 주었기 때문에 상당 부분의 코드에 ```reply.getMember``` 의 값이 Null 일 떄를 체크를
-해주어야 했다. 
-
-아래와 같이 말이다. 
-
-```java
-private String makeNickNameByReply(Reply reply){
-        if(reply.getMember()==null){
-            return FOR_NULL_NICKNAME;
-        }
-        return reply.isHideNickName()?POST_DEFAULT_NICK_NAME:reply.getMember().getNickName();
-    }
-```
-
-이제 위 코드 뿐만 아니라 ```reply.getMember()``` 을 사용하는 부분은 
-항상 NPE 방지를 위해 null 인지 여부를 체크해야 한다. 
-
-실제로 이렇게 하는 것이 맞는 방법이 맞는지 확신이 없다. 
-
-## 알게 된점 
-
-### Editor 
-
-평소에 수정을 할때 아래 코드와 같이 하였다. 
-
-```java
-@Transactional
-    public void updatePost(PostEditDto postEditDto,Long postId,Member currentMember){
-        Post post=findPost(postId);
-
-        //질문글일 경우 수정 불가 
-        if(post.isQuestion()==true){
-            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
-        }
-
-        // 현재 member 와 post 작성자가 다른 경우는 수정 불가
-        if(post.getMember().getId()!=currentMember.getId()){
-            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
-        }
-
-        //post에 대해 title,content,질문글 여부, 익명 여부를 수정. 
-        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditDto.getTitle(), postEditDto.getContents(),
-             postEditDto.isQuestion(),postEditDto.isHideNickName());
-```
-
-```post.change...``` 로 모든 것을 수정했다. 
-
-하지만 https://velog.io/@gundorit/Spring-%EC%A0%9C%EB%8C%80%EB%A1%9C-%EB%90%9C-CRUD-Update
-이 블로그는 이를 통한 수정 방식은 필드의 순서에 맞게 값을 넘기니 실수가 발생할 수 있고, 
-컴파일에 문제가 없기 때문에 문제 발견이 어렵다는 내용을 담고 있다. 
-그렇기 때문에 이전까지 했던 내용을 안좋은 예시라고 소개하고 있다.
-
-그에 따라 대처 방안으로 ```Editor``` 라는 것을 사용하고 소개하고 있는데 
-그 필요성이 공감되지 않으므로 한 번 해보고 좋은 것인지 알아보겠다. 
-
-```java
-@Getter
-public class PostEditor {
-    private final String title;
-    private final String content;
-    private final boolean isQuestion;
-    private final boolean hideNickName;
-    @Builder
-    public PostEditor(String title,String content,boolean isQuestion,boolean hideNickName){
-        this.title= title;
-        this.content=content;
-        this.isQuestion = isQuestion;
-        this.hideNickName = hideNickName;
-    }
-
-}
-```
-
-위와 같이 Editor를 선언하고 
-아래와 같이 post 라는 엔티티에 메서드를 선언한다. 
-```java
- public PostEditor.PostEditorBuilder toEditor(){
-       return PostEditor.builder()
-           .title(this.title)
-           .content(this.contents)
-           .isQuestion(this.isQuestion)
-           .hideNickName(this.isHideNickName);
-   }
-
-   public void edit(PostEditor postEditor){
-       this.title= postEditor.getTitle();
-       this.contents = postEditor.getContent();
-       this.isQuestion = postEditor.isQuestion();
-       this.isHideNickName = postEditor.isHideNickName();
-   }
-```
-또한 PostService 의 수정 메서드에 아래 코드를 추가한다. 
-```java
-  //post에 대해 title,content,질문글 여부, 익명 여부를 수정.
-/*
-        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditDto.getTitle(), postEditDto.getContents(),
-             postEditDto.isQuestion(),postEditDto.isHideNickName());
-        */
-         PostEditor.PostEditorBuilder editorBuilder = post.toEditor();
-
-
-                 PostEditor postEditor = editorBuilder.title(postEditDto.getTitle())
-                 .isQuestion(postEditDto.isQuestion())
-                 .hideNickName(postEditDto.isHideNickName())
-                 .content(postEditDto.getContents())
-                 .build();
-
-                 post.edit(postEditor);
-```
-editor 를 이용하여 수정한다. 
-
-또한 Post 엔티티에 
-
-
-
-위와 같이 선언해 준다. 
-수정은 잘된다 . 근데 좋은지 잘 모르겠다. 
-1) DTO 랑 EDITOR 가 무엇이 다른지 잘 모르겠다.
-2) 영한님이 했던 말씀 중에 DTO 는 엔티티를 참조할수있지만 엔티티는 DTO 를 참조하게 하지 말라고 했다. 이 경우는 그런 경우가 아닌지
 
 
 ### 테스트 코드 알게 된 점 
@@ -1222,7 +1052,7 @@ select
 
 ```
 
-## 알아봐야 할 점
+## 어려웠던 점 및 알아봐야 할 점 
 
 ```java
 
@@ -1273,3 +1103,173 @@ Service 에서 post 를 저장할 때 위와 같이 void 형을 선언하여서 
 
 어떻게 해야 할 지 알아봐야 되겠다. 
 
+### Editor
+
+평소에 수정을 할때 아래 코드와 같이 하였다.
+
+```java
+@Transactional
+    public void updatePost(PostEditDto postEditDto,Long postId,Member currentMember){
+        Post post=findPost(postId);
+
+        //질문글일 경우 수정 불가 
+        if(post.isQuestion()==true){
+            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
+
+        // 현재 member 와 post 작성자가 다른 경우는 수정 불가
+        if(post.getMember().getId()!=currentMember.getId()){
+            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
+
+        //post에 대해 title,content,질문글 여부, 익명 여부를 수정. 
+        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditDto.getTitle(), postEditDto.getContents(),
+             postEditDto.isQuestion(),postEditDto.isHideNickName());
+```
+
+```post.change...``` 로 모든 것을 수정했다.
+
+하지만 https://velog.io/@gundorit/Spring-%EC%A0%9C%EB%8C%80%EB%A1%9C-%EB%90%9C-CRUD-Update
+이 블로그는 이를 통한 수정 방식은 필드의 순서에 맞게 값을 넘기니 실수가 발생할 수 있고,
+컴파일에 문제가 없기 때문에 문제 발견이 어렵다는 내용을 담고 있다.
+그렇기 때문에 이전까지 했던 내용을 안좋은 예시라고 소개하고 있다.
+
+그에 따라 대처 방안으로 ```Editor``` 라는 것을 사용하고 소개하고 있는데
+그 필요성이 공감되지 않으므로 한 번 해보고 좋은 것인지 알아보겠다.
+
+```java
+@Getter
+public class PostEditor {
+    private final String title;
+    private final String content;
+    private final boolean isQuestion;
+    private final boolean hideNickName;
+    @Builder
+    public PostEditor(String title,String content,boolean isQuestion,boolean hideNickName){
+        this.title= title;
+        this.content=content;
+        this.isQuestion = isQuestion;
+        this.hideNickName = hideNickName;
+    }
+
+}
+```
+
+위와 같이 Editor를 선언하고
+아래와 같이 post 라는 엔티티에 메서드를 선언한다.
+```java
+ public PostEditor.PostEditorBuilder toEditor(){
+       return PostEditor.builder()
+           .title(this.title)
+           .content(this.contents)
+           .isQuestion(this.isQuestion)
+           .hideNickName(this.isHideNickName);
+   }
+
+   public void edit(PostEditor postEditor){
+       this.title= postEditor.getTitle();
+       this.contents = postEditor.getContent();
+       this.isQuestion = postEditor.isQuestion();
+       this.isHideNickName = postEditor.isHideNickName();
+   }
+```
+또한 PostService 의 수정 메서드에 아래 코드를 추가한다.
+```java
+  //post에 대해 title,content,질문글 여부, 익명 여부를 수정.
+/*
+        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditDto.getTitle(), postEditDto.getContents(),
+             postEditDto.isQuestion(),postEditDto.isHideNickName());
+        */
+         PostEditor.PostEditorBuilder editorBuilder = post.toEditor();
+
+
+                 PostEditor postEditor = editorBuilder.title(postEditDto.getTitle())
+                 .isQuestion(postEditDto.isQuestion())
+                 .hideNickName(postEditDto.isHideNickName())
+                 .content(postEditDto.getContents())
+                 .build();
+
+                 post.edit(postEditor);
+```
+editor 를 이용하여 수정한다.
+
+또한 Post 엔티티에
+
+
+
+위와 같이 선언해 준다.
+수정은 잘된다 . 근데 좋은지 잘 모르겠다.
+1) DTO 랑 EDITOR 가 무엇이 다른지 잘 모르겠다.
+2) 영한님이 했던 말씀 중에 DTO 는 엔티티를 참조할수있지만 엔티티는 DTO 를 참조하게 하지 말라고 했다. 이 경우는 그런 경우가 아닌지
+
+
+
+### (알수없음) 및 삭제 된 메시지
+
+에브리타임에서 댓글을 삭제 시에 대댓글이 존재하지 않을 경우 그냥 삭제가 되나<br>
+대댓글이 존재할 경우 작성자가 익명 혹은 닉네임 에서 (알수없음) 으로 바뀌고 <br>
+내용은 삭제된 메시지 입니다. 라고 표시되는 것을 본 적이 있다.
+
+때문에 아래와 같이 코드를 작성했다.
+
+```java
+@Transactional
+    public void deleteComment(Long replyId,Member currentMember){
+        Reply reply=findReply(replyId);
+
+        if(reply.getMember().getId()!=currentMember.getId()){
+            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
+
+        Post post= findPost(reply.getPost().getId());
+        post.decreaseReplyCount();
+
+        if(reply.getParent()==null&&replyRepository.existsByParentId(reply.getId())){
+           ChangeMessageByDelete(reply);
+           return;
+        }
+
+        replyRepository.delete(reply);
+    }
+```
+
+- reply.getParent()==null && replyRepository.existsByParentId(reply.getId) 를 통해서 대댓글이 아닌 댓글 이고 이에 대한 대댓글이 달린 경우에
+  ChangeMessageByDelete(reply) 라는 코드를 수행하고 ```delete``` 쿼리를 수행하는 대신 changeMessageByDelete(reply) 라는 메서드를 수행했다.
+
+  <br>
+이 메서드는
+```java
+private static final String DELETED_CONTENTS="(삭제된 댓글)";
+private void ChangeMessageByDelete(Reply reply){
+        reply.changeParentByDeleteOnlyHaveChild(DELETED_CONTENTS);
+    }
+```
+다시 이 메서드를 수행하게 하고, 다시 이 메서드는 아래와 같이
+
+```java
+public void changeParentByDeleteOnlyHaveChild(String deletedContents){
+        this.member=null;
+        this.contents = deletedContents;
+    }
+```
+
+직접 member 에 대한 연관관계를 끊어주고 답글의 내용을 삭제된 댓글로 바꾸어 준다.
+
+하지만 이렇게 연관관계를 직접 끊어 주었기 때문에 상당 부분의 코드에 ```reply.getMember``` 의 값이 Null 일 떄를 체크를
+해주어야 했다.
+
+아래와 같이 말이다. 
+
+```java
+private String makeNickNameByReply(Reply reply){
+        if(reply.getMember()==null){
+            return FOR_NULL_NICKNAME;
+        }
+        return reply.isHideNickName()?POST_DEFAULT_NICK_NAME:reply.getMember().getNickName();
+    }
+```
+
+이제 위 코드 뿐만 아니라 ```reply.getMember()``` 을 사용하는 부분은
+항상 NPE 방지를 위해 null 인지 여부를 체크해야 한다.
+
+실제로 이렇게 하는 것이 맞는 방법이 맞는지 확신이 없다. 
