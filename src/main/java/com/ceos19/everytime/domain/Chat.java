@@ -31,7 +31,6 @@ public class Chat{
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "chatting_room_id")
-    @Setter(value = PROTECTED)
     private ChattingRoom chattingRoom;
 
     @Builder

@@ -26,12 +26,10 @@ public class ChattingRoom {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "participant1_id")
-    @Setter
     private User participant1;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "participant2_id")
-    @Setter
     private User participant2;
 
     public ChattingRoom(User participant1, User participant2) {

@@ -20,12 +20,10 @@ public class TimeTableCourse {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "time_table_id")
-    @Setter(value = PROTECTED)
     private TimeTable timeTable;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "course_id")
-    @Setter(value = PROTECTED)
     private Course course;
 
     public TimeTableCourse(TimeTable timeTable, Course course) {
