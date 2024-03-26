@@ -146,9 +146,9 @@ class PostServiceTest {
         // then
         assertSoftly(softly -> {
             softly.assertThat(response.size()).isEqualTo(3);
-            softly.assertThat(response.get(0)).isEqualTo(post.toResponseDto());
-            softly.assertThat(response.get(1)).isEqualTo(post2.toResponseDto());
-            softly.assertThat(response.get(2)).isEqualTo(post3.toResponseDto());
+            softly.assertThat(response.get(0)).isEqualTo(BoardPostsResponseDto.from(post));
+            softly.assertThat(response.get(1)).isEqualTo(BoardPostsResponseDto.from(post2));
+            softly.assertThat(response.get(2)).isEqualTo(BoardPostsResponseDto.from(post3));
         });
     }
 }

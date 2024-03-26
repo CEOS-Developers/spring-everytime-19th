@@ -14,7 +14,7 @@ public class Posts {
 
     public List<BoardPostsResponseDto> toResponseDto() {
         return posts.stream()
-                .map(Post::toResponseDto)
+                .map(BoardPostsResponseDto::from)
                 .toList();
     }
 }
