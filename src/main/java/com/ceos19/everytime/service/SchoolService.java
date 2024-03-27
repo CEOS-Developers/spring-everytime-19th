@@ -19,7 +19,7 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 public class SchoolService {
     private final SchoolRepository schoolRepository;
 
-    public Long save(School school) {
+    public Long addSchool(School school) {
         Optional<School> optionalSchool = schoolRepository.findByName(school.getName());
         if (optionalSchool.isPresent()) {
             log.error("에러 내용: 학교 등록 실패 " +
@@ -30,7 +30,7 @@ public class SchoolService {
         return school.getId();
     }
 
-    public School findById(Long schoolId) {
+    public School findSchoolById(Long schoolId) {
         Optional<School> optionalSchool = schoolRepository.findById(schoolId);
         if (optionalSchool.isEmpty()) {
             log.error("에러 내용: 학교 조회 실패 " +
@@ -41,7 +41,7 @@ public class SchoolService {
         return optionalSchool.get();
     }
 
-    public School findByName(String name) {
+    public School findSchoolByName(String name) {
         Optional<School> optionalSchool = schoolRepository.findByName(name);
         if (optionalSchool.isEmpty()) {
             log.error("에러 내용: 학교 조회 실패 " +

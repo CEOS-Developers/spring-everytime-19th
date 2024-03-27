@@ -29,7 +29,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final TimeTableCourseRepository timeTableCourseRepository;
 
-    public Long save(Course course) {
+    public Long addCourse(Course course) {
         Long schoolId = course.getSchool().getId();
         String courseNumber = course.getCourseNumber();
 
@@ -43,7 +43,7 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public List<Course> findByTimeTableId(Long timeTableId) {
+    public List<Course> findCourseByTimeTableId(Long timeTableId) {
         List<TimeTableCourse> timeTableCourses = timeTableCourseRepository.findByTimeTableId(timeTableId);
 
         List<Course> courses = new ArrayList<>();
@@ -58,7 +58,7 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public Course findById(Long courseId) {
+    public Course findCourseById(Long courseId) {
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
         if (optionalCourse.isEmpty()) {
             log.error("에러 내용: 과목 조회 실패 " +
@@ -69,7 +69,7 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public List<Course> findByProfessorName(Long schoolId, String professorName) {
+    public List<Course> findCourseByProfessorName(Long schoolId, String professorName) {
         if (schoolRepository.findById(schoolId).isEmpty()) {
             log.error("에러 내용: 학교 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
@@ -79,7 +79,7 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public List<Course> findByNameAndProfessorName(Long schoolId, String name, String professorName) {
+    public List<Course> findCourseByNameAndProfessorName(Long schoolId, String name, String professorName) {
         if (schoolRepository.findById(schoolId).isEmpty()) {
             log.error("에러 내용: 학교 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
@@ -89,7 +89,7 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public List<Course> findByName(Long schoolId, String name) {
+    public List<Course> findCourseByName(Long schoolId, String name) {
         if (schoolRepository.findById(schoolId).isEmpty()) {
             log.error("에러 내용: 학교 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
@@ -99,7 +99,7 @@ public class CourseService {
     }
 
 
-    public void deleteCourseById(Long courseId) {
+    public void removeCourseById(Long courseId) {
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
         if (optionalCourse.isEmpty()) {
             log.error("에러 내용: 시간표 조회 실패 " +

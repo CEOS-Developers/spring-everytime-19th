@@ -56,10 +56,10 @@ class CourseServiceTest {
         course1.addClassTime(Weekend.MON,2);
         course1.addClassTime(Weekend.TUE,4);
         course1.addClassTime(Weekend.TUE,5);
-        courseService.save(course1);
+        courseService.addCourse(course1);
 
         course2.addClassTime(Weekend.FRI,5);
-        courseService.save(course2);
+        courseService.addCourse(course2);
 
 //        course.getClassTimes().remove(0);
 
@@ -74,7 +74,7 @@ class CourseServiceTest {
     public void deleteCourseTest() throws Exception{
         //given
         System.out.println("course2 = " + course2);
-        courseService.deleteCourseById(course2.getId());
+        courseService.removeCourseById(course2.getId());
 
         //when
         TimeTable timeTable = timeTableRepository.findByUserId(userA.getId()).get(0);
@@ -94,7 +94,7 @@ class CourseServiceTest {
     @Test
     public void findCourse() throws Exception{
         //given
-        List<Course> courses = courseService.findByNameAndProfessorName(school.getId(), "컴퓨터개론", "김교수");
+        List<Course> courses = courseService.findCourseByNameAndProfessorName(school.getId(), "컴퓨터개론", "김교수");
 
         //when
 
@@ -105,7 +105,7 @@ class CourseServiceTest {
     @Test
     public void findCourse2() throws Exception{
         //given
-        List<Course> courses = courseService.findByName(school.getId(), "엄준식개론");
+        List<Course> courses = courseService.findCourseByName(school.getId(), "엄준식개론");
         //when
 
         //then

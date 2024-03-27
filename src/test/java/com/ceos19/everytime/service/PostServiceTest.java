@@ -80,12 +80,12 @@ class PostServiceTest {
 
         // 유저 가입
         user1 = new User("myUsername", "myPassword", "엄준식", "A000011", "um@naver.com", school);
-        userService.join(user1);
+        userService.addUser(user1);
         User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "kim@naver.com", school);
-        userService.join(user2);
+        userService.addUser(user2);
 
         Post post = new Post("포스트1", "내용1", false, false, board, user1);
-        postService.save(post);
+        postService.addPost(post);
         postId = post.getId();
 
         Comment comment1 = new Comment("코멘트1", user1, post, null);
@@ -103,12 +103,12 @@ class PostServiceTest {
         //given
 
         //when
-        postService.deletePost(postId);
+        postService.removePost(postId);
 
         //then
         List<Comment> comments = commentRepository.findByPostId(postId);
         assertEquals(comments.size(), 0);  // 연관된 comment 제거
-        assertThrows(AppException.class, () -> postService.findById(postId));  //post 제거됨
+        assertThrows(AppException.class, () -> postService.findPostById(postId));  //post 제거됨
 
     }
 

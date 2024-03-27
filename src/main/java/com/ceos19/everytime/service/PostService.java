@@ -28,7 +28,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
 
-    public Long save(Post post, Attachment... attachments) {
+    public Long addPost(Post post, Attachment... attachments) {
         postRepository.save(post);
         for (Attachment attachment : attachments) {
             if (attachment.getId() != null) {
@@ -41,7 +41,7 @@ public class PostService {
         return post.getId();
     }
 
-    public Post findById(Long postId) {
+    public Post findPostById(Long postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
             log.error("에러 내용: 게시물 조회 실패 " +
@@ -51,11 +51,11 @@ public class PostService {
         return optionalPost.get();
     }
 
-    public List<Post> findByAuthorId(Long authorId) {
+    public List<Post> findPostByAuthorId(Long authorId) {
         return postRepository.findByAuthorId(authorId);
     }
 
-    public void deletePost(Long postId) {
+    public void removePost(Long postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
             log.error("에러 내용: 게시물 조회 실패 " +

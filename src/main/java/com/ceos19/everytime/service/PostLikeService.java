@@ -27,7 +27,7 @@ public class PostLikeService {
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
 
-    public Long save(Long postId, Long userId) {
+    public Long addPostLike(Long postId, Long userId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
             log.error("에러 내용: 게시물 조회 실패 " +
@@ -57,7 +57,7 @@ public class PostLikeService {
     }
 
     @Transactional(readOnly = true)
-    public PostLike findById(Long postLikeId) {
+    public PostLike findPostLikeById(Long postLikeId) {
         Optional<PostLike> optionalPostLike = postLikeRepository.findById(postLikeId);
         if (optionalPostLike.isEmpty()) {
             log.error("에러 내용: 좋아요 조회 실패 " +
@@ -68,7 +68,7 @@ public class PostLikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostLike> findByPostId(Long postId) {
+    public List<PostLike> findPostLikeByPostId(Long postId) {
         return postLikeRepository.findByPostId(postId);
     }
 
@@ -83,7 +83,7 @@ public class PostLikeService {
         return optionalPostLike.get();
     }
 
-    public void deletePostLike(Long postLikeId) {
+    public void removePostLike(Long postLikeId) {
         Optional<PostLike> optionalPostLike = postLikeRepository.findById(postLikeId);
         if (optionalPostLike.isEmpty()) {
             log.error("에러 내용: 좋아요 조회 실패 " +
@@ -93,7 +93,7 @@ public class PostLikeService {
         postLikeRepository.deleteById(postLikeId);
     }
 
-    public void deletePostLike(Long postId, Long userId) {
+    public void removePostLike(Long postId, Long userId) {
         Optional<PostLike> optionalPostLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
         if (optionalPostLike.isEmpty()) {
             log.error("에러 내용: 좋아요 조회 실패 " +

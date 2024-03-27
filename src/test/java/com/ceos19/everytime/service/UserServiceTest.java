@@ -17,8 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @Transactional
@@ -60,7 +58,7 @@ class UserServiceTest {
     public void each() {
         // 학교 저장
         School school = new School("홍익대학교");
-        schoolService.save(school);
+        schoolService.addSchool(school);
 
         // 게시판 저장
         Board board = new Board("컴공게시판", school);
@@ -81,15 +79,15 @@ class UserServiceTest {
 
         // 유저 가입
         User user1 = new User("myUsername", "myPassword", "김상덕", "A000011", "um@naver.com", school);
-        userId = userService.join(user1);
+        userId = userService.addUser(user1);
         User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "um1@naver.com", school);
-        userService.join(user2);
+        userService.addUser(user2);
 
         // 시간표 생성
         TimeTable timeTable1 = new TimeTable("22년 2학기", 2022, Semester.SECOND, user1);
         TimeTable timeTable2 = new TimeTable("23년 1학기", 2023, Semester.FIRST, user1);
-        timeTableService.save(timeTable1);
-        timeTableService.save(timeTable2);
+        timeTableService.addTimeTable(timeTable1);
+        timeTableService.addTimeTable(timeTable2);
 
         // 시간표에 수업 추가
         TimeTableCourse timeTableCourse1 = new TimeTableCourse(timeTable1, course1);
@@ -101,15 +99,15 @@ class UserServiceTest {
 
         // ChattingRoom 생성
         ChattingRoom chattingRoom = new ChattingRoom(user1, user2);
-        chattingRoomService.save(chattingRoom);
+        chattingRoomService.addChattingRoom(chattingRoom);
 
         // Chat 생성
         Chat chat1 = new Chat("안녕?", user1, chattingRoom);
         Chat chat2 = new Chat("반가워", user2, chattingRoom);
         Chat chat3 = new Chat("안녕 ㅎㅎ", user1, chattingRoom);
-        chatService.save(chat1);
-        chatService.save(chat2);
-        chatService.save(chat3);
+        chatService.addChat(chat1);
+        chatService.addChat(chat2);
+        chatService.addChat(chat3);
 
         // Post 생성
         Post post = new Post("새로운 포스팅", "ㅈㄱㄴ", false, false, board, user1);
@@ -126,42 +124,42 @@ class UserServiceTest {
                 .attachmentType(AttachmentType.IMAGE)
                 .build();
         post.addAttachment(attachment2);
-        postService.save(post);
+        postService.addPost(post);
 
         // Post에 좋아요 추가
-        postLikeService.save(post.getId(), user1.getId());
-        postLikeService.save(post.getId(), user2.getId());
+        postLikeService.addPostLike(post.getId(), user1.getId());
+        postLikeService.addPostLike(post.getId(), user2.getId());
 
         Comment comment1 = new Comment("comment1", user2, post, null);
         Comment comment2 = new Comment("comment2", user2, post, null);
-        commentService.save(comment1);
-        commentService.save(comment2);
+        commentService.addComment(comment1);
+        commentService.addComment(comment2);
         Comment reply = new Comment("reply", user2, post, comment2);
-        commentService.save(reply);
+        commentService.addComment(reply);
     }
 
     @Test
     public void 유저이름변경() throws Exception {
-        User user = userService.findById(userId);
+        User user = userService.findUserById(userId);
         user.updateName("업데이트이름");
         em.flush();
         em.clear();
 
-        Assert.assertEquals(userService.findById(user.getId()).getName(), "업데이트이름");
+        Assert.assertEquals(userService.findUserById(user.getId()).getName(), "업데이트이름");
     }
 
     @Test
     @DisplayName("유저 제거")
     public void deleteUser() throws Exception {
         //given
-        User user = userService.findById(userId);
+        User user = userService.findUserById(userId);
         System.out.println("user.getName() = " + user.getName());
 
         //when
-        userService.deleteUser(userId);
+        userService.removeUser(userId);
 
 
         //then
-        Assert.assertThrows(AppException.class, () -> userService.findById(userId));
+        Assert.assertThrows(AppException.class, () -> userService.findUserById(userId));
     }
 }

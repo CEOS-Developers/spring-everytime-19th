@@ -75,33 +75,33 @@ class CommentServiceTest {
 
         // 유저 가입
         User user1 = new User("myUsername", "myPassword", "엄준식", "A000011", "um@naver.com", school);
-        userService.join(user1);
+        userService.addUser(user1);
         User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "kim@naver.com", school);
-        userService.join(user2);
+        userService.addUser(user2);
 
         Post post = new Post("포스트1", "내용1", false, false, board, user1);
-        postService.save(post);
+        postService.addPost(post);
         Long postId = post.getId();
 
         Comment comment1 = new Comment("코멘트1", user1, post, null);
         Comment comment2 = new Comment("코멘트2", user2, post, null);
         Comment reply = new Comment("대댓글", user1, post, comment2);
         Comment reply2 = new Comment("대댓글2", user2, post, reply);
-        commentId = commentService.save(comment1);
-        commentService.save(comment2);
-        commentService.save(reply);
-        commentService.save(reply2);
+        commentId = commentService.addComment(comment1);
+        commentService.addComment(comment2);
+        commentService.addComment(reply);
+        commentService.addComment(reply2);
     }
 
     @Test
     public void deleteComment() throws Exception{
         //given
-        commentService.deleteComment(commentId);
+        commentService.removeComment(commentId);
         //when
 
         //then
         List<Comment> comments = commentRepository.findAll();
         assertEquals(comments.size(),3);
-        assertThrows(AppException.class, () -> commentService.findById(commentId));
+        assertThrows(AppException.class, () -> commentService.findCommentById(commentId));
     }
 }

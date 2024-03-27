@@ -2,7 +2,6 @@ package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.Comment;
 import com.ceos19.everytime.exception.AppException;
-import com.ceos19.everytime.exception.ErrorCode;
 import com.ceos19.everytime.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +20,13 @@ import static com.ceos19.everytime.exception.ErrorCode.NO_DATA_EXISTED;
 public class CommentService {
     private final CommentRepository commentRepository;
 
-    public Long save(Comment comment) {
+    public Long addComment(Comment comment) {
         commentRepository.save(comment);
         return comment.getId();
     }
 
     @Transactional(readOnly = true)
-    public Comment findById(Long commentId) {
+    public Comment findCommentById(Long commentId) {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         if (optionalComment.isEmpty()) {
             log.error("에러 내용: 댓글 조회 실패 " +
@@ -38,22 +37,22 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> findByPostId(Long postId) {
+    public List<Comment> findCommentByPostId(Long postId) {
         return commentRepository.findByPostId(postId);
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> findReplies(Long commentId) {
+    public List<Comment> findCommentReplies(Long commentId) {
         return commentRepository.findByParentCommentId(commentId);
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> findByCommenterId(Long commenterId) {
+    public List<Comment> findCommentByCommenterId(Long commenterId) {
         return commentRepository.findByCommenterId(commenterId);
     }
 
 
-    public void deleteComment(Long commentId) {
+    public void removeComment(Long commentId) {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         if (optionalComment.isEmpty()) {
             log.error("에러 내용: 댓글 조회 실패 " +

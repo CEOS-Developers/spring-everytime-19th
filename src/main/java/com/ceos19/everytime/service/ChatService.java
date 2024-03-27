@@ -25,12 +25,12 @@ public class ChatService {
     private final ChatRepository chatRepository;
 
     @Transactional(readOnly = false)
-    public Long save(Chat chat) {
+    public Long addChat(Chat chat) {
         chatRepository.save(chat);
         return chat.getId();
     }
 
-    public Chat findById(Long chatId) {
+    public Chat findChatById(Long chatId) {
         Optional<Chat> optionalChat = chatRepository.findById(chatId);
         if (optionalChat.isEmpty()) {
             log.error("에러 내용: 채팅 조회 실패 " +
@@ -40,15 +40,15 @@ public class ChatService {
         return optionalChat.get();
     }
 
-    public List<Chat> findByAuthorId(Long authorId) {
+    public List<Chat> findChatByAuthorId(Long authorId) {
         return chatRepository.findByAuthorId(authorId);
     }
 
-    public List<Chat> findByChattingRoomId(Long chattingRoomId) {
+    public List<Chat> findChatByChattingRoomId(Long chattingRoomId) {
         return chatRepository.findByChattingRoomId(chattingRoomId);
     }
 
-    public List<Chat> findBySendDate(LocalDate targetDate) {
+    public List<Chat> findChatBySendDate(LocalDate targetDate) {
         LocalDateTime startOfDay = LocalDateTime.of(targetDate, LocalTime.MIN);
         LocalDateTime endOfDay = LocalDateTime.of(targetDate, LocalTime.MAX);
 
@@ -56,7 +56,7 @@ public class ChatService {
     }
 
     @Transactional(readOnly = false)
-    public void deleteChat(Long chatId) {
+    public void removeChat(Long chatId) {
         Optional<Chat> optionalChat = chatRepository.findById(chatId);
         if (optionalChat.isEmpty()) {
             log.error("에러 내용: 채팅 조회 실패 " +

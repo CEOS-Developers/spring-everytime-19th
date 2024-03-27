@@ -30,7 +30,7 @@ public class UserService {
     private final PostLikeRepository postLikeRepository;
     private final EntityManager em;
 
-    public Long join(User user) {
+    public Long addUser(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             log.error("에러 내용: 유저 가입 실패 " +
                     "발생 원인: 이미 존재하는 아이디로 가입 시도");
@@ -52,7 +52,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findById(Long userId) {
+    public User findUserById(Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             log.error("에러 내용: 유저 조회 실패 " +
@@ -63,7 +63,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findByUsername(String username) {
+    public User findUserByUsername(String username) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
             log.error("에러 내용: 유저 조회 실패 " +
@@ -75,7 +75,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findByEmail(String email) {
+    public User findUserByEmail(String email) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             log.error("에러 내용: 유저 조회 실패 " +
@@ -86,7 +86,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findBySchoolIdAndStudentNo(Long schoolId, String studentNo) {
+    public User findUserBySchoolIdAndStudentNo(Long schoolId, String studentNo) {
         Optional<User> optionalUser = userRepository.findBySchoolIdAndStudentNo(schoolId, studentNo);
         if (optionalUser.isEmpty()) {
             log.error("에러 내용: 유저 조회 실패 " +
@@ -96,7 +96,7 @@ public class UserService {
         return optionalUser.get();
     }
 
-    public void deleteUser(Long userId) {
+    public void removeUser(Long userId) {
         List<TimeTable> timeTables = timeTableRepository.findByUserId(userId);
         for (TimeTable timeTable : timeTables) {
             timeTableCourseRepository.deleteAllByTimeTableId(timeTable.getId());

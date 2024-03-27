@@ -25,7 +25,7 @@ public class TimeTableService {
     private final TimeTableCourseRepository timeTableCourseRepository;
     private final UserRepository userRepository;
 
-    public Long save(TimeTable timeTable) {
+    public Long addTimeTable(TimeTable timeTable) {
         List<TimeTable> timeTables = timeTableRepository.findByUserId(timeTable.getUser().getId());
         if (timeTableRepository.findByUserIdAndYearAndSemesterAndName
                 (timeTable.getUser().getId(),
@@ -44,7 +44,7 @@ public class TimeTableService {
     }
 
     @Transactional(readOnly = true)
-    public TimeTable findById(Long timeTableId) {
+    public TimeTable findTimeTableById(Long timeTableId) {
         Optional<TimeTable> optionalTimeTable = timeTableRepository.findById(timeTableId);
         if (optionalTimeTable.isEmpty()) {
             log.error("에러 내용: 시간표 조회 실패 " +
@@ -55,17 +55,17 @@ public class TimeTableService {
     }
 
     @Transactional(readOnly = true)
-    public List<TimeTable> findByUserId(Long userId) {
+    public List<TimeTable> findTimeTableByUserId(Long userId) {
         return timeTableRepository.findByUserId(userId);
     }
 
     @Transactional(readOnly = true)
-    public List<TimeTable> findByUserIdAndYearAndSemester(Long userId, int year, Semester semester) {
+    public List<TimeTable> findTimeTableByUserIdAndYearAndSemester(Long userId, int year, Semester semester) {
         return timeTableRepository.findByUserIdAndYearAndSemester(userId, year, semester);
     }
 
     @Transactional(readOnly = true)
-    public TimeTable findByUserIdAndYearAndSemesterAndName(Long userId, int year, Semester semester, String name) {
+    public TimeTable findTimeTableByUserIdAndYearAndSemesterAndName(Long userId, int year, Semester semester, String name) {
         Optional<TimeTable> optionalTimeTable = timeTableRepository.findByUserIdAndYearAndSemesterAndName(userId, year, semester, name);
         if (optionalTimeTable.isEmpty()) {
             log.error("에러 내용: 시간표 조회 실패 " +
@@ -76,7 +76,7 @@ public class TimeTableService {
     }
 
 
-    public void deleteTimeTable(Long timeTableId) {
+    public void removeTimeTable(Long timeTableId) {
         Optional<TimeTable> optionalTimeTable = timeTableRepository.findById(timeTableId);
         if (optionalTimeTable.isEmpty()) {
             log.error("에러 내용: 시간표 조회 실패 " +

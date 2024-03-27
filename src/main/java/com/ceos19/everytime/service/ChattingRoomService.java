@@ -4,7 +4,6 @@ import com.ceos19.everytime.domain.Chat;
 import com.ceos19.everytime.domain.ChattingRoom;
 import com.ceos19.everytime.domain.User;
 import com.ceos19.everytime.exception.AppException;
-import com.ceos19.everytime.exception.ErrorCode;
 import com.ceos19.everytime.repository.ChatRepository;
 import com.ceos19.everytime.repository.ChattingRoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ public class ChattingRoomService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final ChatRepository chatRepository;
 
-    public Long save(ChattingRoom chattingRoom) {
+    public Long addChattingRoom(ChattingRoom chattingRoom) {
         User participant1 = chattingRoom.getParticipant1();
         User participant2 = chattingRoom.getParticipant2();
 
@@ -43,7 +42,7 @@ public class ChattingRoomService {
     }
 
     @Transactional(readOnly = true)
-    public ChattingRoom findById(Long chattingRoomId) {
+    public ChattingRoom findChattingRoomById(Long chattingRoomId) {
         Optional<ChattingRoom> optionalChattingRoom = chattingRoomRepository.findById(chattingRoomId);
         if (optionalChattingRoom.isEmpty()) {
             log.error("에러 내용: 채팅방 조회 실패 " +
@@ -54,12 +53,12 @@ public class ChattingRoomService {
         return optionalChattingRoom.get();
     }
     @Transactional(readOnly = true)
-    public List<ChattingRoom> findByParticipantId(Long participantId) {
+    public List<ChattingRoom> findChattingRoomByParticipantId(Long participantId) {
         return chattingRoomRepository.findByParticipantId(participantId);
     }
 
     @Transactional(readOnly = true)
-    public ChattingRoom findByParticipantsId(Long participant1Id, Long participant2Id) {
+    public ChattingRoom findChattingRoomByParticipantsId(Long participant1Id, Long participant2Id) {
         Optional<ChattingRoom> optionalChattingRoom
                 = chattingRoomRepository.findByParticipant1IdOrParticipant2Id(participant1Id, participant2Id);
         if (optionalChattingRoom.isEmpty()) {
@@ -70,7 +69,7 @@ public class ChattingRoomService {
         return optionalChattingRoom.get();
     }
 
-    public void deleteChattingRoom(Long chattingRoomId) {
+    public void removeChattingRoom(Long chattingRoomId) {
         Optional<ChattingRoom> optionalChattingRoom = chattingRoomRepository.findById(chattingRoomId);
         if (optionalChattingRoom.isEmpty()) {
             log.error("에러 내용: 채팅방 조회 실패 " +
