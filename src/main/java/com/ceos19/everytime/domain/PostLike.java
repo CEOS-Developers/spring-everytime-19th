@@ -17,16 +17,16 @@ public class PostLike {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post postId;
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
-    private Member user;
+    private Member member;
 
     @Builder
-    public PostLike(Post postId, Member user) {
-        this.postId = postId;
-        this.user = user;
+    public PostLike(Post post, Member member) {
+        this.post = post;
+        this.member = member;
     }
 }

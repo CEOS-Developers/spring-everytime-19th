@@ -23,7 +23,7 @@ public class PostLikeService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
-    public void addPostLike(Long postId, Long memberId){
+    public void createPostLike(Long postId, Long memberId){
         Optional<Post> post = postRepository.findById(postId);
         Optional<Member> member = memberRepository.findById(memberId);
 
@@ -39,24 +39,15 @@ public class PostLikeService {
     }
 
     public void deletePostLike(Long postId, Long memberId){
-        Optional<Post> post = postRepository.findById(postId);
-        Optional<Member> member = memberRepository.findById(memberId);
+        Optional<PostLike> postLike = postLikeRepository.findByPostIdAndMemberId(postId, memberId);
 
-        if(post.isEmpty() || member.isEmpty()){
-            log.info("[Service][cancelPostLike] FAIL");
+        if (postLike.isEmpty()) {
+            log.info("[Service][deletePostLike] FAIL");
         }
         else{
-            Optional<PostLike> postLike = postLikeRepository.findByPostIdAndUser(postRepository.findById(postId).get(),memberRepository.findById(memberId).get());
-            if(postLike.isPresent()){
-                post.get().deleteLike();
-                postLikeRepository.delete(postLike.get());
-                log.info("[Service][cancelPostLike] SUCCESS");
-            }
-            else{
-                log.info("[Service][cancelPostLike] FAIL");
-            }
+            log.info("[Service][deletePostLike] SUCCESS");
+            postLikeRepository.deleteById(postLike.get().getId());
         }
     }
-
 
 }
