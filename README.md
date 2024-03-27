@@ -335,9 +335,8 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
 ### API 명세 작성
 | Method |                       URL                        |                           Request                           | Response |      Description      |
 |:------:|:------------------------------------------------:|:-----------------------------------------------------------:|:--------:|:---------------------:|
-|  GET   |          api/v1/category/{category_id}           |                                                         |   내용 4   |  특정 게시판의 1페이지 게시글 조회  |
 |  GET   | api/v1/category/{category_id}/page/{page_number} |                                                        |   내용 4   | 특정 게시판의 특정 페이지 게시글 조회 |
 |  POST  |                 api/v1/category                  | `{"category_name": string, "category_description": string}` |   내용 8   |        게시판 생성         |
 |  PUT   |    api/v1/category/{category_id}/description     |             `{"category_description": string}`              |          |       게시판 설명 수정       |
 | DELETE |          api/v1/category/{category_id}           |                        |          |        게시판 삭제         |
-|  내용 9  |                      내용 10                       |                            내용 11                            |  내용 12   |
+|  GET   |                      내용 10                       |                            내용 11                            |  내용 12   |
