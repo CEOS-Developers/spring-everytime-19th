@@ -91,4 +91,28 @@ public class PostService {
         postRepository.save(post);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"Post create success"));
     }
+    @Transactional
+    public ApiResponseDto<SuccessResponse>deletePost(Long postId,UserDetails loginUser ) {
+        User loginuser = userRepository.findByUsername(loginUser.getUsername())
+                .orElseThrow(() -> new RestApiException(ErrorType.NOT_FOUND_USER));
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        Post post = optionalPost.orElseThrow(
+                () -> new RestApiException(ErrorType.NOT_FOUND)
+        );
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "delete success"));
+    }
+    @Transactional
+    public ApiResponseDto<SuccessResponse> updatePost(
+            PostRequestDto postRequestDto, UserDetails loginUser, Long postId
+    )
+    {
+        Board board = boardRepository.findById(postId).orElseThrow(
+                ()-> new RestApiException(ErrorType.NOT_FOUND)
+        );
+        User loginuser = userRepository.findByUsername(loginUser.getUsername())
+                .orElseThrow(() -> new RestApiException(ErrorType.NOT_FOUND_USER));
+        Post post = new Post(loginuser, board ,postRequestDto.getTitle(),  postRequestDto.getContent(),postRequestDto.getAnonymous());
+        postRepository.save(post);
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"Post update success"));
+    }
 }

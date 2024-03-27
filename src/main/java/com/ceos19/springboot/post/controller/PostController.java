@@ -23,11 +23,26 @@ public class PostController {
     {
         return postService.createPost(postRequestDto, loginUser );
     }
-    @GetMapping("{postId}")
+
+    @GetMapping("/{postId}")
     public ApiResponseDto<PostResponseDto> getOnePost(
             @AuthenticationPrincipal UserDetails loginUser, @RequestParam Long postId
             )
     {
         return postService.getOnePost(postId, loginUser);
+    }
+    @DeleteMapping("/{postId}")
+    public ApiResponseDto<SuccessResponse> deletePost(
+                                                      @PathVariable Long postId,
+                                                      @AuthenticationPrincipal UserDetails loginUser)
+    {
+        return postService.deletePost(postId ,loginUser);
+    }
+    @PatchMapping("/{postId}")
+    public ApiResponseDto<SuccessResponse> updatePost(@Valid @RequestBody PostRequestDto postRequestDto,
+                                                      @PathVariable Long postId,
+                                                      @AuthenticationPrincipal UserDetails loginUser)
+    {
+        return postService.updatePost(postRequestDto, loginUser, postId);
     }
 }
