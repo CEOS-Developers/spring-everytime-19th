@@ -19,7 +19,7 @@ public class Post extends BaseTimeEntity {
     @Column(name = "post_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(updatable = false, nullable = false)
     private String title;
     @Column(length = 1000)
     private String content;
