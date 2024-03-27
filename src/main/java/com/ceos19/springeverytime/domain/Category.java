@@ -40,4 +40,8 @@ public class Category extends BaseEntity {
     public void changeManager(User newManager) {
         this.manager = newManager;
     }
+
+    public void updateDescription(String description) {
+        this.description = description;
+    }
 }

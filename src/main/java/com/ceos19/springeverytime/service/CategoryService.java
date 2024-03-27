@@ -4,6 +4,7 @@ import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.dto.CategoryCreateRequest;
+import com.ceos19.springeverytime.dto.CategoryUpdateRequest;
 import com.ceos19.springeverytime.repository.CategoryRepository;
 import com.ceos19.springeverytime.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,10 +29,22 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category create(CategoryCreateRequest request) {
-        User currentUser = userRepository.findById(1L).get();
+    public Category createCategory(CategoryCreateRequest request) {
+        // temporary user
+        User currentUser = userRepository.findByLoginId("test").orElse(
+                userRepository.save(new User("test", "pw", "nickname", "name", "computer", "20", "test@exmaple.com"))
+        );
+
         Category category = new Category(request.getName(), request.getDescription(), currentUser);
         return categoryRepository.save(category);
+    }
+
+    @Transactional
+    public void updateCategory(Long category_id, CategoryUpdateRequest request) {
+        Category category = categoryRepository.findById(category_id).orElseThrow(
+                ()-> new IllegalArgumentException("해당하는 카테고리가 없습니다."));
+
+        category.updateDescription(request.getDescription());
     }
 
     @Transactional

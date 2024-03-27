@@ -6,7 +6,6 @@ import com.ceos19.springeverytime.domain.User;
 import com.ceos19.springeverytime.dto.CategoryCreateRequest;
 import com.ceos19.springeverytime.repository.CategoryRepository;
 import com.ceos19.springeverytime.repository.UserRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,7 +50,7 @@ public class CategoryServiceTest {
         given(userRepository.findById(any())).willReturn(Optional.of(user1));
 
         // when
-        Category newCategory = categoryService.create(request);
+        Category newCategory = categoryService.createCategory(request);
 
         // then
         assertThat(newCategory).isEqualTo(category);
