@@ -22,7 +22,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
 
     public void addBoard(Board board) {
-        Optional<Board> optionalBoard = boardRepository.findBySchoolIdAndName(board.getId(), board.getName());
+        Optional<Board> optionalBoard = boardRepository.findBySchoolIdAndName(board.getSchool().getId(), board.getName());
         if (optionalBoard.isPresent()) {
             log.error("에러 내용: 게시판 등록 실패 " +
                     "발생 원인: 이미 존재하는 게시판명으로 등록 시도");
@@ -32,12 +32,23 @@ public class BoardService {
     }
 
     @Transactional(readOnly = true)
+    public Board findBoardById(Long boardId) {
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        if (optionalBoard.isEmpty()) {
+            log.error("에러 내용: 게시판 조회 실패 " +
+                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+            throw new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 게시판입니다");
+        }
+        return optionalBoard.get();
+    }
+
+    @Transactional(readOnly = true)
     public List<Board> findBoardBySchoolId(Long schoolId) {
         return boardRepository.findBySchoolId(schoolId);
     }
 
     @Transactional(readOnly = true)
-    public Board findBoardByName(Long schoolId, String name) {
+    public Board findBoardBySchoolIdAndName(Long schoolId, String name) {
         Optional<Board> optionalBoard = boardRepository.findBySchoolIdAndName(schoolId, name);
         if (optionalBoard.isEmpty()) {
             log.error("에러 내용: 게시판 조회 실패 " +
