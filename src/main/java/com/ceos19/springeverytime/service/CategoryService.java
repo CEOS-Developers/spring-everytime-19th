@@ -3,6 +3,7 @@ package com.ceos19.springeverytime.service;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.Post;
 import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.dto.CategoryCreateRequest;
 import com.ceos19.springeverytime.repository.CategoryRepository;
 import com.ceos19.springeverytime.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,9 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category create(Category category) {
+    public Category create(CategoryCreateRequest request) {
+        User currentUser = userRepository.findById(1L).get();
+        Category category = new Category(request.getName(), request.getDescription(), currentUser);
         return categoryRepository.save(category);
     }
 

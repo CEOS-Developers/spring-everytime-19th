@@ -3,7 +3,9 @@ package com.ceos19.springeverytime.service;
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.Category;
 import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.dto.CategoryCreateRequest;
 import com.ceos19.springeverytime.repository.CategoryRepository;
+import com.ceos19.springeverytime.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +27,8 @@ import static org.mockito.Mockito.verify;
 public class CategoryServiceTest {
     @Mock
     CategoryRepository categoryRepository;
+    @Mock
+    UserRepository userRepository;
 
     @InjectMocks
     CategoryService categoryService;
@@ -42,10 +46,12 @@ public class CategoryServiceTest {
     void 게시판_생성_테스트() {
         // given
         Category category = EntityGenerator.generateCategory(user1);
+        CategoryCreateRequest request = CategoryCreateRequest.of(category.getName(), category.getDescription());
         given(categoryRepository.save(any(Category.class))).willReturn(category);
+        given(userRepository.findById(any())).willReturn(Optional.of(user1));
 
         // when
-        Category newCategory = categoryService.create(category);
+        Category newCategory = categoryService.create(request);
 
         // then
         assertThat(newCategory).isEqualTo(category);
