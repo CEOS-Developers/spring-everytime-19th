@@ -51,6 +51,9 @@ public class PostService {
         return optionalPost.get();
     }
 
+    public List<Post> findPostByName(Long boardId, String name) {
+        return postRepository.findByBoardIdAndTitle(boardId, name);
+    }
     public List<Post> findPostByAuthorId(Long authorId) {
         return postRepository.findByAuthorId(authorId);
     }
