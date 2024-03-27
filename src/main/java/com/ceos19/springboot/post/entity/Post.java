@@ -49,7 +49,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy ="post",fetch = FetchType.LAZY)
     private List<postLike>postLikeList = new ArrayList<>();
 
-    public Post(Board board, String title, String content, Boolean anonymous) {
+    public Post(User user, Board board, String title, String content, Boolean anonymous) {
+        this.user = user;
         this.board = board;
         this.title = title;
         this.content = content;
