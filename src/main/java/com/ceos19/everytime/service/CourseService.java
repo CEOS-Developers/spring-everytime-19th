@@ -43,6 +43,17 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
+    public Course findCourseById(Long courseId) {
+        Optional<Course> optionalCourse = courseRepository.findById(courseId);
+        if (optionalCourse.isEmpty()) {
+            log.error("에러 내용: 과목 조회 실패 " +
+                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 과목입니다");
+        }
+        return optionalCourse.get();
+    }
+
+    @Transactional(readOnly = true)
     public List<Course> findCourseByTimeTableId(Long timeTableId) {
         List<TimeTableCourse> timeTableCourses = timeTableCourseRepository.findByTimeTableId(timeTableId);
 
@@ -55,17 +66,6 @@ public class CourseService {
             }
         }
         return courses;
-    }
-
-    @Transactional(readOnly = true)
-    public Course findCourseById(Long courseId) {
-        Optional<Course> optionalCourse = courseRepository.findById(courseId);
-        if (optionalCourse.isEmpty()) {
-            log.error("에러 내용: 과목 조회 실패 " +
-                    "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 과목입니다");
-        }
-        return optionalCourse.get();
     }
 
     @Transactional(readOnly = true)
