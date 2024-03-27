@@ -36,9 +36,4 @@ public class ChattingRoom {
         this.participant1 = participant1;
         this.participant2 = participant2;
     }
-
-    public void removeRelation() {
-        participant1 = null;
-        participant2 = null;
-    }
 }
