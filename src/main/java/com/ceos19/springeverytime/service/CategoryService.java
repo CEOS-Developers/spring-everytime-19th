@@ -40,15 +40,17 @@ public class CategoryService {
     }
 
     @Transactional
-    public void updateCategory(Long category_id, CategoryUpdateRequest request) {
-        Category category = categoryRepository.findById(category_id).orElseThrow(
+    public void updateCategory(Long categoryId, CategoryUpdateRequest request) {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
                 ()-> new IllegalArgumentException("해당하는 카테고리가 없습니다."));
 
         category.updateDescription(request.getDescription());
     }
 
     @Transactional
-    public void delete(Category category) {
+    public void delete(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                ()-> new IllegalArgumentException("해당하는 카테고리가 없습니다."));
         validateCategoryCreatedBefore14Days(category);
         categoryRepository.delete(category);
     }
