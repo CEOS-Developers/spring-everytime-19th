@@ -23,6 +23,8 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class PostServiceTest {
@@ -78,5 +80,19 @@ public class PostServiceTest {
         // https://ksh-coding.tistory.com/100
         Assertions.assertThat(actual).usingRecursiveComparison()
                 .isEqualTo(PostDetailResponse.from(post));
+    }
+
+    @Test
+    @DisplayName("게시글을 삭제한다")
+    void 게시글_삭제_테스트() {
+        // given
+        Post post = EntityGenerator.generatePost(user2, category);
+        given(postRepository.existsById(anyLong())).willReturn(true);
+
+        // when
+        postService.delete(1L);
+
+        // then
+        verify(postRepository, times(1)).deleteById(1L);
     }
 }

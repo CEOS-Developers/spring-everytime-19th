@@ -31,4 +31,10 @@ public class PostController {
         final Post post = postService.save(categoryId, request);
         return ResponseEntity.created(URI.create("/category/"+categoryId+"/post/"+post.getPostId())).build();
     }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        postService.delete(postId);
+        return ResponseEntity.noContent().build();
+    }
 }

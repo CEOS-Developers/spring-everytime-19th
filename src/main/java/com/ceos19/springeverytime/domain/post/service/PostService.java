@@ -43,7 +43,11 @@ public class PostService {
     }
 
     @Transactional
-    public void remove(Post post) {
-        postRepository.delete(post);
+    public void delete(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new BadRequestException(NOT_FOUND_POST_ID);
+        }
+
+        postRepository.deleteById(postId);
     }
 }

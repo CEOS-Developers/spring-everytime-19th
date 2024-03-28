@@ -376,19 +376,26 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
 
   <tr>
     <td rowspan="4">Post</td>
-    <td>GET</td>
+    <td>POST</td>
     <td rowspan="4"><code>/category/{category_id}/post</code></td>
+    <td><code>/</code></td>
+    <td></td>
+    <td></td>
+    <td>글 작성</td>
+  </tr>
+  <tr>
+    <td>GET</td>
     <td><code>/{post_id}</code></td>
     <td></td>
     <td></td>
     <td>글 조회</td>
   </tr>
   <tr>
-    <td>POST</td>
-    <td><code>/</code></td>
+    <td>DELETE</td>
+    <td><code>/{post_id}</code></td>
     <td></td>
     <td></td>
-    <td>글 작성</td>
+    <td>글 삭제</td>
   </tr>
 </table>
 
