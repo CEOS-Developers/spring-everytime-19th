@@ -3,6 +3,7 @@ package com.ceos19.everyTime.post.domain;
 import com.ceos19.everyTime.common.BaseEntity;
 import com.ceos19.everyTime.community.domain.Community;
 import com.ceos19.everyTime.member.domain.Member;
+import com.ceos19.everyTime.post.dto.editor.PostEditor;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,8 +42,6 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private int likeCount;
 
-    @Column(nullable = false)
-    private String writer;
 
     @Column(nullable = false)
     private String title;
@@ -56,23 +55,97 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     boolean isQuestion;
 
+    @Column(nullable = false)
+    boolean isHideNickName;
+
+    @Column(nullable = false)
+    private int hideNameSequence;
+
     @Builder
-    public Post(Member member,Community community,String writer,String title, String contents,boolean isQuestion){
+    public Post(Member member,Community community,String title, String contents,boolean isQuestion, boolean isHideNickName){
         this.member=member;
         this.community=community;
-        this.writer=writer;
         this.title=title;
         this.contents=contents;
         this.isQuestion=isQuestion;
         this.replyCount=0;
         this.likeCount=0;
+        this.isHideNickName = isHideNickName;
+        this.hideNameSequence = 0;
     }
 
-    @OneToMany(mappedBy = "post")
-    private List<Reply> replyList=new ArrayList<>();
 
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<PostImage> postImageList = new ArrayList<>();
+
+   public void changeTitleAndContentAndIsQuestionAndIsHideNickName(String title,String contents,boolean isQuestion,boolean isHideNickName){
+       this.title = title;
+       this.contents = contents;
+       this.isQuestion = isQuestion;
+       this.isHideNickName = isHideNickName;
+   }
+
+   public PostEditor.PostEditorBuilder toEditor(){
+       return PostEditor.builder()
+           .title(this.title)
+           .content(this.contents)
+           .isQuestion(this.isQuestion)
+           .hideNickName(this.isHideNickName);
+   }
+
+   public void edit(PostEditor postEditor){
+       this.title= postEditor.getTitle();
+       this.contents = postEditor.getContent();
+       this.isQuestion = postEditor.isQuestion();
+       this.isHideNickName = postEditor.isHideNickName();
+   }
+
+   public void increaseReplyCount(){
+       this.replyCount++;
+   }
+
+   public void decreaseReplyCount(){
+       if(this.replyCount>0){
+           this.replyCount--;
+       }
+   }
+
+    public void increaseLikeCount(){
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount(){
+        if(this.likeCount>0){
+            this.likeCount--;
+        }
+    }
+
+    public void saveImage(String originalName,String accessUrl){
+        PostImage postImage =PostImage.builder()
+            .originalName(originalName)
+            .accessUrl(accessUrl)
+            .post(this)
+            .build();
+
+        postImageList.add(postImage);
+    }
+
+    public void changeImage(String originalName,String accessUrl){
+        PostImage postImage =PostImage.builder()
+            .originalName(originalName)
+            .accessUrl(accessUrl)
+            .post(this)
+            .build();
+
+        postImageList.add(postImage);
+    }
+
+    public int getIncreaseHideNameSequence(){
+       return ++hideNameSequence;
+    }
+
+
+
 
 
 
