@@ -1,6 +1,7 @@
 package com.ceos19.everytime.user.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.ceos19.everytime.user.domain.School;
+import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.user.dto.request.UserSaveRequestDto;
 import com.ceos19.everytime.user.repository.SchoolRepository;
 import com.ceos19.everytime.user.repository.UserRepository;
@@ -43,5 +45,26 @@ class UserServiceTest {
 
         // then
         verify(userRepository).save(any());
+    }
+
+    @Test
+    void 회원_탈퇴에_성공한다() {
+        // given
+        final User user = User.builder()
+                .id(1L)
+                .username("username")
+                .school(new School("홍익대학교", "컴퓨터공학과"))
+                .password("1234")
+                .nickname("nickname")
+                .build();
+
+        given(userRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+
+        // when
+        userService.deleteUser(user.getId());
+
+        // then
+        verify(userRepository).delete(any());
     }
 }
