@@ -48,6 +48,23 @@ public class CommentLikeService {
             return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "commentLike Create Success"));
         }
     }
+    @Transactional
+    public ApiResponseDto<SuccessResponse> commentLikeDelete(UserDetails loginUser, Long commentId) {
+        User user = userRepository.findByUsername(loginUser.getUsername())
+                .orElseThrow(() -> new RestApiException(ErrorType.NOT_FOUND_USER));
+
+        Optional<Comment> commentOptional = commentRepository.findById(commentId);
+        Comment comment = commentOptional.orElseThrow(() -> new RestApiException(ErrorType.NOT_FOUND));
+
+        Optional<CommentLike> commentLikeOptional = commentLikeRepository.findByUserAndComment(user, comment);
+        if (commentLikeOptional.isPresent()) {
+            CommentLike commentLike = commentLikeOptional.get();
+            commentLikeRepository.delete(commentLike);
+            return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "Comment Like deleted successfully."));
+        } else {
+            throw new RestApiException(ErrorType.NOT_FOUND);
+        }
+    }
 }
 
 
