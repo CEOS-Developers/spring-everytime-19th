@@ -3,8 +3,9 @@ package com.ceos19.springeverytime.repository;
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
+import com.ceos19.springeverytime.domain.post.repository.PostRepository;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
@@ -23,7 +24,8 @@ import java.util.Optional;
 public class CommentRepositoryTest {
     @Autowired EntityManager em;
     @Autowired CommentRepository commentRepository;
-    @Autowired PostRepository postRepository;
+    @Autowired
+    PostRepository postRepository;
     @Autowired UserRepository userRepository;
     @Autowired
     CategoryRepository categoryRepository;

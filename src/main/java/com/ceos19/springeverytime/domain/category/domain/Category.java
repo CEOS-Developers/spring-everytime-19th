@@ -1,7 +1,7 @@
 package com.ceos19.springeverytime.domain.category.domain;
 
 import com.ceos19.springeverytime.domain.BaseEntity;
-import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;

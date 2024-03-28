@@ -3,8 +3,9 @@ package com.ceos19.springeverytime.repository;
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
+import com.ceos19.springeverytime.domain.post.repository.PostRepository;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +21,8 @@ import java.util.Optional;
 @SpringBootTest
 @Transactional
 public class PostRepositoryTests {
-    @Autowired PostRepository postRepository;
+    @Autowired
+    PostRepository postRepository;
     @Autowired UserRepository userRepository;
     @Autowired CommentRepository commentRepository;
     @Autowired

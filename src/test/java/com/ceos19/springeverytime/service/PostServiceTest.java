@@ -2,8 +2,9 @@ package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.category.domain.Category;
+import com.ceos19.springeverytime.domain.post.service.PostService;
 import com.ceos19.springeverytime.domain.user.domain.User;
-import com.ceos19.springeverytime.repository.PostRepository;
+import com.ceos19.springeverytime.domain.post.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

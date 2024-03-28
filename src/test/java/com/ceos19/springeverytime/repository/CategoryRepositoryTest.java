@@ -2,8 +2,9 @@ package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.category.domain.Category;
-import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
+import com.ceos19.springeverytime.domain.post.repository.PostRepository;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;

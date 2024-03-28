@@ -1,5 +1,8 @@
-package com.ceos19.springeverytime.domain;
+package com.ceos19.springeverytime.domain.post.domain;
 
+import com.ceos19.springeverytime.domain.BaseEntity;
+import com.ceos19.springeverytime.domain.Comment;
+import com.ceos19.springeverytime.domain.Image;
 import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.like.PostLike;
 import com.ceos19.springeverytime.domain.user.domain.User;

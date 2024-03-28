@@ -3,8 +3,9 @@ package com.ceos19.springeverytime.repository;
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.Image;
-import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
+import com.ceos19.springeverytime.domain.post.repository.PostRepository;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +24,8 @@ public class ImageRepositoryTest {
     @Autowired
     CategoryRepository categoryRepository;
     @Autowired UserRepository userRepository;
-    @Autowired PostRepository postRepository;
+    @Autowired
+    PostRepository postRepository;
 
     User user;
     Category category;

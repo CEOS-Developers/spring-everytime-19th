@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.domain;
 
+import com.ceos19.springeverytime.domain.post.domain.Post;
 import jakarta.persistence.*;
 import lombok.*;
 

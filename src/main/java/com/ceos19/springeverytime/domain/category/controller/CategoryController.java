@@ -1,7 +1,7 @@
 package com.ceos19.springeverytime.domain.category.controller;
 
 import com.ceos19.springeverytime.domain.category.domain.Category;
-import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.user.service.UserService;
 import com.ceos19.springeverytime.domain.category.dto.request.CategoryCreateRequest;
