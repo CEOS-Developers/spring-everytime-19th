@@ -5,6 +5,7 @@ import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Image;
 import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.like.PostLike;
+import com.ceos19.springeverytime.domain.post.dto.request.PostUpdateRequest;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -53,9 +54,9 @@ public class Post extends BaseEntity {
     /**
      * 비즈니스 로직
      * */
-    public void modify(String title, String content) {
-        this.title = title;
-        this.content = content;
+    public void update(PostUpdateRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
     }
 
     public Comment addComment(User author, String content, boolean isAnonymous) {

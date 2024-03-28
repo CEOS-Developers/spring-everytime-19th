@@ -5,6 +5,7 @@ import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
+import com.ceos19.springeverytime.domain.post.dto.request.PostUpdateRequest;
 import com.ceos19.springeverytime.domain.post.repository.PostRepository;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import org.junit.jupiter.api.Assertions;
@@ -54,10 +55,12 @@ public class PostRepositoryTests {
     public void 게시글_수정_테스트() throws Exception {
         //given
         Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user, category);
+        PostUpdateRequest request = PostUpdateRequest
+                .of("첫번째 글 수정", "첫번째 글 수정입니다.", true);
         postRepository.save(post1);
 
         //when
-        post1.modify("첫번째 글 수정", "첫번째 글 수정입니다.");
+        post1.update(request);
 
         //then
         Post testPost = postRepository.findById(post1.getPostId()).get();

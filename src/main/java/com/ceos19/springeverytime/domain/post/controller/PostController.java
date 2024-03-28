@@ -4,6 +4,8 @@ import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.post.dto.request.PostCreateRequest;
 import com.ceos19.springeverytime.domain.post.dto.response.PostDetailResponse;
 import com.ceos19.springeverytime.domain.post.service.PostService;
+import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.net.URI;
 @RequestMapping("/category/{categoryId}/post")
 public class PostController {
     private final PostService postService;
+    private final UserService userService;
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long postId) {
@@ -34,6 +37,18 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        // test user
+        User user = userService.register(new User(
+                "test",
+                "1234",
+                "nickname",
+                "kim",
+                "computer",
+                "20",
+                "test@example.com"
+        ));
+
+        postService.validatePostByUser(user.getUserId(), postId);
         postService.delete(postId);
         return ResponseEntity.noContent().build();
     }
