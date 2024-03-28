@@ -24,4 +24,10 @@ public class CommentResponseDto {
         this.contentLike = contentLike;
         this.replyResponseDtoList = replyResponseDtoList;
     }
+
+    public CommentResponseDto(String content, String username, Integer contentLike) {
+        this.content = content;
+        this.username = username;
+        this.contentLike = contentLike;
+    }
 }
