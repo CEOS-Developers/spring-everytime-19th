@@ -506,24 +506,24 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 ### 학교(SchoolController)
 
 - 등록
-    1. 학교 등록(/schools)
+    1. 학교 등록(/schools) O
     2. 게시판 등록(/schools/{sid}/boards)
-    3. 수업등록(/schools/{sid}/courses)
+    3. 수업 등록(/schools/{sid}/courses)
 - 조회
     - 단건 조회
-        1. PK (/schools/{sid})
-        2. 학교 명 (/schools?name={학교명})
+        1. PK (/schools/{sid}) x
+        2. 학교 명 (/schools?name={학교명}) x
     - 다중 조회
-        1. 모든 학교 조회 (/schools?limit={보여줄데이터수}&offset={시작위치})
+        1. 모든 학교 조회 (/schools) O
     - 학교에 속한 게시판 조회
-        1. 해당 학교에 있는 모든 게시판 조회(/schools/{sid}/boards?limit={}&offset={})
+        1. 해당 학교에 있는 모든 게시판 조회(/schools/{sid}/boards)
         2. 학교 FK + 게시판 명(/schools/{sid}/boards?name={게시판명})
     - 학교에 속한 수업 조회
-        1. 해당 학교에 있는 모든 수업 조회 (/schools/{sid}/courses?limit={}&offset={})
-        2. 학교 FK + 수업명 (/schools/{sid}/courses?name={수업명}&limit={}&offset={})
-        3. 학교 FK + 교수명 (/schools/{sid}/courses?professorName={교수명}&limit={}&offset={})
-        4. 학교 FK + 수업명 + 교수명 (/schools/{sid}/courses?name={수업명}&professorName={교수명}&limit={}&offset={})
-- 수정 (/schools/{sid})
+        1. 해당 학교에 있는 모든 수업 조회 (/schools/{sid}/courses)
+        2. 학교 FK + 수업명 (/schools/{sid}/courses?name={수업명})
+        3. 학교 FK + 교수명 (/schools/{sid}/courses?professorName={교수명})
+        4. 학교 FK + 수업명 + 교수명 (/schools/{sid}/courses?name={수업명}&professorName={교수명})
+- 수정 (/schools/{sid}) O
     1. 학교명
 
 ### 게시판(BoardController)
@@ -544,10 +544,14 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 
 - 등록
     1. 좋아요 등록 (/posts/{pid}/postLikes)
+    2. 해당 게시물에 댓글 달기 (/posts/{pid}/comments)
 - 조회
     - 단건 조회
         1. PK (/posts/{pid})
-    - 해당 게시물에 속한 모든 댓글 조회 (/post/{pid}/comments?limit={}&offset={})
+    - 게시물에 속한 댓글 조회
+        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{pid}/comments?limit={}&offset={})
+    - 게시물에 속한 좋아요 조회
+        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{pid}/postLike)
 - 수정 (/posts/{pid})
     1. 내용
     2. 질문 여부
@@ -556,11 +560,15 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 - 제거
     1. 게시물 (/posts/{pid})
 
-- 댓글 등록
-    1. 해당 게시물에 댓글 달기 (/posts/{pid}/comments)
-    2. 대댓글 달기 (/posts/{pid}/comments/{cid}/replies)
-- 댓글 수정 (PATCH /posts/{post_id}/comments/{comment_id})
-- 댓글 제거 (/posts/{post_id}/comments/{comment_id})
+### 댓글(CommentController)
+
+- 등록
+    1. 대댓글 달기 (/comments/{cid}/replies)
+- 조회
+    - 다중 조회
+        1. 대댓글 전체 조회 (/comments/{cid}/replies?limit={}&offset={})
+- 댓글 수정 (/comments/{comment_id})
+- 댓글 제거 (/comments/{comment_id})
 
 ### 게시물 좋아요(PostLikeController)
 
@@ -576,33 +584,50 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 ### 유저(UserController)
 
 - 등록
+    1. 시간표 등록(/users/{uid}/timeTables)
 - 조회
     - 단건 조회
         - 구현 예정 ...
     - 다중 조회
         - 구현 예정 ...
-    - 유저가 쓴 게시물 전체 조회(/users/{uid}/posts?limit={}&offset={})
+    - 유저가 쓴 게시물 조회
+        1. 유저가 쓴 게시물 전체 조회(/users/{uid}/posts?limit={}&offset={})
+    - 유저가 속해 있는 채팅방 조회
+        1. 유저가 속해 있는 채팅방 전체 조회 (/users/{uid}/chattingRooms?limit={}&offset={})
+    - 유저가 쓴 댓글 조회
+        1. 유저가 쓴 댓글 전체 조회 (/users/{uid}/comments?limit={}&offset={})
+    - 유저의 시간표 조회
+        1. 유저의 시간표 전체 조회 (/users/{udi}/timeTables)
+        2. 연도, 학기를 조건으로 유저의 시간표 전체 조회 (/users/{udi}/timeTables?year={연도}&학기={semester})
+        3. 연도, 학기, 시간표 명을 조건으로 유저의 시간표 전체 조회 (/users/{udi}/timeTables?year={연도}&학기={semester}&name={시간표명})
 - 제거
 
 ### 채팅방(ChattingRoomController)
 
 - 등록
+    1. 채팅방 등록(/chattingRooms) ({"participant1":fk1, "participant2":fk2...})
+    2. 채팅 등록(/chattingRooms/{crid}/chats) ({"author":fk, "content":"내용..."})
 - 조회
-- 제거
--
+    - 단건 조회
+        1. PK (/chattingRooms/{crid})
+    - 채팅방에 속해 있는 채팅 전체 조회(/chattingRooms/{crid}/chats)
+- 제거 (/chattingRooms/{crid})
 
 ### 채팅(ChatController)
 
-- 채팅 등록
-- 채팅 조회
-- 채팅 제거
+- 채팅 제거(chats/{cid})
 
 ### 시간표(TimeTableController)
 
 - 등록
+    1. 시간표에 수업 추가(/timeTables/{tid}/courses)
 - 조회
-- 제거
-    1. 시간표에 수업 등록
-    2. 시간표에 수업 제거
+    - 단건 조회
+        1. PK(/timeTables/{tid})
+    - 시간표에 등록된 수업 조회
+        1. 시간표상의 모든 수업 조회(/timeTables/{tid}/courses)
+
+- 제거 (/timeTables/{tid})
+    1. 시간표의 수업 제거(/timeTables/{tid}/courses/{cid})
 
 
