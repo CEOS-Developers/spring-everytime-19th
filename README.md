@@ -337,14 +337,16 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
   <tr>
     <th>Domain</th>
     <th>Method</th>
+    <th>Base URL</th>
     <th>URL</th>
     <th>Request</th>
     <th>Response</th>
     <th>Description</th>
   </tr>
   <tr>
-    <td rowspan="4">/category</td>
+    <td rowspan="4">Category</td>
     <td>GET</td>
+    <td rowspan="4"><code>/category</code></td>
     <td><code>/{category_id}/page/{page_number}</code></td>
     <td></td>
     <td></td>
@@ -371,12 +373,29 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td></td>
     <td>게시판 삭제</td>
   </tr>
+
   <tr>
-    <td rowspan="4">/post</td>
+    <td rowspan="4">Post</td>
     <td>GET</td>
-    <td><code>/{category_id}</code></td>
+    <td rowspan="4"><code>/category/{category_id}/post</code></td>
+    <td><code>/{post_id}</code></td>
     <td></td>
     <td></td>
-    <td>게시판 삭제</td>
+    <td>글 조회</td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/</code></td>
+    <td></td>
+    <td></td>
+    <td>글 작성</td>
   </tr>
 </table>
+
+### Controller Test
+
+### Swagger 연동 확인
+
+### 3주차에서 리펙토링한 부분
+
+- `Optional` 객체의 존재 여부를 체크하여 에러를 발생시킬 때 `orElseThrow`를 사용하도록 변경
