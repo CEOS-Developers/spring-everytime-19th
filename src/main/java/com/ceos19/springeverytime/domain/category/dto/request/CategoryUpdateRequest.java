@@ -1,4 +1,4 @@
-package com.ceos19.springeverytime.dto;
+package com.ceos19.springeverytime.domain.category.dto.request;
 
 import lombok.Builder;
 import lombok.Getter;
