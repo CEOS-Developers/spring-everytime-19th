@@ -1,13 +1,12 @@
 package com.ceos19.springeverytime.domain;
 
-import com.ceos19.springeverytime.domain.like.Like;
+import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.like.PostLike;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.lang.reflect.Member;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity

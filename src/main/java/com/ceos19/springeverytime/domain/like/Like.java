@@ -1,14 +1,12 @@
 package com.ceos19.springeverytime.domain.like;
 
 import com.ceos19.springeverytime.domain.BaseEntity;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Date;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)

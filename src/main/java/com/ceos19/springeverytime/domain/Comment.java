@@ -1,7 +1,7 @@
 package com.ceos19.springeverytime.domain;
 
 import com.ceos19.springeverytime.domain.like.CommentLike;
-import com.ceos19.springeverytime.domain.like.PostLike;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 

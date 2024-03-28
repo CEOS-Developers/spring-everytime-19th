@@ -1,10 +1,10 @@
 package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.Category;
+import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.like.CommentLike;
 import com.ceos19.springeverytime.domain.like.PostLike;
 import com.ceos19.springeverytime.repository.LikeRepository;
@@ -16,8 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;

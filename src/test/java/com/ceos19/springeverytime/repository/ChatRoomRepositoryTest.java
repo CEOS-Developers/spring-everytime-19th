@@ -2,7 +2,7 @@ package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.ChatRoom;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

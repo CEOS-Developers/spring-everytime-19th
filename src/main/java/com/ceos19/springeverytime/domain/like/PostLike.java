@@ -1,7 +1,7 @@
 package com.ceos19.springeverytime.domain.like;
 
 import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;

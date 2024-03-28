@@ -1,5 +1,6 @@
-package com.ceos19.springeverytime.domain;
+package com.ceos19.springeverytime.domain.user.domain;
 
+import com.ceos19.springeverytime.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

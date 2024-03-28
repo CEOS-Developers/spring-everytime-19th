@@ -1,7 +1,7 @@
 package com.ceos19.springeverytime.domain.like;
 
 import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -9,8 +9,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.util.Date;
 
 @Entity
 @DiscriminatorValue("C")

@@ -2,7 +2,7 @@ package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.like.CommentLike;
 import com.ceos19.springeverytime.domain.like.PostLike;
 import com.ceos19.springeverytime.repository.LikeRepository;
@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.Optional;
 
 @Service

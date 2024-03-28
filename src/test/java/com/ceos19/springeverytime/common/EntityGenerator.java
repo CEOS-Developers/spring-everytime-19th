@@ -1,11 +1,9 @@
 package com.ceos19.springeverytime.common;
 
-import com.ceos19.springeverytime.domain.Category;
+import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
-
-import java.util.Date;
+import com.ceos19.springeverytime.domain.user.domain.User;
 
 public class EntityGenerator {
     public static User generateUser(String loginId) {

@@ -1,7 +1,7 @@
 package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.domain.ChatRoom;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.repository.ChatRoomRepository;
 import com.ceos19.springeverytime.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

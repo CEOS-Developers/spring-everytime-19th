@@ -332,11 +332,51 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
 이런 경우에는 `verify()` 를 사용하여 함수 호출 여부 및 횟수를 검증하여 테스트할 수 있다.
 
 ## 4주차
-### API 명세 작성
-| Method |                       URL                        |                           Request                           | Response |      Description      |
-|:------:|:------------------------------------------------:|:-----------------------------------------------------------:|:--------:|:---------------------:|
-|  GET   | api/v1/category/{category_id}/page/{page_number} |                                                        |   내용 4   | 특정 게시판의 특정 페이지 게시글 조회 |
-|  POST  |                 api/v1/category                  | `{"category_name": string, "category_description": string}` |   내용 8   |        게시판 생성         |
-|  PUT   |    api/v1/category/{category_id}/description     |             `{"category_description": string}`              |          |       게시판 설명 수정       |
-| DELETE |          api/v1/category/{category_id}           |                        |          |        게시판 삭제         |
-|  GET   |                      내용 10                       |                            내용 11                            |  내용 12   |
+### API 명세 [ **/api/v1** ]
+<table style="text-align: center">
+  <tr>
+    <th>Domain</th>
+    <th>Method</th>
+    <th>URL</th>
+    <th>Request</th>
+    <th>Response</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td rowspan="4">/category</td>
+    <td>GET</td>
+    <td><code>/{category_id}/page/{page_number}</code></td>
+    <td></td>
+    <td></td>
+    <td>게시판 게시글 조회(페이징)</td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/</code></td>
+    <td><code>{"category_name": string, "category_description": string}</code></td>
+    <td></td>
+    <td>게시판 생성</td>
+  </tr>
+  <tr>
+    <td>PUT</td>
+    <td><code>/{category_id}/description</code></td>
+    <td><code>{"category_description": string}</code></td>
+    <td></td>
+    <td>게시판 설명 수정</td>
+  </tr>
+  <tr>
+    <td>DELETE</td>
+    <td><code>/{category_id}</code></td>
+    <td></td>
+    <td></td>
+    <td>게시판 삭제</td>
+  </tr>
+  <tr>
+    <td rowspan="4">/post</td>
+    <td>GET</td>
+    <td><code>/{category_id}</code></td>
+    <td></td>
+    <td></td>
+    <td>게시판 삭제</td>
+  </tr>
+</table>

@@ -2,7 +2,7 @@ package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.domain.Comment;
 import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.like.CommentLike;
 import com.ceos19.springeverytime.domain.like.Like;
 import com.ceos19.springeverytime.domain.like.PostLike;
