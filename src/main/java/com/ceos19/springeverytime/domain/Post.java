@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
-public class Post {
+public class Post extends BaseEntity {
     @Id
     @GeneratedValue
     private Long postId;
@@ -31,28 +31,38 @@ public class Post {
     private boolean isAnonymous;
 
     @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createDate;
-
-    @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modifyDate;
-
-    @NonNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User author;
 
     @NonNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<PostLike> postLikes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Image> images = new ArrayList<>();
+
+    /**
+     * 비즈니스 로직
+     * */
+    public void modify(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public Comment addComment(User author, String content, boolean isAnonymous) {
+        Comment comment = Comment.builder().post(this).author(author).content(content).isAnonymous(isAnonymous).build();
+        this.comments.add(comment);
+        return comment;
+    }
+
+    public PostLike like(User user) {
+        return new PostLike(user, this);
+    }
 }

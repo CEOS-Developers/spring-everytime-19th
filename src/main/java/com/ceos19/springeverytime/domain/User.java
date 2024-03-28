@@ -1,47 +1,52 @@
 package com.ceos19.springeverytime.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
-@AllArgsConstructor
+@RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue
     private Long userId;
 
-    @Column(length = 30, nullable = false, name = "id")
+    @NonNull
+    @Column(length = 30, nullable = false, name = "id", unique = true)
     private String loginId;
 
+    @NonNull
     @Column(length = 30, nullable = false)
     private String pw;
 
+    @NonNull
     @Column(length = 30, nullable = false)
     private String nickname;
 
+    @NonNull
     @Column(length = 10, nullable = false)
     private String name;
 
+    @NonNull
     @Column(length = 30, nullable = false)
     private String major;
 
+    @NonNull
     @Column(length = 2, nullable = false)
     private String admissionYear;
 
+    @NonNull
     @Column(length = 30, nullable = false)
     private String email;
 
     @Column(nullable = false)
-    private boolean isEnrolled;
+    private boolean isEnrolled = false;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createDate;
+    public void authenticateUniversity() {
+        this.isEnrolled = true;
+    }
 }

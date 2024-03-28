@@ -1,16 +1,14 @@
 package com.ceos19.springeverytime.domain;
 
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
-@NoArgsConstructor
-@RequiredArgsConstructor
-public class ChatMessage {
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ChatMessage extends BaseEntity {
     @Id
     @GeneratedValue
     private Long messageId;
@@ -18,10 +16,6 @@ public class ChatMessage {
     @NonNull
     @Column(length = 2000, nullable = false)
     private String content;
-
-    @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date sendDate;
 
     @NonNull
     @ManyToOne
@@ -32,4 +26,11 @@ public class ChatMessage {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User sender;
+
+    @Builder
+    public ChatMessage(@NonNull String content, @NonNull ChatRoom room, @NonNull User sender) {
+        this.content = content;
+        this.room = room;
+        this.sender = sender;
+    }
 }

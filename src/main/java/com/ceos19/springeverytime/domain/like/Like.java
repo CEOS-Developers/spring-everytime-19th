@@ -1,7 +1,9 @@
 package com.ceos19.springeverytime.domain.like;
 
+import com.ceos19.springeverytime.domain.BaseEntity;
 import com.ceos19.springeverytime.domain.User;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,8 @@ import java.util.Date;
 @DiscriminatorColumn(name = "dtype")
 @RequiredArgsConstructor
 @NoArgsConstructor
-public abstract class Like {
+@Getter
+public abstract class Like extends BaseEntity {
     @Id
     @GeneratedValue
     private Long likeId;
@@ -22,8 +25,4 @@ public abstract class Like {
     @NonNull
     @ManyToOne
     private User user;
-
-    @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createDate;
 }

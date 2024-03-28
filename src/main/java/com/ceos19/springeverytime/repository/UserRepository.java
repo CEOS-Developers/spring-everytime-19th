@@ -1,22 +1,13 @@
 package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.domain.User;
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-@Repository
-@RequiredArgsConstructor
-public class UserRepository {
-    @Autowired
-    final EntityManager em;
+import java.util.Optional;
 
-    public void save(User user) {
-        em.persist(user);
-    }
-
-    public User findOne(Long userId) {
-        return em.find(User.class, userId);
-    }
+public interface UserRepository extends JpaRepository<User, Long> {
+    @Query("select u from User u where u.loginId = :loginId")
+    Optional<User> findByLoginId(@Param("loginId") String loginId);
 }

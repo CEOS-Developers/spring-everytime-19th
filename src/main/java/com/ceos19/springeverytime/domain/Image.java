@@ -1,15 +1,13 @@
 package com.ceos19.springeverytime.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @RequiredArgsConstructor
-public class Image {
+public class Image extends BaseEntity {
     @Id
     @GeneratedValue
     private Long imageId;

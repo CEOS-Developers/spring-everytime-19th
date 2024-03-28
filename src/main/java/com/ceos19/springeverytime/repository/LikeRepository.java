@@ -1,26 +1,21 @@
 package com.ceos19.springeverytime.repository;
 
+import com.ceos19.springeverytime.domain.Comment;
+import com.ceos19.springeverytime.domain.Post;
+import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.like.CommentLike;
 import com.ceos19.springeverytime.domain.like.Like;
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import com.ceos19.springeverytime.domain.like.PostLike;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import java.util.Optional;
 
-@Repository
-@RequiredArgsConstructor
-public class LikeRepository {
-    private final EntityManager em;
+public interface LikeRepository extends JpaRepository<Like, Long> {
+    @Query("select l from PostLike l where l.post = :post and l.user = :user")
+    Optional<PostLike> findPostLikeByPostAndUser(@Param("post")Post post, @Param("user")User user);
 
-    public void save(Like like) {
-        em.persist(like);
-    }
-
-    public Like findOne(Long likeId) {
-        return em.find(Like.class, likeId);
-    }
-
-    public List<Like> findAll() {
-        return em.createQuery("select l from Like l", Like.class).getResultList();
-    }
+    @Query("select l from CommentLike l where l.comment = :comment and l.user = :user")
+    Optional<CommentLike> findCommentLikeByCommentAndUser(@Param("comment") Comment comment, @Param("user")User user);
 }

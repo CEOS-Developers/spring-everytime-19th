@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
 @Getter
-public class Category {
+public class Category extends BaseEntity {
     @Id
     @GeneratedValue
     private Long categoryId;
@@ -25,14 +25,19 @@ public class Category {
     private String description;
 
     @NonNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createDate = new Date();
-
-    @NonNull
-    @OneToOne
+    @ManyToOne
     private User manager;
 
     @NonNull
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
     private List<Post> posts = new ArrayList<>();
+
+    /**
+     * 비즈니스 로직
+     * */
+
+    // 관리자 변경
+    public void changeManager(User newManager) {
+        this.manager = newManager;
+    }
 }

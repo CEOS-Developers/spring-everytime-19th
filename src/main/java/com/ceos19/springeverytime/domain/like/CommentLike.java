@@ -6,6 +6,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
@@ -14,13 +15,14 @@ import java.util.Date;
 @Entity
 @DiscriminatorValue("C")
 @NoArgsConstructor
+@Getter
 public class CommentLike extends Like {
     @ManyToOne
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    public CommentLike(@NonNull User user, @NonNull Date createDate, Comment comment) {
-        super(user, createDate);
+    public CommentLike(@NonNull User user, Comment comment) {
+        super(user);
         this.comment = comment;
     }
 }
