@@ -626,4 +626,299 @@ spring security가 그 뒤에 한다는걸 못보고 이걸 login을 구현해�
 
 ### what is 고아 객체
 - 부모 엔티티와 연관관계가 끊어진 자식 엔티티
-  - 부모가 제거될 때, 
+  - 부모가 제거될 때, 부모와  연관되어 있는 모든 자식 엔티티들은 고아객체가 된다
+  - 부모 엔티티와 자식 엔티티 사이의 연관관계를 삭제할때, 해당 자식 엔티티는 고아 객체가 된다
+  - ex_)
+- Member Entity 코드
+```java
+        @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Member {
+
+    @Id
+    @Column(name = "MEMBER_ID")
+    private Long id;
+
+    @Column(name = "USERNAME")
+    private String username;
+
+    @ManyToOne
+    @JoinColumn(name = "TEAM_ID")
+    private Team team;
+
+    // custructor
+
+    // 연관관계 편의 메서드
+    public void setTeam(Team team) {
+
+        // 기존 팀과 연관관계를 제거
+        if (this.team != null) {
+            this.team.getMembers().remove(this);
+        }
+
+        // 새로운 연관관계 설정
+        this.team = team;
+        if (team != null) {
+            team.getMembers().add(this);
+        }
+    }
+
+}
+```
+- Team Entity 코드
+```java
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Team {
+
+    @Id
+    @Column(name = "TEAM_ID")
+    private Long id;
+
+    @Column(name = "NAME")
+    private String name;
+
+    @OneToMany(
+            mappedBy = "team",
+            cascade = CascadeType.PERSIST
+    )
+    private List<Member> members = new ArrayList<>();
+
+    // custructor
+
+}
+```
+- 부모엔티티가 자식엔티티에게 영속성을 전달해주기 위해 cascade = CascadeType.PERSIST 옵션 지정
+
+- 테스트 코드
+```java
+// 내장 DB (가짜 DB)로 테스트를 수행 - 단위 테스트
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY) 
+@DataJpaTest // @Transactional 포함하고 있기 때문에, 각 테스트 종료 시 Rollback
+public class JpaTest {
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @BeforeEach
+    public void initTest() {
+        Team team = new Team(0L, "팀1");
+        entityManager.persist(team);
+
+        Member member1 = new Member(0L, "회원1");
+        Member member2 = new Member(1L, "회원2");
+
+        // 연관관계의 주인에 값 설정
+        member1.setTeam(team);
+        member2.setTeam(team);
+
+        // CascadeType.PERSIST 로 인하여 영속성 전이
+//        entityManager.persist(member1);
+//        entityManager.persist(member2);
+
+        // 영속성 컨텍스트의 변경 내용을 DB에 반영
+        entityManager.flush();
+    }
+}
+```
+- @BeforeEach 를 사용하여 각 테스트에 필요한 데이터를 사전에 추가
+- 부모(Team) 엔티티에 설정해둔 CascadeType.PERSIST 옵션으로 인하여, Team 엔티티 영속화시 하위 엔티티인 Member 엔티티[member1, member2] 역시 영속화
+- entityManager.flush(); 를 통해, 영속성 컨텍스트의 변경 내용을 DB에 반영
+
+## CascadeType.REMOVE
+- 부모 엔티티가 삭제되면 자식 엔티티도 삭제됩니다. 즉, 부모가 자식의 삭제 생명 주기를 관리
+- 부모 엔티티와 자식 엔티티 사이의 연관관계를 제거해도, 자식 엔티티는 삭제되지 않고 그대로 DB에 남아있다.
+
+```java
+public class Team {
+
+    @Id
+    @Column(name = "TEAM_ID")
+    private Long id;
+
+    @Column(name = "NAME")
+    private String name;
+
+    @OneToMany(
+            mappedBy = "team",
+            cascade = {CascadeType.REMOVE, CascadeType.PERSIST}
+    )
+    private List<Member> members = new ArrayList<>();
+
+    // custructor
+
+}
+```
+- 부모 엔티티 삭제
+```java
+@DisplayName("부모 엔티티(Team)을 삭제하는 경우")
+@Test
+public void cascadeType_REMOVE_Parent() {
+    // when
+    Team team = entityManager.find(Team.class, 0L);
+    entityManager.remove(team); // 부모 엔티티 삭제
+
+    entityManager.flush();
+
+    // then
+    List<Team> teamList = entityManager.createQuery("select t from Team t", Team.class).getResultList();
+    Assertions.assertEquals(0, teamList.size());
+
+    List<Member> memberList = entityManager.createQuery("select m from Member m", Member.class).getResultList();
+    Assertions.assertEquals(0, memberList.size());
+}
+```
+- 부모 엔티티(Team)를 삭제하게 되면, 이와 연관된 자식 엔티티(member1, member2)도 삭제
+- 부모 엔티티와 자식 엔티티 사이의 연관관계 제거
+```java
+@DisplayName("고아객체 - 부모 엔티티(Team)에서 자식 엔티티(Member)와 연관관계를 끊는 경우")
+@Test
+public void cascadeType_REMOVE_Persistence_Remove() {
+    // when
+    Team team = entityManager.find(Team.class, 0L);
+    team.getMembers().get(0).setTeam(null);
+
+    entityManager.flush();
+
+    // then
+    List<Team> teamList = entityManager.createQuery("select t from Team t", Team.class).getResultList();
+    Assertions.assertEquals(1, teamList.size());
+
+    List<Member> memberList = entityManager.createQuery("select m from Member m", Member.class).getResultList();
+    Assertions.assertEquals(2, memberList.size());
+}
+```
+부모 엔티티(Team)와 자식 엔티티(Member) 사이의 연과관계를 끊게 되어도, 자식 엔티티는 삭제되지 않는다
+부모 엔티티와 자식 엔티티 사이의 연관관계 변경
+```java
+@DisplayName("자식 엔티티의 연관관계 변경 시")
+@Test
+public void change_persistence_child() {
+    // given
+    Team team = new Team(1L, "팀2");
+    entityManager.persist(team);
+
+    // when
+    Member member1 = entityManager.find(Member.class, 0L);
+    member1.setTeam(team); // UPDATE 쿼리 수행
+    entityManager.flush();
+
+    // then
+    Team team1 = entityManager.createQuery("select t from Team t where t.id = 0", Team.class).getSingleResult();
+    Assertions.assertEquals(1L, team1.getMembers().get(0).getId());
+
+    Team team2 = entityManager.createQuery("select t from Team t where t.id = 1", Team.class).getSingleResult();
+    Assertions.assertEquals(0L, team2.getMembers().get(0).getId());
+
+    List<Member> memberList = entityManager.createQuery("select m from Member m", Member.class).getResultList();
+    Assertions.assertEquals(2, memberList.size());
+}
+```
+부모 엔티티(Team)과 자식 엔티티(Member) 사이의 연관관계가 잘 변경
+
+## orphanRemoval=true
+- 부모 엔티티가 삭제되면 자식 엔티티도 삭제됩니다. 즉, 부모가 자식의 삭제 생명 주기를 관리
+- 부모 엔티티와 자식 엔티티 사이의 연관관계를 제거하면, 자식 엔티티는 고아 객체로취급되어 DB에서 삭제
+```java
+public class Team {
+
+    @Id
+    @Column(name = "TEAM_ID")
+    private Long id;
+
+    @Column(name = "NAME")
+    private String name;
+
+    @OneToMany(
+            mappedBy = "team",
+            orphanRemoval = true,
+            cascade = CascadeType.PERSIST
+    )
+    private List<Member> members = new ArrayList<>();
+
+    // custructor
+```
+- 부모 엔티티 삭제
+```java
+@DisplayName("부모 엔티티(Team)을 삭제하는 경우")
+@Test
+public void orphanRemoval_true_Parent() {
+    // when
+    Team team = entityManager.find(Team.class, 0L);
+    entityManager.remove(team);
+
+    entityManager.flush();
+
+    // then
+    List<Team> teamList = entityManager.createQuery("select t from Team t", Team.class).getResultList();
+    Assertions.assertEquals(0, teamList.size());
+
+    List<Member> memberList = entityManager.createQuery("select m from Member m", Member.class).getResultList();
+    Assertions.assertEquals(0, memberList.size());
+
+}
+```
+부모 엔티티(Team)를 삭제하게 되면, 이와 연관된 자식 엔티티(member1, member2)도 삭제
+
+- 부모 엔티티와 자식 엔티티 사이의 연관관계 제거
+```java
+@DisplayName("고아객체 - 부모 엔티티(Team)에서 자식 엔티티(Member)와 연관관계를 끊는 경우")
+@Test
+public void orphanRemoval_true_Persistence_Remove() {
+    // when
+    Team team = entityManager.find(Team.class, 0L);
+    team.getMembers().get(0).setTeam(null);
+
+    entityManager.flush();
+
+    // then
+    List<Team> teamList = entityManager.createQuery("select t from Team t", Team.class).getResultList();
+    Assertions.assertEquals(1, teamList.size());
+
+    List<Member> memberList = entityManager.createQuery("select m from Member m", Member.class).getResultList();
+    Assertions.assertEquals(1, memberList.size());
+    }
+```
+부모 엔티티(Team)와 자식 엔티티(Member) 사이의 연과관계를 끊게 되어도, 해당 자식 엔티티가 고아객체로 취급되어 삭제
+
+- 부모 엔티티와 자식 엔티티 사이의 연관관계 변경 시
+```java
+@DisplayName("자식 엔티티의 연관관계 변경 시")
+@Test
+public void change_persistence_child() {
+    // given
+    Team team = new Team(1L, "팀2");
+    entityManager.persist(team);
+
+    // when
+    Member member1 = entityManager.find(Member.class, 0L);
+    member1.setTeam(team); // DELETE, INSERT 쿼리 수행
+    entityManager.flush();
+
+    // then
+    Team team1 = entityManager.createQuery("select t from Team t where t.id = 0", Team.class).getSingleResult();
+    Assertions.assertEquals(1L, team1.getMembers().get(0).getId());
+
+    Team team2 = entityManager.createQuery("select t from Team t where t.id = 1", Team.class).getSingleResult();
+    Assertions.assertEquals(0L, team2.getMembers().get(0).getId());
+
+    List<Member> memberList = entityManager.createQuery("select m from Member m", Member.class).getResultList();
+    Assertions.assertEquals(2, memberList.size());
+}
+```
+부모 엔티티(Team)과 자식 엔티티(Member) 사이의 연관관계가 잘 변경
+
+# 결과
+- 부모 엔티티 삭제
+  - CascadeType.REMOVE와 orphanRemoval = true 옵션 모두
+  - 부모 엔티티를 삭제하면, 자식 엔티티도 삭제됩니다.
+  
+- 부모 엔티티와 자식 엔티티 사이의 연관관계 제거
+  - CascadeType.REMOVE 옵션은 자식 엔티티가 DB에 삭제되지 않고 남아있으며, 외래키 값만 변경됩니다.
+  - orphanRemoval = true 옵션은 자식 엔티티가 고아 객체로 취급되어 DB에서 삭제됩니다.
+
+- 부모 엔티티와 자식 엔티티 사이의 연관관계 변경
+  - CascadeType.REMOVE와 orphanRemoval = true 옵션 모두
+  - 자식 엔티티가 DB에 삭제되지 않고 남아있으며, 외래키 값만 변경됩니다.'
