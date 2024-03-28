@@ -42,12 +42,14 @@ public class CategoryController {
 
     @PutMapping("/{category_id}")
     public ResponseEntity<Void> updateCategory(@PathVariable Long category_id, @RequestBody @Valid CategoryUpdateRequest request) {
+        // 글 작성자인지 검증하는 로직이 필요하다.
         categoryService.updateDescription(category_id, request);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{category_id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long category_id) {
+        // 글 작성자인지 검증하는 로직이 필요하다.
         categoryService.delete(category_id);
         return ResponseEntity.ok().build();
     }
