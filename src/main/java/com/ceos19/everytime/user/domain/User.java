@@ -42,6 +42,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String nickname;
 
+    @Column(nullable = false, columnDefinition = "tinyint(1)")
     private boolean isDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)

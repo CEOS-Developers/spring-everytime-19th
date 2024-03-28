@@ -36,7 +36,7 @@ public class Comment extends BaseEntity {
     @Column(nullable = false, length = 1000)
     private String content;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "tinyint(1)")
     private boolean isDeleted = false;
 
     @Column(nullable = false)
