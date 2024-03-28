@@ -1,4 +1,4 @@
-package com.ceos19.everytime.message;
+package com.ceos19.everytime.message.service;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
