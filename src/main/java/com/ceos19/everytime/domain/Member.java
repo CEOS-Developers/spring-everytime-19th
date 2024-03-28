@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseTimeEntity{
 
     public static final int MIN_USERNAME_LENGTH = 1;
     public static final int MAX_USERNAME_LENGTH = 10;
@@ -58,6 +58,5 @@ public class Member {
         }
         return username;
     }
-
 
 }

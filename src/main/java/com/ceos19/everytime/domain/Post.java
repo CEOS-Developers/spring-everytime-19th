@@ -13,6 +13,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseTimeEntity{
 
+    public static final int MAX_TITLE_LENGTH = 100;
+    public static final int MAX_CONTENT_LENGTH = 2000;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
@@ -46,5 +49,37 @@ public class Post extends BaseTimeEntity{
         this.isAnonymous = isAnonymous;
         this.likes = 0;
     }
+
+    public void addLike(){
+        likes++;
+    }
+
+    public void deleteLike(){
+        if(this.likes!=0)
+            likes--;
+    }
+
+    public void changeTitle(final String title) {
+        validateTitle(title);
+        this.title = title;
+    }
+
+    public void changeContent(final String content) {
+        validateContent(content);
+        this.content = content;
+    }
+
+    private boolean validateTitle(String title){
+        return !title.isEmpty() && title.length() <= MAX_TITLE_LENGTH;
+    }
+
+    private boolean validateContent(String content){
+        return !content.isEmpty() && content.length() <= MAX_CONTENT_LENGTH;
+    }
+
+    private boolean validatePost(String title, String content){
+        return validateTitle(title) && validateContent(content);
+    }
+
 
 }

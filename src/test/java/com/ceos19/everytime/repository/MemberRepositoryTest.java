@@ -2,7 +2,6 @@ package com.ceos19.everytime.repository;
 
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.University;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,9 +49,9 @@ class MemberRepositoryTest {
         Optional<Member> test3;
 
         //when
-        test1 = memberRepository.findByUserName("amy");
-        test2 = memberRepository.findByUserName("sarah");
-        test3 = memberRepository.findByUserName("siyoung");
+        test1 = memberRepository.findByUsername("amy");
+        test2 = memberRepository.findByUsername("sarah");
+        test3 = memberRepository.findByUsername("siyoung");
 
         //then
         assertEquals(member1.getId(), test1.get().getId());
@@ -66,8 +65,8 @@ class MemberRepositoryTest {
         //given
 
         //when
-        Optional<Member> test1 = memberRepository.findByUserName("amy");
-        boolean actual = memberRepository.findByUserName("John").isPresent();
+        Optional<Member> test1 = memberRepository.findByUsername("amy");
+        boolean actual = memberRepository.findByUsername("John").isPresent();
 
         //then
         test1.ifPresent(member -> assertEquals(member1.getId(), member.getId()));

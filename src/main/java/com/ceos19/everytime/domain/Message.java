@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message extends BaseTimeEntity{
 
+    public static final int MAX_CONTENT_LENGTH = 2000;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")
@@ -38,6 +40,16 @@ public class Message extends BaseTimeEntity{
         this.receiver = receiver;
         this.content = content;
         this.readStatus = ReadStatus.NOT_READ;
+    }
+
+    private boolean validateContent(String content){
+        if(content.isEmpty() || content.length()> MAX_CONTENT_LENGTH)
+            return false;
+        return true;
+    }
+
+    public void updateReadStatus(){
+        this.readStatus = ReadStatus.READ;
     }
 
 }
