@@ -4,9 +4,11 @@ import com.ceos19.springboot.common.BaseEntity;
 import com.ceos19.springboot.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
+@Setter
 @Table(name = "friend")
 public class Friend extends BaseEntity {
 
