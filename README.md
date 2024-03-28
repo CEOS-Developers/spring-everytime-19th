@@ -164,8 +164,7 @@ class PostRepositoryTest {
 이렇게 설정하고 테스트를 실행하면 테스트가 성공하고 다음과 같은 쿼리가 출력됩니다.
 
 ```sql
-Hibernate
-: 
+Hibernate: 
     insert 
     into
         users
@@ -194,3 +193,175 @@ Hibernate:
     values
         (?, ?, ?, ?, ?, ?, ?)
 ````
+
+## 어떻게 data jpa는 interface만으로도 함수가 구현이 되는가?
+
+이렇게 인터페이스로 구현할 수 있다는 것이 놀랍지 않은가요?
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/145d4dcb-dfd9-498b-9534-e0e691eaa85f)
+
+우리는 어떻게 구현체도 없이 findByName을 사용할 수 있을까요?
+
+MemberService에서 memberRepository에 주입되는 빈을 살펴봅시다.
+디버깅을 했더니 memberRepository에는 SimpleJpaRepository를 프록시로 주입하고 있었습니다.
+
+![img](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/9418d160-3cca-4768-8657-0d4428c381f2))
+
+Spring data jpa는 JpaRepositoryFactory에서 개발자가 정의한 MemberRepository를 참조하여 JpaRepository를 대신 구현해주는 역할을 합니다.
+
+```java
+public class JpaRepositoryFactory extends RepositoryFactorySupport {
+    ...
+}
+```
+
+RepositoryFactorySupport는 전달받은 Repository 인터페이스로 프록시 인스턴스를 생성하는 추상 클래스입니다.
+Spring data XXX는 `RepositoryFactorySupport`를 확장해서 Repository를 생성합니다.
+getRepository를 통해 Repository 인터페이스를 구현할 프록시를 생성합니다.
+
+```java
+public abstract class RepositoryFactorySupport implements BeanClassLoaderAware, BeanFactoryAware {
+    ...
+
+    // 첫 번째 파라미터 repositoryInterface로 MemberRepository가 전달됩니다.
+    public <T> T getRepository(Class<T> repositoryInterface, RepositoryComposition.RepositoryFragments fragments) {
+        ...
+
+        // repositoryInterface로 전달된 MemberRepository의 인터페이스를 구현합니다.
+        ProxyFactory result = new ProxyFactory();
+        result.setTarget(target);
+        result.setInterfaces(new Class[]{repositoryInterface, Repository.class, TransactionalProxy.class});
+        
+        ...
+
+        T repository = result.getProxy(this.classLoader);
+        
+        ...
+        
+        // 프록시 인스턴스를 반환합니다.
+        return repository;
+    }
+}
+```
+
+Spring data jpa에서는 `JpaRepositoryFactory`가 추상 메서드인 getRepositoryBaseClass가 `SimpleJpaRepository.class`를 반환하도록 오버라이드했습니다.
+
+```java
+protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
+    return SimpleJpaRepository.class;
+}
+```
+
+정리하자면 빈으로 생성되는 MemberRepository는 프록시 인스턴스이고 
+JpaRepository는 프록시 인스턴스를 생성해 SimpleJpaRepsitory에 주입합니다.
+그리고 프록시 인스턴스 내부에서 SimpleJpaRepsitory가 구현체를 실행합니다.
+
+## References
+- [https://brunch.co.kr/@anonymdevoo/40](https://brunch.co.kr/@anonymdevoo/40)
+
+## Week 3
+이번 주는 Service 계층을 구현하고 테스트 코드를 작성해보았습니다. 우선 기능 목록은 다음과 같습니다.
+
+- 회원 가입
+- 회원 탈퇴
+- 게시글 생성 
+- 게시글 댠건 조회 
+- 모든 게시글 조회 
+- 댓글 작성 
+- 댓글 삭제 
+- 댓글 좋아요 
+- 댓글 좋아요 취소 
+- 게시글 좋아요 
+- 게시글 좋아요 취소 
+- 쪽지 전송 
+- 쪽지 읽기
+
+### Repository 단위 테스트
+
+Repository를 테스트할 때마다 @DataJpaTest, @AutoConfigureTestDatabase 그리고 @Import를 사용해야 했기 때문에 다음과 같이 커스텀 애노테이션으로 만들었습니다.
+
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(JpaAuditingConfig.class)
+public @interface RepositoryTest {
+}
+```
+
+그래서 Repository에 대한 단위 테스트는 `@RepositoryTest`를 사용해서 테스트할 수 있습니다.
+
+```java
+@RepositoryTest
+class XXRepositoryTest {
+    ...
+}
+```
+
+### Service 단위 테스트
+
+Service 계층의 단위 테스트는 Mockito를 사용해서 Repository 계층을 Mocking해서 테스트했습니다.
+
+```java
+@ExtendWith(MockitoExtension.class)
+class XXServiceTest {
+    
+    @Mock
+    private XXRepository xxRepository;
+    
+    @InjectMocks
+    private XXService xxService;
+    
+    // 테스트 코드
+}
+```
+
+### 고민한 부분
+
+항상 Service 계층을 구현할 때 조회하는 로직을 Repository에서 바로 가져올지, Service 계층에서 로직을 구현할지 고민이 됩니다.
+
+```java
+public class PostService {
+
+    private final userRepository userRepository;
+
+    public PostService findById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        ...
+    }
+}
+```
+
+```java
+public class PostService {
+
+    private final UserService userService;
+
+    public Post findById(Long id) {
+        User user = userService.findUser(id);
+        ...
+        
+    }
+}
+
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    public User findUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
+    }
+}
+```
+
+회원이 존재하는지 검증하고 조회하는 로직은 필요한 곳이 많기 때문에 Service 계층에서는 여러 군데에서 사용이 됩니다.
+만약, 첫 번째 방법처럼 구현을 한다면 조회 로직을 private 메서드로 분리할 수 있습니다. 하지만 다른 XXXService에서도 사용할 수 있기 때문에 동일한 로직이 중복이 됩니다.
+
+두 번째 방법처럼 구현을 한다면 조회 로직을 UserService로 분리할 수 있습니다. 이 방법은 조회 로직을 재사용할 수 있지만 Service 계층이 Repository 계층에 의존하게 됩니다.
+그렇지만 Service 계층을 직접 호출하게 되면 순환 참조 문제가 발생할 수 있기 때문에 아직은 Repository에서 직접 조회하는 방법을 사용하고 있습니다.
+
+그러나 이 방법이 옳은지에 대해서는 고민을 더 해봐야 될 것 같습니다.
