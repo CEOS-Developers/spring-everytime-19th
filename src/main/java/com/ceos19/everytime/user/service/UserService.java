@@ -25,4 +25,11 @@ public class UserService {
         final User user = request.toEntity(school);
         userRepository.save(user);
     }
+
+    @Transactional
+    public void deleteUser(final Long userId) {
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", userId)));
+        userRepository.delete(user);
+    }
 }

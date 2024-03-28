@@ -10,6 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import com.ceos19.everytime.global.BaseEntity;
 
 import lombok.AccessLevel;
@@ -21,6 +24,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "users")
+@SQLDelete(sql = "update users set is_deleted = true where user_id = ?")
+@SQLRestriction("is_deleted = false")
 public class User extends BaseEntity {
 
     @Id
@@ -37,12 +42,17 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String nickname;
 
+    private boolean isDeleted = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
 
     @Builder
-    public User(final String username, final String password, final String nickname, final School school) {
+
+    public User(final Long id, final String username, final String password, final String nickname,
+                final School school) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
