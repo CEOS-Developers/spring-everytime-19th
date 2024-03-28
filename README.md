@@ -260,3 +260,342 @@ How??? 동적으로 프록시를 생성할까??
         
             // Other fields, getters and setters
     }
+    
+----------------------------------------------------------------------------------------------------------
+- test 조금 더 공부하자
+
+## 통합 테스트 - @SpringBootTest
+- 모든 빈을 등록하여 테스트를 진행 -> 애플리케이션 규모가 크면 테스트가 많이 느려진다
+- @RunWith : 해당 어노테이션을 사용하면 JUnit의 러너를 사용하는게 아니라 지정된 SpringRunner 클래스를 사용한다.
+- @SpringBootTest
+- @EnableConfigurationProperties : Configuration으로 사용하는 클래스를 빈으로 등록할 수 있게 해줌.
+```java
+    @RunWith(SpringRunner.class)
+@SpringBootTest(
+        properties = {
+                "property.value=propertyTest",
+                "value=test"
+        },
+        classes = {TestApplication.class},
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
+@EnableConfigurationProperties(StayGolfConfiguration.class)
+public class TestApplicationTests {
+
+  @Value("${value}")
+  private String value;
+
+  @Value("${property.value}")
+  private String propertyValue;
+
+  @Test
+  public void contextLoads() {
+    assertThat(value, is("test"));
+    assertThat(propertyValue, is("propertyTest"));
+  }
+
+}
+```
+## 컨트롤러 테스트 - @WebMvcTest
+- 웹상에서 요청과 응답에 대한 테스트
+```java
+      @RunWith(SpringRunner.class)
+    @WebMvcTest(BookApi.class)
+    public class BookApiTest {
+
+      @Autowired
+      private MockMvc mvc;
+
+      @MockBean
+      private BookService bookService;
+
+      @Test
+      public void getBook_test() throws Exception {
+          //given
+          final Book book = new Book(1L, "title", 1000D);
+
+          given(bookService.getBook()).willReturn(book);
+
+          //when
+          final ResultActions actions = mvc.perform(get("/books/{id}", 1L)
+                  .contentType(MediaType.APPLICATION_JSON_UTF8))
+                  .andDo(print());
+
+          //then
+          actions
+                  .andExpect(status().isOk())
+                  .andExpect(jsonPath("id").value(1L))
+                  .andExpect(jsonPath("title").value("title"))
+                  .andExpect(jsonPath("price").value(1000D))
+          ;
+
+      }
+    }
+```
+
+## JPA 관련 테스트 - @DataJpaTest
+- JPA 관련된 설정만 로드
+- @Entity 클래스를 스캔하여 스프링 데이터 JPA 저장소를 구성
+기본적으로 인메모리 데이터베이스를 이용
+- 데이터소스의 설정이 정상적인지, JPA를 사용하서 데이터를 제대로 생성, 수정, 삭제하는지 등의 테스트가 가능
+- @AutoConfigureTestDataBase : 데이터 소스를 어떤 걸로 사용할지에 대한 설정
+- Replace.Any : 기본적으로 내장된 데이터소스를 사용
+- Replace.NONE : @ActiveProfiles 기준으로 프로파일이 설정됨
+- @DataJpaTest : 테스트가 끝날 때마다 자동으로 테스트에 사용한 데이터를 롤백
+```java
+        /**
+     * What the test database can replace.
+     */ 
+    enum Replace {
+    
+      /**
+       * Replace any DataSource bean (auto-configured or manually defined).
+       */
+      ANY,
+    
+      /**
+       * Only replace auto-configured DataSource.
+       */
+      AUTO_CONFIGURED,
+    
+      /**
+       * Don't replace the application default DataSource.
+       */
+      NONE
+    
+    }
+```
+## REST 관련 테스트 - @RestClientTest
+- Rest 통신의 JSON 형식이 예상대로 응답을 반환하는지 등을 테스트
+- @RestClientTest : 테스트 대상이 되는 빈을 주입받음
+- @Rule
+- MockRestServiceServer : 클라이언트와 서버 사이의 REST 테스트를 위한 객체. 내부에서 RestTemplate을 바인딩하여 실제로 통신이 이루어지게끔 구성할 수 있음. 이 코드에서는 목 객체와 같이 실제 통신이 이루어지지는 않지만 지정한 경로에 예상되는 반환값을 명시
+```java
+        @RunWith(SpringRunner.class)
+    @RestClientTest(BookRestService.class)
+    public class BookRestServiceTest {
+    
+        @Rule
+        public ExpectedException thrown = ExpectedException.none();
+    
+        @Autowired
+        private BookRestService bookRestService;
+    
+        @Autowired
+        private MockRestServiceServer server;
+    
+        @Test
+        public void rest_test() {
+    
+            server.expect(requestTo("/rest/test"))
+                    .andRespond(
+                            withSuccess(new ClassPathResource("/test.json", getClass()), MediaType.APPLICATION_JSON));
+    
+            Book book = bookRestService.getRestBook();
+    
+            assertThat(book.getId(), is(notNullValue()));
+            assertThat(book.getTitle(), is("title"));
+            assertThat(book.getPrice(), is(1000D));
+    
+        }
+    }
+```
+-----------------------------------------------------------------
+# Service 구현해보기
+
+## 로그인 기능
+## 글 쓰기
+- user정보를 가져오고 boardId로 boardRepository에서 Board를 가져오고 postRequestDto를 통하여 값들을 받아와서 post에 값을 넣어주고 postRepository를 통해 저장해줍니다
+## 글 조회
+- postId를 통해 postRepository에서 post를 조회하여서 글의 내용을 postResponseDto를 통하여 가져옵니다
+## 댓글 달기
+- user정보와 postId를 통해 postRepository에서 post를 조회하고 commentRequestDto를 통하여 정보를 가져와서 Comment를 작성합니다
+## 글 좋아요
+- user정보와 PostId를 통해 PostLikeRepository에 해당 데이터가 있는지 확인하고 없으면 저장해준다
+## 댓글 좋아요
+- user정보와 CommnetId를 통해 CommentLikeRepository에 해당데이터가 있는지 확인하고 없으면 저장해준다
+## 학기에 시간표 추가
+## 시간표를 table에 추가
+## 메시지 보내기
+
+를 하려고 했으니 마지막 3개와 test코드 검증들을 시간상으로 진행을 거의 못했습니다.........ㅠㅠㅠㅠㅠㅠㅠㅠ
+spring security가 그 뒤에 한다는걸 못보고 이걸 login을 구현해나?해서 이거에 시간을 많이 쏟았네요 ㅠㅠ
+
+## 댓글 달기 서비스
+```java
+        insert
+        into
+        post
+        (anonymous, board_id, content, created_date, likes, modified_date, title, user_id, view)
+        values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        Hibernate:
+        select
+        p1_0.post_id,
+        p1_0.anonymous,
+        p1_0.board_id,
+        p1_0.content,
+        p1_0.created_date,
+        p1_0.likes,
+        p1_0.modified_date,
+        p1_0.title,
+        p1_0.user_id,
+        p1_0.view
+        from
+        post p1_0
+        where
+        p1_0.post_id=?
+        Hibernate:
+        insert
+        into
+        comment
+        (content, content_like, created_date, modified_date, post_id, user_id)
+        values
+        (?, ?, ?, ?, ?, ?)
+        Hibernate:
+        select
+        c1_0.comment_id,
+        c1_0.content,
+        c1_0.content_like,
+        c1_0.created_date,
+        c1_0.modified_date,
+        c1_0.post_id,
+        c1_0.user_id
+        from
+        comment c1_0
+        Hibernate:
+        insert
+        into
+        post
+        (anonymous, board_id, content, created_date, likes, modified_date, title, user_id, view)
+        values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        Hibernate:
+        insert
+        into
+        comment
+        (content, content_like, created_date, modified_date, post_id, user_id)
+        values
+        (?, ?, ?, ?, ?, ?)
+        Hibernate:
+        insert
+        into
+        comment
+        (content, content_like, created_date, modified_date, post_id, user_id)
+        values
+        (?, ?, ?, ?, ?, ?)
+        Hibernate:
+        select
+        c1_0.comment_id,
+        c1_0.content,
+        c1_0.content_like,
+        c1_0.created_date,
+        c1_0.modified_date,
+        c1_0.post_id,
+        c1_0.user_id
+        from
+        comment c1_0
+```
+
+데이터가 잘 넣어지는 것을 확인가능합니다.!
+
+- PostServiceTest 작성
+
+```java
+@BeforeEach
+    void setUp() {
+            MockitoAnnotations.openMocks(this);
+            }
+```
+- Mockito test 세팅
+```java
+    @Test
+    void postLikeCreate_Success() {
+
+            User user = new User();
+            user.setUsername("testUser");
+
+            UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+
+        Post post = new Post();
+        post.setPostId(1L);
+
+        // Mocking repositories
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+        when(postLikeRepository.findByUserAndComment(user, post)).thenReturn(Optional.empty());
+
+        ApiResponseDto<SuccessResponse> response = postLikeService.postLikeCreate(userDetails, 1L);
+
+        verify(postLikeRepository, times(1)).save(any(postLike.class));
+
+        assertEquals(HttpStatus.OK, response.getResponse().getStatus());
+        assertEquals("commentLike Create Success", response.getError().getMessage());
+        }
+```
+- 사용자가 유효하고 존재하는 경우에 좋아요를 성공적으로 만드는지 확인
+- 이를 위해 모의 객체를 사용하여 사용자, UserDetails 및 게시물을 설정하고, 해당 사용자가 게시물을 좋아요했는지 확인
+```java
+    @Test
+    void postLikeCreate_UserNotFound() {
+
+            UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("nonExistingUser");
+
+        when(userRepository.findByUsername("nonExistingUser")).thenReturn(Optional.empty());
+
+        assertThrows(RestApiException.class, () -> postLikeService.postLikeCreate(userDetails, 1L),
+        "Expected RestApiException to be thrown");
+
+        verify(postLikeRepository, never()).save(any(postLike.class));
+        }
+```
+- 사용자가 존재하지 않는 경우, 즉 userRepository가 빈 Optional을 반환할 때 RestApiException이 발생하는지 확인
+```java
+    @Test
+    void postLikeCreate_PostNotFound() {
+
+            UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+
+        User user = new User();
+        user.setUsername("testUser");
+
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(postRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(RestApiException.class, () -> postLikeService.postLikeCreate(userDetails, 1L),
+        "Expected RestApiException to be thrown");
+
+        verify(postLikeRepository, never()).save(any(postLike.class));
+        }
+```
+- 게시물이 존재하지 않는 경우, 즉 postRepository가 빈 Optional을 반환할 때 RestApiException이 발생하는지 확인
+```java
+
+@Test
+    void postLikeCreate_AlreadyExists() {
+
+            User user = new User();
+            user.setUsername("testUser");
+
+            UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+
+        Post post = new Post();
+        post.setPostId(1L);
+
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+        when(postLikeRepository.findByUserAndComment(user, post)).thenReturn(Optional.of(new postLike()));
+
+        assertThrows(RestApiException.class, () -> postLikeService.postLikeCreate(userDetails, 1L),
+        "Expected RestApiException to be thrown");
+
+        verify(postLikeRepository, never()).save(any(postLike.class));
+        }
+```
+- 이미 사용자가 게시물에 좋아요를 한 경우, 즉 postLikeRepository가 비어 있지 않은 Optional을 반환할 때 RestApiException이 발생하는지 확인
+
+*** 코드에러(뭘 잘못 작성했나봐요)...로 결과 값 도출은 못했습니다.. 시간이슈로 다시 작성을 못했는데 추후에 하겠습니다. 죄송합니다.
