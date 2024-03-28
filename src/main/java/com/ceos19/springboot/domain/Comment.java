@@ -1,14 +1,10 @@
 package com.ceos19.springboot.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,27 +14,29 @@ import java.util.UUID;
 public class Comment {
     @Id
     @GeneratedValue
-    private UUID commentId;
+    private Long commentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="postId")
-    private Posts post;
+    @JoinColumn(name="post_id")
+    private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="userId")
+    @JoinColumn(name="user_id")
     private Users user;
 
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parentId")
+    @JoinColumn(name = "parent_id")
     private Comment parent;
 
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
     @Builder.Default
     private List<Comment> children = new ArrayList<>();
+
     private String content;
 
-    public Comment(Posts post,
+    public Comment(Post post,
                    Users user,
                    Comment parent,
                    List<Comment> children) {

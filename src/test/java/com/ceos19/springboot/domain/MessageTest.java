@@ -21,7 +21,7 @@ class MessageTest {
     public void MessageTest() throws Exception {
         //given
         Users sender = Users.builder()
-                .university("홍익대")
+                //.university("홍익대")
                 .email("sender_email")
                 .loginId("아이디")
                 .nickname("닉넴")
@@ -30,7 +30,7 @@ class MessageTest {
                 .build();
 
         Users receiver = Users.builder()
-                .university("홍익대")
+                //.university("홍익대")
                 .email("receiver_email")
                 .loginId("아이디")
                 .nickname("닉넴")
