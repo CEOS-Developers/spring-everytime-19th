@@ -27,4 +27,9 @@ public class School extends BaseEntity {
 
     @Column(nullable = false, length = 20)
     private String department;
+
+    public School(final String name, final String department) {
+        this.name = name;
+        this.department = department;
+    }
 }
