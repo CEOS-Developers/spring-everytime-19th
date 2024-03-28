@@ -7,15 +7,15 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class PostResponse {
+public class PostDetailResponse {
     private final Long id;
     private final String title;
     private final String content;
     private final LocalDateTime createDate;
     private final LocalDateTime modifyDate;
 
-    public static PostResponse from(Post post) {
-        return new PostResponse(
+    public static PostDetailResponse from(Post post) {
+        return new PostDetailResponse(
                 post.getPostId(),
                 post.getTitle(),
                 post.getContent(),

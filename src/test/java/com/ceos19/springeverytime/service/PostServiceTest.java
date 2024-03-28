@@ -2,16 +2,24 @@ package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.category.domain.Category;
+import com.ceos19.springeverytime.domain.post.domain.Post;
+import com.ceos19.springeverytime.domain.post.dto.response.PostDetailResponse;
 import com.ceos19.springeverytime.domain.post.service.PostService;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.post.repository.PostRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class PostServiceTest {
@@ -45,17 +53,20 @@ public class PostServiceTest {
 //        Assertions.assertEquals(post, newPost);
 //    }
 
-//    @Test
-//    @DisplayName("포스트 조회 테스트")
-//    void 포스트_조회_테스트() {
-//        // given
-//        Post post = EntityGenerator.generatePost(user2, category);
-//        given(postRepository.findById(any())).willReturn(Optional.of(post));
-//
-//        // when
-//        Post foundPost = postService.findById(1L);
-//
-//        // then
-//        Assertions.assertEquals(post, foundPost);
-//    }
+    @Test
+    @DisplayName("포스트 조회 테스트")
+    void 포스트_조회_테스트() {
+        // given
+        Post post = EntityGenerator.generatePost(user2, category);
+        given(postRepository.findById(any())).willReturn(Optional.of(post));
+
+        // when
+        final PostDetailResponse actual = postService.getPostDetail(1L);
+
+        // then
+        // usingRecursiveComparison 사용
+        // https://ksh-coding.tistory.com/100
+        Assertions.assertThat(actual).usingRecursiveComparison()
+                .isEqualTo(PostDetailResponse.from(post));
+    }
 }
