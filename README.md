@@ -25,13 +25,6 @@ public class User {
     @Column(nullable = false)
     private Boolean isBoardManager = False;
 
-    // TemporalType.TIMESTAMP
-    @Column(nullable = true, length = 20)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = true, length = 20)
-    private LocalDateTime lastLogin;
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "school_id")
     private School school;
@@ -54,6 +47,187 @@ public class User {
 
 ```
 
+# 3주차 - JPA 심화
+
+## Service Business Logic 목록
+**User**
+- 유저 회원가입
+- 유저 회원탈퇴
+- 유저 로그인 (ToDo)
+- 유저 로그아웃 (ToDo) 
+- 대학교 인증 (ToDo)
+
+**Board**
+- 게시판 생성
+- 게시판 관리자 변경
+- 게시판 삭제
+  - 하위 테이블(Post, Comment) 삭제
+
+**Post**
+- 게시글 작성
+- 게시글 조회
+- 게시글 수정
+- 게시글 삭제
+- 게시글 좋아요 및 취소
+
+**Comment**
+- 댓글 작성
+- 댓글 수정
+- 댓글 삭제
+- 대댓글 기능
+- 댓글 좋아요 및 취소
+
+**Message**
+- 쪽지 전송 (최초 방 생성 및 전송)
+- 쪽지 조회
+- 쪽지방 나가기 (방 삭제)
+
+**Image**
+- 이미지 업로드 (DB 저장)
+- 이미지 삭제 (DB 삭제)
+
+## Spring naming convention
+
+서비스 클래스 안에서 메서드 명을 작성 할 때는 아래와 같은 접두사를 붙인다.
+
+- findOrder() - 조회 유형의 service 메서드
+- addOrder() - 등록 유형의 service 메서드
+- modifyOrder() - 변경 유형의 service 메서드
+- removeOrder() - 삭제 유형의 service 메서드
+- saveOrder() – 등록/수정/삭제 가 동시에 일어나는 유형의 service 메서드
+
+[Reference](https://cocobi.tistory.com/27)
+
+
+## Service 생성자 주입 (DI)
+
+```java
+@Service
+public class UserService {
+
+    final UserRepository userRepository;
+
+    private UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+}
+```
+
+**@Autowired** 대신 생성자 주입으로 Repository를 연결한다.
+
+
+생성자 주입 장점 요약
+1. 객체의 불변성을 확보할 수 있다.
+  - 실제로 개발을 하다 보면 의존 관계의 변경이 필요한 상황은 거의 없다.
+  - 하지만 수정자 주입이나 일반 메소드 주입을 이용하면 불필요하게 수정의 가능성을 열어두어 유지보수성을 떨어뜨린다.
+
+2. 테스트 코드의 작성이 용이해진다.
+  - 테스트가 특정 프레임워크에 의존하는 것은 침투적이므로 좋지 못하다.
+  - 그러므로 가능한 순수 자바로 테스트를 작성하는 것이 가장 좋은데, 생성자 주입이 아닌 다른 주입으로 작성된 코드는 순수한 자바 코드로 단위 테스트를 작성하는 것이 어렵다.
+
+3. final 키워드를 사용할 수 있고, Lombok과의 결합을 통해 코드를 간결하게 작성할 수 있다.
+  - 생성자 주입을 사용하면 필드 객체에 final 키워드를 사용할 수 있으며, 컴파일 시점에 누락된 의존성을 확인할 수 있다. 
+  - 반면 다른 주입 방법들은 객체의 생성(생성자 호출) 이후에 호출되므로 final 키워드를 사용할 수 없다.
+
+4. 스프링에 침투적이지 않은 코드를 작성할 수 있다.
+  - @Autowired으로 필드 주입하게 되면, UserService에 스프링 의존성이 침투하게 된다. 
+  - 혹시 모르는 차세대 프레임 워크에 대비.
+
+5. 순환 참조 에러를 애플리케이션 구동(객체의 생성) 시점에 파악하여 방지할 수 있다.
+  - UserSerivce가 이미 MemberService에 의존하고 있는데, MemberService 역시 UserService에 의존하는 경우를 생각해보자.
+  - 위의 두 메소드는 서로를 계속 호출할 것이고, 메모리에 함수의 CallStack이 계속 쌓여 StackOverflow 에러가 발생하게 된다.
+  - 서버에 올리기 전, 애플리케이션 구동 시점(객체의 생성 시점)에 에러가 발생하기 때문에, 배포 전에 에러를 방지할 수 있다.
+  - Bean에 등록하기 위해 객체를 생성하는 과정에서 다음과 같이 순환 참조가 발생하기 때문이다.  
+  `new UserService(new MemberService(new UserService(new MemberService()...)))`
+
+
+## 1+N Problem
+When? 언제 발생하는건가요?
+- JPA Repository를 활용해 인터페이스 메소드를 호출 할 때(Read 시) 
+
+Who? 누가 발생시키나요?
+- 1:N 또는 N:1 관계를 가진 엔티티를 조회할 때 발생 
+
+How? 어떻게 하면 발생되나요?
+- JPA Fetch 전략(Fetch Type)이 EAGER 전략으로 데이터를 조회하는 경우
+- JPA Fetch 전략(Fetch Type)이 LAZY 전략으로, 전체 데이터를 가져온 이후 연관 관계인 하위 엔티티를 사용할 때 다시 조회하는 경우
+
+Why? 왜 발생하나요?
+- JPA Repository로 find 시 실행하는 첫 쿼리에서 하위 엔티티까지 한 번에 가져오지 않고, 하위 엔티티를 사용할 때 추가로 조회하기 때문에.
+- JPQL은 기본적으로 글로벌 Fetch 전략을 무시하고 JPQL만 가지고 SQL을 생성하기 때문에.
+
+## Test Example
+<div align="center">
+  <img src="imgs/friend_user.png" alt="drawing" width=400"/>
+</div>
+
+Friend와 User 는 다대일 관계
+
+
+### EAGER vs LAZY
+- EAGER(즉시 로딩)인 경우
+  1) JPQL에서 만든 SQL을 통해 데이터를 조회
+  2) 이후 JPA에서 Fetch 전략을 가지고(여기서는 즉시 로딩) 해당 데이터의 연관 관계인 하위 엔티티들을 추가 조회(LAZY - 지연 로딩 발생)
+  3) 앞의 과정으로 N+1 문제 발생함
+
+- LAZY(지연 로딩)인 경우
+  1) JPQL에서 만든 SQL을 통해 데이터를 조회
+  2) JPA에서 Fetch 전략을 가지지만, 여기서는 지연 로딩이기 때문에 추가 조회는 하지 않음
+  3) 하지만, 하위 엔티티를 가지고 작업하게 되면 추가 조회하기 때문에 결국 N+1 문제가 발생함
+
+
+## Test Code
+
+```java
+class UserRepositoryTest {
+    User insertUser1;
+    User insertUser2;
+    User insertUser3;
+
+    Friend friend1;
+    Friend friend2;
+    Friend friend3;
+
+    friend2 = friendRepository.save(Friend.builder()
+        .isAccepted(true)
+        .myId(insertUser1.getUserId())
+        .friendUser(insertUser2)
+        .build()
+    );
+
+    friend3 = friendRepository.save(Friend.builder()
+            .isAccepted(true)
+            .myId(insertUser1.getUserId())
+            .friendUser(insertUser3)
+            .build()
+    );
+
+    @Test
+    @Transactional
+    @DisplayName("N+1 문제 테스트")
+    void n1IssueTracking() {
+        List<Friend> friendList = friendRepository.findAll();
+        System.out.println("total friend data size:" + friendList.size());
+    }
+}
+```
+FetchType.EAGER로 설정하고 테스트를 실행하면, select문이 List 조회 한 번, user2, user3에 대한 조회 2번 총 3번이 나와야 하는데..?
+
+<div align="center">
+  <img src="imgs/n_plus_one.png" alt="drawing" width=500"/>
+</div>
+spring.jpa.properties.hibrnate.format_sql = false여서 쿼리가 한 줄로 보여진다.
+
+select 문이 왜 하나만 호출되죠?
+결국 해결 못 했습니다..  
+
+
+
+### 해결법
+1. JPA : JPQL 에서 지원하는 fetch join 을 사용
+2. 스프링데이터JPA : @EntityGraph 로 fetch join 사용
+
+[Reference](https://maivve.tistory.com/340)
 
 # 스터디 이후 개선점들!
 
@@ -131,7 +305,7 @@ public class User extends BaseTimeEntity{
 ## Fetch 전략
 - 한 사람이 여러 개의 메세지를 보낼 수 있다.
 - FetchType이란 JPA가 하나의 Entity를 조회할 때, 연관관계에 있는 객체들을 어떻게 가져올지에 대한 설정값이다.
-- 이 경우 Message 클래스는 @ManyToOne으로 User와 연관되며, @ManyToOne의 default FetchType 은  EAGER 이다.
+- 이 경우 Message 클래스는 @ManyToOne으로 User와 연관되며, @ManyToOne의 default FetchType 은 EAGER 이다.
 
 ```java
 @Entity

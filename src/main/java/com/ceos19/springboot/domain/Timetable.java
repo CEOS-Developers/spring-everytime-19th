@@ -1,8 +1,10 @@
 package com.ceos19.springboot.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Timetable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

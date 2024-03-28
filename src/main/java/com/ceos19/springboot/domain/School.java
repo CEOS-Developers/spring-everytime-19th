@@ -2,8 +2,10 @@ package com.ceos19.springboot.domain;
 
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class School {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
