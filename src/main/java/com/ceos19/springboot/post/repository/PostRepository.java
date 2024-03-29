@@ -1,7 +1,7 @@
-package com.ceos19.springboot.repository;
+package com.ceos19.springboot.post.repository;
 
-import com.ceos19.springboot.domain.Post;
-import com.ceos19.springboot.domain.Users;
+import com.ceos19.springboot.post.domain.Post;
+import com.ceos19.springboot.users.domain.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
