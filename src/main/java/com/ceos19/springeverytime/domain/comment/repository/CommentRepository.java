@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
+    boolean existsByAuthorUserIdAndCommentId(Long userId, Long id);
+
     @Query("select c from Comment c where c.post = :post")
-    public List<Comment> findAllByPost(@Param("post") Post post);
+    List<Comment> findAllByPost(@Param("post") Post post);
 }

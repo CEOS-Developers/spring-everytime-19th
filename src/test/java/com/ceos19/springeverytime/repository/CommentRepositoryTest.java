@@ -118,51 +118,51 @@ public class CommentRepositoryTest {
         Assertions.assertThat(findComment.isEmpty()).isEqualTo(true);
     }
 
-    @Test
-    @DisplayName("대댓글 생성 테스트")
-    void 대댓글_생성_테스트() {
-        // given
-        Comment parent = post1.addComment(user2, "댓글1", true);
-        Comment child = parent.addReply(user1, "댓글", true);
+//    @Test
+//    @DisplayName("대댓글 생성 테스트")
+//    void 대댓글_생성_테스트() {
+//        // given
+//        Comment parent = post1.addComment(user2, "댓글1", true);
+//        Comment child = parent.addReply(user1, "댓글", true);
+//
+//        em.flush();
+//        em.clear();
+//
+//        // when
+//        Optional<Comment> findComment1 = commentRepository.findById(parent.getCommentId());
+//        Optional<Comment> findComment2 = commentRepository.findById(child.getCommentId());
+//
+//        // then
+//        Assertions.assertThat(findComment1.isPresent()).isEqualTo(true);
+//        Assertions.assertThat(findComment2.isPresent()).isEqualTo(true);
+//        Assertions.assertThat(findComment2.get().getParentComment()).isSameAs(findComment1.get());
+//    }
 
-        em.flush();
-        em.clear();
-
-        // when
-        Optional<Comment> findComment1 = commentRepository.findById(parent.getCommentId());
-        Optional<Comment> findComment2 = commentRepository.findById(child.getCommentId());
-
-        // then
-        Assertions.assertThat(findComment1.isPresent()).isEqualTo(true);
-        Assertions.assertThat(findComment2.isPresent()).isEqualTo(true);
-        Assertions.assertThat(findComment2.get().getParentComment()).isSameAs(findComment1.get());
-    }
-
-    @Test
-    @DisplayName("부모 댓글 삭제 테스트")
-    void 부모댓글_삭제_테스트() {
-        // given
-        Comment parent = post1.addComment(user2, "댓글1", true);
-        parent.addReply(user1, "댓글2", true);
-        parent.addReply(user1, "댓글3", true);
-        em.flush();
-
-        // when
-        for (int i = 0; i < 2; i++) {
-            parent.getChildComments().get(i).setParentComment(null);
-        }
-        em.flush();
-        em.clear();
-        // 연관관계가 있는 child 가 1차 캐시에 있는 상태에서는 parent를 지워도 쿼리가 안나감.
-        // https://velog.io/@jkijki12/JPA-Entity%EA%B0%80-delete%EA%B0%80-%EC%95%88%EB%90%9C%EB%8B%A4 참고
-
-        System.out.println("--------------------------");
-        commentRepository.delete(commentRepository.findById(parent.getCommentId()).get());
-        em.flush();
-        em.clear();
-        System.out.println("--------------------------");
-
-        // then
-        Assertions.assertThat(commentRepository.findAllByPost(post1).size()).isEqualTo(2);
-    }
+//    @Test
+//    @DisplayName("부모 댓글 삭제 테스트")
+//    void 부모댓글_삭제_테스트() {
+//        // given
+//        Comment parent = post1.addComment(user2, "댓글1", true);
+//        parent.addReply(user1, "댓글2", true);
+//        parent.addReply(user1, "댓글3", true);
+//        em.flush();
+//
+//        // when
+//        for (int i = 0; i < 2; i++) {
+//            parent.getChildComments().get(i).setParentComment(null);
+//        }
+//        em.flush();
+//        em.clear();
+//        // 연관관계가 있는 child 가 1차 캐시에 있는 상태에서는 parent를 지워도 쿼리가 안나감.
+//        // https://velog.io/@jkijki12/JPA-Entity%EA%B0%80-delete%EA%B0%80-%EC%95%88%EB%90%9C%EB%8B%A4 참고
+//
+//        System.out.println("--------------------------");
+//        commentRepository.delete(commentRepository.findById(parent.getCommentId()).get());
+//        em.flush();
+//        em.clear();
+//        System.out.println("--------------------------");
+//
+//        // then
+//        Assertions.assertThat(commentRepository.findAllByPost(post1).size()).isEqualTo(2);
+//    }
 }

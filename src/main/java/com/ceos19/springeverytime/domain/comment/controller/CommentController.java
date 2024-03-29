@@ -17,8 +17,8 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<Void> createComment(
-            @PathVariable Long postId,
-            @RequestBody @Valid CommentCreateRequest request
+            @PathVariable final Long postId,
+            @RequestBody @Valid final CommentCreateRequest request
     ) {
         // TEMPORARY
         Long userId = 1L;
@@ -26,5 +26,16 @@ public class CommentController {
 
         Long commentId = commentService.save(postId, userId, request).getCommentId();
         return ResponseEntity.created(URI.create("/comments/"+commentId)).build();
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable final Long commentId) {
+        // TEMPORARY
+        Long userId = 1L;
+        // TEMPORARY
+
+        commentService.validateCommentByUser(userId, commentId);
+        commentService.deleteComment(commentId);
+        return ResponseEntity.noContent().build();
     }
 }
