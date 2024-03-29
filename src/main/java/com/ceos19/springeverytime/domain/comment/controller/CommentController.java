@@ -28,6 +28,20 @@ public class CommentController {
         return ResponseEntity.created(URI.create("/comments/"+commentId)).build();
     }
 
+    @PostMapping("/{commentId}/reply")
+    public ResponseEntity<Void> createReplyComment(
+            @PathVariable final Long postId,
+            @PathVariable final Long commentId,
+            @RequestBody @Valid final CommentCreateRequest request
+    ) {
+        // TEMPORARY
+        Long userId = 1L;
+        // TEMPORARY
+
+        Long replyCommentId = commentService.saveReply(postId, commentId, userId, request).getCommentId();
+        return ResponseEntity.created(URI.create("/comments/"+commentId)).build();
+    }
+
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable final Long commentId) {
         // TEMPORARY

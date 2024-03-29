@@ -37,6 +37,27 @@ public class CommentService {
         return commentRepository.save(newComment);
     }
 
+    public Comment saveReply(final Long postId, final Long commentId, final Long userId, final CommentCreateRequest request) {
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_USER_ID));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_POST_ID));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_COMMENT_ID));
+
+        Comment newReplyComment = Comment
+                .builder()
+                .content(request.getContent())
+                .isAnonymous(request.isAnonymous())
+                .post(post)
+                .author(author)
+                .parentComment(comment)
+                .build();
+        return commentRepository.save(newReplyComment);
+    }
+
     public void deleteComment(final Long commentId) {
         commentRepository.deleteById(commentId);
     }

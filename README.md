@@ -409,14 +409,21 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td>DELETE</td>
     <td rowspan="4"><code>/comments</code></td>
     <td><code>/</code></td>
-    <td></td>
+    <td><code>{"content": String, "isAnonymous": boolean}</code></td>
     <td></td>
     <td>댓글 생성</td>
   </tr>
   <tr>
+    <td>POST</td>
+    <td><code>/{comment_id}</code></td>
+    <td><code>{"content": String, "isAnonymous": boolean}</code></td>
+    <td></td>
+    <td>대댓글 생성</td>
+  </tr>
+  <tr>
     <td>DELETE</td>
     <td><code>/{comment_id}</code></td>
-    <td><code></code></td>
+    <td></td>
     <td></td>
     <td>댓글 삭제</td>
   </tr>

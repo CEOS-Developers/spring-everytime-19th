@@ -91,4 +91,26 @@ public class CommentServiceTest {
         Assertions.assertThatThrownBy(()->{commentService.validateCommentByUser(1L, 1L);})
                 .isInstanceOf(BadRequestException.class);
     }
+
+    @Test
+    @DisplayName("대댓글을 작성한다.")
+    void 대댓글_작성_테스트() {
+        // given
+        Comment parentComment = EntityGenerator.generateComment(user1, post);
+        Comment comment = new Comment("화이팅!", true, user1, parentComment, post);
+        CommentCreateRequest request = new CommentCreateRequest("화이팅!", true);
+        given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(parentComment));
+        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user1));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
+
+        // when
+        Comment replyComment = commentService.saveReply(1L, 1L, 1L, request);
+
+        // then
+        Assertions.assertThat(replyComment)
+                .usingRecursiveComparison().isEqualTo(comment);
+
+    }
 }
