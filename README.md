@@ -375,3 +375,67 @@ public class UserService {
 ![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/0b4eb524-f308-4f45-8b57-111cb2b96ed7)
 
 이렇게 두 분에게 같은 리뷰를 받고, `@Transactional(readOnly = true)`를 클래스 레벨에 적용했습니다.
+
+### 디비에 저장된 id로 테스트하도록 수정
+
+기존의 코드는 다음과 같습니다.
+
+```java
+@Test
+void 댓글을_삭제한다() {
+    // given
+    final User user = User.builder()
+            .nickname("nickname")
+            .password("password")
+            .username("username")
+            .build();
+    userRepository.save(user);
+
+    final Post post = Post.builder()
+            .title("test")
+            .content("content")
+            .isAnonymous(false)
+            .writer(user)
+            .build();
+    postRepository.save(post);
+
+    final Comment comment = Comment.builder()
+            .content("content")
+            .isAnonymous(false)
+            .user(user)
+            .post(post)
+            .build();
+    commentRepository.save(comment);
+
+    // when
+    commentRepository.deleteById(1L);
+
+    // then
+    final Boolean result = (Boolean) em.createNativeQuery("SELECT is_deleted FROM comment WHERE comment_id = 1",
+                    Boolean.class)
+            .getSingleResult();
+    assertThat(result).isTrue();
+}
+```
+
+하지만 위의 테스트 경우에는 특정 ID에 의존하고 있기 때문에, 데이터베이스에 특정 ID의 댓글이 존재하지 않을 경우 테스트가 실패할 수 있습니다.
+그래서 저장된 Comment 객체를 받아 이 객체의 id로 테스트하도록 수정했습니다.
+
+```java
+@Test
+void 댓글을_삭제한다() {
+    // given
+    ...
+    final Comment savedComment = commentRepository.save(comment);
+
+    // when
+    commentRepository.deleteById(savedComment.getId());
+
+    // then
+    final Boolean result = (Boolean) em.createNativeQuery("SELECT is_deleted FROM comment WHERE comment_id = ?",
+                    Boolean.class)
+            .setParameter(1, savedComment.getId())
+            .getSingleResult();
+    assertThat(result).isTrue();
+}
+```

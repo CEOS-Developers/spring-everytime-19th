@@ -53,14 +53,15 @@ class CommentRepositoryTest {
                 .user(user)
                 .post(post)
                 .build();
-        commentRepository.save(comment);
+        final Comment savedComment = commentRepository.save(comment);
 
         // when
-        commentRepository.deleteById(1L);
+        commentRepository.deleteById(savedComment.getId());
 
         // then
-        final Boolean result = (Boolean) em.createNativeQuery("SELECT is_deleted FROM comment WHERE comment_id = 1",
+        final Boolean result = (Boolean) em.createNativeQuery("SELECT is_deleted FROM comment WHERE comment_id = ?",
                         Boolean.class)
+                .setParameter(1, savedComment.getId())
                 .getSingleResult();
         assertThat(result).isTrue();
     }
