@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.ceos19.everytime.board.dto.request.BoardPostsRequestDto;
 import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
+import com.ceos19.everytime.post.dto.response.PostResponseDto;
 import com.ceos19.everytime.post.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -74,5 +75,22 @@ class PostControllerTest {
                         jsonPath("$[1].title").value("title2"),
                         jsonPath("$[1].writerNickname").value("writerNickname2")
                 );
+    }
+
+    @Test
+    void 게시글을_조회한다() throws Exception {
+        // given
+        given(postService.getPost(any()))
+                .willReturn(new PostResponseDto("title", "content", "nickname", "자유게시판", List.of()));
+
+        // when & then
+        mockMvc.perform(get(DEFAULT_POST_URL + "/{postId}", 1L))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.title").value("title"))
+                .andExpect(jsonPath("$.content").value("content"))
+                .andExpect(jsonPath("$.username").value("nickname"))
+                .andExpect(jsonPath("$.boardName").value("자유게시판"))
+                .andExpect(jsonPath("$.comments").isEmpty());
     }
 }
