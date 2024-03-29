@@ -365,3 +365,13 @@ public class UserService {
 그렇지만 Service 계층을 직접 호출하게 되면 순환 참조 문제가 발생할 수 있기 때문에 아직은 Repository에서 직접 조회하는 방법을 사용하고 있습니다.
 
 그러나 이 방법이 옳은지에 대해서는 고민을 더 해봐야 될 것 같습니다.
+
+# Week 4
+## 리팩토링
+### 클래스 레벨에 Transactional(readOnly = true) 적용
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/968227d2-9714-4944-bb10-0200bc0f9577)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/0b4eb524-f308-4f45-8b57-111cb2b96ed7)
+
+이렇게 두 분에게 같은 리뷰를 받고, `@Transactional(readOnly = true)`를 클래스 레벨에 적용했습니다.

@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PostService {
 
     private final UserRepository userRepository;
@@ -45,7 +46,6 @@ public class PostService {
         postRepository.save(post);
     }
 
-    @Transactional(readOnly = true)
     public PostResponseDto getPost(final Long postId) {
         final Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Post not found: %d", postId)));
@@ -53,7 +53,6 @@ public class PostService {
         return PostResponseDto.of(post, comments);
     }
 
-    @Transactional(readOnly = true)
     public List<BoardPostsResponseDto> getPosts(final BoardPostsRequestDto request) {
         final Board findBoard = getBoard(request.boardId());
         final Posts posts = new Posts(postRepository.findAllFetchJoin(findBoard));

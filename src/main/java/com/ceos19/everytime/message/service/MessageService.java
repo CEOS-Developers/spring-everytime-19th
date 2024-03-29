@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MessageService {
 
     private final MessageRepository messageRepository;
@@ -31,7 +32,6 @@ public class MessageService {
         messageRepository.save(message);
     }
 
-    @Transactional(readOnly = true)
     public List<MessageResponseDto> readMessage(final MessageReadRequestDto request) {
         final User receiver = getUser(request.receiverId());
         final List<Message> messages = messageRepository.findByIdAndReceiver(request.messageId(), receiver);
