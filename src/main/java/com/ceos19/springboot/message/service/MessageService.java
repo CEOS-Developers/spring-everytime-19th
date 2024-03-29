@@ -1,11 +1,14 @@
-package com.ceos19.springboot.service;
+package com.ceos19.springboot.message.service;
 
-import com.ceos19.springboot.domain.Message;
-import com.ceos19.springboot.domain.Users;
-import com.ceos19.springboot.repository.MessageRepository;
+import com.ceos19.springboot.message.domain.Message;
+import com.ceos19.springboot.users.domain.Users;
+import com.ceos19.springboot.message.repository.MessageRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,5 +25,10 @@ public class MessageService {
                 .build();
         Message saveMessage = messageRepository.save(message);
         return saveMessage.getMessageId();
+    }
+
+    public List<Message> retreiveMessage(Users sender) {
+        return messageRepository.findBySender(sender)
+                .orElseThrow(() -> new EntityNotFoundException("해당 사용자가 보낸 메시지가 없습니다"));
     }
 }

@@ -1,13 +1,15 @@
-package com.ceos19.springboot.service;
+package com.ceos19.springboot.users.service;
 
-import com.ceos19.springboot.domain.Users;
-import com.ceos19.springboot.repository.CommentRepository;
-import com.ceos19.springboot.repository.PostLikeRepository;
-import com.ceos19.springboot.repository.PostRepository;
-import com.ceos19.springboot.repository.UserRepository;
+import com.ceos19.springboot.users.domain.Users;
+import com.ceos19.springboot.comment.repository.CommentRepository;
+import com.ceos19.springboot.postlike.repository.PostLikeRepository;
+import com.ceos19.springboot.post.repository.PostRepository;
+import com.ceos19.springboot.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,10 @@ public class UserService {
     public Long saveUser(Users user) {
         Users saveUser = userRepository.save(user);
         return saveUser.getUserId();
+    }
+
+    public Users findUser(Long userId) {
+       return userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("없음"));
     }
 
     @Transactional
