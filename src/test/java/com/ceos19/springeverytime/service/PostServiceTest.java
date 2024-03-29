@@ -76,8 +76,6 @@ public class PostServiceTest {
         final PostDetailResponse actual = postService.getPostDetail(1L);
 
         // then
-        // usingRecursiveComparison 사용
-        // https://ksh-coding.tistory.com/100
         Assertions.assertThat(actual).usingRecursiveComparison()
                 .isEqualTo(PostDetailResponse.from(post));
     }
