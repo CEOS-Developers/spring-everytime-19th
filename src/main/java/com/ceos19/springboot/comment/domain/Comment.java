@@ -1,7 +1,11 @@
-package com.ceos19.springboot.domain;
+package com.ceos19.springboot.comment.domain;
 
+import com.ceos19.springboot.post.domain.Post;
+import com.ceos19.springboot.users.domain.Users;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +15,12 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE Comment SET deleted = true WHERE comment_id = ?")
+@Where(clause = "deleted = false")
 public class Comment {
     @Id
     @GeneratedValue
+    @Column(name = "comment_id")
     private Long commentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,6 +43,10 @@ public class Comment {
 
     private String content;
 
+    private int likes = 0;
+
+    private final boolean deleted = false;
+
     public Comment(Post post,
                    Users user,
                    Comment parent,
@@ -48,5 +59,8 @@ public class Comment {
 
     public void addChildComment(Comment childComment) {
         this.children.add(childComment);
+    }
+    public void pressLike() {
+        this.likes ++;
     }
 }

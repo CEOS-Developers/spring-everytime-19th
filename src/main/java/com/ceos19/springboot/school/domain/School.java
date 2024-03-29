@@ -1,4 +1,4 @@
-package com.ceos19.springboot.domain;
+package com.ceos19.springboot.school.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

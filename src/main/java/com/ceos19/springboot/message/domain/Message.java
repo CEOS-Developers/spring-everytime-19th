@@ -1,10 +1,13 @@
-package com.ceos19.springboot.domain;
+package com.ceos19.springboot.message.domain;
 
+import com.ceos19.springboot.users.domain.Users;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 
 @Entity
@@ -12,6 +15,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE Message SET deleted = true WHERE message_id = ?")
+@Where(clause = "deleted = false")
 public class Message {
     @Id
     @GeneratedValue
@@ -26,6 +31,8 @@ public class Message {
     private Users receiver;
 
     private String content;
+
+    private final boolean deleted = false;
 
     public Message(Users sender,
                    Users receiver,

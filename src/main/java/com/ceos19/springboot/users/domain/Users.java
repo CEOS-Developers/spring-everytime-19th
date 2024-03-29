@@ -1,10 +1,14 @@
-package com.ceos19.springboot.domain;
+package com.ceos19.springboot.users.domain;
 
+import com.ceos19.springboot.post.domain.Post;
+import com.ceos19.springboot.school.domain.School;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 
 @Entity
@@ -12,6 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@SQLDelete(sql = "UPDATE Users SET deleted = true WHERE user_id = ?")
+@Where(clause = "deleted = false")
 public class Users {
 
     @Id
@@ -30,8 +36,8 @@ public class Users {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "university_id")
     private School university;
+    private final boolean deleted = false; // 기본값을 false로 설정
 
-    @Builder
     public Users(String username,
                  String nickname,
                  School university,
