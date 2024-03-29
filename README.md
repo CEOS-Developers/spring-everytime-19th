@@ -404,6 +404,15 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td></td>
     <td>글 삭제</td>
   </tr>
+  <tr>
+    <td rowspan="4">Comment</td>
+    <td>DELETE</td>
+    <td rowspan="4"><code>/comments</code></td>
+    <td><code>/</code></td>
+    <td></td>
+    <td></td>
+    <td>댓글 생성</td>
+  </tr>
 </table>
 
 ### Controller Test
