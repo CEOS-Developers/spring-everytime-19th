@@ -507,32 +507,32 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 
 - 등록
     1. 학교 등록(/schools) O
-    2. 게시판 등록(/schools/{sid}/boards)
-    3. 수업 등록(/schools/{sid}/courses)
+    2. 게시판 등록(/schools/{sid}/boards) O
+    3. 수업 등록(/schools/{sid}/courses) O
 - 조회
     - 단건 조회
-        1. PK (/schools/{sid}) x
-        2. 학교 명 (/schools?name={학교명}) x
+        1. PK (/schools/{sid}) O
+        2. 학교 명 (/schools?name={학교명}) O
     - 다중 조회
         1. 모든 학교 조회 (/schools) O
     - 학교에 속한 게시판 조회
-        1. 해당 학교에 있는 모든 게시판 조회(/schools/{sid}/boards)
-        2. 학교 FK + 게시판 명(/schools/{sid}/boards?name={게시판명})
+        1. 해당 학교에 있는 모든 게시판 조회(/schools/{sid}/boards) O
+        2. 학교 FK + 게시판 명(/schools/{sid}/boards?name={게시판명}) O
     - 학교에 속한 수업 조회
-        1. 해당 학교에 있는 모든 수업 조회 (/schools/{sid}/courses)
-        2. 학교 FK + 수업명 (/schools/{sid}/courses?name={수업명})
-        3. 학교 FK + 교수명 (/schools/{sid}/courses?professorName={교수명})
-        4. 학교 FK + 수업명 + 교수명 (/schools/{sid}/courses?name={수업명}&professorName={교수명})
+        1. 해당 학교에 있는 모든 수업 조회 (/schools/{sid}/courses) O
+        2. 학교 FK + 수업명 (/schools/{sid}/courses?name={수업명}) O
+        3. 학교 FK + 교수명 (/schools/{sid}/courses?professorName={교수명}) O
+        4. 학교 FK + 수업명 + 교수명 (/schools/{sid}/courses?name={수업명}&professorName={교수명}) O
 - 수정 (/schools/{sid}) O
     1. 학교명
 
 ### 게시판(BoardController)
 
 - 등록
-    1. 게시물 등록(POST /boards/{bid}/posts)
+    1. 게시물 등록(POST /boards/{bid}/posts) O
 - 조회
     - 단건 조회
-        1. PK (/boards/{bid})
+        1. PK (/boards/{bid}) O
     - 게시판에 속한 게시물 조회
         1. 해당 게시판의 모든 게시물 조회  (/boards/{bid}/posts?limit={}&offset={})
         2. 게시물 등록일자로 조회 (/boards/{bid}/posts?date={xxxx-xx-xx}&limit={}&offset={})
