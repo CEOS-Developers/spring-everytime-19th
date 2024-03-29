@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ceos19.everytime.board.dto.request.BoardPostsRequestDto;
 import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
+import com.ceos19.everytime.post.dto.response.PostResponseDto;
 import com.ceos19.everytime.post.service.PostService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,5 +39,12 @@ public class PostController {
     public ResponseEntity<List<BoardPostsResponseDto>> getPosts(@RequestBody final BoardPostsRequestDto request) {
         final List<BoardPostsResponseDto> responses = postService.getPosts(request);
         return ResponseEntity.ok().body(responses);
+    }
+
+    @Operation(summary = "게시글 조회", description = "게시글을 조회합니다.")
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponseDto> getPost(@PathVariable final Long postId) {
+        final PostResponseDto response = postService.getPost(postId);
+        return ResponseEntity.ok().body(response);
     }
 }
