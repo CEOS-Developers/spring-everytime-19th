@@ -3,6 +3,11 @@ package com.ceos19.everytime.service;
 import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.University;
+import com.ceos19.everytime.dto.BoardResponse;
+import com.ceos19.everytime.dto.BoardUpdateRequest;
+import com.ceos19.everytime.dto.CreateBoardRequest;
+import com.ceos19.everytime.dto.DeleteBoardRequest;
+import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.BoardRepository;
 import com.ceos19.everytime.repository.MemberRepository;
 import com.ceos19.everytime.repository.UniversityRepository;
@@ -11,7 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.ceos19.everytime.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,56 +33,55 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final UniversityRepository universityRepository;
 
-    public Board create(Long memberId, String boardName, String description, Long universityId){
-        Optional<Member> boardManager = memberRepository.findById(memberId);
-        Optional<University> university = universityRepository.findById(universityId);
+    public Long create(CreateBoardRequest createBoardRequest){
+        final Member member = memberRepository.findById(createBoardRequest.getBoardManagerId())
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+        final University university = universityRepository.findById(createBoardRequest.getBoardManagerId())
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
 
-        if(boardManager.isEmpty() || university.isEmpty() || !validateBoard(boardName,description)){
-            log.info("[Service][createBoard] FAIL");
-            return null;
-        }
+        Board board = new Board(createBoardRequest.getBoardName(),createBoardRequest.getDescription(),member,university);
 
-        Board board = new Board(boardName,description,boardManager.get(),university.get());
-        boardRepository.save(board);
-        log.info("[Service][createBoard] SUCCESS");
-
-        return board;
+        return boardRepository.save(board)
+                .getId();
     }
 
-    public void delete(Long boardId, Long memberId){
-        Optional<Board> board = boardRepository.findByIdAndBoardManager(boardId,memberRepository.findById(memberId).get());
-
-        if(board.isEmpty()){
-            log.info("[Service][deleteBoard] FAIL");
-        }
-        else{
-            boardRepository.delete(board.get());
-            log.info("[Service][deleteBoard] SUCCESS");
-        }
+    @Transactional(readOnly = true)
+    public BoardResponse findBoard(final Long boardId){
+        final Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+        return new BoardResponse(board.getId(), board.getBoardName(),board.getDescription(), board.getBoardManager(), board.getUniversity(), board.getPosts());
     }
 
-    public void updateBoardName(Long boardId, String boardName){
-        Optional<Board> board = boardRepository.findById(boardId);
+    @Transactional(readOnly = true)
+    public List<BoardResponse> findBoardList(final Long universityId){
+        final University university = universityRepository.findById(universityId)
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+        List<BoardResponse> boardResponseList = new ArrayList<>();
+        for(Board board : boardRepository.findAllByUniversityId(universityId)){
+            boardResponseList.add(new BoardResponse(board.getId(), board.getBoardName(),board.getDescription(), board.getBoardManager(), board.getUniversity(), board.getPosts()));
+        }
 
-        if(board.isEmpty() || !validateBoardName(boardName)){
-            log.info("[Service][updateBoardName] FAIL");
-        }
-        else{
-            board.get().changeBoardName(boardName);
-            log.info("[Service][updateBoardName] SUCCESS");
-        }
+        return boardResponseList;
     }
 
-    public void updateDescription(Long boardId, String description){
-        Optional<Board> board = boardRepository.findById(boardId);
+    public void updateBoard(Long boardId, BoardUpdateRequest boardUpdateRequest){
+        final Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
 
-        if(board.isEmpty() || !validateDescription(description)){
-            log.info("[Service][updateDescription] FAIL");
-        }
-        else{
-            board.get().changeDescription(description);
-            log.info("[Service][updateDescription] SUCCESS");
-        }
+        board.changeBoardName(boardUpdateRequest.getBoardName());
+        board.changeDescription(boardUpdateRequest.getDescription());
+    }
+
+    public void delete(Long boardId, DeleteBoardRequest deleteBoardRequest){
+        final Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+        final Member member = memberRepository.findById(deleteBoardRequest.getBoardManagerId())
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+
+        if(board.getBoardManager().equals(member))
+            boardRepository.delete(board);
+        else
+            throw new CustomException(INVALID_PARAMETER);
     }
 
 
