@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 
 import com.ceos19.everytime.board.domain.Board;
 import com.ceos19.everytime.global.BaseEntity;
+import com.ceos19.everytime.global.exception.BadRequestException;
 import com.ceos19.everytime.user.domain.User;
 
 import lombok.AccessLevel;
@@ -75,7 +76,7 @@ public class Post extends BaseEntity {
 
     public void decreaseLikeNumber() {
         if (likeNumber <= 0) {
-            throw new IllegalArgumentException("likeNumber is already 0.");
+            throw new BadRequestException("likeNumber is already 0.");
         }
         likeNumber--;
     }

@@ -20,8 +20,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(NOT_FOUND).body(ErrorResponse.from(e));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(final IllegalArgumentException e) {
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequestException(final BadRequestException e) {
         logError(e);
         return ResponseEntity.status(BAD_REQUEST).body(ErrorResponse.from(e));
     }
