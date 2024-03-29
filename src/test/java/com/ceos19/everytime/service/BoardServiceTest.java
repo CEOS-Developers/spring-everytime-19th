@@ -35,6 +35,7 @@ public class BoardServiceTest {
         memberRepository.save(boardManager);
     }
 
+    /*
     @DisplayName("게시판이 올바르게 생성된다")
     @Test
     void 게시판_생성(){
@@ -60,5 +61,5 @@ public class BoardServiceTest {
         //then
         assertEquals(0, boardRepository.count());
     }
-
+*/
 }

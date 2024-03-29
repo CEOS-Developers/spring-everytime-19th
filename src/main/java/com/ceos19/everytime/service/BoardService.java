@@ -6,7 +6,7 @@ import com.ceos19.everytime.domain.University;
 import com.ceos19.everytime.dto.BoardResponse;
 import com.ceos19.everytime.dto.BoardUpdateRequest;
 import com.ceos19.everytime.dto.CreateBoardRequest;
-import com.ceos19.everytime.dto.DeleteBoardRequest;
+import com.ceos19.everytime.dto.DeleteRequest;
 import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.BoardRepository;
 import com.ceos19.everytime.repository.MemberRepository;
@@ -72,10 +72,10 @@ public class BoardService {
         board.changeDescription(boardUpdateRequest.getDescription());
     }
 
-    public void delete(Long boardId, DeleteBoardRequest deleteBoardRequest){
+    public void delete(Long boardId, DeleteRequest deleteRequest){
         final Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
-        final Member member = memberRepository.findById(deleteBoardRequest.getBoardManagerId())
+        final Member member = memberRepository.findById(deleteRequest.getMemberId())
                 .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
 
         if(board.getBoardManager().equals(member))

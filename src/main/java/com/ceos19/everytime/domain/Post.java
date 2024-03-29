@@ -69,6 +69,10 @@ public class Post extends BaseTimeEntity{
         this.content = content;
     }
 
+    public void changeAnonymous(final boolean isAnonymous){
+        this.isAnonymous = isAnonymous;
+    }
+
     private boolean validateTitle(String title){
         return !title.isEmpty() && title.length() <= MAX_TITLE_LENGTH;
     }
@@ -76,10 +80,5 @@ public class Post extends BaseTimeEntity{
     private boolean validateContent(String content){
         return !content.isEmpty() && content.length() <= MAX_CONTENT_LENGTH;
     }
-
-    private boolean validatePost(String title, String content){
-        return validateTitle(title) && validateContent(content);
-    }
-
 
 }

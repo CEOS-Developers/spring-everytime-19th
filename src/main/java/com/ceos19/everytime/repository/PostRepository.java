@@ -13,6 +13,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findById(Long id);
     Optional<Post> findByTitle(String title);
 
+    List<Post> findAllByBoardId(Long boardId);
+
     @Override
     @EntityGraph(attributePaths = {"board"})
     List<Post> findAll();

@@ -6,6 +6,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
-public class DeleteBoardRequest {
-    private Long boardManagerId;
+public class DeleteRequest {
+    private Long memberId;
 }
