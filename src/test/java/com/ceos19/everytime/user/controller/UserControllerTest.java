@@ -1,7 +1,9 @@
 package com.ceos19.everytime.user.controller;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,5 +61,15 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 회원_탈퇴에_성공한다() throws Exception {
+        // given
+        doNothing().when(userService).deleteUser(anyLong());
+
+        // when & then
+        mockMvc.perform(delete(USER_DEFAULT_URL + "/{userId}", 1L))
+                .andExpect(status().isOk());
     }
 }
