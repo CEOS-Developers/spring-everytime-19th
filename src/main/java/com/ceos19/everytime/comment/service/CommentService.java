@@ -4,12 +4,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ceos19.everytime.comment.domain.Comment;
-import com.ceos19.everytime.post.domain.Post;
-import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.comment.dto.request.CommentWriteRequestDto;
-import com.ceos19.everytime.commentlike.repository.CommentLikeRepository;
 import com.ceos19.everytime.comment.repository.CommentRepository;
+import com.ceos19.everytime.commentlike.repository.CommentLikeRepository;
+import com.ceos19.everytime.global.exception.NotFoundException;
+import com.ceos19.everytime.post.domain.Post;
 import com.ceos19.everytime.post.repository.PostRepository;
+import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,9 +27,9 @@ public class CommentService {
     @Transactional
     public void writeComment(final CommentWriteRequestDto request) {
         final User writer = userRepository.findById(request.writerId())
-                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", request.writerId())));
+                .orElseThrow(() -> new NotFoundException(String.format("User not found: %d", request.writerId())));
         final Post post = postRepository.findById(request.postId())
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Post not found: %d", request.postId())));
+                .orElseThrow(() -> new NotFoundException(String.format(" found: %d", request.postId())));
         final Comment parentComment = findParent(request.parentCommentId());
         final Comment comment = Comment.builder()
                 .content(request.content())
@@ -44,7 +45,7 @@ public class CommentService {
     @Transactional
     public void delete(final Long commentId) {
         final Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Comment not found: %d", commentId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Comment not found: %d", commentId)));
         commentRepository.deleteById(commentId);
         commentLikeRepository.deleteAllByComment(comment);
     }

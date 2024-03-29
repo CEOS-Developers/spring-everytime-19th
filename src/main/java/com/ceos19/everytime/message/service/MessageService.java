@@ -5,12 +5,13 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ceos19.everytime.global.exception.NotFoundException;
 import com.ceos19.everytime.message.domain.Message;
-import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.message.dto.request.MessageReadRequestDto;
 import com.ceos19.everytime.message.dto.request.MessageRequestDto;
 import com.ceos19.everytime.message.dto.response.MessageResponseDto;
 import com.ceos19.everytime.message.repository.MessageRepository;
+import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,6 @@ public class MessageService {
 
     private User getUser(final Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", userId)));
+                .orElseThrow(() -> new NotFoundException(String.format("User not found: %d", userId)));
     }
 }

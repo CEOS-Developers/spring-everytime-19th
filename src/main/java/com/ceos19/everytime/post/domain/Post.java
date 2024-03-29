@@ -75,7 +75,7 @@ public class Post extends BaseEntity {
 
     public void decreaseLikeNumber() {
         if (likeNumber <= 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("likeNumber is already 0.");
         }
         likeNumber--;
     }

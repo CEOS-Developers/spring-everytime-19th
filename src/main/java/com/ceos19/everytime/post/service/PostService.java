@@ -11,6 +11,7 @@ import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.board.repository.BoardRepository;
 import com.ceos19.everytime.comment.domain.Comment;
 import com.ceos19.everytime.comment.repository.CommentRepository;
+import com.ceos19.everytime.global.exception.NotFoundException;
 import com.ceos19.everytime.post.domain.Post;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
 import com.ceos19.everytime.post.dto.response.PostResponseDto;
@@ -33,7 +34,7 @@ public class PostService {
     @Transactional
     public void createPost(final PostCreateRequestDto request) {
         final User writer = userRepository.findById(request.userId())
-                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", request.userId())));
+                .orElseThrow(() -> new NotFoundException(String.format("User not found: %d", request.userId())));
         final Board board = getBoard(request.boardId());
         final Post post = Post.builder()
                 .title(request.title())
@@ -47,7 +48,7 @@ public class PostService {
 
     public PostResponseDto getPost(final Long postId) {
         final Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Post not found: %d", postId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Post not found: %d", postId)));
         final List<Comment> comments = commentRepository.findByPost(post);
         return PostResponseDto.of(post, comments);
     }
@@ -62,6 +63,6 @@ public class PostService {
 
     private Board getBoard(final Long boardId) {
         return boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Board not found: %d", boardId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Board not found: %d", boardId)));
     }
 }
