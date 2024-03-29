@@ -21,7 +21,7 @@ import static com.ceos19.everytime.exception.ErrorCode.NO_DATA_EXISTED;
 public class BoardService {
     private final BoardRepository boardRepository;
 
-    public void addBoard(Board board) {
+    public Long addBoard(Board board) {
         Optional<Board> optionalBoard = boardRepository.findBySchoolIdAndName(board.getSchool().getId(), board.getName());
         if (optionalBoard.isPresent()) {
             log.error("에러 내용: 게시판 등록 실패 " +
@@ -29,6 +29,7 @@ public class BoardService {
             throw new AppException(DATA_ALREADY_EXISTED, "이미 존재하는 게시판입니다");
         }
         boardRepository.save(board);
+        return board.getId();
     }
 
     @Transactional(readOnly = true)
