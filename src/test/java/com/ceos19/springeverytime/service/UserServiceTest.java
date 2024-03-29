@@ -2,7 +2,7 @@ package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.user.domain.User;
-import com.ceos19.springeverytime.repository.UserRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import com.ceos19.springeverytime.domain.user.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

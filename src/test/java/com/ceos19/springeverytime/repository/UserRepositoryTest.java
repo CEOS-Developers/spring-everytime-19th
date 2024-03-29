@@ -2,6 +2,7 @@ package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class UserRepositoryTest {
-    @Autowired UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
     @Test
     @DisplayName("유저 생성 테스트")
     void 유저_생성_테스트() {

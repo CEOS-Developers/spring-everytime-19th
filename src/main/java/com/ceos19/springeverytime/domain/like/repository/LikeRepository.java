@@ -1,11 +1,11 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.domain.like.repository;
 
-import com.ceos19.springeverytime.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
-import com.ceos19.springeverytime.domain.like.CommentLike;
-import com.ceos19.springeverytime.domain.like.Like;
-import com.ceos19.springeverytime.domain.like.PostLike;
+import com.ceos19.springeverytime.domain.like.domain.CommentLike;
+import com.ceos19.springeverytime.domain.like.domain.Like;
+import com.ceos19.springeverytime.domain.like.domain.PostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

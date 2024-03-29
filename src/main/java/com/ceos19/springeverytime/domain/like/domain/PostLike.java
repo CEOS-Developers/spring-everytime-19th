@@ -1,4 +1,4 @@
-package com.ceos19.springeverytime.domain.like;
+package com.ceos19.springeverytime.domain.like.domain;
 
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;

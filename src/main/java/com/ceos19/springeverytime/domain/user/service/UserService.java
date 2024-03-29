@@ -1,7 +1,7 @@
 package com.ceos19.springeverytime.domain.user.service;
 
 import com.ceos19.springeverytime.domain.user.domain.User;
-import com.ceos19.springeverytime.repository.UserRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,10 +1,11 @@
 package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatroom.service.ChatRoomService;
 import com.ceos19.springeverytime.domain.user.domain.User;
-import com.ceos19.springeverytime.repository.ChatRoomRepository;
-import com.ceos19.springeverytime.repository.UserRepository;
+import com.ceos19.springeverytime.domain.chatroom.repository.ChatRoomRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

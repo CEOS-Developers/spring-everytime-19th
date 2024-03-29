@@ -1,14 +1,10 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.domain.chatmessage.repository;
 
-import com.ceos19.springeverytime.domain.ChatMessage;
-import com.ceos19.springeverytime.domain.ChatRoom;
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
+import com.ceos19.springeverytime.domain.chatmessage.domain.ChatMessage;
+import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 

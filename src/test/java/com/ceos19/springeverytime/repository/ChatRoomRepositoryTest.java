@@ -1,8 +1,11 @@
 package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatmessage.repository.ChatMessageRepository;
+import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatroom.repository.ChatRoomRepository;
 import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ChatRoomRepositoryTest {
     @Autowired EntityManager em;
-    @Autowired ChatRoomRepository chatRoomRepository;
-    @Autowired ChatMessageRepository chatMessageRepository;
-    @Autowired UserRepository userRepository;
+    @Autowired
+    ChatRoomRepository chatRoomRepository;
+    @Autowired
+    ChatMessageRepository chatMessageRepository;
+    @Autowired
+    UserRepository userRepository;
 
     User user1, user2;
 

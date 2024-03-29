@@ -1,7 +1,7 @@
-package com.ceos19.springeverytime.service;
+package com.ceos19.springeverytime.domain.image.service;
 
-import com.ceos19.springeverytime.domain.Image;
-import com.ceos19.springeverytime.repository.ImageRepository;
+import com.ceos19.springeverytime.domain.image.domain.Image;
+import com.ceos19.springeverytime.domain.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

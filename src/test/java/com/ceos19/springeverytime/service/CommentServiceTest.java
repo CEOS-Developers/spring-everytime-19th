@@ -2,10 +2,11 @@ package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.category.domain.Category;
-import com.ceos19.springeverytime.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.service.CommentService;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
-import com.ceos19.springeverytime.repository.CommentRepository;
+import com.ceos19.springeverytime.domain.comment.repository.CommentRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

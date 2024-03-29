@@ -1,4 +1,4 @@
-package com.ceos19.springeverytime.domain.like;
+package com.ceos19.springeverytime.domain.like.domain;
 
 import com.ceos19.springeverytime.domain.BaseEntity;
 import com.ceos19.springeverytime.domain.user.domain.User;

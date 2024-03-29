@@ -2,11 +2,13 @@ package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
 import com.ceos19.springeverytime.domain.category.domain.Category;
-import com.ceos19.springeverytime.domain.Image;
+import com.ceos19.springeverytime.domain.image.domain.Image;
+import com.ceos19.springeverytime.domain.image.repository.ImageRepository;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
 import com.ceos19.springeverytime.domain.post.repository.PostRepository;
 import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,10 +22,12 @@ import java.util.List;
 @SpringBootTest
 @Transactional
 public class ImageRepositoryTest {
-    @Autowired ImageRepository imageRepository;
+    @Autowired
+    ImageRepository imageRepository;
     @Autowired
     CategoryRepository categoryRepository;
-    @Autowired UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
     @Autowired
     PostRepository postRepository;
 

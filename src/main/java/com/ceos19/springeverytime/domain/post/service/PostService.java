@@ -9,7 +9,7 @@ import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.global.exception.BadRequestException;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
 import com.ceos19.springeverytime.domain.post.repository.PostRepository;
-import com.ceos19.springeverytime.repository.UserRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

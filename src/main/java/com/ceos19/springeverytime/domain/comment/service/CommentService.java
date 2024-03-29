@@ -1,7 +1,7 @@
-package com.ceos19.springeverytime.service;
+package com.ceos19.springeverytime.domain.comment.service;
 
-import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.repository.CommentRepository;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

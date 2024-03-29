@@ -7,7 +7,7 @@ import com.ceos19.springeverytime.domain.category.dto.request.CategoryCreateRequ
 import com.ceos19.springeverytime.domain.category.dto.request.CategoryUpdateRequest;
 import com.ceos19.springeverytime.global.exception.BadRequestException;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
-import com.ceos19.springeverytime.repository.UserRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;

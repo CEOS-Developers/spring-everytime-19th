@@ -1,7 +1,7 @@
 package com.ceos19.springeverytime.common;
 
 import com.ceos19.springeverytime.domain.category.domain.Category;
-import com.ceos19.springeverytime.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
 

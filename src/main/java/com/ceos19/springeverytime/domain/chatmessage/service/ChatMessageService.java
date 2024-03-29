@@ -1,8 +1,8 @@
-package com.ceos19.springeverytime.service;
+package com.ceos19.springeverytime.domain.chatmessage.service;
 
-import com.ceos19.springeverytime.domain.ChatMessage;
-import com.ceos19.springeverytime.domain.ChatRoom;
-import com.ceos19.springeverytime.repository.ChatMessageRepository;
+import com.ceos19.springeverytime.domain.chatmessage.domain.ChatMessage;
+import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatmessage.repository.ChatMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

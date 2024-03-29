@@ -7,7 +7,7 @@ import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.category.dto.request.CategoryCreateRequest;
 import com.ceos19.springeverytime.global.exception.BadRequestException;
 import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
-import com.ceos19.springeverytime.repository.UserRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,5 +1,7 @@
-package com.ceos19.springeverytime.domain;
+package com.ceos19.springeverytime.domain.chatmessage.domain;
 
+import com.ceos19.springeverytime.domain.BaseEntity;
+import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;

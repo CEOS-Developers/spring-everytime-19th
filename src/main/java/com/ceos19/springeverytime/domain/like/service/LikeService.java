@@ -1,11 +1,11 @@
-package com.ceos19.springeverytime.service;
+package com.ceos19.springeverytime.domain.like.service;
 
-import com.ceos19.springeverytime.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
-import com.ceos19.springeverytime.domain.like.CommentLike;
-import com.ceos19.springeverytime.domain.like.PostLike;
-import com.ceos19.springeverytime.repository.LikeRepository;
+import com.ceos19.springeverytime.domain.like.domain.CommentLike;
+import com.ceos19.springeverytime.domain.like.domain.PostLike;
+import com.ceos19.springeverytime.domain.like.repository.LikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

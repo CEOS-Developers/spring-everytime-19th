@@ -1,10 +1,10 @@
 package com.ceos19.springeverytime.domain.post.domain;
 
 import com.ceos19.springeverytime.domain.BaseEntity;
-import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.domain.Image;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
+import com.ceos19.springeverytime.domain.image.domain.Image;
 import com.ceos19.springeverytime.domain.category.domain.Category;
-import com.ceos19.springeverytime.domain.like.PostLike;
+import com.ceos19.springeverytime.domain.like.domain.PostLike;
 import com.ceos19.springeverytime.domain.post.dto.request.PostUpdateRequest;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.*;

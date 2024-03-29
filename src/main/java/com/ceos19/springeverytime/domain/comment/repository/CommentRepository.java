@@ -1,6 +1,6 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.domain.comment.repository;
 
-import com.ceos19.springeverytime.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

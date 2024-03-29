@@ -1,6 +1,6 @@
-package com.ceos19.springeverytime.domain.like;
+package com.ceos19.springeverytime.domain.like.domain;
 
-import com.ceos19.springeverytime.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

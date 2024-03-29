@@ -1,4 +1,4 @@
-package com.ceos19.springeverytime.repository;
+package com.ceos19.springeverytime.domain.user.repository;
 
 import com.ceos19.springeverytime.domain.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -9,7 +9,7 @@ import com.ceos19.springeverytime.domain.post.dto.response.PostDetailResponse;
 import com.ceos19.springeverytime.domain.post.service.PostService;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.post.repository.PostRepository;
-import com.ceos19.springeverytime.repository.UserRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
