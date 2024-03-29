@@ -1,5 +1,7 @@
 package com.ceos19.everytime.user.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,5 +26,11 @@ public class UserController {
     @PostMapping
     public void signUp(@RequestBody final UserSaveRequestDto request) {
         userService.saveUser(request);
+    }
+
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 합니다.")
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable final Long userId) {
+        userService.deleteUser(userId);
     }
 }
