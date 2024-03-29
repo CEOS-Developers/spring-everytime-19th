@@ -12,7 +12,6 @@ import com.ceos19.everytime.board.repository.BoardRepository;
 import com.ceos19.everytime.comment.domain.Comment;
 import com.ceos19.everytime.comment.repository.CommentRepository;
 import com.ceos19.everytime.post.domain.Post;
-import com.ceos19.everytime.post.domain.Posts;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
 import com.ceos19.everytime.post.dto.response.PostResponseDto;
 import com.ceos19.everytime.post.repository.PostRepository;
@@ -55,8 +54,10 @@ public class PostService {
 
     public List<BoardPostsResponseDto> getPosts(final BoardPostsRequestDto request) {
         final Board findBoard = getBoard(request.boardId());
-        final Posts posts = new Posts(postRepository.findAllFetchJoin(findBoard));
-        return posts.toResponseDto();
+        final List<Post> posts = postRepository.findAllFetchJoin(findBoard);
+        return posts.stream()
+                .map(BoardPostsResponseDto::from)
+                .toList();
     }
 
     private Board getBoard(final Long boardId) {

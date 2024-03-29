@@ -439,3 +439,27 @@ void 댓글을_삭제한다() {
     assertThat(result).isTrue();
 }
 ```
+
+### Posts 클래스 삭제
+
+Posts 클래스는 Post의 리스트를 감싸는 일급 컬렉션으로, 이 클래스는 dto로 변환하는 메서드만 가지고 있었습니다.
+
+```java
+public class Posts {
+
+    private final List<Post> posts;
+
+    public Posts(final List<Post> posts) {
+        this.posts = posts;
+    }
+
+    public List<BoardPostsResponseDto> toResponseDto() {
+        return posts.stream()
+                .map(BoardPostsResponseDto::from)
+                .toList();
+    }
+}
+```
+
+
+일급 컬렉션은 도메인에 더 가깝다는 생각이 들어서 dto 리스트로 변환하는 로직을 서비스 레이어로 옮기고 Posts 클래스를 삭제했습니다.
