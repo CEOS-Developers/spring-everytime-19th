@@ -50,35 +50,36 @@ public class LikeRepositoryTest {
     }
 
     @Test
-    @DisplayName("게시글 좋아요 생성 테스트")
+    @DisplayName("게시글 좋아요를 생성하면 해당 좋아요 데이터가 반환된다.")
     void 게시글_좋아요_생성_테스트() throws Exception {
         //given
         Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user1, category);
         postRepository.save(post1);
 
         //when
-        PostLike like1 = post1.like(user1);
-        PostLike saveLike1 = likeRepository.save(like1);
+        PostLike postLike = new PostLike(user1, post1);
+        PostLike saveLike1 = likeRepository.save(postLike);
 
         //then
-        Assertions.assertEquals(saveLike1, like1);
+        Assertions.assertEquals(saveLike1, postLike);
     }
 
     @Test
-    @DisplayName("게시글 좋아요 취소 테스트")
+    @DisplayName("게시글 좋아요를 삭제한다.")
     void 게시글_좋아요_취소_테스트() throws Exception {
         //given
         Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user1, category);
         postRepository.save(post1);
-        PostLike like1 = post1.like(user1);
-        likeRepository.save(like1);
+        PostLike postLike = new PostLike(user1, post1);
+        PostLike saveLike1 = likeRepository.save(postLike);
         em.flush();
 
         //when
-        likeRepository.delete(like1);
+        likeRepository.delete(saveLike1);
 
         //then
-        Optional<PostLike> findLike = likeRepository.findPostLikeByPostAndUser(post1, user1);
+        Optional<PostLike> findLike = likeRepository
+                .findPostLikeByPostIdAndUserId(post1.getPostId(), user1.getUserId());
         Assertions.assertTrue(findLike.isEmpty());
     }
 

@@ -42,7 +42,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostLike> postLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
@@ -63,9 +63,5 @@ public class Post extends BaseEntity {
         Comment comment = Comment.builder().post(this).author(author).content(content).isAnonymous(isAnonymous).build();
         this.comments.add(comment);
         return comment;
-    }
-
-    public PostLike like(User user) {
-        return new PostLike(user, this);
     }
 }

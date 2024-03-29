@@ -375,7 +375,7 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
   </tr>
 
   <tr>
-    <td rowspan="4">Post</td>
+    <td rowspan="5">Post</td>
     <td>POST</td>
     <td rowspan="4"><code>/category/{category_id}/post</code></td>
     <td><code>/</code></td>
@@ -405,8 +405,17 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td>글 삭제</td>
   </tr>
   <tr>
+    <td>POST</td>
+    <td></td>
+    <td><code>/post/{post_id}/like</code></td>
+    <td></td>
+    <td></td>
+    <td>게시글 좋아요 업데이트(생성/삭제)</td>
+  </tr>
+
+  <tr>
     <td rowspan="4">Comment</td>
-    <td>DELETE</td>
+    <td>POST</td>
     <td rowspan="4"><code>/comments</code></td>
     <td><code>/</code></td>
     <td><code>{"content": String, "isAnonymous": boolean}</code></td>
