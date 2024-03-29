@@ -22,4 +22,15 @@ public class likeController {
         likeService.updatePostLike(postId, userId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/comments/{commentId}/like")
+    public ResponseEntity<Void> updateCommentLike(@PathVariable final Long commentId) {
+        // TEMPORARY
+        Long userId = 1L;
+        // TEMPORARY
+
+        // redis를 사용해서 캐시로 구현한 예제가 있어, 나중에 리펙토링 해보고 싶다.
+        likeService.updateCommentLike(commentId, userId);
+        return ResponseEntity.ok().build();
+    }
 }

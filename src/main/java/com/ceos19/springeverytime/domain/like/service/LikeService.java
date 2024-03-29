@@ -4,6 +4,7 @@ import static com.ceos19.springeverytime.global.exception.ExceptionCode.NOT_FOUN
 import static com.ceos19.springeverytime.global.exception.ExceptionCode.NOT_FOUND_POST_ID;
 
 import com.ceos19.springeverytime.domain.comment.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.repository.CommentRepository;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.post.repository.PostRepository;
 import com.ceos19.springeverytime.domain.user.domain.User;
@@ -25,6 +26,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
 
     @Transactional
@@ -44,18 +46,18 @@ public class LikeService {
     }
 
     @Transactional
-    public CommentLike createCommentLike(Comment comment, User user) {
-        CommentLike commentLike = new CommentLike(user, comment);
-        return likeRepository.save(commentLike);
-    }
+    public void updateCommentLike(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_POST_ID));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_USER_ID));
 
-    @Transactional
-    public void removeCommentLike(Comment comment, User user) {
-        Optional<CommentLike> findCommentLike = likeRepository.findCommentLikeByCommentAndUser(comment, user);
-        if (findCommentLike.isEmpty()) {
-            throw new IllegalArgumentException("해당하는 좋아요 데이터가 없습니다.");
-        }
-
-        likeRepository.delete(findCommentLike.get());
+        likeRepository.findCommentLikeByCommentIdAndUserId(commentId, userId).ifPresentOrElse(
+                likeRepository::delete,
+                () -> {
+                    final CommentLike commentLike = new CommentLike(user, comment);
+                    likeRepository.save(commentLike);
+                }
+        );
     }
 }

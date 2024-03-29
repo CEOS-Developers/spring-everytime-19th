@@ -99,7 +99,8 @@ public class LikeRepositoryTest {
         likeRepository.delete(like1);
 
         //then
-        Optional<CommentLike> findLike = likeRepository.findCommentLikeByCommentAndUser(comment, user1);
+        Optional<CommentLike> findLike = likeRepository
+                .findCommentLikeByCommentIdAndUserId(comment.getCommentId(), user1.getUserId());
         Assertions.assertTrue(findLike.isEmpty());
     }
 }

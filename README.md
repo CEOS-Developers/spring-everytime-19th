@@ -436,6 +436,13 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td></td>
     <td>댓글 삭제</td>
   </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/{comment_id}/like</code></td>
+    <td></td>
+    <td></td>
+    <td>댓글 좋아요 업데이트 (생성/삭제)</td>
+  </tr>
 </table>
 
 ### Controller Test
@@ -447,3 +454,5 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
 - `Optional` 객체의 존재 여부를 체크하여 에러를 발생시킬 때 `orElseThrow`를 사용하도록 변경
 - DTO 파일이 많아져 관리의 용이성을 위해 디렉토리 구조를 계층형에서 도메인형으로 변경
 - 테스트 결과 두 객체를 비교할 때 usingRecursiveComparison 사용 
+- 좋아요를 생성/삭제할 때, post, comment 에서 like 메서드를 호출하는 방식대신   
+  likeService.updatePostLike(), updateCommentLike() 메서드로 처리하도록 수정
