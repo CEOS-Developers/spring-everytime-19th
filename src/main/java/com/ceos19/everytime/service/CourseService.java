@@ -54,6 +54,17 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
+    public List<Course> findCourseBySchoolId(Long schoolId) {
+        if (schoolRepository.findById(schoolId).isEmpty()) {
+            log.error("에러 내용: 학교 조회 실패 " +
+                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+        }
+
+        return courseRepository.findBySchoolId(schoolId);
+    }
+
+    @Transactional(readOnly = true)
     public List<Course> findCourseByTimeTableId(Long timeTableId) {
         List<TimeTableCourse> timeTableCourses = timeTableCourseRepository.findByTimeTableId(timeTableId);
 
