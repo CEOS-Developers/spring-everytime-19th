@@ -1,11 +1,10 @@
 package com.ceos19.everytime.exception;
 
-import org.springframework.http.HttpStatus;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-public interface ApplicationException {
-
-    String name();
-    HttpStatus getHttpStatus();
-    String getMessage();
-
+@AllArgsConstructor
+@Getter
+public class CustomException extends RuntimeException {
+    private final ErrorCode errorCode;
 }
