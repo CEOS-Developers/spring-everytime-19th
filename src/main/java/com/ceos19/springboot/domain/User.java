@@ -1,5 +1,6 @@
 package com.ceos19.springboot.domain;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -31,14 +32,9 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private String userFirst;
 
+    @Email
     @Column(nullable = false, length = 20)
     private String email;
-
-    @Column(nullable = false)
-    private Boolean isBoardManager;
-
-    @Column(nullable = false, length = 20)
-    private String board;
 
     @Column(nullable = false)
     private Boolean isBanned;
@@ -50,8 +46,7 @@ public class User extends BaseTimeEntity {
     @Builder
     public User(String username, String password, String nickname,
                   Boolean isAdmin, String userLast, School school,
-                  String userFirst, String email, Boolean isBoardManager,
-                  String board, Boolean isBanned) {
+                  String userFirst, String email, Boolean isBanned) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
@@ -59,9 +54,15 @@ public class User extends BaseTimeEntity {
         this.userLast = userLast;
         this.userFirst = userFirst;
         this.email = email;
-        this.isBoardManager = isBoardManager;
-        this.board = board;
         this.isBanned = isBanned;
         this.school = school;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }
