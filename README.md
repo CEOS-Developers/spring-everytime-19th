@@ -339,8 +339,6 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <th>Method</th>
     <th>Base URL</th>
     <th>URL</th>
-    <th>Request</th>
-    <th>Response</th>
     <th>Description</th>
   </tr>
   <tr>
@@ -348,29 +346,21 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td>GET</td>
     <td rowspan="4"><code>/category</code></td>
     <td><code>/{category_id}/page/{page_number}</code></td>
-    <td></td>
-    <td></td>
     <td>게시판 게시글 조회(페이징)</td>
   </tr>
   <tr>
     <td>POST</td>
     <td><code>/</code></td>
-    <td><code>{"category_name": string, "category_description": string}</code></td>
-    <td></td>
     <td>게시판 생성</td>
   </tr>
   <tr>
     <td>PUT</td>
     <td><code>/{category_id}/description</code></td>
-    <td><code>{"category_description": string}</code></td>
-    <td></td>
     <td>게시판 설명 수정</td>
   </tr>
   <tr>
     <td>DELETE</td>
     <td><code>/{category_id}</code></td>
-    <td></td>
-    <td></td>
     <td>게시판 삭제</td>
   </tr>
 
@@ -379,37 +369,27 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td>POST</td>
     <td rowspan="4"><code>/category/{category_id}/post</code></td>
     <td><code>/</code></td>
-    <td></td>
-    <td></td>
     <td>글 작성</td>
   </tr>
   <tr>
     <td>GET</td>
     <td><code>/{post_id}</code></td>
-    <td></td>
-    <td></td>
     <td>글 조회</td>
   </tr>
   <tr>
     <td>PUT</td>
     <td><code>/{post_id}</code></td>
-    <td></td>
-    <td></td>
     <td>글 수정</td>
   </tr>
   <tr>
     <td>DELETE</td>
     <td><code>/{post_id}</code></td>
-    <td></td>
-    <td></td>
     <td>글 삭제</td>
   </tr>
   <tr>
     <td>POST</td>
     <td></td>
     <td><code>/post/{post_id}/like</code></td>
-    <td></td>
-    <td></td>
     <td>게시글 좋아요 업데이트(생성/삭제)</td>
   </tr>
 
@@ -418,29 +398,21 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td>POST</td>
     <td rowspan="4"><code>/comments</code></td>
     <td><code>/</code></td>
-    <td><code>{"content": String, "isAnonymous": boolean}</code></td>
-    <td></td>
     <td>댓글 생성</td>
   </tr>
   <tr>
     <td>POST</td>
     <td><code>/{comment_id}</code></td>
-    <td><code>{"content": String, "isAnonymous": boolean}</code></td>
-    <td></td>
     <td>대댓글 생성</td>
   </tr>
   <tr>
     <td>DELETE</td>
     <td><code>/{comment_id}</code></td>
-    <td></td>
-    <td></td>
     <td>댓글 삭제</td>
   </tr>
   <tr>
     <td>POST</td>
     <td><code>/{comment_id}/like</code></td>
-    <td></td>
-    <td></td>
     <td>댓글 좋아요 업데이트 (생성/삭제)</td>
   </tr>
 
@@ -449,29 +421,21 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td>GET</td>
     <td rowspan="4"><code>/chat/room</code></td>
     <td><code>/list</code></td>
-    <td></td>
-    <td></td>
     <td>쪽지함 내 쪽지방 조회</td>
   </tr>
   <tr>
     <td>GET</td>
     <td><code>/{room_id}</code></td>
-    <td></td>
-    <td></td>
     <td>쪽지방 단건 조회</td>
   </tr>
   <tr>
     <td>DELETE</td>
     <td><code>/{room_id}</code></td>
-    <td></td>
-    <td></td>
     <td>쪽지방 삭제</td>
   </tr>
   <tr>
     <td>POST</td>
     <td><code>/</code></td>
-    <td></td>
-    <td></td>
     <td>쪽지방 생성</td>
   </tr>
 
@@ -480,8 +444,6 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td>POST</td>
     <td rowspan="1"><code>/chat/rooms/{room_id}/message</code></td>
     <td><code>/</code></td>
-    <td></td>
-    <td></td>
     <td>기존 채팅방에 채팅 전송</td>
   </tr>
 
@@ -490,15 +452,11 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td>POST</td>
     <td rowspan="2"><code>/image</code></td>
     <td><code>/</code></td>
-    <td></td>
-    <td></td>
     <td>이미지 업로드</td>
   </tr>
 </table>
 
-### Controller Test
-
-### Swagger 연동 확인
+### Controller Test를 위한 Swagger 연동 확인
 1. 의존성을 추가한다. spring-doc, spring-fox 가 있는데, spring-fox는 4년전 이후로 업데이트가 없어 spring-doc를 사용하였다. 
 ![image](https://github.com/kckc0608/kckc0608/assets/64959010/211f9511-0b7d-416e-9e14-605a19311416)
 
@@ -515,3 +473,4 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
 - 테스트 결과 두 객체를 비교할 때 usingRecursiveComparison 사용 
 - 좋아요를 생성/삭제할 때, post, comment 에서 like 메서드를 호출하는 방식대신   
   likeService.updatePostLike(), updateCommentLike() 메서드로 처리하도록 수정
+- 좋아요를 생성/삭제하는 메서드를 분리하지 않고, 업데이트 메서드 하나로 없으면 생성, 있으면 삭제하는 방식으로 구현
