@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,10 +33,12 @@ public class Community extends BaseEntity {
     private String name;
 
 
-    @Builder
-    public Community(Member member,String name){
-        this.member=member;
-        this.name=name;
+    private Community(Member member,String name){
+        this.member = member;
+        this.name = name;
+    }
+    public static Community of(Member manager,String name){
+        return new Community(manager,name);
     }
 
 
