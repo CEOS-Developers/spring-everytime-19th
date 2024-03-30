@@ -29,17 +29,17 @@ public class Friend extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_user_id")
-    private User user1;
+    private User request_user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "response_user_id")
-    private User user2;
+    private User response_user;
 
     @Builder
-    public Friend(Long friendId, boolean isAccepted, User user1, User user2) {
+    public Friend(Long friendId, boolean isAccepted, User request_user, User response_user) {
         this.friendId = friendId;
         this.isAccepted = isAccepted;
-        this.user1 = user1;
-        this.user2 = user2;
+        this.request_user = request_user;
+        this.response_user = response_user;
     }
 }
