@@ -2,10 +2,6 @@ package com.ceos19.everytime.dto;
 
 import com.ceos19.everytime.domain.AboutPost.Comment;
 import com.ceos19.everytime.domain.AboutUser.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

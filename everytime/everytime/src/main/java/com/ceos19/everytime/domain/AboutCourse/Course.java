@@ -2,22 +2,24 @@ package com.ceos19.everytime.domain.AboutCourse;
 
 
 import com.ceos19.everytime.constant.DayOfWeek;
-import com.ceos19.everytime.domain.AboutCourse.AddedCourse;
 import com.ceos19.everytime.domain.BaseTimeEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Getter
-@Builder
 public class Course extends BaseTimeEntity {
 
     @Id
@@ -63,5 +65,19 @@ public class Course extends BaseTimeEntity {
     //강의 설명
     private String description;
 
-
+    @Builder
+    public Course(Long courseId, String courseCode, Integer division, String className, String professor, DayOfWeek classDay, String location, Integer period, Integer credit, Time startTime, Time endTime, String description) {
+        this.courseId = courseId;
+        this.courseCode = courseCode;
+        this.division = division;
+        this.className = className;
+        this.professor = professor;
+        this.classDay = classDay;
+        this.location = location;
+        this.period = period;
+        this.credit = credit;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+    }
 }

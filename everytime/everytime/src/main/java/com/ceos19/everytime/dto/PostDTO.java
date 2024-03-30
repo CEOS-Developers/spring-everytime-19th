@@ -1,12 +1,10 @@
 package com.ceos19.everytime.dto;
 
-import com.ceos19.everytime.domain.AboutPost.Image;
 import com.ceos19.everytime.domain.AboutPost.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
