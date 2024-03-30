@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -110,6 +111,22 @@ class PostControllerTest {
 
         // when & then
         mockMvc.perform(post(DEFAULT_POST_URL + "/likes/{postId}", postId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    void 게시글에_좋아요를_취소한다() throws Exception {
+        // given
+        doNothing().when(postLikeService).cancelLike(anyLong(), any());
+
+        final Long postId = 1L;
+        final PostLikeRequestDto request = new PostLikeRequestDto(1L);
+
+        // when & then
+        mockMvc.perform(delete(DEFAULT_POST_URL + "/likes/{postId}", postId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
