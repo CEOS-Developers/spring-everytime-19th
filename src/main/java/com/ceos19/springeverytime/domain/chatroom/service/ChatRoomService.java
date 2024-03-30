@@ -1,10 +1,14 @@
 package com.ceos19.springeverytime.domain.chatroom.service;
 
+import static com.ceos19.springeverytime.global.exception.ExceptionCode.NOT_FOUND_CHAT_ROOM_ID;
+
 import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatroom.dto.response.ChatRoomDetailResponse;
 import com.ceos19.springeverytime.domain.chatroom.dto.response.ChatRoomResponse;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.chatroom.repository.ChatRoomRepository;
 import com.ceos19.springeverytime.domain.user.repository.UserRepository;
+import com.ceos19.springeverytime.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,5 +79,12 @@ public class ChatRoomService {
         if (room1.isPresent() || room2.isPresent()) {
             throw new IllegalArgumentException("user1 user2가 대화중인 방이 이미 존재합니다.");
         }
+    }
+
+    public ChatRoomDetailResponse getCharRoomDetail(final Long roomId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_CHAT_ROOM_ID));
+
+        return ChatRoomDetailResponse.from(room);
     }
 }

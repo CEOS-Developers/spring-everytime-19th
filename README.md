@@ -445,19 +445,26 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
   </tr>
 
   <tr>
-    <td rowspan="1">ChatRoom</td>
-    <td>POST</td>
-    <td rowspan="1"><code>/chatroom</code></td>
-    <td><code>/list</code></td>
+    <td rowspan="2">ChatRoom</td>
+    <td>GET</td>
+    <td rowspan="2"><code>/chat/rooms</code></td>
+    <td><code>/</code></td>
     <td></td>
     <td></td>
-    <td>쪽지함 조회</td>
+    <td>쪽지함 내 쪽지방 조회</td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td><code>/{room_id}</code></td>
+    <td></td>
+    <td></td>
+    <td>쪽지방 단건 조회</td>
   </tr>
 
   <tr>
     <td rowspan="4">ChatMessage</td>
     <td>POST</td>
-    <td rowspan="4"><code>/chatM</code></td>
+    <td rowspan="4"><code>/chat/message</code></td>
     <td><code>/</code></td>
     <td></td>
     <td></td>

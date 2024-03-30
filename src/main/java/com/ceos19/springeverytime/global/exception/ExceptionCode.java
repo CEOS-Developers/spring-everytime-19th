@@ -13,8 +13,9 @@ public enum ExceptionCode {
     NOT_FOUND_POST_ID(1003, "요청한 ID에 해당하는 게시글이 존재하지 않습니다."),
     NOT_FOUND_COMMENT_ID(1004, "요청한 ID에 해당하는 댓글이 존재하지 않습니다."),
     NOT_FOUND_IMAGE_ID(1005, "요청한 ID에 해당하는 이미지가 존재하지 않습니다."),
-    NOT_FOUND_POST_WITH_MEMBER(1006, "요청한 유저 ID와 게시글 ID에 해당하는 게시글이 존재하지 않습니다."),
-    NOT_FOUND_COMMENT_WITH_MEMBER(1007, "요청한 유저 ID와 댓글 ID에 해당하는 게시글이 존재하지 않습니다."),
+    NOT_FOUND_CHAT_ROOM_ID(1006, "요청한 ID에 해당하는 채팅방이 존재하지 않습니다."),
+    NOT_FOUND_POST_WITH_MEMBER(1007, "요청한 유저 ID와 게시글 ID에 해당하는 게시글이 존재하지 않습니다."),
+    NOT_FOUND_COMMENT_WITH_MEMBER(1008, "요청한 유저 ID와 댓글 ID에 해당하는 게시글이 존재하지 않습니다."),
 
     SHOULD_EXCEED_14_DAYS_TO_DELETE(2001, "카테고리를 삭제하려면 생성 후 14일이 지나야 합니다.");
 
