@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +42,6 @@ public class PostService {
 
         return commentRepository.save(addedComment);// 댓글 저장
     }
-
 
     //4. 게시글에 좋아요 기능
     @Transactional
@@ -76,9 +76,15 @@ public class PostService {
     //8. 게시글 대댓글 삭제 기능
     @Transactional
     public Comment deleteSubcomment(long commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(()->new IllegalArgumentException("Not Found: "+commentId);
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()->new IllegalArgumentException("Not Found: "+commentId));
         comment.deleteSubcomment(comment.getLikeNum()); // 좋아요 수 -1
         comment = commentRepository.save(comment); // 변경 사항 저장
         return comment;
+    }
+
+    //9. 모든 게시글 조회
+    @Transactional(readOnly = true)
+    public List<Post> findAll() {
+        return postRepository.findAll();
     }
 }
