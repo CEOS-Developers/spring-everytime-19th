@@ -33,9 +33,9 @@ public class MessageService {
         messageRepository.save(message);
     }
 
-    public List<MessageResponseDto> readMessage(final MessageReadRequestDto request) {
+    public List<MessageResponseDto> readMessage(final Long messageId, final MessageReadRequestDto request) {
         final User receiver = getUser(request.receiverId());
-        final List<Message> messages = messageRepository.findByIdAndReceiver(request.messageId(), receiver);
+        final List<Message> messages = messageRepository.findByIdAndReceiver(messageId, receiver);
         return messages.stream()
                 .map(message -> new MessageResponseDto(message.getSender().getNickname(), message.getContent(),
                         message.getTransferTime()))
