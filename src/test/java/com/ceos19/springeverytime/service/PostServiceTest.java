@@ -56,11 +56,11 @@ public class PostServiceTest {
         Post post = EntityGenerator.generatePost(user1, category);
         PostCreateRequest request = PostCreateRequest.of("제목", "내용", true, new ArrayList<>());
         given(postRepository.save(any(Post.class))).willReturn(post);
-        given(userRepository.findByLoginId(anyString())).willReturn(Optional.of(user1));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user1));
         given(categoryRepository.findById(anyLong())).willReturn(Optional.of(category));
 
         // when
-        Post newPost = postService.save(1L, request);
+        Post newPost = postService.save(1L,1L, request);
 
         // then
         Assertions.assertThat(newPost).usingRecursiveComparison().isEqualTo(post);

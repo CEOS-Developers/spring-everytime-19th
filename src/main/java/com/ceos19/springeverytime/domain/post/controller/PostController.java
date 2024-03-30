@@ -31,7 +31,10 @@ public class PostController {
             @PathVariable Long categoryId,
             @RequestBody @Valid final PostCreateRequest request
     ) {
-        final Post post = postService.save(categoryId, request);
+        /// TEMPORARY
+        final Long userId = 1L;
+        /// TEMPORARY
+        final Post post = postService.save(userId, categoryId, request);
         return ResponseEntity.created(URI.create("/category/"+categoryId+"/post/"+post.getPostId())).build();
     }
 

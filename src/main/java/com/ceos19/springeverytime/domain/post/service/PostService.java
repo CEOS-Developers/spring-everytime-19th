@@ -31,9 +31,9 @@ public class PostService {
     }
 
     @Transactional
-    public Post save(Long categoryId, PostCreateRequest request) {
-        User user = userRepository.findByLoginId("test").orElse(
-                userRepository.save(new User("test","test", "test", "test", "test", "20", "test@example.com"))
+    public Post save(Long userId, Long categoryId, PostCreateRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new BadRequestException(NOT_FOUND_USER_ID)
         );
         Category category = categoryRepository.findById(categoryId).orElseThrow(
                 ()-> new BadRequestException(NOT_FOUND_CATEGORY_ID)
