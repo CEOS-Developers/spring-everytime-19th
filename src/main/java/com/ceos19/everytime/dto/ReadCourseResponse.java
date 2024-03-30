@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class ReadCourseResponse {
+    private Long id;
     private String name;
     private String courseNumber;
     private String professorName;
@@ -20,7 +20,8 @@ public class ReadCourseResponse {
     private String room;
 
     public static ReadCourseResponse from(Course course) {
-        return new ReadCourseResponse(course.getName(),
+        return new ReadCourseResponse(course.getId(),
+                course.getName(),
                 course.getCourseNumber(),
                 course.getProfessorName(),
                 course.getCredit(),
