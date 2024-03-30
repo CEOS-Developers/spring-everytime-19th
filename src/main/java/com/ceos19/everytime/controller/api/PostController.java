@@ -1,7 +1,10 @@
 package com.ceos19.everytime.controller.api;
 
+import com.ceos19.everytime.domain.Comment;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.PostLike;
+import com.ceos19.everytime.domain.User;
+import com.ceos19.everytime.dto.AddCommentRequest;
 import com.ceos19.everytime.dto.AddPostLikeRequest;
 import com.ceos19.everytime.dto.BaseResponse;
 import com.ceos19.everytime.dto.ReadPostResponse;
@@ -44,4 +47,26 @@ public class PostController {
             return new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
         }
     }
+
+    @PostMapping("/{pid}/comments")
+    public BaseResponse addComment(@PathVariable("pid") Long postId, @Valid @RequestBody AddCommentRequest request) {
+        try {
+            Post post = postService.findPostById(postId);
+            User commenter = userService.findUserById(request.getCommenterId());
+            Comment parentComment = null;
+
+            // parentId는 null일 수 있다.
+            if (request.getParentCommentId() != null)
+                parentComment = commentService.findCommentById(request.getParentCommentId());
+
+            Comment comment = new Comment(request.getContent(), commenter, post, parentComment);
+
+            Long id = commentService.addComment(comment);
+
+            return new BaseResponse(HttpStatus.OK, null, id, 1);
+        } catch (AppException e) {
+            return new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+        }
+    }
+
 }
