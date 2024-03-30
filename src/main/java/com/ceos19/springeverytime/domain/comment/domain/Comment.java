@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
-@SQLDelete(sql = "UPDATE comment SET isDelete = true WHERE commentId = ?")
+@SQLDelete(sql = "UPDATE comment SET is_delete = true WHERE comment_id = ?")
 @Where(clause = "is_delete = false") // Hibernate 6.3 이후부터는 DEPRECATED 됨. (현재 프로젝트는 6.2.2 적용으로 Where 사용)
 public class Comment extends BaseEntity {
     @Id @GeneratedValue

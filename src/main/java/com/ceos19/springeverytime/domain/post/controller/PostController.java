@@ -40,18 +40,11 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-        // test user
-        User user = userService.register(new User(
-                "test",
-                "1234",
-                "nickname",
-                "kim",
-                "computer",
-                "20",
-                "test@example.com"
-        ));
+        /// TEMPORARY
+        final Long userId = 1L;
+        /// TEMPORARY
 
-        postService.validatePostByUser(user.getUserId(), postId);
+        postService.validatePostByUser(userId, postId);
         postService.delete(postId);
         return ResponseEntity.noContent().build();
     }
