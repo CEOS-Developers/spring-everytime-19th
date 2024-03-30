@@ -3,6 +3,7 @@ package com.ceos19.everytime.post.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,5 +56,11 @@ public class PostController {
     @PostMapping("/likes/{postId}")
     public void createPostLike(@PathVariable final Long postId, @RequestBody final PostLikeRequestDto request) {
         postLikeService.like(postId, request);
+    }
+
+    @Operation(summary = "게시글 좋아요 삭제", description = "게시글 좋아요를 삭제합니다.")
+    @DeleteMapping("/likes/{postId}")
+    public void deletePostLike(@PathVariable final Long postId, @RequestBody final PostLikeRequestDto request) {
+        postLikeService.cancelLike(postId, request);
     }
 }
