@@ -1,8 +1,7 @@
 package com.ceos19.everyTime.post.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -14,22 +13,27 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @NoArgsConstructor
 @Setter
-public class PostSaveDto {
-
+public class PostEditRequestDto {
 
     @NotEmpty
+    @Schema(description = "글의 제목", example = "고민있어요")
     private String title;
 
     @NotEmpty
+    @Schema(description = "글의 내용", example = "사실없어요")
     private String contents;
 
+    @Schema(description = "질문글 여부", example = "false")
     boolean question;
+
+    @Schema(description = "익명 여부", example = "true")
     boolean hideNickName;
 
+    @Schema(description = "이미지 데이터")
     List<MultipartFile> multipartFileList = new ArrayList<>();
 
     @Builder
-    public PostSaveDto(String title,String contents,boolean question,boolean hideNickName,List<MultipartFile> multipartFileList){
+    public PostEditRequestDto(String title,String contents,boolean question,boolean hideNickName,List<MultipartFile> multipartFileList){
         this.title = title;
         this.contents = contents;
         this.question = question;
