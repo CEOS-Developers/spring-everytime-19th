@@ -44,4 +44,12 @@ public class ChatRoomController {
         ChatRoomDetailResponse response = chatRoomService.getCharRoomDetail(roomId);
         return ResponseEntity.ok().body(response);
     }
+
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<ChatRoomDetailResponse> deleteChatRoom(
+            @PathVariable final Long roomId
+    ) {
+        chatRoomService.delete(roomId);
+        return ResponseEntity.noContent().build();
+    }
 }

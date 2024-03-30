@@ -445,9 +445,9 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
   </tr>
 
   <tr>
-    <td rowspan="3">ChatRoom</td>
+    <td rowspan="4">ChatRoom</td>
     <td>GET</td>
-    <td rowspan="3"><code>/chat/room</code></td>
+    <td rowspan="4"><code>/chat/room</code></td>
     <td><code>/list</code></td>
     <td></td>
     <td></td>
@@ -459,6 +459,13 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td></td>
     <td></td>
     <td>쪽지방 단건 조회</td>
+  </tr>
+  <tr>
+    <td>DELETE</td>
+    <td><code>/{room_id}</code></td>
+    <td></td>
+    <td></td>
+    <td>쪽지방 삭제</td>
   </tr>
   <tr>
     <td>POST</td>

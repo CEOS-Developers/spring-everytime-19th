@@ -108,4 +108,11 @@ public class ChatRoomService {
 
         return ChatRoomDetailResponse.from(room);
     }
+
+    public void delete(Long roomId) {
+        if (!chatRoomRepository.existsById(roomId)) {
+            throw new BadRequestException(NOT_FOUND_CHAT_ROOM_ID);
+        }
+        chatRoomRepository.deleteById(roomId);
+    }
 }
