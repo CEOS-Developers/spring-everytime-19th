@@ -17,10 +17,6 @@ public class UserService {
 //    private static final Logger Logger = (java.util.logging.Logger) LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
 
-    private UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     public Optional<User> findByUsername(final String username) {
 //        Logger.info("find by username");
         return userRepository.findByUsername(username);
