@@ -724,10 +724,12 @@ public enum ErrorCode {
     private final String message;
 }
 ~~~
-사용중에 잘못된 경우에 대한 예외처리를 하기 위해서 RunTimeException을 상속받도록 하였다. AppException은 ErrorCode를 반환하도록 하였는데,  
-ErrorCode는 HttpStatus와 message로 구성이되는 방식을 택했다. 하지만 상황에 따라서 별도의 메시지를 반환하도록 중간에 수정을 거쳐서 ErrorCode 내부의 메시지는  
+사용중에 잘못된 경우에 대한 예외처리를 하기 위해서 RunTimeException을 상속받도록 하였다.  
+AppException은 ErrorCode를 반환하도록 하였는데, ErrorCode는 HttpStatus와 message로 구성이되는 방식을 택했다.   
+하지만 상황에 따라서 별도의 메시지를 반환하도록 중간에 수정을 거쳐서 ErrorCode 내부의 메시지는
 따로 사용하지 않고 일단은 비워놓았다. 하지만 나중에 사용될 경우를 염두해서 제거를 하진 않았다.
-
+<br/>
+<br/>
 AppException의 사용 예시는 다음과 같다. 서비스 단에서 예외가 발생되도록 구현했다.
 ~~~java
 public School findSchoolById(Long schoolId) {
@@ -740,6 +742,9 @@ public School findSchoolById(Long schoolId) {
 }
 ~~~
 만일 잘못된 PK로 조회를 하는 경우 ErrorCode중 NO_DATA_EXISTED라는 값과 "존재하지 않는 학교입니다"라는 메시지를 담은 예외가 발생한다.
+<br/>
+<br/>
+
 ~~~java
 @GetMapping("/{sid}")
 public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long schoolId) {
@@ -753,7 +758,9 @@ public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long sch
 }
 ~~~
 예외가 발생하는 경우, 컨트롤러에서 catch되어 BaseResponse에 해당 에러의 HttpStatus와 message가 담겨 반환된다.
-![img_6](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/23d53438-bcab-4a06-af2c-0634125623bd)
+<br/>
+<br/>
+![img_6](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/23d53438-bcab-4a06-af2c-0634125623bd)  
 포스트 맨으로 테스트해본 결과 정상적으로 작동됨을 알 수 있었다.
 ### 4) swagger 연동
 이번에 처음으로 swagger를 접하였는데 굉장히 유용하였다. api에 대한 데이터 구조를 직관적으로 볼 수 있다는 점에서 굉장히 앞으로도 애용할 것 같다!
