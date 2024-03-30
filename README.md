@@ -467,9 +467,61 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
 
 ### 3주차에서 리펙토링한 부분
 
-- `Optional` 객체의 존재 여부를 체크하여 에러를 발생시킬 때 `orElseThrow`를 사용하도록 변경
-- DTO 파일이 많아져 관리의 용이성을 위해 디렉토리 구조를 계층형에서 도메인형으로 변경
+- `Optional` 객체의 존재 여부를 체크하여 에러를 발생시킬 때 `orElseThrow`를 사용하도록 변경하였다.
+- DTO 파일이 많아져 관리의 용이성을 위해 디렉토리 구조를 계층형에서 도메인형으로 변경하였다.   
+  <img src="https://github.com/kckc0608/kckc0608/assets/64959010/6a717016-915d-4f4e-a4f5-bd731f0a2bad" style="width: 50%"/>
 - 테스트 결과 두 객체를 비교할 때 usingRecursiveComparison 사용 
-- 좋아요를 생성/삭제할 때, post, comment 에서 like 메서드를 호출하는 방식대신   
-  likeService.updatePostLike(), updateCommentLike() 메서드로 처리하도록 수정
-- 좋아요를 생성/삭제하는 메서드를 분리하지 않고, 업데이트 메서드 하나로 없으면 생성, 있으면 삭제하는 방식으로 구현
+- 좋아요를 생성/삭제할 때, post, comment 객체에서 like 메서드를 호출하는 방식대신 likeService.updatePostLike(), updateCommentLike() 메서드로 처리하도록 수정하였다.    
+  이때 좋아요를 생성/삭제하는 메서드를 분리하지 않고, 업데이트 메서드 하나로 없으면 생성, 있으면 삭제하는 방식으로 구현하였다.
+  ```java
+    @Transactional
+    public void updatePostLike(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_POST_ID));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_USER_ID));
+
+        likeRepository.findPostLikeByPostIdAndUserId(postId, userId).ifPresentOrElse(
+                likeRepository::delete,
+                () -> {
+                    final PostLike postLike = new PostLike(user, post);
+                    likeRepository.save(postLike);
+                }
+        );
+    }
+  ```
+
+### 4주차 과제를 하면서 새로 공부한 점
+1. DTO 클래스에 필드가 1개만 있을 때, json과 object가 변환되지 못하는 문제가 발생했다.   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/e9e29b5a-feb0-43cc-803f-515afd9e198a)
+   위 그림과 같이 필드가 1개만 있을 때, 생성자를 분명히 넣었음에도 요청을 전송하면 상태코드 406 에러가 발생했다.
+   스프링에서는 아래 에러가 발생했다.
+   ```java
+   (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator)
+   ```
+   구글에서 검색한 해결책은 대부분 기본생성자를 만들라는 것이었는데,다른 DTO는 기본 생성자가 없어도 문제가 없었던 점에서 기본 생성자가 근본적인 해결책같지는 않았다.   
+   다행히 [나와 같은 고민을 한 사람](https://kong-dev.tistory.com/236?category=1072302)이 있었다.   
+   json-object 변환은 jackson 라이브러리를 활용하는데, 클래스의 필드가 1개 일 때는 jackson 라이브러리가 넘어온 데이터를 임의 문자열로 판단해야 할 지 필드가 1개인 객체로 봐야할 지 모호해서 판단을 못한다고 한다.
+  
+   - 문자열 1개인 경우에는 해당 문자열을 적절히 커스텀된 방식으로 파싱할 수 있고 이 때는 `delegating` 방식을 사용한다. (임의 문자열로 판단)   
+   - 객체인 경우에는 `properties`방식을 적용하여 json 형식 객체로 인식하여 자바 객체로 만든다. 원래는 기본적으로 이 방식을 사용한다.
+   
+   따라서 json 형식 객체로 인식시키기 위해 `properties` 방식을 적용하라고 명시적으로 알려주면 문제를 해결 할 수 있다.   
+   이는 생성자 위에 `@JsonCreator` 어노테이션을 달아주면 된다.   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/f9bd9a32-bfcd-487b-8907-4fb522ec75f0)
+
+2. GlobalExceptionHandler를 이용하여 커스텀으로 생성한 에러를 `@ExceptionHandler(BadRequestException.class)` 어노테이션으로 잡을 수 있었다.   
+   다만 매개변수에 넘기는 RequestBody의 `@Valid` 어노테이션을 통한 Validation 체크시 발생한 에러는 `MethodArgumentNotValid`가 발생하는데, 이 에러는 `ResponseEntityExceptionHandler` 클래스를 상속한 뒤 `handleMethodArgumentNotValid` 메서드를 오버라이딩하여 처리할 수 있다.   
+   ```java
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            final MethodArgumentNotValidException ex,
+            final HttpHeaders headers,
+            final HttpStatusCode status,
+            final WebRequest request) {
+
+        String errMsg = Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage();
+        return ResponseEntity.badRequest()
+                .body(new ExceptionResponse(INVALID_REQUEST.getCode(), errMsg));
+    }
+   ```
