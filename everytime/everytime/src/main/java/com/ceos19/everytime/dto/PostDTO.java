@@ -4,7 +4,7 @@ import com.ceos19.everytime.domain.AboutPost.Post;
 
 
 public record PostDTO (String title, String contents, Long likeNum){
-    public Post toPost() {  //생성자를 통해 객체 생성
+    public Post toPost() {
         return Post.builder()
                 .title(title)
                 .contents(contents)
