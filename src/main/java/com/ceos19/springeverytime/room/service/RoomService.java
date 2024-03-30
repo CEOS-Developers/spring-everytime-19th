@@ -4,7 +4,7 @@ import com.ceos19.springeverytime.room.domain.Room;
 import com.ceos19.springeverytime.room.dto.RoomDto;
 import com.ceos19.springeverytime.room.repository.RoomRepository;
 import com.ceos19.springeverytime.user.domain.User;
-import com.ceos19.springeverytime.user.service.UserService;
+import com.ceos19.springeverytime.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,23 +15,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RoomService {
-    private RoomRepository roomRepository;
-    private UserService userService;
+    private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void createRoom(RoomDto roomDto){
-        User participant1 = userService.getUser(roomDto.getParticipant1Id());
-        User participant2 = userService.getUser(roomDto.getParticipant2Id());
+        User participant1 = userRepository.findUserById(roomDto.getParticipant1Id())
+                .orElseThrow(EntityNotFoundException::new);
+        User participant2 = userRepository.findUserById(roomDto.getParticipant2Id())
+                .orElseThrow(EntityNotFoundException::new);
 
         roomRepository.save(roomDto.toEntity(participant1,participant2));
     }
 
-    public List<Room> getAllRooms(){
-        return roomRepository.findAll();
+    public List<Room> getAllRooms(Long userId){
+        return roomRepository.findByParticipant1_IdOrParticipant2_Id(userId);
     }
 
-    public Room getRoomById(Long roomId){
-        return roomRepository.findById(roomId).orElseThrow(EntityNotFoundException::new);
+    public RoomDto getRoomById(Long roomId){
+        Room room = roomRepository.findById(roomId).orElseThrow(EntityNotFoundException::new);
+        return RoomDto.of(room);
     }
 
     @Transactional
