@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostCreateRequest {
@@ -14,10 +16,11 @@ public class PostCreateRequest {
     private final String content;
     @NotNull(message = "게시글의 익명 여부 데이터가 필요합니다.")
     private final boolean isAnonymous;
+    private final List<Long> imageIds;
 
-    public static PostCreateRequest of(String title, String content, boolean isAnonymous) {
+    public static PostCreateRequest of(String title, String content, boolean isAnonymous, List<Long> imageIds) {
         return new PostCreateRequest(
-                title, content, isAnonymous
+                title, content, isAnonymous, imageIds
         );
     }
 }

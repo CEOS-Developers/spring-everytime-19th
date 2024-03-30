@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -53,7 +54,7 @@ public class PostServiceTest {
     void 포스트_생성_테스트() {
         // given
         Post post = EntityGenerator.generatePost(user1, category);
-        PostCreateRequest request = PostCreateRequest.of("제목", "내용", true);
+        PostCreateRequest request = PostCreateRequest.of("제목", "내용", true, new ArrayList<>());
         given(postRepository.save(any(Post.class))).willReturn(post);
         given(userRepository.findByLoginId(anyString())).willReturn(Optional.of(user1));
         given(categoryRepository.findById(anyLong())).willReturn(Optional.of(category));

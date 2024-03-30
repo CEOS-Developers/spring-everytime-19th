@@ -21,4 +21,9 @@ public class Image extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
+
+    public Image(String imageUrl, Post post) {
+        this.imageUrl = imageUrl;
+        this.post = post;
+    }
 }
