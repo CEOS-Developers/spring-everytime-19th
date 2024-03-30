@@ -5,15 +5,12 @@ import com.ceos19.everyTime.error.exception.NotFoundException;
 import com.ceos19.everyTime.member.domain.Member;
 import com.ceos19.everyTime.post.domain.Post;
 import com.ceos19.everyTime.post.domain.Reply;
-import com.ceos19.everyTime.post.dto.request.ReplyCommentSaveDto;
+import com.ceos19.everyTime.post.dto.request.ReplyCommentSaveRequestDto;
 import com.ceos19.everyTime.post.repository.PostRepository;
 import com.ceos19.everyTime.post.repository.ReplyRepository;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Transactional(readOnly = true)
 @Service
@@ -32,7 +29,7 @@ public class ReplyService {
 
     //답글 저장.
     @Transactional
-    public void saveComment(Long postId, ReplyCommentSaveDto replyCommentSaveDto,
+    public void saveComment(Long postId, ReplyCommentSaveRequestDto replyCommentSaveRequestDto,
         Member currentMember){
         Post post = findPost(postId);
 
@@ -40,18 +37,17 @@ public class ReplyService {
         Reply parentReply=null;
 
         //대댓글일 경우
-        if(replyCommentSaveDto.getParentId()!=null){
-            parentReply=replyRepository.findById(replyCommentSaveDto.getParentId()).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
+        if(replyCommentSaveRequestDto.getParentId()!=null){
+            parentReply=replyRepository.findById(replyCommentSaveRequestDto.getParentId()).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
         }
-
 
         Reply reply = Reply.builder()
             .member(currentMember)
             .parent(parentReply)
-            .contents(replyCommentSaveDto.getComment())
+            .contents(replyCommentSaveRequestDto.getComment())
             .post(post)
-            .isHideNickName(replyCommentSaveDto.isHideNickName())
-            .writer(makeWriter(currentMember,post, replyCommentSaveDto.isHideNickName()))
+            .isHideNickName(replyCommentSaveRequestDto.isHideNickName())
+            .writer(makeWriter(currentMember,post, replyCommentSaveRequestDto.isHideNickName()))
             .build();
 
 
@@ -63,24 +59,24 @@ public class ReplyService {
 
     // 테스트 코드를 위한 로직, 이런 식으로 하면 안될 것 같은데 쓰읍.
 
-    public Reply saveTestComment(Long postId, ReplyCommentSaveDto replyCommentSaveDto,
+    public Reply saveTestComment(Long postId, ReplyCommentSaveRequestDto replyCommentSaveRequestDto,
         Member currentMember){
         Post post = findPost(postId);
 
         Reply parentReply=null;
 
-        if(replyCommentSaveDto.getParentId()!=null){
-            parentReply=replyRepository.findById(replyCommentSaveDto.getParentId()).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
+        if(replyCommentSaveRequestDto.getParentId()!=null){
+            parentReply=replyRepository.findById(replyCommentSaveRequestDto.getParentId()).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
         }
 
 
         Reply reply = Reply.builder()
             .member(currentMember)
             .parent(parentReply)
-            .contents(replyCommentSaveDto.getComment())
+            .contents(replyCommentSaveRequestDto.getComment())
             .post(post)
-            .isHideNickName(replyCommentSaveDto.isHideNickName())
-            .writer(makeWriter(currentMember,post, replyCommentSaveDto.isHideNickName()))
+            .isHideNickName(replyCommentSaveRequestDto.isHideNickName())
+            .writer(makeWriter(currentMember,post, replyCommentSaveRequestDto.isHideNickName()))
             .build();
 
         post.increaseReplyCount();
@@ -103,11 +99,11 @@ public class ReplyService {
         Post post= findPost(reply.getPost().getId());
         post.decreaseReplyCount();
 
-        // reply가 대댓글이 아닌 댓글이며, reply 에 대댓글이 달린 경우.
+        /*// reply가 대댓글이 아닌 댓글이며, reply 에 대댓글이 달린 경우.
         if(reply.getParent()==null&&replyRepository.existsByParentId(reply.getId())){
            ChangeMessageByDelete(reply);
            return;
-        }
+        }*/
 
         //답글 삭제.
         replyRepository.delete(reply);
@@ -121,7 +117,8 @@ public class ReplyService {
 
 
     private Reply findReply(Long replyId){
-        return replyRepository.findById(replyId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
+        //return replyRepository.findById(replyId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
+        return replyRepository.findNotDeletedReply(replyId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
     }
 
     private void ChangeMessageByDelete(Reply reply){
