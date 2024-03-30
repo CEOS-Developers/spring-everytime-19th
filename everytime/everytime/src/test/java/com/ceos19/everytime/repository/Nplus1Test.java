@@ -1,9 +1,8 @@
 package com.ceos19.everytime.repository;
 
-import com.ceos19.everytime.domain.AboutPost.Post;
+
 import com.ceos19.everytime.domain.AboutUser.School;
 import com.ceos19.everytime.domain.AboutUser.User;
-import com.ceos19.everytime.dto.PostDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

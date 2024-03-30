@@ -24,7 +24,6 @@ public class Friend extends BaseTimeEntity {
     private Long friendId;
 
     @Column(nullable = false)
-    @Builder.Default
     private boolean isAccepted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
