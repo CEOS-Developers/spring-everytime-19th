@@ -14,12 +14,13 @@ import java.util.Optional;
 import static com.ceos19.everytime.exception.ErrorCode.*;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class SchoolService {
     private final SchoolRepository schoolRepository;
 
+    @Transactional(readOnly = false)
     public Long addSchool(School school) {
         schoolRepository.findByName(school.getName()).ifPresent(
                 sc -> {
@@ -52,4 +53,24 @@ public class SchoolService {
     public List<School> findSchools() {
         return schoolRepository.findAll();
     }
+
+    @Transactional(readOnly = false)
+    public void modifySchool(Long schoolId, String name) {
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> {
+                    log.error("에러 내용: 학교 조회 실패 " +
+                            "발생 원인: 존재하지 않는 PK 값으로 조회");
+                    return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+                });
+
+        schoolRepository.findByName(name)
+                .ifPresent(s -> {
+                    log.error("에러 내용: 학교 이름 변경 실패 " +
+                            "발생 원인: 이미 사용 중인 학교 명으로 수정 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용 중인 학교명입니다");
+                });
+
+        school.updateName(name);
+    }
+
 }
