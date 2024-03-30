@@ -63,10 +63,7 @@ public class MessageService {
             messageRepository.deleteById(messageId);
         }
 
-
     }
-
-
 
     public void updateReadStatus(Long receiverId, Long messageId){
         Optional<Message> message = messageRepository.findById(messageId);
@@ -79,13 +76,6 @@ public class MessageService {
             log.info("[Service][updateReadStatus] SUCCESS");
         }
 
-    }
-
-
-    private boolean validateContent(String content){
-        if(content.isEmpty() || content.length()> MAX_CONTENT_LENGTH)
-            return false;
-        return true;
     }
 
 }

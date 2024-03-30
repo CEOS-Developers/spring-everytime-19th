@@ -42,12 +42,6 @@ public class Message extends BaseTimeEntity{
         this.readStatus = ReadStatus.NOT_READ;
     }
 
-    private boolean validateContent(String content){
-        if(content.isEmpty() || content.length()> MAX_CONTENT_LENGTH)
-            return false;
-        return true;
-    }
-
     public void updateReadStatus(){
         this.readStatus = ReadStatus.READ;
     }

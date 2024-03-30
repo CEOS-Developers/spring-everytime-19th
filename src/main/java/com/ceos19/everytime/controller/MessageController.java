@@ -41,8 +41,4 @@ public class MessageController {
         return ResponseEntity.status(DELETE_SUCCESS.getHttpStatus()).build();
     }
 
-
-
-
-
 }
