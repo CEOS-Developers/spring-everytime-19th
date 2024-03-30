@@ -15,7 +15,7 @@ import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/category/{categoryId}/post")
+@RequestMapping("/post")
 public class PostController {
     private final PostService postService;
     private final UserService userService;
@@ -28,14 +28,13 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<Void> createPost(
-            @PathVariable Long categoryId,
             @RequestBody @Valid final PostCreateRequest request
     ) {
         /// TEMPORARY
         final Long userId = 1L;
         /// TEMPORARY
-        final Post post = postService.save(userId, categoryId, request);
-        return ResponseEntity.created(URI.create("/category/"+categoryId+"/post/"+post.getPostId())).build();
+        final Post post = postService.save(userId, request);
+        return ResponseEntity.created(URI.create("/post/"+post.getPostId())).build();
     }
 
     @DeleteMapping("/{postId}")

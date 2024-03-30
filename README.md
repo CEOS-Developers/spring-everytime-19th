@@ -367,7 +367,7 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
   <tr>
     <td rowspan="5">Post</td>
     <td>POST</td>
-    <td rowspan="4"><code>/category/{category_id}/post</code></td>
+    <td rowspan="5"><code>/post</code></td>
     <td><code>/</code></td>
     <td>글 작성</td>
   </tr>
@@ -389,7 +389,7 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
   <tr>
     <td>POST</td>
     <td></td>
-    <td><code>/post/{post_id}/like</code></td>
+    <td><code>/{post_id}/like</code></td>
     <td>게시글 좋아요 업데이트(생성/삭제)</td>
   </tr>
 

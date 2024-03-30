@@ -31,11 +31,11 @@ public class PostService {
     }
 
     @Transactional
-    public Post save(Long userId, Long categoryId, PostCreateRequest request) {
+    public Post save(Long userId, PostCreateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new BadRequestException(NOT_FOUND_USER_ID)
         );
-        Category category = categoryRepository.findById(categoryId).orElseThrow(
+        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(
                 ()-> new BadRequestException(NOT_FOUND_CATEGORY_ID)
         );
         Post post = new Post(request.getTitle(), request.getContent(), request.isAnonymous(), user, category);
