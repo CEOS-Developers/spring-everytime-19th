@@ -17,9 +17,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql="UPDATE reply set deleted = true where reply_id = ?")
+//@Where(clause = "deleted = false")
 @Getter
 public class Reply extends BaseEntity {
     @Id
@@ -29,6 +35,7 @@ public class Reply extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id",nullable = false,updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
 
 
@@ -44,10 +51,13 @@ public class Reply extends BaseEntity {
     @Column(nullable = false,length = 100)
     private String contents;
 
+    @Column(nullable = false)
+    private boolean deleted=false;
+
     private boolean isHideNickName;
 
 
-    private int likeCount;
+    private int likeCount=0;
 
     private String writer;
     @Builder
@@ -57,7 +67,6 @@ public class Reply extends BaseEntity {
         this.parent =parent;
         this.contents=contents;
         this.isHideNickName = isHideNickName;
-        this.likeCount = 0;
         this.writer = writer;
     }
 
