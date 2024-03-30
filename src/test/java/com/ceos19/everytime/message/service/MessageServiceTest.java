@@ -22,7 +22,6 @@ import com.ceos19.everytime.message.dto.request.MessageReadRequestDto;
 import com.ceos19.everytime.message.dto.request.MessageRequestDto;
 import com.ceos19.everytime.message.dto.response.MessageResponseDto;
 import com.ceos19.everytime.message.repository.MessageRepository;
-import com.ceos19.everytime.message.service.MessageService;
 import com.ceos19.everytime.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,10 +76,10 @@ class MessageServiceTest {
         given(messageRepository.findByIdAndReceiver(anyLong(), any()))
                 .willReturn(List.of(message));
 
-        final MessageReadRequestDto request = new MessageReadRequestDto(1L, 2L);
+        final MessageReadRequestDto request = new MessageReadRequestDto(2L);
 
         // when
-        final List<MessageResponseDto> result = messageService.readMessage(request);
+        final List<MessageResponseDto> result = messageService.readMessage(1L, request);
 
         // then
         assertSoftly(softly -> {
