@@ -57,7 +57,7 @@ class ReplyRepositoryTest {
 
         memberRepository.save(member1); memberRepository.save(member2); memberRepository.save(member3);
 
-         community=Community.builder().name("자유게시판").member(member1).build();
+         community=Community.of(member1,"자유게시판");
         communityRepository.save(community);
 
          post = Post.builder().member(member1).title("이정도면 몇타치?").contents("아침에 일어나서 사과먹음")

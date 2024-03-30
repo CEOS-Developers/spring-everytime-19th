@@ -4,8 +4,8 @@ import com.ceos19.everyTime.error.ErrorCode;
 import com.ceos19.everyTime.error.exception.NotFoundException;
 import com.ceos19.everyTime.jjokji.domain.Jjokji;
 import com.ceos19.everyTime.jjokji.domain.JjokjiRoom;
-import com.ceos19.everyTime.jjokji.dto.response.JjokjiLatestResponse;
-import com.ceos19.everyTime.jjokji.dto.response.JjokjiResponse;
+import com.ceos19.everyTime.jjokji.dto.response.JjokjiLatestResponseDto;
+import com.ceos19.everyTime.jjokji.dto.response.JjokjiResponseDto;
 import com.ceos19.everyTime.jjokji.repository.JjokjiRepository;
 import com.ceos19.everyTime.jjokji.repository.JjokjiRoomRepository;
 import com.ceos19.everyTime.member.domain.Member;
@@ -25,17 +25,12 @@ public class JjokjiService {
     private final MemberRepository memberRepository;
 
     //쪽지방 리스트의 모습을 최근 쪽지 메시지로 확인
-    public List<JjokjiLatestResponse>  showJjokjiRoomByLatestJjokji(Member currentMember){
+    public List<JjokjiLatestResponseDto>  showJjokjiRoomByLatestJjokji(Member currentMember){
 
-        List<JjokjiLatestResponse> latestJjokjiResponseList = jjokjiRoomRepository.findJjokjiRoomByMemberId(
+        List<JjokjiLatestResponseDto> latestJjokjiResponseList = jjokjiRoomRepository.findJjokjiRoomByMemberId(
             currentMember.getId()).stream().map(jjokjiRoom -> {
             Jjokji latestJjokji = jjokjiRepository.findLatestJjokjiByJjokjiRoomId(jjokjiRoom.getId()).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
-              return JjokjiLatestResponse
-                  .builder()
-                  .chatRoomId(latestJjokji.getJjokjiRoom().getId())
-                  .message(latestJjokji.getMessage())
-                  .createdAt(latestJjokji.getCreatedAt())
-                  .build();
+              return JjokjiLatestResponseDto.from(latestJjokji);
         }).collect(Collectors.toList());
 
         return latestJjokjiResponseList;
@@ -66,15 +61,8 @@ public class JjokjiService {
 
     //하나의 채팅방에서의 메시지 기록 조회
 
-    public List<JjokjiResponse> ChatListInOneRoom(Long roomId){
-         return jjokjiRepository.findJjokjisByJjokjiRoom_Id(roomId).stream().map(jjokji -> {
-             return JjokjiResponse
-                 .builder()
-                 .message(jjokji.getMessage())
-                 .senderId(jjokji.getMember().getId())
-                 .createdAt(jjokji.getCreatedAt())
-                 .build();
-         }).collect(Collectors.toList());
+    public List<JjokjiResponseDto> ChatListInOneRoom(Long roomId){
+         return jjokjiRepository.findJjokjisByJjokjiRoom_Id(roomId).stream().map(JjokjiResponseDto::from).collect(Collectors.toList());
     }
 
     

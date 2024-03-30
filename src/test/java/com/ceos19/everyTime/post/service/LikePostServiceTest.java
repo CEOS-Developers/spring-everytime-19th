@@ -46,7 +46,7 @@ class LikePostServiceTest {
         ReflectionTestUtils.setField(member1,"id",1L);
         ReflectionTestUtils.setField(member2,"id",2L);
 
-        Community community=Community.builder().member(member1).name("자유게시판").build();
+        Community community=Community.of(member1,"자유게시판");
         Post post = Post.builder().title("좋아").contents("너가").isHideNickName(true).isQuestion(false).community(community).member(member1).build();
         ReflectionTestUtils.setField(post,"id",3L);
         when(postRepository.findById(anyLong())).thenReturn(Optional.of(post));

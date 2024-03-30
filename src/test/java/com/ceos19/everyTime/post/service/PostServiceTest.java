@@ -1,16 +1,13 @@
 package com.ceos19.everyTime.post.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.ceos19.everyTime.community.domain.Community;
-import com.ceos19.everyTime.community.dto.request.CommunitySaveDto;
 import com.ceos19.everyTime.community.repository.CommunityRepository;
 import com.ceos19.everyTime.member.domain.Member;
 import com.ceos19.everyTime.member.repository.MemberRepository;
 import com.ceos19.everyTime.post.domain.Post;
 import com.ceos19.everyTime.post.domain.Reply;
-import com.ceos19.everyTime.post.dto.request.PostEditDto;
-import com.ceos19.everyTime.post.dto.request.PostSaveDto;
+import com.ceos19.everyTime.post.dto.request.PostEditRequestDto;
+import com.ceos19.everyTime.post.dto.request.PostSaveRequestDto;
 import com.ceos19.everyTime.post.dto.response.PostResponseDto;
 import com.ceos19.everyTime.post.repository.PostRepository;
 import com.ceos19.everyTime.post.repository.ReplyRepository;
@@ -24,8 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.Mock.*;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,14 +53,14 @@ class PostServiceTest {
     @DisplayName("게시물 저장 확인 ")
     void savePost() {
         //given
-        PostSaveDto postSaveDto = PostSaveDto.builder()
+        PostSaveRequestDto postSaveRequestDto = PostSaveRequestDto.builder()
             .title("여행갔다온 썰 푼다")
             .hideNickName(true)
             .question(true)
             .contents("사실 안갔다옴 ㅋ")
             .multipartFileList(new ArrayList<>())
             .build();
-        Community community = Community.builder().name("자유게시판").build();
+        Community community = Community.of(null,"자유게시판");
         when(communityRepository.findById(anyLong())).thenReturn(Optional.of(community));
         ReflectionTestUtils.setField(community,"id",1L);
         Member member=Member
@@ -75,13 +70,13 @@ class PostServiceTest {
             .loginId("dfdf")
             .password("dfdffd")
             .build();
-        when(postRepository.save(any(Post.class))).thenReturn(toEntity(postSaveDto,member,community));
+        when(postRepository.save(any(Post.class))).thenReturn(toEntity(postSaveRequestDto,member,community));
 
 
 
 
         //when
-        Post findPost = postService.savePost(postSaveDto,1L,member);
+        Post findPost = postService.savePost(postSaveRequestDto,1L,member);
 
         //then
         Assertions.assertThat(findPost.getContents()).isEqualTo("사실 안갔다옴 ㅋ");
@@ -90,12 +85,12 @@ class PostServiceTest {
 
     }
 
-    private Post toEntity(PostSaveDto postSaveDto,Member member,Community community){
+    private Post toEntity(PostSaveRequestDto postSaveRequestDto,Member member,Community community){
         return Post.builder()
-            .isHideNickName(postSaveDto.isHideNickName())
-            .isQuestion(postSaveDto.isQuestion())
-            .contents(postSaveDto.getContents())
-            .title(postSaveDto.getTitle())
+            .isHideNickName(postSaveRequestDto.isHideNickName())
+            .isQuestion(postSaveRequestDto.isQuestion())
+            .contents(postSaveRequestDto.getContents())
+            .title(postSaveRequestDto.getTitle())
             .member(member)
             .community(community)
             .build();
@@ -106,15 +101,15 @@ class PostServiceTest {
     void updatePost() {
         //given
         Member member = Member.builder().name("이진우").nickName("dionisos198").loginId("fdfdf").password("asas").build();
-        Community community = Community.builder().member(member).name("자유게시판").build();
+        Community community = Community.of(member,"자유게시판");
         Post post = Post.builder().isHideNickName(true).title("좋아").contents("좋아좋아").isQuestion(false).member(member).community(community).build();
         when(postRepository.findById(anyLong())).thenReturn(Optional.of(post));
-        PostEditDto postEditDto = PostEditDto.builder().title("수정 후 제목").contents("수정 후 내용").hideNickName(false).question(false).multipartFileList(new ArrayList<>()).build();
+        PostEditRequestDto postEditRequestDto = PostEditRequestDto.builder().title("수정 후 제목").contents("수정 후 내용").hideNickName(false).question(false).multipartFileList(new ArrayList<>()).build();
         ReflectionTestUtils.setField(post,"id",1L);
 
 
         //when
-        Post updatedPost = postService.updatePost(postEditDto,1L,member);
+        Post updatedPost = postService.updatePost(postEditRequestDto,1L,member);
 
 
         //then
@@ -127,7 +122,7 @@ class PostServiceTest {
     @DisplayName("게시물 삭제 확인")
     void deletePost() {
         //given
-        PostSaveDto postSaveDto = PostSaveDto.builder().title("여행갔다온 썰 푼다")
+        PostSaveRequestDto postSaveRequestDto = PostSaveRequestDto.builder().title("여행갔다온 썰 푼다")
             .hideNickName(true)
             .question(true)
             .contents("사실 안갔다옴 ㅋ")
@@ -135,9 +130,9 @@ class PostServiceTest {
             .build();
 
         Member member = Member.builder().name("이진우").nickName("dionisos198").loginId("fddf").password("fdfdf").build();
-        Community community = Community.builder().member(member).name("자유게시판").build();
+        Community community = Community.of(member,"자유게시판");
 
-        when(postRepository.findById(anyLong())).thenReturn(Optional.of(toEntity(postSaveDto,member,community)));
+        when(postRepository.findById(anyLong())).thenReturn(Optional.of(toEntity(postSaveRequestDto,member,community)));
 
 
 
@@ -155,7 +150,7 @@ class PostServiceTest {
         Member member1 = Member.builder().name("이진우1").nickName("dionisos1981").loginId("fddf1").password("fdfdf1").build();
         Member member2 = Member.builder().name("이진우2").nickName("dionisos1982").loginId("fddf2").password("fdfdf2").build();
         Member member3 = Member.builder().name("이진우3").nickName("dionisos1983").loginId("fddf3").password("fdfdf3").build();
-        Community community = Community.builder().member(member1).name("자유게시판").build();
+        Community community = Community.of(member1,"자유게시판");
 
         //when
         //postService.showPostList(1L, PageRequest.of(0,2));
@@ -169,7 +164,7 @@ class PostServiceTest {
     @DisplayName("게시물 단건 조회 확인")
     void showDetailsPost() {
         //given
-        PostSaveDto postSaveDto = PostSaveDto.builder().title("여행갔다온 썰 푼다")
+        PostSaveRequestDto postSaveRequestDto = PostSaveRequestDto.builder().title("여행갔다온 썰 푼다")
             .hideNickName(true)
             .question(true)
             .contents("사실 안갔다옴 ㅋ")
@@ -182,8 +177,8 @@ class PostServiceTest {
         Member replyMember2 = Member.builder().name("이진우").nickName("dionisos2").loginId("fddf2").password("fdfd2").build();
         Member replyMember3 = Member.builder().name("삼진우").nickName("dionisos3").loginId("fddf3").password("fdfd3").build();
 
-        Community community = Community.builder().member(postMember).name("자유게시판").build();
-        Post post = toEntity(postSaveDto,postMember,community);
+        Community community = Community.of(postMember,"자유게시판");
+        Post post = toEntity(postSaveRequestDto,postMember,community);
 
         ReflectionTestUtils.setField(post,"id",1L);
         when(postRepository.findPostByPostIdWithFetchMemberAndPostImageList(anyLong())).thenReturn(Optional.of(post));
@@ -203,10 +198,10 @@ class PostServiceTest {
 
         //then
         assertThat(postResponseDto.getContents().equals("사실 안갔다옴 ㅋ"));
-        assertThat(postResponseDto.getReplyDtoList().size()).isEqualTo(3);
-        assertThat(postResponseDto.getReplyDtoList().get(0).getComment()).isEqualTo("머라는거");
-        assertThat(postResponseDto.getReplyDtoList().get(1).getComment()).isEqualTo("그러게 ㅋ");
-        assertThat(postResponseDto.getReplyDtoList().get(2).getComment()).isEqualTo("하 참");
+        assertThat(postResponseDto.getReplyResponseDtoList().size()).isEqualTo(3);
+        assertThat(postResponseDto.getReplyResponseDtoList().get(0).getComment()).isEqualTo("머라는거");
+        assertThat(postResponseDto.getReplyResponseDtoList().get(1).getComment()).isEqualTo("그러게 ㅋ");
+        assertThat(postResponseDto.getReplyResponseDtoList().get(2).getComment()).isEqualTo("하 참");
 
 
     }

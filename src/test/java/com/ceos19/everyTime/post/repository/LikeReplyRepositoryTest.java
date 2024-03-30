@@ -48,7 +48,7 @@ class LikeReplyRepositoryTest {
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-        Community community = Community.builder().name("자유게시판").member(member1).build();
+        Community community = Community.of(member1,"자유게시판");
 
         communityRepository.save(community);
 

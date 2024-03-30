@@ -1,11 +1,9 @@
 package com.ceos19.everyTime.jjokji.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.ceos19.everyTime.jjokji.domain.Jjokji;
 import com.ceos19.everyTime.jjokji.domain.JjokjiRoom;
-import com.ceos19.everyTime.jjokji.dto.response.JjokjiLatestResponse;
-import com.ceos19.everyTime.jjokji.dto.response.JjokjiResponse;
+import com.ceos19.everyTime.jjokji.dto.response.JjokjiLatestResponseDto;
+import com.ceos19.everyTime.jjokji.dto.response.JjokjiResponseDto;
 import com.ceos19.everyTime.jjokji.repository.JjokjiRepository;
 import com.ceos19.everyTime.jjokji.repository.JjokjiRoomRepository;
 import com.ceos19.everyTime.member.domain.Member;
@@ -15,7 +13,7 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.Mockito.times;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
@@ -61,7 +59,7 @@ public class JjokjiServiceTest {
         when(jjokjiRepository.findLatestJjokjiByJjokjiRoomId(2L)).thenReturn(Optional.of(makeJjokji("빵",member2,member3)));
 
         //when
-        List<JjokjiLatestResponse> jjokjiLatestResponses = jjokjiService.showJjokjiRoomByLatestJjokji(member2);
+        List<JjokjiLatestResponseDto> jjokjiLatestResponses = jjokjiService.showJjokjiRoomByLatestJjokji(member2);
 
         //return
         Assertions.assertThat(jjokjiLatestResponses.size()).isEqualTo(2);
@@ -116,11 +114,11 @@ public class JjokjiServiceTest {
             List.of(makeJjokji("안녕?",sender,receiver),makeJjokji("뭐라는거야",receiver,sender)));
 
         //when
-        List<JjokjiResponse> jjokjiResponses = jjokjiService.ChatListInOneRoom(1L);
+        List<JjokjiResponseDto> jjokjiResponsDtos = jjokjiService.ChatListInOneRoom(1L);
 
         //then
-        Assertions.assertThat(jjokjiResponses).size().isEqualTo(2);
-        Assertions.assertThat(jjokjiResponses.get(0).getMessage()).isEqualTo("안녕?");
-        Assertions.assertThat(jjokjiResponses.get(1).getMessage()).isEqualTo("뭐라는거야");
+        Assertions.assertThat(jjokjiResponsDtos).size().isEqualTo(2);
+        Assertions.assertThat(jjokjiResponsDtos.get(0).getMessage()).isEqualTo("안녕?");
+        Assertions.assertThat(jjokjiResponsDtos.get(1).getMessage()).isEqualTo("뭐라는거야");
     }
 }
