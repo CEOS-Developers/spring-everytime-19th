@@ -59,7 +59,7 @@ public class MessageService {
         final Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
 
-        if(messageRepository.existsByMessageIdAndSenderId(message.getId(), member.getId()) || messageRepository.existsByMessageIdAndReceiverId(message.getId(), member.getId())){
+        if(messageRepository.existsByIdAndSenderId(message.getId(), member.getId()) || messageRepository.existsByIdAndReceiverId(message.getId(), member.getId())){
             messageRepository.deleteById(messageId);
         }
 

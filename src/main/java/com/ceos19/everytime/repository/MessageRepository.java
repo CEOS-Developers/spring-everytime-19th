@@ -10,8 +10,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findBySenderId(Long senderId);
     List<Message> findByReceiverId(Long receiverId);
     List<Message> findBySenderIdAndReceiverId(Long senderId, Long receiverId);
-    Boolean existsByMessageIdAndSenderId(Long messageId, Long senderId);
-    Boolean existsByMessageIdAndReceiverId(Long messageId, Long receiverId);
+    Boolean existsByIdAndSenderId(Long id, Long senderId);
+    Boolean existsByIdAndReceiverId(Long id, Long receiverId);
 
 
 }
