@@ -1,7 +1,8 @@
 # 연관관계 매핑
 
 이번에 게시판 서비스를 만들면서 설계한 엔티티간의 연관관계 구조는 다음과 같다.
-![img_4.png](img_4.png)
+![img_4](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/87fd119c-859c-4c6f-9773-a4bf7e4891d3)
+
 
 # 개발 중 문제점 및 고민점
 
@@ -354,7 +355,7 @@ public class PostService {
 ~~~
 
 postService에는 deletePost()라는 제거 메서드가 존재한다. 게시물에는 연관된 유저, 댓글, 게시판, 첨부파일이 존재한다.
-![img_5.png](img_5.png)
+![img_5](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/87c84813-01ad-4384-b91e-5de9965f4a07)
 올바른 제거를 위해서 deletePost() 내부에는 먼저 해당 게시물의 외래키를 갖고있는 다른 엔티티들을 먼저 제거하였다.
 그리고 첨부파일(Attachement) 엔티티는 Post에 cascade 설정을 통해서 Post를 제거시 자동으로 같이 제거가 되도록 하였다.
 
@@ -752,10 +753,10 @@ public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long sch
 }
 ~~~
 예외가 발생하는 경우, 컨트롤러에서 catch되어 BaseResponse에 해당 에러의 HttpStatus와 message가 담겨 반환된다.
-![img_6.png](img_6.png)
+![img_6](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/23d53438-bcab-4a06-af2c-0634125623bd)
 포스트 맨으로 테스트해본 결과 정상적으로 작동됨을 알 수 있었다.
 ### 4) swagger 연동
 이번에 처음으로 swagger를 접하였는데 굉장히 유용하였다. api에 대한 데이터 구조를 직관적으로 볼 수 있다는 점에서 굉장히 앞으로도 애용할 것 같다!
-![img_7.png](img_7.png)
-![img_8.png](img_8.png)
+![img_7](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/99772109-cd3f-430b-8bb8-b3a69b895fdb)
+![img_8](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/95f71023-671e-41de-9456-33f642935b0b)
 json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 있어 굉장히 유용하였다!
