@@ -30,15 +30,15 @@ public class Message {
     @Builder.Default
     private Timestamp sendAt = Timestamp.valueOf(LocalDateTime.now());
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_user_id")
     private User user1;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "response_user_id")
     private User user2;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "messagebox_id")
     private MessageBox messageBox;
 

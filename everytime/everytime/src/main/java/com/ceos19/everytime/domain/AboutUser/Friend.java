@@ -21,11 +21,11 @@ public class Friend extends BaseTimeEntity {
     @Builder.Default
     private boolean isAccepted = false;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_user_id")
     private User user1;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "response_user_id")
     private User user2;
 

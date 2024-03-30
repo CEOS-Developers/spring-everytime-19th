@@ -13,14 +13,14 @@ public class AddedCourse extends BaseTimeEntity {
 
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long addedCourseId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="timetable_id")
+    @JoinColumn(name = "timetable_id")
     private Timetable timetable;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="course_id")
+    @JoinColumn(name = "course_id")
     private Course course;
 }

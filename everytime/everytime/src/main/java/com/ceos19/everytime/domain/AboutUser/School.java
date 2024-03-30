@@ -27,11 +27,11 @@ public class School extends BaseTimeEntity {
     @Builder.Default
     private Long studentNum = 0L;
 
-    @OneToMany(mappedBy = "school",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "school")
     @Builder.Default
     List<User> users = new ArrayList<User>();
 
-    @OneToMany(mappedBy = "school",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "school")
     @Builder.Default
     List<Board> boards = new ArrayList<Board>();
 
