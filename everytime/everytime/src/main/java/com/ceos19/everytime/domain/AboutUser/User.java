@@ -53,7 +53,7 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     private boolean isActive=true;
 
-    @Column(name="login_at",nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Timestamp loginAt=Timestamp.valueOf(LocalDateTime.now());
 

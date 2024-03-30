@@ -13,17 +13,17 @@ import lombok.*;
 @Builder
 public class Image extends BaseTimeEntity {
     @Id
-    @Column(name="image_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long imageId;
 
-    @Column(name="file_title", nullable = false)
+    @Column(nullable = false)
     private String fileTitle;
 
-    @Column(name="file_path", nullable = false)
+    @Column(nullable = false)
     private String filePath;
 
-    @Column(name="file_size", nullable = false)
+    @Column(nullable = false)
     private Long fileSize;
 
     @ManyToOne(fetch=FetchType.LAZY)

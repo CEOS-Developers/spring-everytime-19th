@@ -17,18 +17,18 @@ import java.util.List;
 public class Board extends BaseTimeEntity {
 
     @Id
-    @Column(name="board_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long boardId;
 
-    @Column(name="board_name", nullable = false)
+    @Column(nullable = false)
     private String boardName;
 
-    @Column(name="is_anonymity", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private boolean isAnonymity=true;
 
-    @Column(name="post_num", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Long postNum=0L;
 

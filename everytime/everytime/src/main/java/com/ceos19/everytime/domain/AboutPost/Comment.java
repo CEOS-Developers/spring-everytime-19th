@@ -13,22 +13,22 @@ import lombok.*;
 public class Comment extends BaseTimeEntity {
 
     @Id
-    @Column(name="comment_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long commentId;
 
     @Column(nullable = false)
     private String contents;
 
-    @Column(name="like_num", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Long likeNum=0L;
 
-    @Column(name="is_deleted", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private boolean isDeleted=false;
 
-    @Column(name="is_reported", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private boolean isReported=false;
 

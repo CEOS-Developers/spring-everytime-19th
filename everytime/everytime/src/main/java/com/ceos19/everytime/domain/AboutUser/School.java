@@ -16,14 +16,14 @@ import java.util.List;
 @Builder
 public class School extends BaseTimeEntity {
     @Id
-    @Column(name="school_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long schoolId;
 
-    @Column(name="school_name", nullable = false)
+    @Column( nullable = false)
     private String schoolName;
 
-    @Column(name="student_num", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Long studentNum=0L;
 

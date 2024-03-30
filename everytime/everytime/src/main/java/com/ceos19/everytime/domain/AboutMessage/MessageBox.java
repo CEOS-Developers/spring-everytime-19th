@@ -14,11 +14,11 @@ import lombok.*;
 public class MessageBox extends BaseTimeEntity {
 
     @Id
-    @Column(name="messagebox_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long messageboxId;
 
-    @Column(name="message_num", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Long messageNum=0L;
 

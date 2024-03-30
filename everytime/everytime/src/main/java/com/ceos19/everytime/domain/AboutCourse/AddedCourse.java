@@ -12,7 +12,7 @@ import lombok.*;
 public class AddedCourse extends BaseTimeEntity {
 
     @Id
-    @Column(name="added_course_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long addedCourseId;
 

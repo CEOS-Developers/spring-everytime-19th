@@ -16,11 +16,11 @@ import java.util.List;
 public class Timetable extends BaseTimeEntity {
 
     @Id
-    @Column(name="timetable_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long timetableId;
 
-    @Column(name="timetable_name", nullable = false)
+    @Column(nullable = false)
     private String timetableName;
 
     @ManyToOne(fetch = FetchType.LAZY)

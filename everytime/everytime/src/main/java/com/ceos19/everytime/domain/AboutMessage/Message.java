@@ -15,18 +15,18 @@ import java.time.LocalDateTime;
 @Builder
 public class Message {
     @Id
-    @Column(name="message_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long messageId;
 
-    @Column(name="contents", nullable = false)
+    @Column(nullable = false)
     private String contents;
 
-    @Column(name="is_deleted", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private boolean isDeleted=false;
 
-    @Column(name="send_at", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Timestamp sendAt=Timestamp.valueOf(LocalDateTime.now());
 

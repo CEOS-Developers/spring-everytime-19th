@@ -21,19 +21,19 @@ import java.util.List;
 public class Course extends BaseTimeEntity {
 
     @Id
-    @Column(name="course_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long courseId;
 
     //과목코드
-    @Column(name="course_code", nullable = false)
+    @Column(nullable = false)
     private String courseCode;
 
     //분반
     private Integer division;
 
     //과목명
-    @Column(name="class_name", nullable = false)
+    @Column(nullable = false)
     private String className;
 
     //교수명
@@ -41,7 +41,7 @@ public class Course extends BaseTimeEntity {
 
     //강의 요일
     @Enumerated(EnumType.STRING)
-    @Column(name="class_day", nullable = false)
+    @Column(nullable = false)
     private DayOfWeek classDay;
 
     //강의실
@@ -55,11 +55,9 @@ public class Course extends BaseTimeEntity {
     private Integer credit;
 
     //시작 시간
-    @Column(name="start_time")
     private Time startTime;
 
     //종료 시간
-    @Column(name="end_time")
     private Time endTime;
 
     //강의 설명

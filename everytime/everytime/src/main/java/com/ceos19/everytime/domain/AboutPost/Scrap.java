@@ -13,7 +13,7 @@ import lombok.*;
 @Builder
 public class Scrap extends BaseTimeEntity {
     @Id
-    @Column(name="scrap_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long scrapId;
 

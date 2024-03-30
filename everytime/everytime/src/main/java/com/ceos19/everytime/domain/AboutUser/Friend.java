@@ -13,11 +13,11 @@ import lombok.*;
 @Builder
 public class Friend extends BaseTimeEntity {
     @Id
-    @Column(name="friend_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long friendId;
 
-    @Column(name="is_accepted", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private boolean isAccepted=false;
 

@@ -16,7 +16,7 @@ import java.util.List;
 public class Post extends BaseTimeEntity {
 
     @Id
-    @Column(name="post_id", nullable = false)
+    @Column(nullable = false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long postId;
 
@@ -26,23 +26,22 @@ public class Post extends BaseTimeEntity {
     @Column(nullable = false)
     private String contents;
 
-    @Column(name="like_num")
     @Builder.Default
     private Long likeNum=0L;
 
-    @Column(name="is_reported", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private boolean isReported=false;
 
-    @Column(name="comment_num", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Long commentNum=0L;
 
-    @Column(name="scrap_num", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Long scrapNum=0L;
 
-    @Column(name="is_anonymity", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private boolean isAnonymity=true;
 
