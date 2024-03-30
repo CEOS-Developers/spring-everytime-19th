@@ -49,7 +49,7 @@ public class SchoolController {
     }
 
     @GetMapping
-    public BaseResponse<List<ReadSchoolResponse>> findSchools(@RequestParam(value = "name", required = false) String name) {
+    public BaseResponse<List<ReadSchoolResponse>> readSchool(@RequestParam(value = "name", required = false) String name) {
         try {
             List<ReadSchoolResponse> value = new ArrayList<>();
             if (name == null) {
@@ -74,8 +74,7 @@ public class SchoolController {
     @PatchMapping("/{sid}")
     public BaseResponse modifySchool(@PathVariable("sid") Long schoolId, @Valid @RequestBody ModifySchoolRequest request) {
         try {
-            School school = schoolService.findSchoolById(schoolId);
-            school.updateName(request.getName());
+            schoolService.modifySchool(schoolId, request.getName());
             return new BaseResponse(HttpStatus.OK, null, null, 0);
         } catch (AppException e) {
             return new BaseResponse<>(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
