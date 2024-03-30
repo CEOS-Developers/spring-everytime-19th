@@ -5,8 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -38,7 +36,7 @@ public class Post extends BaseTimeEntity{
     private boolean isAnonymous;
 
     @Column(nullable = false)
-    private int likes;
+    private Long likes;
 
     @Builder
     public Post(String title, String content, Member author, Board board, boolean isAnonymous){
@@ -47,14 +45,14 @@ public class Post extends BaseTimeEntity{
         this.author = author;
         this.board = board;
         this.isAnonymous = isAnonymous;
-        this.likes = 0;
+        this.likes = 0L;
     }
 
     public void addLike(){
         likes++;
     }
 
-    public void deleteLike(){
+    public void cancelLike(){
         if(this.likes!=0)
             likes--;
     }

@@ -16,6 +16,6 @@ public class PostResponse {
     private Member author;
     private Board board;
     private boolean isAnonymous;
-    private int likes;
+    private Long likes;
 
 }
