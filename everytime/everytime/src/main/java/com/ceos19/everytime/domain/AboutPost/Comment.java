@@ -14,7 +14,7 @@ public class Comment extends BaseTimeEntity {
 
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
 
     @Column(nullable = false)
@@ -22,26 +22,26 @@ public class Comment extends BaseTimeEntity {
 
     @Column(nullable = false)
     @Builder.Default
-    private Long likeNum=0L;
+    private Long likeNum = 0L;
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isDeleted=false;
+    private boolean isDeleted = false;
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isReported=false;
+    private boolean isReported = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="post_id")
+    @JoinColumn(name = "post_id")
     private Post post;
 
     public void deleteSubcomment(long parentCommentId) {

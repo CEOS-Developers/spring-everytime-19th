@@ -14,19 +14,19 @@ import lombok.*;
 public class Friend extends BaseTimeEntity {
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long friendId;
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isAccepted=false;
+    private boolean isAccepted = false;
 
     @ManyToOne
-    @JoinColumn(name="request_user_id")
+    @JoinColumn(name = "request_user_id")
     private User user1;
 
     @ManyToOne
-    @JoinColumn(name="response_user_id")
+    @JoinColumn(name = "response_user_id")
     private User user2;
 
 }

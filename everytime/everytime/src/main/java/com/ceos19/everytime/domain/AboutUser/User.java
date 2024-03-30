@@ -24,20 +24,19 @@ import java.util.List;
 
 public class User extends BaseTimeEntity {
     @Id
-    @Column
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(length=15, nullable = false)
+    @Column(length = 15, nullable = false)
     private String loginId;
 
-    @Column(length=20, nullable = false)
+    @Column(length = 20, nullable = false)
     private String loginPassword;
 
     @Column(nullable = false)
     private String username;
 
-    @Column(length=20, nullable = false)
+    @Column(length = 20, nullable = false)
     private String nickname;
 
     @Column(nullable = false)
@@ -51,15 +50,15 @@ public class User extends BaseTimeEntity {
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isActive=true;
+    private boolean isActive = true;
 
     @Column(nullable = false)
     @Builder.Default
-    private Timestamp loginAt=Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp loginAt = Timestamp.valueOf(LocalDateTime.now());
 
     //User->School
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="school_id")
+    @JoinColumn(name = "school_id")
     private School school;
 
     @OneToMany(mappedBy = "user")

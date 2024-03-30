@@ -22,7 +22,7 @@ public class Course extends BaseTimeEntity {
 
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long courseId;
 
     //과목코드

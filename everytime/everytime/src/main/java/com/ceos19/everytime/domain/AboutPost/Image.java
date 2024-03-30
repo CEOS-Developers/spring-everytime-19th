@@ -14,7 +14,7 @@ import lombok.*;
 public class Image extends BaseTimeEntity {
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
     @Column(nullable = false)
@@ -26,8 +26,8 @@ public class Image extends BaseTimeEntity {
     @Column(nullable = false)
     private Long fileSize;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="post_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
     private Post post;
 
 }

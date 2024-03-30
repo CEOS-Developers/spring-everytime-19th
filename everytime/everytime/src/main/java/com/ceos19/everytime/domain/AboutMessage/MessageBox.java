@@ -15,16 +15,16 @@ public class MessageBox extends BaseTimeEntity {
 
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageboxId;
 
     @Column(nullable = false)
     @Builder.Default
-    private Long messageNum=0L;
+    private Long messageNum = 0L;
 
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="partner_user_id")
+    @JoinColumn(name = "partner_user_id")
     private User user;
 
 }

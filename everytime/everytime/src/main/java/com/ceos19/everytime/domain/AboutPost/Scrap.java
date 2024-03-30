@@ -14,14 +14,14 @@ import lombok.*;
 public class Scrap extends BaseTimeEntity {
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long scrapId;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="post_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
     private Post post;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 }

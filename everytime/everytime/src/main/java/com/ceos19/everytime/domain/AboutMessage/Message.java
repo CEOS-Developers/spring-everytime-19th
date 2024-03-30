@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class Message {
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageId;
 
     @Column(nullable = false)
@@ -24,22 +24,22 @@ public class Message {
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isDeleted=false;
+    private boolean isDeleted = false;
 
     @Column(nullable = false)
     @Builder.Default
-    private Timestamp sendAt=Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp sendAt = Timestamp.valueOf(LocalDateTime.now());
 
     @ManyToOne
-    @JoinColumn(name="request_user_id")
+    @JoinColumn(name = "request_user_id")
     private User user1;
 
     @ManyToOne
-    @JoinColumn(name="response_user_id")
+    @JoinColumn(name = "response_user_id")
     private User user2;
 
     @ManyToOne
-    @JoinColumn(name="messagebox_id")
+    @JoinColumn(name = "messagebox_id")
     private MessageBox messageBox;
 
 

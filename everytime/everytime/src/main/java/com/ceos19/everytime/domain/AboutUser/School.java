@@ -17,7 +17,7 @@ import java.util.List;
 public class School extends BaseTimeEntity {
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long schoolId;
 
     @Column( nullable = false)
@@ -25,7 +25,7 @@ public class School extends BaseTimeEntity {
 
     @Column(nullable = false)
     @Builder.Default
-    private Long studentNum=0L;
+    private Long studentNum = 0L;
 
     @OneToMany(mappedBy = "school",fetch = FetchType.LAZY)
     @Builder.Default

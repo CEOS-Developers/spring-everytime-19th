@@ -17,14 +17,14 @@ public class Timetable extends BaseTimeEntity {
 
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long timetableId;
 
     @Column(nullable = false)
     private String timetableName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
 

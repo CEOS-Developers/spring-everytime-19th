@@ -18,7 +18,7 @@ public class Board extends BaseTimeEntity {
 
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardId;
 
     @Column(nullable = false)
@@ -26,14 +26,14 @@ public class Board extends BaseTimeEntity {
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isAnonymity=true;
+    private boolean isAnonymity = true;
 
     @Column(nullable = false)
     @Builder.Default
-    private Long postNum=0L;
+    private Long postNum = 0L;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="school_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
     private School school;
 
 }

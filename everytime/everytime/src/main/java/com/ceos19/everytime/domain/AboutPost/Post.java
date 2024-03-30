@@ -17,7 +17,7 @@ public class Post extends BaseTimeEntity {
 
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
 
     @Column(nullable = false)
@@ -27,30 +27,30 @@ public class Post extends BaseTimeEntity {
     private String contents;
 
     @Builder.Default
-    private Long likeNum=0L;
+    private Long likeNum = 0L;
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isReported=false;
+    private boolean isReported = false;
 
     @Column(nullable = false)
     @Builder.Default
-    private Long commentNum=0L;
+    private Long commentNum = 0L;
 
     @Column(nullable = false)
     @Builder.Default
-    private Long scrapNum=0L;
+    private Long scrapNum = 0L;
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isAnonymity=true;
+    private boolean isAnonymity = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="board_id")
+    @JoinColumn(name = "board_id")
     private Board board;
 
 
@@ -58,7 +58,7 @@ public class Post extends BaseTimeEntity {
     @Builder.Default
     List<Comment> comments = new ArrayList<Comment>();
 
-    @OneToMany(mappedBy="post")
+    @OneToMany(mappedBy = "post")
     @Builder.Default
     List<Image> images = new ArrayList<Image>();
 
@@ -67,8 +67,8 @@ public class Post extends BaseTimeEntity {
     }
 
     public void deleteLikeNum(Long likeNum) {
-        if(this.likeNum==0){
-            this.likeNum=0L;
+        if(this.likeNum == 0){
+            this.likeNum = 0L;
         } else {
             this.likeNum = likeNum-1;
         }
