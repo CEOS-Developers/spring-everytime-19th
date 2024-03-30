@@ -3,9 +3,11 @@ package com.ceos19.springboot.domain;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Friend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
