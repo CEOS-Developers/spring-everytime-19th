@@ -24,7 +24,7 @@ public class CategoryController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<Void> createCategory(@RequestBody @Valid CategoryCreateRequest request) {
+    public ResponseEntity<Void> createCategory(@RequestBody @Valid final CategoryCreateRequest request) {
         // test user
         User user = userService.register(new User(
             "test",
@@ -41,21 +41,27 @@ public class CategoryController {
     }
 
     @PutMapping("/{category_id}")
-    public ResponseEntity<Void> updateCategory(@PathVariable Long category_id, @RequestBody @Valid CategoryUpdateRequest request) {
+    public ResponseEntity<Void> updateCategory(
+            @PathVariable final Long category_id,
+            @RequestBody @Valid final CategoryUpdateRequest request
+    ) {
         // 글 작성자인지 검증하는 로직이 필요하다.
         categoryService.updateDescription(category_id, request);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{category_id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long category_id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable final Long category_id) {
         // 글 작성자인지 검증하는 로직이 필요하다.
         categoryService.delete(category_id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{category_id}/page/{page_number}")
-    public ResponseEntity<List<Post>> getPostsOfPageFromCategory(@PathVariable Long category_id, @PathVariable int page_number) {
+    public ResponseEntity<List<Post>> getPostsOfPageFromCategory(
+            @PathVariable final Long category_id,
+            @PathVariable final int page_number
+    ) {
         List<Post> posts = categoryService.getPosts(category_id, page_number);
         return ResponseEntity.ok(posts);
     }

@@ -1,14 +1,18 @@
 package com.ceos19.springeverytime.domain.category.dto.request;
 
-import lombok.Builder;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 @Getter
 public class CategoryUpdateRequest {
-    private String description;
+    @NotNull(message = "게시판 설명을 입력해주세요.")
+    private final String description;
 
     @Builder
-    private CategoryUpdateRequest(String description) {
+    @JsonCreator
+    // https://kong-dev.tistory.com/236?category=1072302
+    private CategoryUpdateRequest(final String description) {
         this.description = description;
     }
 

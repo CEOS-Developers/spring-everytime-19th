@@ -16,7 +16,7 @@ public class CategoryCreateRequest {
         this.description = description;
     }
 
-    public static CategoryCreateRequest of(String name, String description) {
+    public static CategoryCreateRequest of(final String name, final String description) {
         return CategoryCreateRequest.builder().name(name).description(description).build();
     }
 }
