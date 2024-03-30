@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,10 +33,9 @@ public class MessageController {
     }
 
     @Operation(summary = "쪽지 읽기", description = "쪽지를 읽습니다.")
-    @GetMapping("/{messageId}")
-    public ResponseEntity<List<MessageResponseDto>> readMessage(@PathVariable final Long messageId,
-                                                                @RequestBody final MessageReadRequestDto request) {
-        final List<MessageResponseDto> responses = messageService.readMessage(messageId, request);
+    @GetMapping
+    public ResponseEntity<List<MessageResponseDto>> readMessage(@RequestBody final MessageReadRequestDto request) {
+        final List<MessageResponseDto> responses = messageService.readMessage(request);
         return ResponseEntity.ok().body(responses);
     }
 }

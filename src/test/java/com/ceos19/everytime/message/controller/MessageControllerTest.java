@@ -1,7 +1,6 @@
 package com.ceos19.everytime.message.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(MessageController.class)
 class MessageControllerTest {
 
-    private static final String DEFAULT_MEESAGE_URL = "/api/messages";
+    private static final String DEFAULT_MESSAGE_URL = "/api/messages";
     @Autowired
     private MockMvc mockMvc;
 
@@ -47,7 +46,7 @@ class MessageControllerTest {
         doNothing().when(messageService).sendMessage(request);
 
         // when & then
-        mockMvc.perform(post(DEFAULT_MEESAGE_URL)
+        mockMvc.perform(post(DEFAULT_MESSAGE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -56,13 +55,13 @@ class MessageControllerTest {
     @Test
     void 쪽지를_읽는다() throws Exception {
         // given
-        final MessageReadRequestDto request = new MessageReadRequestDto(1L);
+        final MessageReadRequestDto request = new MessageReadRequestDto(1L, 2L);
 
-        given(messageService.readMessage(anyLong(), any()))
+        given(messageService.readMessage(any()))
                 .willReturn(List.of(new MessageResponseDto("sender", "content", LocalDateTime.now())));
 
         // when & then
-        mockMvc.perform(get(DEFAULT_MEESAGE_URL + "/{messageId}", 1L)
+        mockMvc.perform(get(DEFAULT_MESSAGE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

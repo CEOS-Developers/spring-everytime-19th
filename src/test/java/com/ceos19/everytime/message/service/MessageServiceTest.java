@@ -73,13 +73,13 @@ class MessageServiceTest {
 
         given(userRepository.findById(anyLong()))
                 .willReturn(Optional.of(receiver));
-        given(messageRepository.findByIdAndReceiver(anyLong(), any()))
+        given(messageRepository.findBySenderAndReceiver(any(), any()))
                 .willReturn(List.of(message));
 
-        final MessageReadRequestDto request = new MessageReadRequestDto(2L);
+        final MessageReadRequestDto request = new MessageReadRequestDto(1L, 2L);
 
         // when
-        final List<MessageResponseDto> result = messageService.readMessage(1L, request);
+        final List<MessageResponseDto> result = messageService.readMessage(request);
 
         // then
         assertSoftly(softly -> {

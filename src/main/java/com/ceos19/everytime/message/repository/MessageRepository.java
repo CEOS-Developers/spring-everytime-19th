@@ -9,5 +9,5 @@ import com.ceos19.everytime.user.domain.User;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    List<Message> findByIdAndReceiver(final Long messageId, final User receiver);
+    List<Message> findBySenderAndReceiver(final User sender, final User receiver);
 }
