@@ -1,6 +1,7 @@
 package com.ceos19.everytime.post.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,6 +24,8 @@ import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
 import com.ceos19.everytime.post.dto.response.PostResponseDto;
 import com.ceos19.everytime.post.service.PostService;
+import com.ceos19.everytime.postlike.dto.request.PostLikeRequestDto;
+import com.ceos19.everytime.postlike.service.PostLikeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(PostController.class)
@@ -38,6 +41,9 @@ class PostControllerTest {
 
     @MockBean
     private PostService postService;
+
+    @MockBean
+    private PostLikeService postLikeService;
 
     @Test
     void 게시글_작성에_성공한다() throws Exception {
@@ -92,5 +98,21 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.username").value("nickname"))
                 .andExpect(jsonPath("$.boardName").value("자유게시판"))
                 .andExpect(jsonPath("$.comments").isEmpty());
+    }
+
+    @Test
+    void 게시글_좋아요() throws Exception {
+        // given
+        doNothing().when(postLikeService).like(anyLong(), any());
+
+        final Long postId = 1L;
+        final PostLikeRequestDto request = new PostLikeRequestDto(1L);
+
+        // when & then
+        mockMvc.perform(post(DEFAULT_POST_URL + "/likes/{postId}", postId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 }

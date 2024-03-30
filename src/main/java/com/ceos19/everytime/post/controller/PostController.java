@@ -15,6 +15,8 @@ import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
 import com.ceos19.everytime.post.dto.response.PostResponseDto;
 import com.ceos19.everytime.post.service.PostService;
+import com.ceos19.everytime.postlike.dto.request.PostLikeRequestDto;
+import com.ceos19.everytime.postlike.service.PostLikeService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
 
     private final PostService postService;
+    private final PostLikeService postLikeService;
 
     @Operation(summary = "게시글 작성", description = "게시글을 작성합니다.")
     @PostMapping
@@ -46,5 +49,11 @@ public class PostController {
     public ResponseEntity<PostResponseDto> getPost(@PathVariable final Long postId) {
         final PostResponseDto response = postService.getPost(postId);
         return ResponseEntity.ok().body(response);
+    }
+
+    @Operation(summary = "게시글 좋아요 등록", description = "게시글 좋아요를 등록합니다.")
+    @PostMapping("/likes/{postId}")
+    public void createPostLike(@PathVariable final Long postId, @RequestBody final PostLikeRequestDto request) {
+        postLikeService.like(postId, request);
     }
 }

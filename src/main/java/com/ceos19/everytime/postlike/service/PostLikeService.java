@@ -23,11 +23,11 @@ public class PostLikeService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void like(final PostLikeRequestDto request) {
-        final Post post = getPost(request);
+    public void like(final Long postId, final PostLikeRequestDto request) {
+        final Post post = getPost(postId);
         final User user = getUser(request);
         if (postLikeRepository.existsByPostAndUser(post, user)) {
-            throw new NotFoundException(String.format("PostLike not found: %d", request.postId()));
+            throw new NotFoundException(String.format("PostLike not found: %d", postId));
         }
         final PostLike postLike = new PostLike(user, post);
         post.increaseLikeNumber();
@@ -36,19 +36,18 @@ public class PostLikeService {
     }
 
     @Transactional
-    public void cancelLike(final PostLikeRequestDto request) {
-        final Post post = getPost(request);
+    public void cancelLike(final Long postId, final PostLikeRequestDto request) {
+        final Post post = getPost(postId);
         final User user = getUser(request);
         final PostLike postLike = postLikeRepository.findByPostAndUser(post, user)
-                .orElseThrow(() -> new NotFoundException(String.format("PostLike not found: %d", request.postId())));
+                .orElseThrow(() -> new NotFoundException(String.format("PostLike not found: %d", postId)));
         post.decreaseLikeNumber();
 
         postLikeRepository.delete(postLike);
     }
-
-    private Post getPost(final PostLikeRequestDto request) {
-        return postRepository.findById(request.postId())
-                .orElseThrow(() -> new NotFoundException(String.format("Post not found: %d", request.postId())));
+    private Post getPost(final Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException(String.format("Post not found: %d", postId)));
     }
 
     private User getUser(final PostLikeRequestDto request) {
