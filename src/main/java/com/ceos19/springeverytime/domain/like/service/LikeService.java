@@ -1,8 +1,5 @@
 package com.ceos19.springeverytime.domain.like.service;
 
-import static com.ceos19.springeverytime.global.exception.ExceptionCode.NOT_FOUND_USER_ID;
-import static com.ceos19.springeverytime.global.exception.ExceptionCode.NOT_FOUND_POST_ID;
-
 import com.ceos19.springeverytime.domain.comment.domain.Comment;
 import com.ceos19.springeverytime.domain.comment.repository.CommentRepository;
 import com.ceos19.springeverytime.domain.post.domain.Post;
@@ -18,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static com.ceos19.springeverytime.global.exception.ExceptionCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +47,7 @@ public class LikeService {
     @Transactional
     public void updateCommentLike(Long commentId, Long userId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new BadRequestException(NOT_FOUND_POST_ID));
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_COMMENT_ID));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_USER_ID));
 
