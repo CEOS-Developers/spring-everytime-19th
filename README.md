@@ -476,13 +476,23 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
   </tr>
 
   <tr>
-    <td rowspan="4">ChatMessage</td>
+    <td rowspan="1">ChatMessage</td>
     <td>POST</td>
-    <td rowspan="4"><code>/chat/rooms/{room_id}/message</code></td>
+    <td rowspan="1"><code>/chat/rooms/{room_id}/message</code></td>
     <td><code>/</code></td>
     <td></td>
     <td></td>
     <td>기존 채팅방에 채팅 전송</td>
+  </tr>
+
+  <tr>
+    <td rowspan="2">Image</td>
+    <td>POST</td>
+    <td rowspan="2"><code>/image</code></td>
+    <td><code>/</code></td>
+    <td></td>
+    <td></td>
+    <td>이미지 업로드</td>
   </tr>
 </table>
 

@@ -15,10 +15,9 @@ public class Image extends BaseEntity {
     private Long imageId;
 
     @NonNull
-    @Column(length = 200, nullable = false)
+    @Column(length = 200, nullable = false, updatable = false)
     private String imageUrl;
 
-    @NonNull
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
