@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ExceptionCode {
+    INVALID_REQUEST(1000, "올바르지 않은 요청입니다."),
+
     NOT_FOUND_USER_ID(1001, "요청한 ID에 해당하는 유저가 존재하지 않습니다."),
     NOT_FOUND_CATEGORY_ID(1002, "요청한 ID에 해당하는 카테고리가 존재하지 않습니다."),
     NOT_FOUND_POST_ID(1003, "요청한 ID에 해당하는 게시글이 존재하지 않습니다."),
