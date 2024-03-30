@@ -19,30 +19,15 @@ public class ChatRoom extends BaseEntity {
     private Long roomId;
 
     @NonNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user1_id", updatable = false, nullable = false)
     private User member1;
 
     @NonNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user2_id", updatable = false, nullable = false)
     private User member2;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE)
     private List<ChatMessage> chatMessages = new ArrayList<>();
-
-    /**
-     * 채팅 전송
-     * */
-    public void send(User sender, String message) {
-        if (!(sender.equals(this.member1) || sender.equals(this.member2))) {
-            throw new IllegalArgumentException("채팅방에 없는 사용자는 메세지를 보낼 수 없습니다.");
-        }
-        ChatMessage chatMessage = ChatMessage.builder()
-                .room(this)
-                .content(message)
-                .sender(sender).build();
-
-        this.chatMessages.add(chatMessage);
-    }
 }
