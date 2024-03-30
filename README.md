@@ -388,7 +388,6 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
   </tr>
   <tr>
     <td>POST</td>
-    <td></td>
     <td><code>/{post_id}/like</code></td>
     <td>게시글 좋아요 업데이트(생성/삭제)</td>
   </tr>
