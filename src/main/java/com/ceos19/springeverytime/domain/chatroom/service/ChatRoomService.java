@@ -1,8 +1,12 @@
 package com.ceos19.springeverytime.domain.chatroom.service;
 
 import static com.ceos19.springeverytime.global.exception.ExceptionCode.NOT_FOUND_CHAT_ROOM_ID;
+import static com.ceos19.springeverytime.global.exception.ExceptionCode.NOT_FOUND_USER_ID;
 
+import com.ceos19.springeverytime.domain.chatmessage.domain.ChatMessage;
+import com.ceos19.springeverytime.domain.chatmessage.repository.ChatMessageRepository;
 import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatroom.dto.request.ChatRoomCreateRequest;
 import com.ceos19.springeverytime.domain.chatroom.dto.response.ChatRoomDetailResponse;
 import com.ceos19.springeverytime.domain.chatroom.dto.response.ChatRoomResponse;
 import com.ceos19.springeverytime.domain.user.domain.User;
@@ -21,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
 
     public ChatRoom findChatRoom(Long roomId) {
@@ -32,9 +37,25 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public ChatRoom createChatRoom(ChatRoom chatRoom) {
-        validateDuplicatedChatRoomByUserIds(chatRoom.getMember1().getUserId(), chatRoom.getMember2().getUserId());
-        return chatRoomRepository.save(chatRoom);
+    public ChatRoom createChatRoom(Long userId, ChatRoomCreateRequest request) {
+        User fromUser = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_USER_ID));
+
+        User toUser = userRepository.findById(request.getToUserId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_USER_ID));
+
+        validateDuplicatedChatRoomByUserIds(userId, request.getToUserId());
+        ChatRoom newChatRoom = chatRoomRepository.save(new ChatRoom(
+                fromUser,
+                toUser
+        ));
+
+        chatMessageRepository.save(new ChatMessage(
+                request.getMessage(),
+                newChatRoom,
+                fromUser
+        ));
+        return newChatRoom;
     }
 
     public List<ChatRoomResponse> getChatRoomsForUser(Long userId) {
