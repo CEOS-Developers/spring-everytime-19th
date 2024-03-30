@@ -29,7 +29,7 @@ public class PostService {
     //2. 게시글 작성하기
     @Transactional
     public Post savePost(PostDTO postDTO){
-        return postRepository.save(postDTO.toPost(0L));
+        return postRepository.save(postDTO.toPost());
     }
 
     //3. 게시글에 댓글 및 대댓글 기능
