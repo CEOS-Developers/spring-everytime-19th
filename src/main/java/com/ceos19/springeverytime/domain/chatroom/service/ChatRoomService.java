@@ -63,25 +63,6 @@ public class ChatRoomService {
         return chatRooms.stream().map(ChatRoomResponse::from).toList();
     }
 
-    public ChatRoom findChatRoomByUser1AndUser2(User user1, User user2) {
-        Optional<ChatRoom> findChatRoom = chatRoomRepository.findChatRoomByUser1AndUser2(user1, user2);
-        if (findChatRoom.isEmpty()) {
-            throw new IllegalArgumentException("해당하는 채팅방이 없습니다.");
-        }
-        return findChatRoom.get();
-    }
-
-    @Transactional
-    public void removeChatRoom(ChatRoom chatRoom) {
-        // 삭제하려는 채팅방에 속한 유저가 회원탈퇴를 한 경우에는 유저가 조회되지 않음.
-        // 따라서 채팅에 참여한 유저 대신 채팅방 ID 만 가지고 체크
-        Optional<ChatRoom> room = chatRoomRepository.findById(chatRoom.getRoomId());
-        if (room.isEmpty()) {
-            throw new IllegalArgumentException("삭제하려는 채팅방이 없습니다.");
-        }
-        chatRoomRepository.delete(chatRoom);
-    }
-
     private void validateDuplicatedChatRoomByUserIds(Long user1Id, Long user2Id) {
         System.out.println(userRepository);
         Optional<User> user1 = userRepository.findById(user1Id);
