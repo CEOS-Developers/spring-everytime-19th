@@ -1,6 +1,7 @@
 package com.ceos19.springeverytime.domain.chatroom.service;
 
 import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatroom.dto.response.ChatRoomResponse;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.chatroom.repository.ChatRoomRepository;
 import com.ceos19.springeverytime.domain.user.repository.UserRepository;
@@ -32,8 +33,9 @@ public class ChatRoomService {
         return chatRoomRepository.save(chatRoom);
     }
 
-    public List<ChatRoom> findChatRoomsForUser(User user) {
-        return chatRoomRepository.findAllByUser(user);
+    public List<ChatRoomResponse> getChatRoomsForUser(Long userId) {
+        final List<ChatRoom> chatRooms = chatRoomRepository.findAllByUserId(userId);
+        return chatRooms.stream().map(ChatRoomResponse::from).toList();
     }
 
     public ChatRoom findChatRoomByUser1AndUser2(User user1, User user2) {

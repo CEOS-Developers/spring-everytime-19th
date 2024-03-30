@@ -11,8 +11,8 @@ import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-    @Query("select r from ChatRoom r where r.member1 = :user or r.member2 = :user")
-    List<ChatRoom> findAllByUser(@Param("user") User user);
+    @Query("select r from ChatRoom r where r.member1.userId = :userId or r.member2.userId = :userId")
+    List<ChatRoom> findAllByUserId(@Param("userId") Long userId);
 
     @Query("select r from ChatRoom r where r.member1 = :user1 and r.member2 = :user2")
     Optional<ChatRoom> findChatRoomByUser1AndUser2(@Param("user1") User user1, @Param("user2") User user2);

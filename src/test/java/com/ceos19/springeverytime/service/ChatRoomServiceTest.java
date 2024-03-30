@@ -1,7 +1,9 @@
 package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
+import com.ceos19.springeverytime.domain.chatmessage.domain.ChatMessage;
 import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatroom.dto.response.ChatRoomResponse;
 import com.ceos19.springeverytime.domain.chatroom.service.ChatRoomService;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.chatroom.repository.ChatRoomRepository;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -88,19 +91,23 @@ public class ChatRoomServiceTest {
     }
 
     @Test
-    @DisplayName("채팅방 리스트 조회 테스트")
-    void 채팅방_리스트_조회_테스트() {
+    @DisplayName("현재 로그인한 유저의 쪽지함을 조회한다.")
+    void 쪽지함_조회_테스트() {
         // given
-        List<ChatRoom> chatRooms = new ArrayList<ChatRoom>();
-        chatRooms.add(new ChatRoom(user1, user2));
-        chatRooms.add(new ChatRoom(user1, user3));
+        ChatRoom room1 = new ChatRoom(user1, user2);
+        ChatRoom room2 = new ChatRoom(user1, user3);
+        room1.send(user1, "test1");
+        room2.send(user1, "test2");
+        List<ChatRoom> chatRooms = new ArrayList<>();
+        chatRooms.add(room1);
+        chatRooms.add(room2);
 
-        given(chatRoomRepository.findAllByUser(any(User.class))).willReturn(chatRooms);
+        given(chatRoomRepository.findAllByUserId(anyLong())).willReturn(chatRooms);
 
         // when
-        List<ChatRoom> testChatRooms = chatRoomService.findChatRoomsForUser(user1);
+        List<ChatRoomResponse> chatRoomResponses = chatRoomService.getChatRoomsForUser(1L);
 
         // then
-        Assertions.assertEquals(testChatRooms, chatRooms);
+        Assertions.assertEquals(chatRoomResponses.size(), 2);
     }
 }

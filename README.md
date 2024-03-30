@@ -443,6 +443,26 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
     <td></td>
     <td>댓글 좋아요 업데이트 (생성/삭제)</td>
   </tr>
+
+  <tr>
+    <td rowspan="1">ChatRoom</td>
+    <td>POST</td>
+    <td rowspan="1"><code>/chatroom</code></td>
+    <td><code>/list</code></td>
+    <td></td>
+    <td></td>
+    <td>쪽지함 조회</td>
+  </tr>
+
+  <tr>
+    <td rowspan="4">ChatMessage</td>
+    <td>POST</td>
+    <td rowspan="4"><code>/chatM</code></td>
+    <td><code>/</code></td>
+    <td></td>
+    <td></td>
+    <td>채팅 전송</td>
+  </tr>
 </table>
 
 ### Controller Test
