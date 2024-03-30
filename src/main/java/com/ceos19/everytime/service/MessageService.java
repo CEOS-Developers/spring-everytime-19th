@@ -2,6 +2,10 @@ package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Message;
+import com.ceos19.everytime.dto.CreateMessageRequest;
+import com.ceos19.everytime.dto.DeleteRequest;
+import com.ceos19.everytime.dto.MessageResponse;
+import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.MemberRepository;
 import com.ceos19.everytime.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+
+import static com.ceos19.everytime.exception.ErrorCode.DATA_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -21,20 +29,44 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final MemberRepository memberRepository;
 
-    public Message create(Long senderId, Long receiverId, String content){
-        Optional<Member> sender = memberRepository.findById(senderId);
-        Optional<Member> receiver = memberRepository.findById(receiverId);
+    public Long createMessage (CreateMessageRequest createMessageRequest){
+        final Member sender = memberRepository.findById(createMessageRequest.getSenderId())
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+        final Member receiver = memberRepository.findById(createMessageRequest.getReceiverId())
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
 
-        if(sender.isEmpty() || receiver.isEmpty() || !validateContent(content)){
-            log.info("[Service][createMessage] FAIL");
-            return null;
+        Message message = new Message(sender, receiver, createMessageRequest.getContent());
+        return messageRepository.save(message)
+                .getId();
+    }
+
+    public List<MessageResponse> findEveryMessage(Long memberId){
+        final Member sender = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+
+        List<MessageResponse> messageResponseList = new ArrayList<>();
+        for(Message message : messageRepository.findBySenderId(memberId)){
+            messageResponseList.add(new MessageResponse(message.getId(), sender, message.getReceiver(), message.getContent(), message.getReadStatus()));
         }
 
-        Message message = new Message(sender.get(), receiver.get(), content);
-        messageRepository.save(message);
-        log.info("[Service][createMessage] SUCCESS");
-        return message;
+        return messageResponseList;
     }
+
+    public void deleteMessage (Long messageId, DeleteRequest deleteRequest){
+
+        final Member member = memberRepository.findById(deleteRequest.getMemberId())
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+        final Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+
+        if(messageRepository.existsByMessageIdAndSenderId(message.getId(), member.getId()) || messageRepository.existsByMessageIdAndReceiverId(message.getId(), member.getId())){
+            messageRepository.deleteById(messageId);
+        }
+
+
+    }
+
+
 
     public void updateReadStatus(Long receiverId, Long messageId){
         Optional<Message> message = messageRepository.findById(messageId);
