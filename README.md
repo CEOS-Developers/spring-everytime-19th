@@ -625,4 +625,51 @@ public record PostResponseDTO (String title, String contents){
 ```
 [참고] https://s7won.tistory.com/2
 
-9. 
+9. 'BDDMockito' 라이브러리의 'given' 사용
+원래는 Service layer test 코드를 작성했을 때 given 단계에서 'Mockito'의 'when'을 사용했었다.
+안그래도 왜 given 단계에서 왜 when을 사용하는지에 대해 이해가 어려웠는데, 피드백을 통해 'BDDMockito' 라이브러리를 사용하면 given 단계에서 'given'을 사용할 수 있다는 것을 새로 알 수 있었다.
+덕분에 'BDDMockito'에 대해서도 더 조사해볼 수 있었다. 참고한 자료의 링크는 다음과 같다. -> [참고] https://velog.io/@lxxjn0/Mockito%EC%99%80-BDDMockito%EB%8A%94-%EB%AD%90%EA%B0%80-%EB%8B%A4%EB%A5%BC%EA%B9%8C
+```java
+@Test
+void savePostTest() {
+        // given
+        given(postRepository.save(any(Post.class))).willReturn(post);
+
+        //when
+        Post testedResult = postService.savePost(postDTO);
+
+        //Then
+        assertThat(testedResult).isEqualTo(post);
+}
+```
+덕분에 위와 같이 좀 더 가독성이 좋은 코드를 완성할 수 있었다.
+
+10. `if-else`를 `.orElseThrow()`로 변경
+`if-else`문을 `.orElseThrow()`로 변경하면 훨씬 더 간결하고 가독성 좋은 코드가 된다는 것을 이번 피드백을 기회로 확실히 이해하고 넘어갈 수 있었다.  
+원래 코드는 아래와 같았다.
+```java
+@Transactional
+    public Comment deleteSubcomment(long commentId) {
+        //commentId로 게시글 조회 -> 존재하는지 Optional을 통해 확인
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        if (optionalComment.isPresent()) {
+            Comment comment = optionalComment.get();
+
+            comment.deleteSubcomment(comment.getCommentId());
+            comment = commentRepository.save(comment); // 변경 사항 저장
+            return comment;
+        } else {
+            // 댓글을 찾을 수 없는 경우, 적절한 예외 처리 또는 로직을 구현
+            throw new RuntimeException("Not Found: " + commentId);
+        }
+```
+하지만 피드백을 기반으로 고친 후에는 아래와 같이 간결해졌다.
+```java
+@Transactional
+    public Comment deleteSubcomment(long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()->new IllegalArgumentException("Not Found: "+commentId));
+        comment.deleteSubcomment(comment.getCommentId());
+        comment = commentRepository.save(comment); // 변경 사항 저장
+        return comment;
+    }
+```
