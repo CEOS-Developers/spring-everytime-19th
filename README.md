@@ -524,7 +524,7 @@ entity의 column 작성 단계에서 각 column의 이름을 카멜 케이스로
 @Column(nullable = false)
 private String courseCode;
 ```
-위와 같이 `nullable = false`와 같은 조건이 있는 경우에만 `@Column`을 작성하고, 특별한 조건이 없다면 `@Column`없이 변수만 작성
+위와 같이 `nullable = false`와 같은 조건이 있는 경우에만 `@Column`을 작성하고, 특별한 조건이 없다면 `@Column`없이 변수만 작성  
 
 2. 연산자 앞뒤로 공백 한 칸씩 추가  
 ```java
@@ -533,7 +533,7 @@ private String courseCode;
 @Column(nullable = false)
 private DayOfWeek classDay;
 ```
-위와 같이 코드의 가독성을 위해 '='과 같은 연산자의 앞뒤로 한 칸씩 공백을 생성함
+위와 같이 코드의 가독성을 위해 '='과 같은 연산자의 앞뒤로 한 칸씩 공백을 생성함  
 
 3. `@XToOne`은 즉시로딩이 default이므로 지연로딩으로 변경, `@XToMany`는 지연로딩이 default이므로 굳이 작성X  
 ```java
@@ -541,18 +541,18 @@ private DayOfWeek classDay;
 @JoinColumn(name = "timetable_id")
 private Timetable timetable;
 ```
-
+  
 4. import문에서 와일드카드 삭제  
 IntelliJ에서는 같은 라이브러리의 import가 5개 이상이 되면 자동적으로 와일드 카드 import로 바꾸어준다는 사실을 이번 주차 피드백을 통해 알 수 있었다.
 import에서 와일드 카드는 (런타임 속도에는 미치는 영향이 없지만) 컴파일 속도는 느려진다는 측면에서 google java 컨벤션에서는 지양해야 하는 요소로 지정하고 있다는 사실도 새롭게 알 수 있었다.  
 아래 참고 자료를 통해 IntelliJ에서 5개 이상되면 자동으로 와일드카드로 변경하는 기능을 100개 이상으로 하한선을 높임으로써 해제하였다.  
 [참고-와일드카드 해제] https://velog.io/@hooni_/%EC%99%80%EC%9D%BC%EB%93%9C-%EC%B9%B4%EB%93%9C-import  
-[참고-와일드카드을 지양해야 하는 이유] https://tharakamd-12.medium.com/is-it-bad-to-use-wildcard-imports-in-java-1b46a863b2be
+[참고-와일드카드을 지양해야 하는 이유] https://tharakamd-12.medium.com/is-it-bad-to-use-wildcard-imports-in-java-1b46a863b2be  
 
 6. `@AllArgsConstructor` 삭제  
-`@AllArgsConstructor`는 모든 필드를 인자로 입력받는 생성자를 만들어준다는 편리함은 있지만, 개발 중간에 개발자가 같은 타입인 필드들의 순서를 변경하는 경우 치명적일 수 있다는 치명적인 단점이 있다. 이 단점때문에 해당 어노테이션이 지양되어야 한다는 것을 이번 주차 피드백을 통해 알 수 있었다.
+`@AllArgsConstructor`는 모든 필드를 인자로 입력받는 생성자를 만들어준다는 편리함은 있지만, 개발 중간에 개발자가 같은 타입인 필드들의 순서를 변경하는 경우 치명적일 수 있다는 치명적인 단점이 있다. 이 단점 때문에 해당 어노테이션이 지양되어야 한다는 것을 이번 주차 피드백을 통해 알 수 있었다.  
 예를 들어, 어떤 객체가 2개의 String 타입을 필드로 가지고 있고, 이에 대한 생성자를 외부에서 사용하고 있다는 상황이 있다고 가정하자. 해당 객체의 필드 순서가 개발자의 실수로 중간에 변경되어도 컴파일 에러가 발생하지 않고, 추후 인지하지 못한 치명적인 버그가 발생할 수 있는 여지가 있기 때문에 위험하다.  
-([참고] https://zrr.kr/iwD2)
+[참고] https://zrr.kr/iwD2  
 
 - `@AllArgsConstructor` 사용 지양에 따른 리팩토링  
 앞서 서술한 이유로 `@AllArgsConstructor`를 제거하면 `@Builder`와 `@NoArgsConstructor`를 사용해야 하는데 이 둘을 클래스 정의 이전에 같이 사용하면 모든 필드를 인자로 갖는 생성자가 없기 때문에 build시 오류가 발생!  
@@ -590,15 +590,15 @@ public class AddedCourse extends BaseTimeEntity {
 위와 같이 `@Builder`의 위치를 클래스 내부로 이동시키면서 초기화 단계에서 필요했던 `@Builder.Default`를 삭제할 수 있었다.
 [참고] https://seungyong.tistory.com/39  
 
-7. `@Repository` 삭제
+6. `@Repository` 삭제  
 이번주차 과제에서 JpaRepository를 사용할 때 `@Repository`를 명시적으로 붙이지 않아도 된다는 피드백을 받고 그 이유가 궁금해져서 조사해봤다.
-JpaRepository 인터페이스가 스프링 데이터 JPA의 일부이기 때문에 JpaRepository를 사용할 때 @Repository를 명시적으로 붙이지 않아도 된다. 스프링 데이터 JPA는 @Repository 없이도 레포지토리 인터페이스를 스프링 Bean으로 자동 등록하고, 스프링 데이터 JPA의 예외 변환 기능을 내장하고 있다.
+JpaRepository 인터페이스가 스프링 데이터 JPA의 일부이기 때문에 JpaRepository를 사용할 때 @Repository를 명시적으로 붙이지 않아도 된다. 스프링 데이터 JPA는 @Repository 없이도 레포지토리 인터페이스를 스프링 Bean으로 자동 등록하고, 스프링 데이터 JPA의 예외 변환 기능을 내장하고 있다.  
 스프링 데이터 JPA는 JpaRepository, CrudRepository 등의 인터페이스를 상속받은 사용자 정의 인터페이스를 자동으로 구현한다. 이 과정에서 스프링 데이터 인프라가 자동으로 구현 클래스를 생성하고 스프링 컨테이너에 Bean으로 등록하기 때문에, 개발자가 직접 @Repository를 붙일 필요가 없는 것이다.
 [참고] https://bombo96.tistory.com/67
 
-위와 같은 이유로 JpaRepository를 사용할 때는 `@Repository`를 굳이 붙이지 않아도 된다. 따라서, 코드의 가독성을 위해 모든 JpaRepository를 상속하여 구현한 Repository에서 `@Repository`를 삭제해주었다. 
+위와 같은 이유로 JpaRepository를 사용할 때는 `@Repository`를 굳이 붙이지 않아도 된다. 따라서, 코드의 가독성을 위해 모든 JpaRepository를 상속하여 구현한 Repository에서 `@Repository`를 삭제해주었다.  
 
-8. DTO 코드 리팩토링
+7. DTO 코드 리팩토링
 - record 사용으로 간결화
 	- record를 사용하면 필드별 getter가 자동으로 생성되고, 모든 필드를 인자로 하는 public 생성자도 자동으로 생성되기 때문에 불필요한 코드를 제거할 수 있다. (이외에도 equals, toString 등을 자동으로 생성)
  	- 멤버 변수가 자동으로 private final로 선언된다.
@@ -623,12 +623,13 @@ public record PostResponseDTO (String title, String contents){
 
 }
 ```
-[참고] https://s7won.tistory.com/2
+[참고] https://s7won.tistory.com/2  
 
-9. 'BDDMockito' 라이브러리의 'given' 사용
+8. 'BDDMockito' 라이브러리의 'given' 사용  
 원래는 Service layer test 코드를 작성했을 때 given 단계에서 'Mockito'의 'when'을 사용했었다.
 안그래도 왜 given 단계에서 왜 when을 사용하는지에 대해 이해가 어려웠는데, 피드백을 통해 'BDDMockito' 라이브러리를 사용하면 given 단계에서 'given'을 사용할 수 있다는 것을 새로 알 수 있었다.
-덕분에 'BDDMockito'에 대해서도 더 조사해볼 수 있었다. 참고한 자료의 링크는 다음과 같다. -> [참고] https://velog.io/@lxxjn0/Mockito%EC%99%80-BDDMockito%EB%8A%94-%EB%AD%90%EA%B0%80-%EB%8B%A4%EB%A5%BC%EA%B9%8C
+덕분에 'BDDMockito'에 대해서도 더 조사해볼 수 있었다. 참고한 자료의 링크는 다음과 같다.  
+[참고] https://velog.io/@lxxjn0/Mockito%EC%99%80-BDDMockito%EB%8A%94-%EB%AD%90%EA%B0%80-%EB%8B%A4%EB%A5%BC%EA%B9%8C
 ```java
 @Test
 void savePostTest() {
@@ -642,9 +643,9 @@ void savePostTest() {
         assertThat(testedResult).isEqualTo(post);
 }
 ```
-덕분에 위와 같이 좀 더 가독성이 좋은 코드를 완성할 수 있었다.
+덕분에 위와 같이 좀 더 가독성이 좋은 코드를 완성할 수 있었다.  
 
-10. `if-else`를 `.orElseThrow()`로 변경
+9. `if-else`를 `.orElseThrow()`로 변경  
 `if-else`문을 `.orElseThrow()`로 변경하면 훨씬 더 간결하고 가독성 좋은 코드가 된다는 것을 이번 피드백을 기회로 확실히 이해하고 넘어갈 수 있었다.  
 원래 코드는 아래와 같았다.
 ```java
@@ -673,3 +674,121 @@ void savePostTest() {
         return comment;
     }
 ```
+  
+## Controller layer
+아래와 같이 4개의 CRUD API 구현을 완료하였다. 
+```java
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(value = "/api/posts")
+public class PostController {
+
+    private final PostService postService;
+
+    //1. CREATE: 새로운 게시글 생성을 요청하는 API 만들기
+    @PostMapping
+    public ResponseEntity<Post> addPost(@Validated @RequestBody PostDTO postDTO) {
+        Post savedPostDTO = postService.savePost(postDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedPostDTO);
+    }
+
+    //2. READ: 모든 게시글을 조회하는 API 만들기
+    @GetMapping
+    public ResponseEntity<List<PostResponseDTO>> findAllPosts() {
+        List<PostResponseDTO> posts = postService.findAll().stream().map(PostResponseDTO::from).toList();
+        return ResponseEntity.ok().body(posts);
+    }
+
+    //3. READ: 특정 게시글만 조회하는 API 만들기
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponseDTO> findPost(@PathVariable long postId){
+        Post post = postService.getPostById(postId);
+        return ResponseEntity.ok().body(new PostResponseDTO(post.getTitle(), post.getContents()));
+    }
+
+    //4. DELETE: 특정 게시글을 삭제하는 API
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.ok().build();
+    }
+
+}
+```
+
+## 전역 예외 처리 (Global Exception)
+아직 모든 에러를 다 처리할 수 있을 만큼 완벽하지는 않지만, 주요 에러들만 전역 예외 처리로 해결할 수 있게 아래와 같이 구현해보았다.
+```java
+@Slf4j
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    /**
+     * '@Validated'으로 binding error 발생시 발생
+     * 주로 @RequestBody, @RequestPart 어노테이션에서 발생
+     * MethodArgumentNotValidException: request body의 데이터가 유효하지 않을 때 발생하는 에러
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.error("MethodArgumentNotValidException: ", e); // 로그 기록 추가
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.REQUEST_BODY_MISSING_ERROR);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    }
+
+    /**
+     * JPA를 통해 DB 조작시 발생
+     * ConstraintViolationException : 제약 조건 위배되었을 때 발생
+     * DataIntegrityViolationException : 데이터의 삽입/수정이 무결성 제약 조건을 위반할 때 발생
+     */
+    @ExceptionHandler(value = { ConstraintViolationException.class, DataIntegrityViolationException.class})
+    protected ResponseEntity<ErrorResponse> handleDataException(Exception e) {
+        log.error("DataException: ", e); // 로그 기록 추가
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.DUPLICATE_RESOURCE);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    }
+
+
+    /**
+     * HttpRequestMethodNotSupportedException: 지원하지 않은 HTTP method 호출 할 경우 발생
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        log.error("HttpRequestMethodNotSupportedException: ", e); // 로그 기록 추가
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.METHOD_NOT_ALLOWED);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    }
+
+    /**
+     * CustomException: Business Logic 수행 중 발생시킬 커스텀 에러
+     * 여기서 CustomException은 'PostNotFoundException'으로 게시글이 발견되지 않을 때 발생하는 에러를 처리한다
+     */
+    @ExceptionHandler(value = { PostNotFoundException.class })
+    protected ResponseEntity<ErrorResponse> handleCustomException(PostNotFoundException e) {
+        log.error("PostNotFoundException: ", e); // 로그 기록 추가
+        ErrorResponse response = new ErrorResponse(ErrorCode.NOT_FOUND_ERROR); // CustomException에 ErrorCode Enum 반환
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+
+
+    /**
+     * 위에 해당하는 예외에 해당하지 않을 때 모든 예외를 처리하는 메소드
+     */
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+        log.error("Unhandled exception:", e); // 예외 정보를 로그로 기록
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    }
+
+}
+```
+[참고] https://velog.io/@u-nij/Spring-%EC%A0%84%EC%97%AD-%EC%98%88%EC%99%B8-%EC%B2%98%EB%A6%AC-RestControllerAdivce-%EC%A0%81%EC%9A%A9  
+[참고] https://blog.naver.com/hj_kim97/222838956315  
+
+
+## Swagger 연동
+처음에 swagger 2.x.x 버전을 시도했다가 spring boot와의 버전 불일치로 인해 에러가 발생하면서 swagger와의 연동에 실패하였다.  
+조사해보니 **Spring Boot의 버전이 3.X.X 이상으로 버전 업되면서 기존 SpringFox가 호환되지 않아 SwaggerConfig 설정이 꼬이는 문제** 때문이었다.  
+'https://twojun-space.tistory.com/201' 이 참고자료를 통해 해당 에러를 해결할 수 있었다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/50897394-6fd2-4f25-b0d1-67668927c5b1)
