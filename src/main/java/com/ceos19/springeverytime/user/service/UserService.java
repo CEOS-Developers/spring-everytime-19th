@@ -2,6 +2,7 @@ package com.ceos19.springeverytime.user.service;
 
 import com.ceos19.springeverytime.user.domain.User;
 import com.ceos19.springeverytime.user.dto.request.UserRequestDto;
+import com.ceos19.springeverytime.user.dto.response.ResponseUserDto;
 import com.ceos19.springeverytime.user.exception.UserErrorCode;
 import com.ceos19.springeverytime.user.exception.UserException;
 import com.ceos19.springeverytime.user.repository.UserRepository;
@@ -26,9 +27,11 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public User readUser(Long userId) {
-        return userRepository.findUserById(userId)
-                .orElseThrow(()-> new UserException(UserErrorCode.USER_NOT_FOUND));
+    public ResponseUserDto readUser(Long userId) {
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        return ResponseUserDto.of(user);
     }
 
     public List<User> readAllUsers(){

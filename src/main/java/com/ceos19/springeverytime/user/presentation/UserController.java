@@ -2,6 +2,7 @@ package com.ceos19.springeverytime.user.presentation;
 
 import com.ceos19.springeverytime.user.domain.User;
 import com.ceos19.springeverytime.user.dto.request.UserRequestDto;
+import com.ceos19.springeverytime.user.dto.response.ResponseUserDto;
 import com.ceos19.springeverytime.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -65,8 +66,8 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "회원정보 조회 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 회원정보")
     })
-    public ResponseEntity<User> userDetails(@PathVariable Long userId){
-        return ResponseEntity.status(HttpStatus.OK).body(userService.readUser(userId));
+    public ResponseEntity<ResponseUserDto> userDetails(@PathVariable Long userId){
+        return ResponseEntity.ok(userService.readUser(userId));
     }
 
     @PatchMapping("/{userId}")
@@ -76,7 +77,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 회원정보")
     })
     public ResponseEntity<Void> userUpdate(@RequestBody UserRequestDto userRequestDto
-            , @PathVariable Long userId) throws Exception {
+            , @PathVariable Long userId){
         userService.updateUser(userRequestDto, userId);
         return ResponseEntity.status(HttpStatus.OK).build();
 
