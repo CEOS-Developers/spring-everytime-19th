@@ -1,6 +1,6 @@
 package com.ceos19.springeverytime.message.service;
 
-import com.ceos19.springeverytime.message.domain.Message;
+import com.ceos19.springeverytime.message.dto.ResponseMessageDto;
 import com.ceos19.springeverytime.room.domain.Room;
 import com.ceos19.springeverytime.message.dto.MessageDto;
 import com.ceos19.springeverytime.message.repository.MessageRepository;
@@ -32,15 +32,13 @@ public class MessageService {
     }
 
     @Transactional
-    public void deleteMessage(Long messageId){
-        messageRepository.deleteById(messageId);
+    public void deleteMessage(MessageDto message){
+        messageRepository.deleteById(message.getId());
     }
 
-    public List<Message> getMessagesByRoom(Long roomId){
-        return messageRepository.findMessagesByRoom_Id(roomId);
-    }
-
-    public List<Message> getMessagesByUser(Long userId){
-        return messageRepository.findMessagesBySender_Id(userId);
+    public List<ResponseMessageDto> getMessagesByRoom(Long roomId){
+        return messageRepository.findMessagesByRoom_Id(roomId).stream()
+                .map(ResponseMessageDto::of)
+                .toList();
     }
 }
