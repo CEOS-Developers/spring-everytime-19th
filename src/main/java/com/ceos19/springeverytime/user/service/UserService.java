@@ -34,10 +34,12 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }
 
+    @Transactional
     public void updateUser(UserRequestDto userRequestDto, Long userId) throws Exception{
         User user = userRepository.findUserById(userId).orElseThrow(NotFoundException::new);
         user.update(userRequestDto.getPassword());
