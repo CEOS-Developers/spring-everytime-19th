@@ -453,6 +453,13 @@ public class GlobalExceptionHandler {
     - `HttpStatus httpStatus` - Http 상태 코드
     - `String message` - 성공 메시지 
 
+#### Exception 테스트
+![Screenshot 2024-03-31 at 7 15 13 PM](https://github.com/parking0/parking0/assets/67892502/b65ad5b9-04ba-4fc7-b3fd-7f6bd8bf238f)
+![Screenshot 2024-03-31 at 7 16 45 PM](https://github.com/parking0/parking0/assets/67892502/a313cbdc-1832-4d7e-95ae-6d5ad54882b6)
+
+- 잘못된 게시판 id로 게시판을 조회했을 때, CustomException이 제대로 발생하는 것을 확인했다.
+
+
 
 ## Swagger
 ### Swagger란?
