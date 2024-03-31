@@ -13,9 +13,10 @@
 
 ### 모델링 결과
 
-![Screenshot 2024-03-17 at 10 22 42 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/2fb7b3c3-2a1d-416f-aeb8-c3859a8bb1d1)
+![image](https://github.com/parking0/parking0/assets/67892502/4f51a82c-4c2d-494f-b946-e82d6f8b6838)
 
-![Screenshot 2024-03-17 at 10 29 37 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/e9bd44a0-5ea0-419f-a9f6-28f4ee7c998d)
+
+![image](https://github.com/parking0/parking0/assets/67892502/bc7ac1eb-920c-4907-aaec-40489526ab47)
 
 #### 1. Comment
 - id : Comment의 기본키다. `@GeneratedValue`라는 기본 키를 자동으로 생성해주는 어노테이션을 사용했다.
@@ -87,15 +88,16 @@
 
 
 ### Repository 테스트
-![Screenshot 2024-03-17 at 11 30 24 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/e76ebdde-8998-4a60-952a-ab10ff4fe54c)
+
+![Screenshot 2024-03-31 at 6 54 07 PM](https://github.com/parking0/parking0/assets/67892502/88a4a69d-6c4f-4250-b578-9126ec4de71c)
 
 회원이 3명 이상 가입했을 때, 회원 3명의 기본키가 올바르게 생성됐다.
 
-![Screenshot 2024-03-17 at 11 30 32 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/1f4c18f4-b700-4e9a-9b53-cdab0255cbe7)
+![Screenshot 2024-03-31 at 6 54 15 PM](https://github.com/parking0/parking0/assets/67892502/2f94b299-4962-4cdd-ad5c-13f65ddd6cc1)
 
 amy라는 회원만 가입된 상태에서, amy로 회원을 조회하면 올바르게 나온다. 하지만 sarah라는 이름으로 조회하면 null값이 뜬다.
 
-![Screenshot 2024-03-17 at 11 32 28 PM](https://github.com/parking0/TeenTalk_Server/assets/67892502/9f1f78ea-b493-4076-8ee7-e669702980d7)
+![Screenshot 2024-03-31 at 6 54 22 PM](https://github.com/parking0/parking0/assets/67892502/891f3a20-fddc-4b56-ae85-2e9a199f5d38)
 
 게시글을 작성하고 기본키로 조회했을 때, DB에 게시글이 올바르게 저장된 것을 확인할 수 있다.
 
@@ -148,14 +150,14 @@ amy라는 회원만 가입된 상태에서, amy로 회원을 조회하면 올바
 ## Service Test
 1. MemberService
 - 회원가입, 중복 이름 불가, 이름 변경, 멤버 삭제가 제대로 진행되는지 확인했다.
- 
-![Screenshot 2024-03-26 at 12 49 04 PM](https://github.com/parking0/TeenTalkServer_Test/assets/67892502/97b66005-9ea9-4ba8-bbd4-45876044576a)
+
+![Screenshot 2024-03-31 at 6 55 52 PM](https://github.com/parking0/parking0/assets/67892502/e4ca499c-083d-4f98-b3d9-e11bc2085aa7)
 
 
 2. BoardService
 - 게시판 생성과 삭제가 제대로 진행되는지 확인했다.
-  
-![Screenshot 2024-03-26 at 12 50 53 PM](https://github.com/parking0/TeenTalkServer_Test/assets/67892502/65b5bee5-e1b7-4bd1-9686-eb9084e3b3ef)
+
+![Screenshot 2024-03-31 at 6 55 59 PM](https://github.com/parking0/parking0/assets/67892502/a73ca8cc-e0e6-4d6a-a79f-f6f7a72ea4ef)
 
 
 ## N+1 문제
@@ -200,13 +202,15 @@ amy라는 회원만 가입된 상태에서, amy로 회원을 조회하면 올바
 
 #### 기존 PostRepository - @EntityGraph 적용❌
 @EntityGraph를 적용하지 않았을 때, 위 테스트를 실행하면 어떤 결과가 나오는지 살펴보자.
-![Screenshot 2024-03-26 at 1 48 28 PM](https://github.com/parking0/TeenTalkServer_Test/assets/67892502/45861a1f-ec1c-4acf-9a36-f29608c73711)
+
+![image](https://github.com/parking0/parking0/assets/67892502/e086c07b-bfd1-47d6-86d5-9bcac5d5f25a)
 
 - lazy loading이기 때문에, post.getBoard()을 하면 하이버네이트 프록시객체로 감싸져 있다.
 
 #### 변화된 PostRepository - @EntityGraph 적용⭕️
 @EntityGraph를 적용했을 때, 위 테스트를 실행하면 어떤 결과가 나오는지 살펴보자.
-![Screenshot 2024-03-26 at 1 47 55 PM](https://github.com/parking0/TeenTalkServer_Test/assets/67892502/e531c519-e240-4868-ba9a-d1569776e120)
+
+![image](https://github.com/parking0/parking0/assets/67892502/8893b005-e419-4c91-891a-5256bc01892d)
 
 - post와 board 테이블을 left join하여 한 번에 모든 데이터를 가져오는 것을 확인할 수 있다.
 
@@ -255,7 +259,7 @@ final Comment comment = commentRepository.findById(commentId)
 - DB에서 데이터를 읽기만 한다는 것을 명확하게 알 수 있기 떄문에, 코드 가독성이 향상됨.
 
 ## HTTP Method API
-![](/Users/youngsi/Desktop/controller.png)
+![controller](https://github.com/parking0/parking0/assets/67892502/01ffa22c-f13b-40e7-a82f-9e2bf63629d9)
 1. BoardController - `/api/boards`
     - 게시판 생성
     - 게시판 찾기 
@@ -302,7 +306,7 @@ final Comment comment = commentRepository.findById(commentId)
 
 ### 에브리타임 DTO 구조
 
-![](/Users/youngsi/Desktop/dto.png)
+![dto](https://github.com/parking0/parking0/assets/67892502/a68c2ec2-cc14-41df-842d-e63c2f979ddd)
 
 몇 가지 DTO를 알아보자.
 
@@ -393,7 +397,7 @@ public class DeleteRequest {
 
 ### 에브리타임 Global Exception 
 #### Exception 구조
-![](/Users/youngsi/Desktop/exception.png)
+![exception](https://github.com/parking0/parking0/assets/67892502/7f7da7a0-46bc-48c1-833e-94b495a7361c)
 1. ErrorCode
 - Enum 클래스로 사용할 에러들을 적었다.
 - 필드 
@@ -467,11 +471,12 @@ public class GlobalExceptionHandler {
 
 ### Everytime Swagger
 
-![](/Users/youngsi/Desktop/swag-con1.png)
-![](/Users/youngsi/Desktop/swag-con2.png)
+<img width="468" alt="swag-con1" src="https://github.com/parking0/parking0/assets/67892502/1624444f-7599-4b41-a5a3-9ba7410d8d06">
+<img width="381" alt="swag-con2" src="https://github.com/parking0/parking0/assets/67892502/1b30a1c5-7c4c-4d23-a354-c37614b28376">
+
 - 예시
   - 게시판이 하나도 생성되어 있지 않을 때, 게시판 GET 요청해보자
-    ![](/Users/youngsi/Desktop/swag-ex1.png)
+    <img width="399" alt="swag-ex1" src="https://github.com/parking0/parking0/assets/67892502/cfc0df67-c447-4e8b-be1f-3c74be483168">
     - ErrorResponse가 반환됐다.
 
 
