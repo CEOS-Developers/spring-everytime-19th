@@ -2,10 +2,11 @@ package com.ceos19.springeverytime.user.service;
 
 import com.ceos19.springeverytime.user.domain.User;
 import com.ceos19.springeverytime.user.dto.request.UserRequestDto;
+import com.ceos19.springeverytime.user.exception.UserErrorCode;
+import com.ceos19.springeverytime.user.exception.UserException;
 import com.ceos19.springeverytime.user.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,7 @@ public class UserService {
     @Transactional
     public void createUser(UserRequestDto userRequestDto) {
         if (userRepository.existsUserByLoginId(userRequestDto.getId())) {
-            throw new IllegalStateException("User already exists");
+            throw new UserException(UserErrorCode.USER_ALREADY_EXIST);
         }
 
         User user = userRequestDto.toEntity();
@@ -27,7 +28,7 @@ public class UserService {
 
     public User readUser(Long userId) {
         return userRepository.findUserById(userId)
-                .orElseThrow(IllegalStateException::new);
+                .orElseThrow(()-> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
     public List<User> readAllUsers(){
@@ -40,8 +41,9 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(UserRequestDto userRequestDto, Long userId) throws Exception{
-        User user = userRepository.findUserById(userId).orElseThrow(NotFoundException::new);
+    public void updateUser(UserRequestDto userRequestDto, Long userId){
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(()-> new UserException(UserErrorCode.USER_NOT_FOUND));
         user.update(userRequestDto.getPassword());
     }
 }
