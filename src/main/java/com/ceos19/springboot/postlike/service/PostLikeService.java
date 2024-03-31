@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,5 +31,13 @@ public class PostLikeService {
         PostLike postLike = PostLike.builder()
                         .user(user).post(post).build();
         PostLike savedData = postLikeRepository.save(postLike);
+    }
+
+    public boolean alreadyLiked(Long userId, Long postId) {
+        Optional<PostLike> findPostLike = postLikeRepository.findByUserIdAndPostId(userId, postId);
+        if (findPostLike.isPresent())
+            return true;
+        else
+            return false;
     }
 }

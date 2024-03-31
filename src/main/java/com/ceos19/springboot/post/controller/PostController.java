@@ -133,23 +133,32 @@ public class PostController {
      * 성공 : 좋아요 누른 게시글 정보 리턴
      * 실패 : 에러 메시지 출력
      */
-    //TODO : 좋아요 중복 검사
     @PatchMapping("api/post/{postId}/like")
     public ResponseEntity<ApiResponse<PostResponseDto>> pressLikePost(@RequestBody PostUserRequestDto postUserRequestDto,
                                                                       @PathVariable("postId") Long postId) {
-        try {
-            Users user = userService.findUser(postUserRequestDto.getUserId());
-            Post likedPost = postService.pressLike(postId);
-            postLikeService.pressLikePost(user, postId);
-            PostResponseDto postResponseDto = PostResponseDto.updateFromPost(likedPost, likedPost.getPostId());
-            ApiResponse<PostResponseDto> response = ApiResponse.of(200, "게시글에 좋아요를 눌렀습니다.", postResponseDto);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            ApiResponse<PostResponseDto> errorResponse = ApiResponse.of(500, "게시글에 좋아요 누르기 실패: " + e.getMessage(), null);
-            return ResponseEntity.internalServerError().body(errorResponse);
+        if (postLikeService.alreadyLiked(postUserRequestDto.getUserId(), postId)) {
+            ApiResponse<PostResponseDto> response = ApiResponse.of(406, "이미 좋아요를 누른 게시글 입니다.", null);
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
+        } else {
+            try {
+                Users user = userService.findUser(postUserRequestDto.getUserId());
+                Post likedPost = postService.pressLike(postId);
+                postLikeService.pressLikePost(user, postId);
+                PostResponseDto postResponseDto = PostResponseDto.updateFromPost(likedPost, likedPost.getPostId());
+                ApiResponse<PostResponseDto> response = ApiResponse.of(200, "게시글에 좋아요를 눌렀습니다.", postResponseDto);
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                ApiResponse<PostResponseDto> errorResponse = ApiResponse.of(500, "게시글에 좋아요 누르기 실패: " + e.getMessage(), null);
+                return ResponseEntity.internalServerError().body(errorResponse);
+            }
         }
     }
 
+    /**
+     * 목적 : 게시글에 좋아요 취소하기
+     * 성공 : 좋아요 취소한 게시글 정보 리턴
+     * 실패 : 에러 메시지 출력
+     */
     @PatchMapping("api/post/{postId}/unlike")
     public ResponseEntity<ApiResponse<PostResponseDto>> pressUnlikePost(@RequestBody PostUserRequestDto postUserRequestDto,
                                                                       @PathVariable("postId") Long postId) {
@@ -167,6 +176,11 @@ public class PostController {
         }
     }
 
+    /**
+     * 목적 : 하나의 게시글 조회하기
+     * 성공 : 조회한 게시글과 댓글 정보 리턴
+     * 실패 : 에러 메시지 출력
+     */
     @GetMapping("api/post/{postId}")
     public ResponseEntity<ApiResponse<List<PostCommentResponseDto>>> retreiveOnePost(@PathVariable("postId") Long postId) {
         try {
