@@ -559,3 +559,68 @@ public class Posts {
         "receiverId": Long
     }
     ```
+  
+## 컨트롤러 테스트
+
+이번 기회에 컨트롤러 테스트 작성까지 적용해보면 좋을 것 같다는 생각에 테스트 코드까지 작성했습니다. 
+우선 `@WebMvcTest`를 사용했습니다. `@WebMvcTest`는 웹 계층에 집중할 수 있게 해주는 애노테이션입니다. 
+웹 계층과 관련된 빈만 등록되기 때문에 `@WebMvcTest`를 사용하면 컨트롤러는 등록이 되지만, `@Repository`나 `@Service` 빈은 등록되지 않습니다.
+따라서, `@WebMvcTest`에서 리포지토리와 서비스를 사용하기 위해서는 `@MockBean`을 사용하여 리포지토리와 서비스를 Mock 객체에 빈으로 등록해줘야 합니다.
+
+```java
+@WebMvcTest(UserController.class)
+class UserControllerTest {
+    
+    private static final String USER_DEFAULT_URL = "/api/users";
+
+    @Autowired
+    private MockMvc mockMvc;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private UserService userService;
+
+    @MockBean
+    private UserRepository userRepository;
+
+  @Test
+  void 회원_가입에_성공한다() throws Exception {
+    // given
+    final UserSaveRequestDto request = new UserSaveRequestDto("username", "password", "nickname", "홍익대학교", "컴퓨터공학과");
+
+    doNothing().when(userService).saveUser(request);
+
+    // when & then
+    mockMvc.perform(post(USER_DEFAULT_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk());
+  }
+}
+```
+
+## Swagger
+
+### Swagger 애노테이션
+
+- `@Tag`: API에 대한 설명을 추가할 수 있습니다.
+- `@Operation`: API에 대한 설명을 추가할 수 있습니다.
+- `@ApiResponses`: API 응답에 대한 설명을 추가할 수 있습니다.
+- `@Schema`: API 요청/응답에 대한 스키마를 정의할 수 있습니다.
+- `@Parameter`: API 요청 파라미터에 대한 설명을 추가할 수 있습니다.
+
+### Swagger 테스트
+
+Swagger를 사용해서 회원 가입 테스트를 진행했습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/7e4be793-f334-4e56-91c4-494639ece4f2)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/bd35c7af-5f69-4f79-abc0-ddd72fde422a)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/66893a3f-c90f-4830-9046-0dca65146eae)
+
+만약 존재하지 않은 회원이 회원 탈퇴를 요청하면 다음과 같이 에러가 발생합니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/dae820ef-d379-49c2-b02d-ee361d6962e1)
