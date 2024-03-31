@@ -46,6 +46,59 @@ public class User {
 }
 
 ```
+# 4주차 - CRUD API
+
+## About DTO(Data Transfer Object)?
+
+<div align="center">
+  <img src="imgs/dto.png" alt="drawing" width=400"/>
+</div>
+
+- 프로세스 간에 데이터를 전달하는 객체를 의미
+- 비즈니스 로직 등의 복잡한 코드 없이, 순수하게 전달하고 싶은 데이터만 담겨있다.
+
+### Why use DTO?
+- Controller는 View로부터 들어온 사용자 요청을 해석하여 Model을 업데이트하거나 Model로부터 데이터를 받아 View로 전달하는 작업 등을 수행한다.
+- 도메인 객체를 View에 직접 전달할 수 있지만, 민감한 도메인 비즈니스 기능이 노출될 수 있으며 Model과 View사이에 의존성이 생기게 된다.
+- DTO는 Model과 View를 분리함으로써 서로의 의존성을 낮추고 독립적인 개발을 가능하게 한다.
+- Spring에서는 주로 Controller Layer - Service Layer 사이를 매개한다.
+
+## Global Exception
+
+ErrorException 클래스를 구현하여 예외 상황에 맞는 HttptStatus 메세지를 리턴
+Slf4j
+
+```java
+@Getter
+@AllArgsConstructor
+public enum ErrorCode {
+    DATA_ALREADY_EXIST(CONFLICT, ""),
+    NO_DATA_EXIST(NOT_FOUND, ""),
+    NOT_NULL(NO_CONTENT, ""),
+
+    ID_DUPLICATED(CONFLICT, ""),
+    INVALID_PASSWORD(UNAUTHORIZED, ""),
+
+    NO_DATA_ALLOCATED(FAILED_DEPENDENCY, ""),
+
+    KEYWORD_TOO_SHORT(BAD_REQUEST, ""),
+    INVALID_VALUE_ASSIGNMENT(BAD_REQUEST, ""),
+    INVALID_URI_ACCESS(NOT_FOUND, "");
+
+
+    private final HttpStatus httpStatus;
+    private  final String  message;
+}
+```
+
+### 로깅 vs System.out.println()
+- 출력 형식을 지정할 수 있음
+- 로그 레벨에 따라 남기고 싶은 로그를 별도로 지정할 수 있음
+- 콘솔뿐만 아니라 파일이나, 네트워크 등 로그를 별도에 위치에 남길 수 있다.
+- log 성능이 System.out 보다도 좋다고 한다.
+
+
+
 
 # 3주차 - JPA 심화
 
