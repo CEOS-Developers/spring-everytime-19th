@@ -20,12 +20,11 @@ public class MessageController {
 
     private final MessageService messageService;
 
-
     @PostMapping()
     public ResponseEntity<CreateResponse> createMessage (@RequestBody CreateMessageRequest createMessageRequest){
         final Long messageId = messageService.createMessage(createMessageRequest);
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
-                .body(new CreateResponse(messageId));
+                .body(CreateResponse.from(messageId));
     }
 
     @GetMapping("/{memberId}")

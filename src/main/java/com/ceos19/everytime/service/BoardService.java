@@ -49,7 +49,8 @@ public class BoardService {
     public BoardResponse findBoard(final Long boardId){
         final Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
-        return new BoardResponse(board.getId(), board.getBoardName(),board.getDescription(), board.getBoardManager(), board.getUniversity(), board.getPosts());
+        //return new BoardResponse(board.getId(), board.getBoardName(),board.getDescription(), board.getBoardManager(), board.getUniversity(), board.getPosts());
+        return BoardResponse.from(board);
     }
 
     @Transactional(readOnly = true)
@@ -58,7 +59,7 @@ public class BoardService {
                 .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
         List<BoardResponse> boardResponseList = new ArrayList<>();
         for(Board board : boardRepository.findAllByUniversityId(universityId)){
-            boardResponseList.add(new BoardResponse(board.getId(), board.getBoardName(),board.getDescription(), board.getBoardManager(), board.getUniversity(), board.getPosts()));
+            boardResponseList.add(BoardResponse.from(board));
         }
 
         return boardResponseList;

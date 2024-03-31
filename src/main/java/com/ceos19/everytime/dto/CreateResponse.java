@@ -9,4 +9,8 @@ import lombok.*;
 public class CreateResponse {
 
     private Long id;
+
+    public static CreateResponse from (Long id){
+        return new CreateResponse(id);
+    }
 }

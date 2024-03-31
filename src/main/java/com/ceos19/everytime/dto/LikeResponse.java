@@ -10,4 +10,11 @@ public class LikeResponse {
 
     private Long likes;
     private Boolean liked;
+
+    public static LikeResponse of(Long likes, Boolean liked){
+        return new LikeResponse(
+                likes,
+                liked
+        );
+    }
 }

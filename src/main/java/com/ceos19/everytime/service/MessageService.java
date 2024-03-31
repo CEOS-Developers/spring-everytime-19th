@@ -46,7 +46,7 @@ public class MessageService {
 
         List<MessageResponse> messageResponseList = new ArrayList<>();
         for(Message message : messageRepository.findBySenderId(memberId)){
-            messageResponseList.add(new MessageResponse(message.getId(), sender, message.getReceiver(), message.getContent(), message.getReadStatus()));
+            messageResponseList.add(MessageResponse.from(message));
         }
 
         return messageResponseList;

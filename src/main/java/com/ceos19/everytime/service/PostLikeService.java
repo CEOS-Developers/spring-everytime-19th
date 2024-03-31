@@ -39,7 +39,7 @@ public class PostLikeService {
 
         post.addLike();
         postLikeRepository.save(new PostLike(post,member));
-        return new LikeResponse(post.getLikes(), true);
+        return LikeResponse.of(post.getLikes(), true);
 
     }
 
@@ -52,7 +52,7 @@ public class PostLikeService {
         post.cancelLike();
         postLikeRepository.delete(postLike);
 
-        return new LikeResponse(post.getLikes(), false);
+        return LikeResponse.of(post.getLikes(), false);
     }
 
 }

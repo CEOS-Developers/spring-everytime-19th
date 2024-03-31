@@ -47,7 +47,7 @@ public class PostService {
     public PostResponse findPost (Long postId){
         final Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
-        return new PostResponse(post.getId(), post.getTitle(), post.getContent(), post.getAuthor(), post.getBoard(), post.isAnonymous(), post.getLikes());
+        return PostResponse.from(post);
     }
 
     @Transactional(readOnly = true)
@@ -57,7 +57,7 @@ public class PostService {
 
         List<PostResponse> postResponseList = new ArrayList<>();
         for(Post post : postRepository.findAllByBoardId(boardId)){
-            postResponseList.add(new PostResponse(post.getId(), post.getTitle(), post.getContent(), post.getAuthor(), post.getBoard(), post.isAnonymous(), post.getLikes()));
+            postResponseList.add(PostResponse.from(post));
         }
 
         return postResponseList;

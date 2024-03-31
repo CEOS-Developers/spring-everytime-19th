@@ -21,7 +21,7 @@ public class PostController {
     public ResponseEntity<CreateResponse> createPost (@RequestBody CreatePostRequest createPostRequest) {
         final Long postId = postService.publish(createPostRequest);
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
-                .body(new CreateResponse(postId));
+                .body(CreateResponse.from(postId));
     }
 
     @GetMapping("/{postId}")

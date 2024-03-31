@@ -21,7 +21,7 @@ public class BoardController {
     public ResponseEntity<CreateResponse> createBoard(@RequestBody CreateBoardRequest createBoardRequest){
         final Long boardId = boardService.create(createBoardRequest);
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
-                .body(new CreateResponse(boardId));
+                .body(CreateResponse.from(boardId));
     }
 
     @GetMapping("/{boardId}")

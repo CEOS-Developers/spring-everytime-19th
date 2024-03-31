@@ -1,5 +1,6 @@
 package com.ceos19.everytime.dto;
 
+import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.University;
@@ -19,5 +20,16 @@ public class BoardResponse {
     private Member boardManager;
     private University university;
     private List<Post> posts = new ArrayList<>();
+
+    public static BoardResponse from(Board board){
+        return new BoardResponse(
+                board.getId(),
+                board.getBoardName(),
+                board.getDescription(),
+                board.getBoardManager(),
+                board.getUniversity(),
+                board.getPosts()
+        );
+    }
 
 }
