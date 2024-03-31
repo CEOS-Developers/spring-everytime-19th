@@ -26,6 +26,13 @@ public class MessageRequestDto {
     @Schema(description = "수신자 ID",example = "2")
     private Long receiverId;
 
+    @Builder
+    public MessageRequestDto(String message,Long senderId,Long receiverId){
+        this.message = message;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+    }
+
 
 
 }
