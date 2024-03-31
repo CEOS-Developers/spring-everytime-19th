@@ -80,9 +80,8 @@ public class CategoryService {
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_CATEGORY_ID));
 
         final List<Post> posts = postRepository.findPostsByCategory(category, pageable);
-        final List<CategoryPostResponse> responses = posts.stream().map(CategoryPostResponse::from).toList();
 
-        return responses;
+        return posts.stream().map(CategoryPostResponse::from).toList();
     }
 
     private void validateCategoryCreatedBefore14Days(Category category) {
