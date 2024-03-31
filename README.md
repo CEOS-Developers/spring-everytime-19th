@@ -585,3 +585,44 @@ public class AddedCourse extends BaseTimeEntity {
     }
 }
 ```
+
+- `@Builder.Default`삭제
+위와 같이 `@Builder`의 위치를 클래스 내부로 이동시키면서 초기화 단계에서 필요했던 `@Builder.Default`를 삭제할 수 있었다.
+[참고] https://seungyong.tistory.com/39  
+
+7. `@Repository` 삭제
+이번주차 과제에서 JpaRepository를 사용할 때 `@Repository`를 명시적으로 붙이지 않아도 된다는 피드백을 받고 그 이유가 궁금해져서 조사해봤다.
+JpaRepository 인터페이스가 스프링 데이터 JPA의 일부이기 때문에 JpaRepository를 사용할 때 @Repository를 명시적으로 붙이지 않아도 된다. 스프링 데이터 JPA는 @Repository 없이도 레포지토리 인터페이스를 스프링 Bean으로 자동 등록하고, 스프링 데이터 JPA의 예외 변환 기능을 내장하고 있다.
+스프링 데이터 JPA는 JpaRepository, CrudRepository 등의 인터페이스를 상속받은 사용자 정의 인터페이스를 자동으로 구현한다. 이 과정에서 스프링 데이터 인프라가 자동으로 구현 클래스를 생성하고 스프링 컨테이너에 Bean으로 등록하기 때문에, 개발자가 직접 @Repository를 붙일 필요가 없는 것이다.
+[참고] https://bombo96.tistory.com/67
+
+위와 같은 이유로 JpaRepository를 사용할 때는 `@Repository`를 굳이 붙이지 않아도 된다. 따라서, 코드의 가독성을 위해 모든 JpaRepository를 상속하여 구현한 Repository에서 `@Repository`를 삭제해주었다. 
+
+8. DTO 코드 리팩토링
+- record 사용으로 간결화
+	- record를 사용하면 필드별 getter가 자동으로 생성되고, 모든 필드를 인자로 하는 public 생성자도 자동으로 생성되기 때문에 불필요한 코드를 제거할 수 있다. (이외에도 equals, toString 등을 자동으로 생성)
+ 	- 멤버 변수가 자동으로 private final로 선언된다.
+
+- 정적 팩토리 메서드 사용
+	- 기본 생성자는 제공하지 않으므로 필요한 경우 직접 작성해줘야 한다.
+ 	- 이번 주차 과제의 미션인 '정적 팩토리 메서드'를 사용하여 기본 생성자를 작성해주었다.
+  	- 정적 팩토리 메서드의 장점과 명명 규칙은 다음 링크를 참고하였다. -> [참고] https://zrr.kr/oLbN
+
+위의 사항을 모두 종합하여 작성한 `PostResponseDTO`는 아래와 같다.
+```java
+@Builder
+public record PostResponseDTO (String title, String contents){
+
+
+    public static PostResponseDTO from(Post post){
+        return PostResponseDTO.builder()
+                .title(post.getTitle())
+                .contents(post.getContents())
+                .build();
+    }
+
+}
+```
+[참고] https://s7won.tistory.com/2
+
+9. 
