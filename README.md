@@ -513,3 +513,75 @@ user.getSchool().getSchoolName() = Psick
 ```
 LEFT JOIN을 통해 초기 쿼리 실행 시 User 정보와 함께 관련된 School 정보도 함께 가져온다. 따라서, 추가적인 쿼리 없이도 필요한 모든 데이터에 접근할 수 있다.  
 이와 같은 join을 통해 N+1문제를 해결할 수 있다.  
+
+---
+# CEOS 19th 4th Assignment - Everytime Controller Layer
+## Refactoring
+
+1. `@Column`에서 스네이크 케이스 명명한 것 삭제  
+entity의 column 작성 단계에서 각 column의 이름을 카멜 케이스로 작성된 자바의 변수를 자동으로 스네이크 케이스로 변경해주기 때문에 일일이 스네이크 케이스로 명명한 것을 삭제
+```java
+@Column(nullable = false)
+private String courseCode;
+```
+위와 같이 `nullable = false`와 같은 조건이 있는 경우에만 `@Column`을 작성하고, 특별한 조건이 없다면 `@Column`없이 변수만 작성
+
+2. 연산자 앞뒤로 공백 한 칸씩 추가  
+```java
+//강의 요일
+@Enumerated(EnumType.STRING)
+@Column(nullable = false)
+private DayOfWeek classDay;
+```
+위와 같이 코드의 가독성을 위해 '='과 같은 연산자의 앞뒤로 한 칸씩 공백을 생성함
+
+3. `@XToOne`은 즉시로딩이 default이므로 지연로딩으로 변경, `@XToMany`는 지연로딩이 default이므로 굳이 작성X  
+```java
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "timetable_id")
+private Timetable timetable;
+```
+
+4. import문에서 와일드카드 삭제  
+IntelliJ에서는 같은 라이브러리의 import가 5개 이상이 되면 자동적으로 와일드 카드 import로 바꾸어준다는 사실을 이번 주차 피드백을 통해 알 수 있었다.
+import에서 와일드 카드는 (런타임 속도에는 미치는 영향이 없지만) 컴파일 속도는 느려진다는 측면에서 google java 컨벤션에서는 지양해야 하는 요소로 지정하고 있다는 사실도 새롭게 알 수 있었다.  
+아래 참고 자료를 통해 IntelliJ에서 5개 이상되면 자동으로 와일드카드로 변경하는 기능을 100개 이상으로 하한선을 높임으로써 해제하였다.  
+[참고-와일드카드 해제] https://velog.io/@hooni_/%EC%99%80%EC%9D%BC%EB%93%9C-%EC%B9%B4%EB%93%9C-import  
+[참고-와일드카드을 지양해야 하는 이유] https://tharakamd-12.medium.com/is-it-bad-to-use-wildcard-imports-in-java-1b46a863b2be
+
+6. `@AllArgsConstructor` 삭제  
+`@AllArgsConstructor`는 모든 필드를 인자로 입력받는 생성자를 만들어준다는 편리함은 있지만, 개발 중간에 개발자가 같은 타입인 필드들의 순서를 변경하는 경우 치명적일 수 있다는 치명적인 단점이 있다. 이 단점때문에 해당 어노테이션이 지양되어야 한다는 것을 이번 주차 피드백을 통해 알 수 있었다.
+예를 들어, 어떤 객체가 2개의 String 타입을 필드로 가지고 있고, 이에 대한 생성자를 외부에서 사용하고 있다는 상황이 있다고 가정하자. 해당 객체의 필드 순서가 개발자의 실수로 중간에 변경되어도 컴파일 에러가 발생하지 않고, 추후 인지하지 못한 치명적인 버그가 발생할 수 있는 여지가 있기 때문에 위험하다.  
+([참고] https://zrr.kr/iwD2)
+
+- `@AllArgsConstructor` 사용 지양에 따른 리팩토링  
+앞서 서술한 이유로 `@AllArgsConstructor`를 제거하면 `@Builder`와 `@NoArgsConstructor`를 사용해야 하는데 이 둘을 클래스 정의 이전에 같이 사용하면 모든 필드를 인자로 갖는 생성자가 없기 때문에 build시 오류가 발생!  
+--> 해결 방법: 원하는 필드를 설정할 생성자를 만들되 private으로 막고 생성자 레벨에 `@Builder`를 사용하고, 클래스 레벨에 `@NoArgsConstructor`를 사용
+이 해결 방법을 적용하면 아래와 같은 코드가 된다.
+```java
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+public class AddedCourse extends BaseTimeEntity {
+
+    @Id
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long addedCourseId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "timetable_id")
+    private Timetable timetable;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+    @Builder
+    public AddedCourse(Long addedCourseId, Timetable timetable, Course course) {
+        this.addedCourseId = addedCourseId;
+        this.timetable = timetable;
+        this.course = course;
+    }
+}
+```
