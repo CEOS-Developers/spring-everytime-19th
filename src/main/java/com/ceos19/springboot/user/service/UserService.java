@@ -10,6 +10,7 @@ import com.ceos19.springboot.common.api.SuccessResponse;
 import com.ceos19.springboot.common.jwt.JwtUtil;
 import com.ceos19.springboot.user.dto.LoginRequestsDto;
 import com.ceos19.springboot.user.dto.SignupRequestDto;
+import com.ceos19.springboot.user.dto.TokenDto;
 import com.ceos19.springboot.user.entity.User;
 import com.ceos19.springboot.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,14 +35,24 @@ public class UserService {
         String password = passwordEncoder.encode(requestDto.getPassword());
 
         // 회원 중복 확인
-        Optional<User> found = userRepository.findByUsername(username);
-        if (found.isPresent()) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
             throw new RestApiException(ErrorType.NOT_FOUND_USER);
         }
+        User user = userOptional.orElseThrow(
+                () -> new RestApiException(ErrorType.NOT_FOUND)
+        );
 
         // 입력한 username, password, admin 으로 user 객체 만들어 repository 에 저장
         UserRoleEnum role = requestDto.getAdmin() ? UserRoleEnum.ADMIN : UserRoleEnum.USER;
         userRepository.save(User.of(LoginType.NORMAL,username, password, role));
+        TokenDto tokenDto = new TokenDto();
+        String accessToken = jwtUtil.createAccessToken(user.getUsername() , user.getRole());
+        String refreshToken = jwtUtil.createRefreshToken(user.getUsername(), user.getRole());
+
+        tokenDto.setMessage("로그인 성공");
+        tokenDto.setAccessToken(accessToken);
+        tokenDto.setRefreshToken(refreshToken);
 
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입 성공"));
     }

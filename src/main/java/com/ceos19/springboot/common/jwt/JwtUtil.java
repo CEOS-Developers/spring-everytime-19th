@@ -120,4 +120,23 @@ public class JwtUtil {
         // 사용자 정보 / 자격증명 / 권환
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+    public String createAccessToken(String username, UserRoleEnum role) {
+        return createTokenBase(username, role, ACCESS_TOKEN_EXPIRATION_TIME);
+    }
+
+    // Refresh Token 생성
+    public String createRefreshToken(String username, UserRoleEnum role) {
+        return createTokenBase(username, role, REFRESH_TOKEN_EXPIRATION_TIME);
+    }
+    private String createTokenBase(String username, UserRoleEnum role, long expirationTime) {
+        Date date = new Date();
+        return BEARER_PREFIX +
+                Jwts.builder()
+                        .setSubject(username)
+                        .claim(AUTHORIZATION_KEY, role)
+                        .setExpiration(new Date(date.getTime() + expirationTime))
+                        .setIssuedAt(date)
+                        .signWith(key, signatureAlgorithm)
+                        .compact();
+    }
 }
