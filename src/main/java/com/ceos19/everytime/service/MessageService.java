@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.ceos19.everytime.exception.ErrorCode.DATA_NOT_FOUND;
+import static com.ceos19.everytime.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +31,9 @@ public class MessageService {
 
     public Long createMessage (CreateMessageRequest createMessageRequest){
         final Member sender = memberRepository.findById(createMessageRequest.getSenderId())
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         final Member receiver = memberRepository.findById(createMessageRequest.getReceiverId())
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
         Message message = new Message(sender, receiver, createMessageRequest.getContent());
         return messageRepository.save(message)
@@ -42,7 +42,7 @@ public class MessageService {
 
     public List<MessageResponse> findEveryMessage(Long memberId){
         final Member sender = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
         List<MessageResponse> messageResponseList = new ArrayList<>();
         for(Message message : messageRepository.findBySenderId(memberId)){
@@ -55,9 +55,9 @@ public class MessageService {
     public void deleteMessage (Long messageId, DeleteRequest deleteRequest){
 
         final Member member = memberRepository.findById(deleteRequest.getMemberId())
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         final Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MESSAGE_NOT_FOUND));
 
         if(messageRepository.existsByIdAndSenderId(message.getId(), member.getId()) || messageRepository.existsByIdAndReceiverId(message.getId(), member.getId())){
             messageRepository.deleteById(messageId);

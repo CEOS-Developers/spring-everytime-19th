@@ -33,9 +33,9 @@ public class PostService {
 
     public Long publish (CreatePostRequest createPostRequest){
         final Member author = memberRepository.findById(createPostRequest.getAuthorId())
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         final Board board = boardRepository.findById(createPostRequest.getBoardId())
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
 
         Post post = new Post(createPostRequest.getTitle(), createPostRequest.getContent(), author, board, createPostRequest.isAnonymous());
 
@@ -46,14 +46,14 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponse findPost (Long postId){
         final Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
         return PostResponse.from(post);
     }
 
     @Transactional(readOnly = true)
     public List<PostResponse> findEveryPost (Long boardId){
         final Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
 
         List<PostResponse> postResponseList = new ArrayList<>();
         for(Post post : postRepository.findAllByBoardId(boardId)){
@@ -65,7 +65,7 @@ public class PostService {
 
     public void updatePost(Long postId, PostUpdateRequest postUpdateRequest){
         final Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
 
         post.changeTitle(postUpdateRequest.getTitle());
         post.changeContent(postUpdateRequest.getContent());
@@ -74,9 +74,9 @@ public class PostService {
 
     public void delete(Long postId, DeleteRequest deleteRequest){
         final Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
         final Member member = memberRepository.findById(deleteRequest.getMemberId())
-                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
         if(post.getAuthor().equals(member))
             postRepository.delete(post);
