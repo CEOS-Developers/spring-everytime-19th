@@ -32,7 +32,7 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "게시물 조회 성공"),
             @ApiResponse(responseCode = "404", description = "게시물 조회 실패")
     })
-    public ResponseEntity<List<ResponsePostDto>> postDetail(@RequestBody String title) throws NotFoundException {
+    public ResponseEntity<List<ResponsePostDto>> postDetail(@RequestBody String title) {
         return ResponseEntity.ok(postService.getPostByTitle(title));
     }
 
@@ -42,7 +42,7 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "게시물 생성 성공"),
             @ApiResponse(responseCode = "400", description = "1. 잘못된 게시물 양식"
                     + "2. 올바르지 않은 이미지 파일")})
-    public ResponseEntity<Void> postAdd(@RequestBody RequestPostDto requestPostDto){
+    public ResponseEntity<Void> postAdd(@RequestBody RequestPostDto requestPostDto) throws NotFoundException {
         postService.createPost(requestPostDto);
         return ResponseEntity.ok().build();
     }
@@ -56,7 +56,7 @@ public class PostController {
 
     @PatchMapping
     @Operation(summary = "게시물 수정", description = "게시물의 내용을 수정")
-    public ResponseEntity<Void> postUpdate(@RequestBody RequestPostDto request) throws Exception {
+    public ResponseEntity<Void> postUpdate(@RequestBody RequestPostDto request) {
         postService.updatePost(request);
         return ResponseEntity.ok().build();
     }
