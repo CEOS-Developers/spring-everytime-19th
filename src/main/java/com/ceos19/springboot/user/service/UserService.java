@@ -30,7 +30,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public ApiResponseDto<SuccessResponse> signup(SignupRequestDto requestDto) {
+    public ApiResponseDto<TokenDto> signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
 
@@ -53,7 +53,7 @@ public class UserService {
         tokenDto.setAccessToken(accessToken);
         tokenDto.setRefreshToken(refreshToken);
 
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입 성공"));
+        return ResponseUtils.ok(tokenDto);
     }
 
     public ApiResponseDto<SuccessResponse> login(LoginRequestsDto requestDto, HttpServletResponse response) {

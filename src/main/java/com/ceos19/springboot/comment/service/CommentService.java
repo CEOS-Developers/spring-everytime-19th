@@ -44,4 +44,14 @@ public class CommentService {
         commentRepository.save(comment);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "comment create success"));
     }
+    public ApiResponseDto<SuccessResponse> deleteComment(UserDetails loginUser,  Long commentId) {
+        User user = userRepository.findByUsername(loginUser.getUsername())
+                .orElseThrow(() -> new RestApiException(ErrorType.NOT_FOUND_USER));
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        Comment comment = optionalComment.orElseThrow(
+                () -> new RestApiException(ErrorType.NOT_FOUND)
+        );
+        commentRepository.delete(comment);
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "comment delete success"));
+    }
 }

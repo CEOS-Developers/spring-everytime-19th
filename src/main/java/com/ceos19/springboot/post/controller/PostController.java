@@ -26,7 +26,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ApiResponseDto<PostResponseDto> getOnePost(
-            @AuthenticationPrincipal UserDetails loginUser, @RequestParam Long postId
+            @AuthenticationPrincipal UserDetails loginUser, @PathVariable Long postId
             )
     {
         return postService.getOnePost(postId, loginUser);

@@ -8,6 +8,7 @@ import com.ceos19.springboot.common.api.ResponseUtils;
 import com.ceos19.springboot.common.api.SuccessResponse;
 import com.ceos19.springboot.user.dto.LoginRequestsDto;
 import com.ceos19.springboot.user.dto.SignupRequestDto;
+import com.ceos19.springboot.user.dto.TokenDto;
 import com.ceos19.springboot.user.entity.User;
 import com.ceos19.springboot.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +30,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ApiResponseDto<SuccessResponse> signup(@Valid @RequestBody SignupRequestDto requestDto) {
+    public ApiResponseDto<TokenDto> signup(@Valid @RequestBody SignupRequestDto requestDto) {
         return userService.signup(requestDto);
     }
     // 추후에 수정 예정

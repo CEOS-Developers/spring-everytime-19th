@@ -25,4 +25,12 @@ public class CommentController {
     {
         return commentService.createComment(loginUser, commentRequestDto, postId);
     }
+    @DeleteMapping("/{commentId}")
+    public ApiResponseDto<SuccessResponse> deleteComment(
+            @AuthenticationPrincipal UserDetails loginUser,
+            @PathVariable Long commentId
+    )
+    {
+        return commentService.deleteComment(loginUser,commentId);
+    }
 }

@@ -35,7 +35,7 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "comment",orphanRemoval = true) //, cascade = CascadeType.REMOVE
     private List<Reply> replyList = new ArrayList<>();
 
 

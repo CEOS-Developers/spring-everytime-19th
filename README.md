@@ -922,3 +922,271 @@ public void change_persistence_child() {
 - 부모 엔티티와 자식 엔티티 사이의 연관관계 변경
   - CascadeType.REMOVE와 orphanRemoval = true 옵션 모두
   - 자식 엔티티가 DB에 삭제되지 않고 남아있으며, 외래키 값만 변경됩니다.'
+
+- 회원가입 완료
+![img_2.png](img_2.png)
+
+- 특정 post에 대한 글 내용 댓글 대댓글 모두 확인 (like 포함)
+```java
+{
+    "success": true,
+    "response": {
+        "postId": 1,
+        "title": "tes1",
+        "anonymous": true,
+        "view": 0,
+        "likes": 0,
+        "commentResponseDtoList": [
+            {
+                "content": "testest1",
+                "username": "thoja45hw",
+                "contentLike": 0,
+                "replyResponseDtoList": [
+                    {
+                        "commentId": 1,
+                        "content": "testesttest1",
+                        "likes": 0
+                    },
+                    {
+                        "commentId": 1,
+                        "content": "testesttest4",
+                        "likes": 23
+                    }
+                ]
+            },
+            {
+                "content": "testest2",
+                "username": "thoja45hw",
+                "contentLike": 1,
+                "replyResponseDtoList": [
+                    {
+                        "commentId": 2,
+                        "content": "testesttest2",
+                        "likes": 0
+                    },
+                    {
+                        "commentId": 2,
+                        "content": "testesttest5",
+                        "likes": 2
+                    }
+                ]
+            }
+        ]
+    },
+    "error": null
+}
+```
+
+- comment를 삭제할 시 CascadeType.REMOVE / orphanRemoval 비교 
+- cascade remove
+```java
+Hibernate: 
+    select
+        u1_0.user_id,
+        u1_0.login_type,
+        u1_0.nick_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.school_id,
+        u1_0.time_table_id,
+        u1_0.username 
+    from
+        user u1_0 
+    where
+        u1_0.username=?
+Hibernate: 
+    insert 
+    into
+        user
+        (login_type, nick_name, password, role, school_id, time_table_id, username) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        u1_0.user_id,
+        u1_0.login_type,
+        u1_0.nick_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.school_id,
+        u1_0.time_table_id,
+        u1_0.username 
+    from
+        user u1_0 
+    where
+        u1_0.username=?
+Hibernate: 
+    select
+        u1_0.user_id,
+        u1_0.login_type,
+        u1_0.nick_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.school_id,
+        u1_0.time_table_id,
+        u1_0.username 
+    from
+        user u1_0 
+    where
+        u1_0.username=?
+Hibernate: 
+    select
+        c1_0.comment_id,
+        c1_0.content,
+        c1_0.content_like,
+        c1_0.created_date,
+        c1_0.modified_date,
+        p1_0.post_id,
+        p1_0.anonymous,
+        p1_0.board_id,
+        p1_0.content,
+        p1_0.created_date,
+        p1_0.likes,
+        p1_0.modified_date,
+        p1_0.title,
+        p1_0.user_id,
+        p1_0.view,
+        u2_0.user_id,
+        u2_0.login_type,
+        u2_0.nick_name,
+        u2_0.password,
+        u2_0.role,
+        u2_0.school_id,
+        u2_0.time_table_id,
+        u2_0.username 
+    from
+        comment c1_0 
+    left join
+        post p1_0 
+            on p1_0.post_id=c1_0.post_id 
+    left join
+        user u2_0 
+            on u2_0.user_id=c1_0.user_id 
+    where
+        c1_0.comment_id=?
+Hibernate: 
+    select
+        rl1_0.comment_id,
+        rl1_0.reply_id,
+        rl1_0.content,
+        rl1_0.likes,
+        rl1_0.user_id 
+    from
+        reply rl1_0 
+    where
+        rl1_0.comment_id=?
+Hibernate: 
+    delete 
+    from
+        reply 
+    where
+        reply_id=?
+Hibernate: 
+    delete 
+    from
+        reply 
+    where
+        reply_id=?
+Hibernate: 
+    delete 
+    from
+        comment 
+    where
+        comment_id=?
+```
+- orphan = True를 사용할 떄`
+```java
+Hibernate: 
+    select
+        u1_0.user_id,
+        u1_0.login_type,
+        u1_0.nick_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.school_id,
+        u1_0.time_table_id,
+        u1_0.username 
+    from
+        user u1_0 
+    where
+        u1_0.username=?
+Hibernate: 
+    select
+        u1_0.user_id,
+        u1_0.login_type,
+        u1_0.nick_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.school_id,
+        u1_0.time_table_id,
+        u1_0.username 
+    from
+        user u1_0 
+    where
+        u1_0.username=?
+Hibernate: 
+    select
+        c1_0.comment_id,
+        c1_0.content,
+        c1_0.content_like,
+        c1_0.created_date,
+        c1_0.modified_date,
+        p1_0.post_id,
+        p1_0.anonymous,
+        p1_0.board_id,
+        p1_0.content,
+        p1_0.created_date,
+        p1_0.likes,
+        p1_0.modified_date,
+        p1_0.title,
+        p1_0.user_id,
+        p1_0.view,
+        u2_0.user_id,
+        u2_0.login_type,
+        u2_0.nick_name,
+        u2_0.password,
+        u2_0.role,
+        u2_0.school_id,
+        u2_0.time_table_id,
+        u2_0.username 
+    from
+        comment c1_0 
+    left join
+        post p1_0 
+            on p1_0.post_id=c1_0.post_id 
+    left join
+        user u2_0 
+            on u2_0.user_id=c1_0.user_id 
+    where
+        c1_0.comment_id=?
+Hibernate: 
+    select
+        rl1_0.comment_id,
+        rl1_0.reply_id,
+        rl1_0.content,
+        rl1_0.likes,
+        rl1_0.user_id 
+    from
+        reply rl1_0 
+    where
+        rl1_0.comment_id=?
+Hibernate: 
+    delete 
+    from
+        reply 
+    where
+        reply_id=?
+Hibernate: 
+    delete 
+    from
+        reply 
+    where
+        reply_id=?
+Hibernate: 
+    delete 
+    from
+        comment 
+    where
+        comment_id=?
+```
+..... delete쿼리가 1번 나가야하는데 왜 이렇게 나올까요.....?
