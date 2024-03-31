@@ -39,12 +39,11 @@ public class UserService {
         if (userOptional.isPresent()) {
             throw new RestApiException(ErrorType.NOT_FOUND_USER);
         }
-        User user = userOptional.orElseThrow(
-                () -> new RestApiException(ErrorType.NOT_FOUND)
-        );
 
         // 입력한 username, password, admin 으로 user 객체 만들어 repository 에 저장
         UserRoleEnum role = requestDto.getAdmin() ? UserRoleEnum.ADMIN : UserRoleEnum.USER;
+        User user = User.of(LoginType.NORMAL, username, password, role);
+
         userRepository.save(User.of(LoginType.NORMAL,username, password, role));
         TokenDto tokenDto = new TokenDto();
         String accessToken = jwtUtil.createAccessToken(user.getUsername() , user.getRole());
