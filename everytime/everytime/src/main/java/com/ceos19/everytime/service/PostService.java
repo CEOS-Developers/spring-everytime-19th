@@ -77,7 +77,7 @@ public class PostService {
     @Transactional
     public Comment deleteSubcomment(long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(()->new IllegalArgumentException("Not Found: "+commentId));
-        comment.deleteSubcomment(comment.getLikeNum()); // 좋아요 수 -1
+        comment.deleteSubcomment(comment.getCommentId());
         comment = commentRepository.save(comment); // 변경 사항 저장
         return comment;
     }

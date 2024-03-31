@@ -58,7 +58,6 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "board_id")
     private Board board;
 
-
     @OneToMany(mappedBy = "post")
     List<Comment> comments = new ArrayList<Comment>();
 
