@@ -585,24 +585,35 @@ class UserControllerTest {
     @MockBean
     private UserRepository userRepository;
 
-  @Test
-  void 회원_가입에_성공한다() throws Exception {
-    // given
-    final UserSaveRequestDto request = new UserSaveRequestDto("username", "password", "nickname", "홍익대학교", "컴퓨터공학과");
+    @Test
+    void 회원_가입에_성공한다() throws Exception {
+        // given
+        final UserSaveRequestDto request = new UserSaveRequestDto("username", "password", "nickname", "홍익대학교", "컴퓨터공학과");
 
-    doNothing().when(userService).saveUser(request);
+        doNothing().when(userService).saveUser(request);
 
-    // when & then
-    mockMvc.perform(post(USER_DEFAULT_URL)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk());
-  }
+        // when & then
+        mockMvc.perform(post(USER_DEFAULT_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+}
+```
+
+## 정적 팩토리 메서드 사용해보기
+
+```java
+public record PostResponseDto(String title, String content, String username, String boardName, List<Comment> comments) {
+
+    public static PostResponseDto of(final Post post, final List<Comment> comments) {
+        return new PostResponseDto(post.getTitle(), post.getContent(), post.getWriterNickname(),
+                post.getBoard().getName(), comments);
+    }
 }
 ```
 
 ## Swagger
-
 ### Swagger 애노테이션
 
 - `@Tag`: API에 대한 설명을 추가할 수 있습니다.
