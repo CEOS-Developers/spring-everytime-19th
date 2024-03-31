@@ -38,13 +38,13 @@ public class BoardController {
                 .body(boardResponses);
     }
 
-    @PutMapping("{boardId}")
+    @PutMapping("/{boardId}")
     public ResponseEntity<Void> updateBoard(@PathVariable final Long boardId, @RequestBody BoardUpdateRequest boardUpdateRequest){
         boardService.updateBoard(boardId, boardUpdateRequest);
         return ResponseEntity.status(UPDATE_SUCCESS.getHttpStatus()).build();
     }
 
-    @DeleteMapping("{boardId}")
+    @DeleteMapping("/{boardId}")
     public ResponseEntity<Void> deleteBoard(@PathVariable final Long boardId, @RequestBody DeleteRequest deleteRequest) {
         boardService.delete(boardId, deleteRequest);
         return ResponseEntity.status(DELETE_SUCCESS.getHttpStatus()).build();

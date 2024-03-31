@@ -224,6 +224,256 @@ amy라는 회원만 가입된 상태에서, amy로 회원을 조회하면 올바
   - ex) 회원 탈퇴시, 회원이 남긴 게시글이나 댓글을 어떻게 처리할지
   - 에브리타임에서는 사용자명이 (알 수 없음) 으로 표시됨.
 
+* * *
+# 3️⃣ Everytime - CRUD API
+
+## Refactoring
+1. `.orElseThrow` 적용
+- 기존엔 Optional 객체의 유무를 판단하고 예외를 처리하기 위해 if문 사용하여, 코드의 가독성이 떨어졌음
+- `.orElseThrow`를 이용하여, 객체가 없으면 바로 예외를 throw 하도록 만들어서, 코드가 간결해지고 가독성이 향상됨.
+```java
+// 기존 Optional 방법
+Optional<Comment> comment = commentRepository.findById(commentId);
+if(comment.isPresent()) {
+    return comment.get();
+}
+return null;
+
+// 변경된 방법
+final Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
+```
+
+2. DTO 사용
+- 클라이언트로부터 요청을 받고 응답을 보낼 때, 불필요한 정보는 제외하고 보낼 수 있음.
+- 파라미터를 줄일 수 있음.
+- Entity와 계층 간 이동하는 데이터를 분리하여, 유지 보수가 편리해짐.
+
+3. `@Transactional(readOnly = true)` 사용
+- 조회용 메서드에 적용하여, 조회용으로 가져온 Entity의 예상치 못한 수정을 방지할 수 있음.
+  - 영속성 컨테스트는 Entity 조회시 초기 상태에 대한 Snapshot을 저장하는데, `readOnly = true`는 읽기 전용이기 때문에 변경감지를 위한 동작을 진행하지 않음.
+- DB에서 데이터를 읽기만 한다는 것을 명확하게 알 수 있기 떄문에, 코드 가독성이 향상됨.
+
+## HTTP Method API
+![](/Users/youngsi/Desktop/controller.png)
+1. BoardController - `/api/boards`
+    - 게시판 생성
+    - 게시판 찾기 
+    - 대학교 별 게시판 리스트 찾기 
+    - 게시판 업데이트 
+    - 게시판 삭제
+2. MessageController - `/api/messages`
+    - 메시지 생성 
+    - 메시지 찾기 
+    - 메시지 삭제 
+3. PostController - `/api/posts`
+    - 게시물 생성 
+    - 게시물 찾기 
+    - 게시판 별 게시물 리스트 찾기 
+    - 게시물 업데이트 
+    - 게시물 삭제 
+4. PostLikeController - `/api/postlike`
+    - 게시물 좋아요 누르기
+    - 게시물 좋아요 해지
+
+## DTO & 정적 팩토리 메서드
+### DTO란?
+- `DTO(Data Transfer Object)`는 계층간 데이터 교환을 위해 사용하는 객체
+- Domain은 DB와 직접적으로 관련되어 있는 객체이기 때문에, DTO를 이용하여 Entity의 정보를 숨길 수 있음.
+
+### 정적 팩토리 메서드
+- `정적 팩토리 메서드`란 객체 생성의 역할을 하는 클래스 메서드
+- 직접적으로 생성자를 통해 객체를 생성하지 않고, 메서드를 통해 객체를 생성
+- 생성자가 아닌 정적 팩토리 메서드로 객체를 생성하는 이유는?
+  - 메서드 이름으로 객체의 생성 목적을 담아낼 수 있음
+  - 호출할 때마다 새로운 객체를 생성할 필요 없음
+  - 객체 생성을 캡슐화할 수 있음 
+    - 정적 팩토리 메서드를 사용하지 않고 Entity에서 DTO로 변환하면, 외부에서 생성자의 내부 구현을 모두 드러내야 함.
+  ```java
+    Car carDto = CarDto.from(car); 
+    ```
+- 네이밍 컨벤션
+  - `from` : 하나의 매개변수를 받아서 객체 생성
+  - `of` : 여러 개의 매개 변수를 받아서 객체 생성
+  - `instance` : 인스턴스를 생성
+  - `create` : 새로운 인스턴스 생성
+  - `get[타입]` : 다른 타입의 인스턴스 생성
+  - `new[타입]` : 다른 타입의 인스턴스 생성
+
+### 에브리타임 DTO 구조
+
+![](/Users/youngsi/Desktop/dto.png)
+
+몇 가지 DTO를 알아보자.
+
+1. CreateResponse
+```java
+   public class CreateResponse {
+    
+        private Long id;
+        
+        public static CreateResponse from (Long id){
+            return new CreateResponse(id);
+        }
+   }
+   ```
+- CRUD 중 `CREATE`에 해당하는 요청은 모두 CreateResponse를 반환하도록 했다.
+- 클라이언트 요청으로부터 생성된 객체의 id를 반환한다.
+
+2. CreateBoardRequest
+```java
+public class CreateBoardRequest {
+
+    private String boardName;
+    private String description;
+    private Long boardManagerId;
+    private Long universityId;
+}
+```
+- 클라이언트가 게시판 `CREATE`를 요청할 때 사용하는 DTO다.
+- 게시판을 생성할 때 필요한 속성만 받도록 구성했다.
+
+3. MessageResponse
+          
+```java
+public class MessageResponse {
+
+    private Long id;
+    private Member sender;
+    private Member receiver;
+    private String content;
+    private ReadStatus readStatus;
+
+    public static MessageResponse from(Message message){
+        return new MessageResponse(
+                message.getId(),
+                message.getSender(),
+                message.getReceiver(),
+                message.getContent(),
+                message.getReadStatus()
+        );
+    }
+}
+   ```
+- 클라이언트가 메시지 정보를 `READ` 요청할 때 필요한 DTO다.
+- Repository에서 가져온 메시지 Entity를 DTO로 변환하기 위하여, `from`이라는 정적 팩토리 메서드를 이용했다.
+
+4. PostUpdateRequest
+```java
+public class PostUpdateRequest {
+
+    private String title;
+    private String content;
+    private boolean isAnonymous;
+}
+```
+- 클라이언트가 게시물 정보를 `UPDATE` 요청할 때 필요한 DTO다. 
+- 게시물 정보를 바꿀 때 필요한 정보로만 구성했다.
+
+5. DeleteRequest
+```java
+public class DeleteRequest {
+    private Long memberId;
+}
+```
+- CRUD 중 `DELETE`에 해당하는 요청은 모두 DeleteRequest를 사용하도록 했다.
+- 삭제 권한이 있는지 확인하기 위하여 회원의 id로만 구성했다.
+- ex) 게시판 삭제는 게시판 매니저만 할 수 있기 때문에, 게시판 매니저의 id와 memberId를 비교한다.
+
+
+## Global Exception
+### Global Exception Handler
+- `전역 에러 핸들러`(Global Exception Handler)란?
+  -  `@ControllerAdvice` / `@RestControllerAdvice`와 `@ExceptionHandler` 어노테이션을 기반으로 Controller 내에서 발생하는 에러에 대해서, 해당 핸들러에서 캐치하여 오류를 발생시키지 않고 응답 메시지로 클라이언트에게 전달해 주는 기능
+- `@ControllerAdvice` / `@RestControllerAdvice`
+  - @Controller / @RestController 선언한 지점에서 발생한 에러를 도중에 @ControllerAdivce / @RestControllerAdvice로 선언한 클래스 내에서 이를 캐치하여, Controller 내에서 발생한 에러를 처리할 수 있도록 하는 어노테이션
+  - 차이 : `@RestControllerAdvice`는 `@RequestBody` 어노테이션이 포함되어 있기 때문에, 응답을 JSON으로 제공
+- `@ExceptionHandler`
+  - Controller에서 특정 에러가 발생했을 때, 해당 에러를 캐치하여 클라이언트로 오류를 반환하도록 처리하는 기능을 수행
+
+### 에브리타임 Global Exception 
+#### Exception 구조
+![](/Users/youngsi/Desktop/exception.png)
+1. ErrorCode
+- Enum 클래스로 사용할 에러들을 적었다.
+- 필드 
+  - `HttpStatus httpStatus` - Http 상태 코드
+  - `String message` - 오류 메시지
+- 예시
+```java
+  INVALID_PARAMETER(BAD_REQUEST, "Invalid parameter included"),
+  DATA_ALREADY_EXISTED(CONFLICT, "Data already exist"),
+
+  MEMBER_NOT_FOUND(NOT_FOUND, "Member doesn't exist"),
+```
+
+2. CustomException
+- 필드
+  - `ErrorCode errorCode`
+- RuntimeException을 상속 받은 커스텀 exception class
+- 서비스 로직에서 이 exception을 throw 하면 된다.
+
+3. ErrorResponse
+- 필드
+    - `HttpStatus httpStatus` - Http 상태 코드
+    - `String message` - 오류 메시지
+- `GlobalExceptionHandler`에서 발견한 에러를 반환하는 DTO다.
+
+4. GlobalExceptionHandler
+- 메서드
+  - `handleCustomException`
+    - CustomException을 캐치하기 위한 메서드. 즉 ErrorCode 내 에러를 캐치한다.
+  - `handleException`
+    - CustomException 이외의 모든 에러들을 캐치하기 위한 메서드.
+- `@RestControllerAdvice`를 이용하여, RestController에서 발생한 에러를 잡도록 했다.
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CustomException.class)    // ErrorCode 내의 에러
+    protected ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
+        return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(new ErrorResponse(ex.getErrorCode()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ErrorResponse> handleException(Exception ex) {
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ErrorResponse(INTERNAL_SERVER_ERROR, ex.getMessage()));
+    }
+}
+```
+
+5. SuccessCode
+- ErrorCode와 반대로, 클라이언트가 요청한 CRUD가 성공했을 때 반환하는 코드다.
+- 필드
+    - `HttpStatus httpStatus` - Http 상태 코드
+    - `String message` - 성공 메시지 
+
+
+## Swagger
+### Swagger란?
+- Open Api Specification(OAS)를 위한 프레임워크
+- API의 스펙을 명세,관리할 수 있는 문서
+- 사용자가 API 사용 방법을 쉽게 알 수 있도록 해줌.
+
+### 환경 설정
+- Swagger를 사용하기 위해선 Config 파일을 만들어야 한다.
+- SwaggerConfig
+  - `openAPI` 메서드 : Swagger의 전체적인 설정 (JWT 사용x)
+  - `apiInfo` 메서드 : API 정보를 담고 있다
+- 3.x.x 버전의 Spring을 사용하므로, `Springdoc`을 사용한다. (이전 버전은 Springfox)
+- 서버 실행 후 아래 주소로 들어가면 된다.
+  - http://localhost:8080/swagger-ui/index.html
+
+### Everytime Swagger
+
+![](/Users/youngsi/Desktop/swag-con1.png)
+![](/Users/youngsi/Desktop/swag-con2.png)
+- 예시
+  - 게시판이 하나도 생성되어 있지 않을 때, 게시판 GET 요청해보자
+    ![](/Users/youngsi/Desktop/swag-ex1.png)
+    - ErrorResponse가 반환됐다.
+
 
 
 
