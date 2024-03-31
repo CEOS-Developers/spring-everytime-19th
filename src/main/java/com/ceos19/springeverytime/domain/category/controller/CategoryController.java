@@ -1,6 +1,7 @@
 package com.ceos19.springeverytime.domain.category.controller;
 
 import com.ceos19.springeverytime.domain.category.domain.Category;
+import com.ceos19.springeverytime.domain.category.dto.response.CategoryPostResponse;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.user.service.UserService;
@@ -9,6 +10,8 @@ import com.ceos19.springeverytime.domain.category.dto.request.CategoryUpdateRequ
 import com.ceos19.springeverytime.domain.category.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,12 +60,12 @@ public class CategoryController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{category_id}/page/{page_number}")
-    public ResponseEntity<List<Post>> getPostsOfPageFromCategory(
+    @GetMapping("/{category_id}/posts")
+    public ResponseEntity<List<CategoryPostResponse>> getPostsOfPageFromCategory(
             @PathVariable final Long category_id,
-            @PathVariable final int page_number
+            @PageableDefault(sort = "postId") Pageable pageable
     ) {
-        List<Post> posts = categoryService.getPosts(category_id, page_number);
+        List<CategoryPostResponse> posts = categoryService.getPosts(category_id, pageable);
         return ResponseEntity.ok(posts);
     }
 }

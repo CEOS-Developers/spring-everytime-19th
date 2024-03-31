@@ -1,8 +1,12 @@
 package com.ceos19.springeverytime.domain.post.repository;
 
+import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.post.domain.Post;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     /**
@@ -12,4 +16,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     select exists(select 1 from Post p where p.author.userId = :userId and p.postId = :id)
     """)
     boolean existsByUserIdAndId(final Long userId, final Long id);
+
+    List<Post> findPostsByCategory(final Category category, final Pageable pageable);
 }
