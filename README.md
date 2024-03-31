@@ -486,7 +486,7 @@ hibernate에서는 @OneToMany 또는 @ManyToOne과 같은 연관 관계 매핑�
 
 # 4주차 CRUD API 설계하기
 
-## 파라미터 받기
+## Parameter 받기
 
 url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 적합한지 의문이 들어 알아보았다.  
 특히나 @RequestParam은 쿼리 스트링을 통해서, @RequestBody는 json, xml 데이터를 통해서 한번에 여러 값을 받을 수 있다는 공통점이 존재하여 더욱 헷갈렸었다.  
