@@ -46,7 +46,7 @@ public class CommunityController {
         @Parameter(name = "memberId",description = "작성자의 ID를 입력해주세요", in = ParameterIn.PATH ,required = true)
     })
     @ApiResponse(responseCode = "201",description = "커뮤니티 생성 완료")
-    public ResponseEntity<Void> saveCommunity(@RequestBody @Valid CommunitySaveRequestDto communitySaveRequestDto,@PathVariable Long memberId){
+    public ResponseEntity<Void> saveCommunity(@RequestBody @Valid final CommunitySaveRequestDto communitySaveRequestDto,@PathVariable final Long memberId){
        return ResponseEntity.created(URI.create("/community/"+communityService.saveCommunity(communitySaveRequestDto,findMember(memberId)))).build();
     }
 
@@ -57,7 +57,7 @@ public class CommunityController {
         @Parameter(name = "communityId",description = "삭제할 community의 ID 값을 입력해주세요", in = ParameterIn.PATH ,required = true)
     })
     @ApiResponse(responseCode = "200",description = "커뮤니티 삭제 완료")
-    public  ResponseEntity<Void> deleteCommunity(@PathVariable Long communityId,@PathVariable Long memberId){
+    public  ResponseEntity<Void> deleteCommunity(@PathVariable final Long communityId,@PathVariable final Long memberId){
         communityService.deleteCommunity(communityId,findMember(memberId));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -71,7 +71,7 @@ public class CommunityController {
 
 
 
-    private Member findMember(Long memberId){
+    private Member findMember(final Long memberId){
      return  memberRepository.findById(memberId).orElseThrow(()->new NotFoundException(
             ErrorCode.MESSAGE_NOT_FOUND));
     }

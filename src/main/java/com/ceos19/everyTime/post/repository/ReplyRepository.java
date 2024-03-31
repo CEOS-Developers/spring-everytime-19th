@@ -20,7 +20,7 @@ public interface ReplyRepository extends JpaRepository<Reply,Long> {
     List<Reply> findParentReplyByPostIdWithFetchMember(@Param("postId")Long postId);
 
     @Query("select r from Reply r  where r.parent.id=:parentId and r.deleted = false order by r.createdAt")
-    List<Reply> findChildByParentId(@Param("parentId") Long parentId);
+    List<Reply> findChildByParentIdOrderByCreatedAt(@Param("parentId") Long parentId);
 
     @Query("select r from Reply r where r.member.id=:memberId and r.post.id=:postId and r.isHideNickName=true order by r.id limit 1")
     Optional<Reply> findDefaultNickNameReplyByMemberIdAndPostIdLimitOne(@Param("memberId")Long memberId,@Param("postId") Long postId);

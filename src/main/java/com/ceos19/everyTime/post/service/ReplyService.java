@@ -29,8 +29,8 @@ public class ReplyService {
 
     //답글 저장.
     @Transactional
-    public void saveComment(Long postId, ReplyCommentSaveRequestDto replyCommentSaveRequestDto,
-        Member currentMember){
+    public void saveComment(final Long postId, final ReplyCommentSaveRequestDto replyCommentSaveRequestDto,
+        final Member currentMember){
         Post post = findPost(postId);
 
         //댓글일 경우
@@ -59,9 +59,9 @@ public class ReplyService {
 
     // 테스트 코드를 위한 로직, 이런 식으로 하면 안될 것 같은데 쓰읍.
 
-    public Reply saveTestComment(Long postId, ReplyCommentSaveRequestDto replyCommentSaveRequestDto,
-        Member currentMember){
-        Post post = findPost(postId);
+    public Reply saveTestComment(final Long postId, final ReplyCommentSaveRequestDto replyCommentSaveRequestDto,
+        final Member currentMember){
+        final Post post = findPost(postId);
 
         Reply parentReply=null;
 
@@ -87,8 +87,8 @@ public class ReplyService {
 
     //댓글 삭제
     @Transactional
-    public void deleteComment(Long replyId,Member currentMember){
-        Reply reply=findReply(replyId);
+    public void deleteComment(final Long replyId,final Member currentMember){
+        final Reply reply=findReply(replyId);
 
         //reply 를 작성한 사람이 현재 Relpy 를 제거하려는 사람과 다른 경우 예외
         if(reply.getMember().getId()!=currentMember.getId()){
@@ -96,7 +96,7 @@ public class ReplyService {
         }
 
 
-        Post post= findPost(reply.getPost().getId());
+        final Post post= findPost(reply.getPost().getId());
         post.decreaseReplyCount();
 
         /*// reply가 대댓글이 아닌 댓글이며, reply 에 대댓글이 달린 경우.
@@ -111,23 +111,19 @@ public class ReplyService {
 
 
 
-    private Post findPost(Long postId){
+    private Post findPost(final Long postId){
         return postRepository.findById(postId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
     }
 
 
-    private Reply findReply(Long replyId){
+    private Reply findReply(final Long replyId){
         //return replyRepository.findById(replyId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
         return replyRepository.findNotDeletedReply(replyId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
     }
 
-    private void ChangeMessageByDelete(Reply reply){
 
-        reply.changeParentByDeleteOnlyHaveChild(DELETED_CONTENTS);
 
-    }
-
-    private String makeWriter(Member member,Post post,boolean isHideNickName){
+    private String makeWriter(final Member member,final Post post,boolean isHideNickName){
         //익명 체크가 아닌 경우 : 닉네임 반환.
         if(!isHideNickName){
             return member.getNickName();

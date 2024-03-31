@@ -43,13 +43,13 @@ public class PostService {
 
     //게시물 저장.
     @Transactional
-    public Post savePost(PostSaveRequestDto postSaveRequestDto, Long communityId, Member currentMember){
+    public Post savePost(final PostSaveRequestDto postSaveRequestDto, final Long communityId, final Member currentMember){
 
-        Community community = communityRepository.findById(communityId).orElseThrow(()->new NotFoundException(
+        final Community community = communityRepository.findById(communityId).orElseThrow(()->new NotFoundException(
             ErrorCode.MESSAGE_NOT_FOUND));
 
         //post 내용 저장
-        Post post = Post.builder()
+        final Post post = Post.builder()
             .member(currentMember)
             .community(community)
             .title(postSaveRequestDto.getTitle())
@@ -65,9 +65,9 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(PostEditRequestDto postEditRequestDto,Long postId,Member currentMember){
+    public Post updatePost(final PostEditRequestDto postEditRequestDto,final Long postId,final Member currentMember){
 
-        Post post=findPost(postId);
+        final Post post=findPost(postId);
 
         //업데이트가 가능한지 체크
         validateEditable(post,currentMember);
@@ -100,9 +100,9 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(Long postId,Member currentMember){
+    public void deletePost(final Long postId,final Member currentMember){
 
-        Post post = findPost(postId);
+        final Post post = findPost(postId);
 
         //현재 삭제하려는 member 와 post 의 작성자 ID가 아닌 경우 예외
         validateEditable(post,currentMember);
@@ -115,7 +115,7 @@ public class PostService {
 
 
     // 무한 스크롤 이용, Post List 확인.
-    public PostListWithSliceResponseDto showPostList(Long communityId, Pageable pageable){
+    public PostListWithSliceResponseDto showPostList(final Long communityId, Pageable pageable){
 
         Slice<PostShortResponseDto> postShortResponseDtos = postRepository.
             findByCommunityIdOrderByCreatedAt(communityId,pageable)
@@ -128,7 +128,7 @@ public class PostService {
 
 
     //Post 에 대해 단건 조회 확인.
-    public PostResponseDto showDetailsPost(Long postId){
+    public PostResponseDto showDetailsPost(final Long postId){
         //Post + PostImage + Post 게시글 작성자 함께 영속화
         Post post = findPostWithFetchMemberAndImage(postId);
 
@@ -148,7 +148,7 @@ public class PostService {
                 }
             });
 */
-            List<Reply> childList = replyRepository.findChildByParentId(parent.getId());
+            List<Reply> childList = replyRepository.findChildByParentIdOrderByCreatedAt(parent.getId());
             childList.stream().forEach(r->{
                 replyResponseDtoList.add(ReplyResponseDto.of(r,r.getWriter(),r.getContents()));
             });
@@ -164,16 +164,16 @@ public class PostService {
     }
 
 
-    private Post findPost(Long postId){
+    private Post findPost(final Long postId){
         return postRepository.findById(postId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
     }
 
-    private Post findPostWithFetchMemberAndImage(Long postId){
+    private Post findPostWithFetchMemberAndImage(final Long postId){
         return postRepository.findPostByPostIdWithFetchMemberAndPostImageList(postId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
     }
 
     // Post 작성자 반환
-    private String makeNickNameForPost(Post post){
+    private String makeNickNameForPost(final Post post){
         // Member 가 회원가입을 탈퇴할 경우 Post가 사라지지 않고 (알수없음) 으로 바뀌는듯? 그걸 위한 체크
         if(post.getMember()==null){
             return FOR_DELETED_NICKNAME;
@@ -190,7 +190,7 @@ public class PostService {
         return reply.getWriter();
     }*/
 
-    private String makeNickNameForReply(Reply reply){
+    private String makeNickNameForReply(final Reply reply){
         if(reply.isDeleted()){
            return FOR_DELETED_NICKNAME;
         }
@@ -198,7 +198,7 @@ public class PostService {
         return reply.getWriter();
     }
 
-    private String makeContentsForReply(Reply reply){
+    private String makeContentsForReply(final Reply reply){
         if(reply.isDeleted()){
             return FOR_DELETED_CONTENTS;
         }
@@ -208,12 +208,12 @@ public class PostService {
 
 
     //익명 1,2 를 생성 위한 메서드
-    public String makeNextNickNameForHideNickName(Post post){
+    public String makeNextNickNameForHideNickName(final Post post){
         return DEFAULT_HIDDEN_NICK_NAME+post.getIncreaseHideNameSequence();
     }
 
 
-    private void validateEditable(Post post,Member member){
+    private void validateEditable(final Post post,final Member member){
         if(post.isQuestion()){
             throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
         }
@@ -225,7 +225,7 @@ public class PostService {
 
 
     //s3 저장 + 연관관계 저장
-    private void saveImages(Post post,List<MultipartFile> multipartFileList){
+    private void saveImages(final Post post,final List<MultipartFile> multipartFileList){
         multipartFileList.forEach(multipartFile -> {
             String accessUrl = postImageService.saveImage(multipartFile,POST_IMAGE,
                 multipartFile.getOriginalFilename());
@@ -235,7 +235,7 @@ public class PostService {
     }
 
     // s3 삭제 + 연관관계 삭제
-    private void deleteImages(Post post){
+    private void deleteImages(final Post post){
         post.getPostImageList().forEach(postImage -> {
             postImageService.deleteImage(postImage.getAccessUrl());
         });

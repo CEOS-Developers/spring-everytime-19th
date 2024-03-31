@@ -41,7 +41,7 @@ public class JjokjiController {
     @Parameters({
         @Parameter(name = "memberId",description = "현재 로그인한 사용자의 ID(현재는 path 값)", in = ParameterIn.PATH ,required = true)
     })
-    public ResponseEntity<ApiBaseResponse<List<JjokjiLatestResponseDto>>> showJjokjiRoomList(@PathVariable("memberId") Long memberId){
+    public ResponseEntity<ApiBaseResponse<List<JjokjiLatestResponseDto>>> showJjokjiRoomList(@PathVariable("memberId") final Long memberId){
         return ResponseEntity.ok(ApiBaseResponse.createSuccess(jjokjiService.showJjokjiRoomByLatestJjokji(findById(memberId))));
 
     }
@@ -52,7 +52,7 @@ public class JjokjiController {
         @ApiResponse(responseCode = "201",description = "메시지 성공적 전송"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public ResponseEntity<Void>  sendMessage(@RequestBody @Valid MessageRequestDto messageRequestDto){
+    public ResponseEntity<Void>  sendMessage(@RequestBody @Valid final MessageRequestDto messageRequestDto){
         jjokjiService.sendMessage(messageRequestDto.getMessage(),findById(messageRequestDto.getSenderId()),
             messageRequestDto.getReceiverId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -62,13 +62,13 @@ public class JjokjiController {
     @Operation(summary = "한 방에서 메시지 조회", description = "한 쪽지방에서 메시지 조회를 확인합니다")
     @Parameter(name = "roomId",description = "조회할 방의 ID 값", in = ParameterIn.PATH ,required = true)
     @ApiResponse(responseCode = "200",description = "쪽지방에서 메시지 조회 완료")
-    public ResponseEntity<ApiBaseResponse<List<JjokjiResponseDto>>> showRoomMessage(@PathVariable("roomId") Long roomId){
+    public ResponseEntity<ApiBaseResponse<List<JjokjiResponseDto>>> showRoomMessage(@PathVariable("roomId") final Long roomId){
         return ResponseEntity.ok(ApiBaseResponse.createSuccess(jjokjiService.ChatListInOneRoom(roomId)));
     }
 
 
 
-    private Member findById(Long memberId){
+    private Member findById(final Long memberId){
        return  memberRepository.findById(memberId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
     }
 

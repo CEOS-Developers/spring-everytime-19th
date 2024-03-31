@@ -25,7 +25,7 @@ public class JjokjiService {
     private final MemberRepository memberRepository;
 
     //쪽지방 리스트의 모습을 최근 쪽지 메시지로 확인
-    public List<JjokjiLatestResponseDto>  showJjokjiRoomByLatestJjokji(Member currentMember){
+    public List<JjokjiLatestResponseDto>  showJjokjiRoomByLatestJjokji(final Member currentMember){
 
         List<JjokjiLatestResponseDto> latestJjokjiResponseList = jjokjiRoomRepository.findJjokjiRoomByMemberId(
             currentMember.getId()).stream().map(jjokjiRoom -> {
@@ -39,20 +39,20 @@ public class JjokjiService {
 
     //쪽지를 전달하는 메서드
     @Transactional
-    public Jjokji sendMessage(String message, Member currentMember,Long receiverId){
-        Member receiver = memberRepository.findById(receiverId).orElseThrow(()-> new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
+    public Jjokji sendMessage(final String message, final Member currentMember,final Long receiverId){
+        final Member receiver = memberRepository.findById(receiverId).orElseThrow(()-> new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
 
         //쪽지방이 존재하지 않을때 쪽지방을 생성하고 그렇지 않다면 쪽지방을 조회
-        JjokjiRoom jjokjiRoom = jjokjiRoomRepository.findByJjokjiRoomByParticipant(currentMember.getId(),receiverId).orElseGet(()->createJjokjiRoom(currentMember,receiver));
+        final JjokjiRoom jjokjiRoom = jjokjiRoomRepository.findByJjokjiRoomByParticipant(currentMember.getId(),receiverId).orElseGet(()->createJjokjiRoom(currentMember,receiver));
 
-        Jjokji jjokji = Jjokji.builder().message(message).jjokjiRoom(jjokjiRoom).member(currentMember).build();
+        final Jjokji jjokji = Jjokji.builder().message(message).jjokjiRoom(jjokjiRoom).member(currentMember).build();
         return jjokjiRepository.save(jjokji);
     }
 
     //쪽지방 생성 메서드
 
-    private JjokjiRoom createJjokjiRoom(Member currentMember,Member receiver){
-        JjokjiRoom jjokjiRoom=JjokjiRoom.builder().firstReceiver(receiver).firstSender(currentMember).build();
+    private JjokjiRoom createJjokjiRoom(final Member currentMember,final Member receiver){
+        final JjokjiRoom jjokjiRoom=JjokjiRoom.builder().firstReceiver(receiver).firstSender(currentMember).build();
         jjokjiRoomRepository.save(jjokjiRoom);
         return jjokjiRoom;
     }
@@ -61,7 +61,7 @@ public class JjokjiService {
 
     //하나의 채팅방에서의 메시지 기록 조회
 
-    public List<JjokjiResponseDto> ChatListInOneRoom(Long roomId){
+    public List<JjokjiResponseDto> ChatListInOneRoom(final Long roomId){
          return jjokjiRepository.findJjokjisByJjokjiRoom_Id(roomId).stream().map(JjokjiResponseDto::from).collect(Collectors.toList());
     }
 

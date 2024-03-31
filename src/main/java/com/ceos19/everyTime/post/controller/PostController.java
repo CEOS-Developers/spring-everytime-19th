@@ -52,7 +52,7 @@ public class PostController {
         @ApiResponse(responseCode = "201",description = "게시물 생성 완료"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public ResponseEntity<Void> savePost(@PathVariable("communityId") Long communityId,@PathVariable("memberId") Long memberId,@ModelAttribute @Valid PostSaveRequestDto postSaveRequestDto){
+    public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long communityId,@PathVariable("memberId") final Long memberId,@ModelAttribute @Valid final PostSaveRequestDto postSaveRequestDto){
         postService.savePost(postSaveRequestDto,communityId,getfindMember(memberId));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -67,7 +67,7 @@ public class PostController {
         @ApiResponse(responseCode = "200",description = "업데이트 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public ResponseEntity<Void> changePost(@PathVariable("postId") Long postId,@PathVariable("memberId")Long memberId,@ModelAttribute @Valid PostEditRequestDto postEditRequestDto){
+    public ResponseEntity<Void> changePost(@PathVariable("postId") final Long postId,@PathVariable("memberId")final Long memberId,@ModelAttribute @Valid final PostEditRequestDto postEditRequestDto){
         postService.updatePost(postEditRequestDto,postId,getfindMember(memberId));
         return ResponseEntity.ok().build();
     }
@@ -82,7 +82,7 @@ public class PostController {
         @ApiResponse(responseCode = "200",description = "삭제 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public void deletePost(@PathVariable("postId") Long postId,@PathVariable("memberId") Long memberId){
+    public void deletePost(@PathVariable("postId") final Long postId,@PathVariable("memberId") final Long memberId){
         postService.deletePost(postId,getfindMember(memberId));
     }
 
@@ -94,7 +94,7 @@ public class PostController {
         @Parameter(name = "size 등등등",description = "페이지 당 아이템 갯수",in = ParameterIn.QUERY)*/
     })
     @ApiResponse(responseCode = "200",description = "게시글 리스트 조회 성공")
-    public ResponseEntity<ApiBaseResponse<PostListWithSliceResponseDto>> showPostList(@PathVariable("communityId") Long communityId,
+    public ResponseEntity<ApiBaseResponse<PostListWithSliceResponseDto>> showPostList(@PathVariable("communityId") final Long communityId,
         @PageableDefault(size = 10,
             sort = "createdAt",
             direction = Sort.Direction.DESC,
@@ -112,7 +112,7 @@ public class PostController {
         @ApiResponse(responseCode = "200",description = "게시글 리스트 조회 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public ResponseEntity<ApiBaseResponse<PostResponseDto>> showPost(@PathVariable("postId") Long postId){
+    public ResponseEntity<ApiBaseResponse<PostResponseDto>> showPost(@PathVariable("postId") final Long postId){
         return ResponseEntity.ok(ApiBaseResponse.createSuccess(postService.showDetailsPost(postId)));
     }
 
@@ -127,7 +127,7 @@ public class PostController {
         @ApiResponse(responseCode = "200",description = "게시글 좋아요 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public void likePost(@PathVariable("postId") Long postId,@PathVariable("memberId") Long memberId){
+    public void likePost(@PathVariable("postId") final Long postId,@PathVariable("memberId") final Long memberId){
         likePostService.likePost(getfindMember(memberId),postId);
     }
 

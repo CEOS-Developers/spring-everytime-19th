@@ -25,8 +25,8 @@ public class LikeReplyService {
 
     //Reply 에 좋아요 누를 떄 사용 메서드
     @Transactional
-    public void likeReply(Member currentMember,Long replyId){
-        Reply reply = findReply(replyId);
+    public void likeReply(final Member currentMember,final Long replyId){
+        final Reply reply = findReply(replyId);
 
         //reply 를 작성한 작성자가 현재 좋아요를 누르려고 시도하는 사람의 ID 값이 같을 경우 예외
         if(reply.getMember().getId() == currentMember.getId()){
@@ -44,12 +44,12 @@ public class LikeReplyService {
 
     }
 
-    private Reply findReply(Long replyId){
+    private Reply findReply(final Long replyId){
         return replyRepository.findById(replyId).orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
     }
 
     //답글에 좋아요 누를 때 사용 메서드
-    private void saveLikeReply(Member member,Reply reply){
+    private void saveLikeReply(final Member member,final Reply reply){
         LikeReply lr= LikeReply.builder()
             .reply(reply)
             .member(member)
@@ -60,7 +60,7 @@ public class LikeReplyService {
     }
 
     //답글에 좋아요 한 번 더 누를 시 사용 메서드
-    private void deleteLikeReply(LikeReply lr,Reply reply){
+    private void deleteLikeReply(final LikeReply lr,final Reply reply){
         likeReplyRepository.delete(lr);
         reply.decreaseLikeCount();
     }

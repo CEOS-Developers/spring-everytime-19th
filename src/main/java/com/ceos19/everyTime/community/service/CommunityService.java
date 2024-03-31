@@ -22,16 +22,16 @@ public class CommunityService {
     //커뮤니티 생성 및 저장
 
     @Transactional
-    public Long saveCommunity(CommunitySaveRequestDto communitySaveRequestDto, Member currentMember){
-        Community community=Community.of(currentMember,communitySaveRequestDto.getName());
+    public Long saveCommunity(final CommunitySaveRequestDto communitySaveRequestDto, final Member currentMember){
+        final Community community=Community.of(currentMember,communitySaveRequestDto.getName());
         return communityRepository.save(community).getId();
     }
 
     //커뮤니티 제거 메서드
     @Transactional
-    public void deleteCommunity(Long communityId,Member currentMember){
+    public void deleteCommunity(final Long communityId,final Member currentMember){
 
-        Community community = communityRepository.findById(communityId).orElseThrow(()->new NotFoundException(
+        final Community community = communityRepository.findById(communityId).orElseThrow(()->new NotFoundException(
             ErrorCode.MESSAGE_NOT_FOUND));
 
         //커뮤니티를 생성한 사람의 ID 와 현재 로그인한 Member 의 ID가 다를 경우 예외
@@ -44,7 +44,7 @@ public class CommunityService {
 
     //커뮤니티 리스트를 반환.
     public List<CommunityResponseDto> showCommunityList(){
-        List<CommunityResponseDto> communityResponseDtoList = communityRepository.findAll().stream().map(
+        final List<CommunityResponseDto> communityResponseDtoList = communityRepository.findAll().stream().map(
             CommunityResponseDto::from).collect(
             Collectors.toList());
 
