@@ -9,7 +9,7 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode {
 
     INVALID_PARAMETER(BAD_REQUEST, "Invalid parameter included"),
-    DATA_DUPLICATED(CONFLICT, "Resources are duplicated"),
+    DATA_ALREADY_EXISTED(CONFLICT, "Data already exist"),
 
     MEMBER_NOT_FOUND(NOT_FOUND, "Member doesn't exist"),
     UNIVERSITY_NOT_FOUND(NOT_FOUND, "University doesn't exist"),
@@ -17,7 +17,9 @@ public enum ErrorCode {
     MESSAGE_NOT_FOUND(NOT_FOUND, "Message doesn't exist"),
     POST_NOT_FOUND(NOT_FOUND, "Post doesn't exist"),
     POST_LIKE_NOT_FOUND(NOT_FOUND, "PostLike doesn't exist"),
+    COMMENT_NOT_FOUND(NOT_FOUND, "Comment doesn't exist"),
 
+    DATA_NOT_FOUND(NOT_FOUND, "Data not exist"),
 
     //NO_CONTENT(NO_CONTENT,"Data is null"),
     //INTERNAL_SERVER_ERROR(INTERNAL_SERVER_ERROR, "Internal server error"),

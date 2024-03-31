@@ -85,23 +85,4 @@ public class BoardService {
             throw new CustomException(INVALID_PARAMETER);
     }
 
-
-    private boolean validateBoardName(String boardName){
-        if(boardName.isEmpty() || boardName.length()> MAX_NAME_LENGTH)
-            return false;
-        return true;
-    }
-
-    private boolean validateDescription(String description){
-        if(description.isEmpty() || description.length()> MAX_DESCRIPTION_LENGTH)
-            return false;
-        return true;
-    }
-
-    private boolean validateBoard(String boardName, String description){
-        if(!validateBoardName(boardName) || !validateDescription(description))
-            return false;
-        return true;
-    }
-
 }

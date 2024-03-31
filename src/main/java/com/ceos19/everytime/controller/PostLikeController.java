@@ -27,7 +27,7 @@ public class PostLikeController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<LikeResponse> cancelLikeMessage (@PathVariable final Long postId, @RequestBody LikeRequest likeRequest) {
 
-        final LikeResponse likeResponse = postLikeService.cancelLikeMessage(postId, likeRequest);
+        final LikeResponse likeResponse = postLikeService.cancelPostLike(postId, likeRequest);
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
                 .body(likeResponse);
     }

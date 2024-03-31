@@ -3,6 +3,7 @@ package com.ceos19.everytime.service;
 import com.ceos19.everytime.domain.Comment;
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Post;
+import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.CommentRepository;
 import com.ceos19.everytime.repository.MemberRepository;
 import com.ceos19.everytime.repository.PostRepository;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static com.ceos19.everytime.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,28 +28,22 @@ public class CommentService {
     private final MemberRepository memberRepository;
 
     public Comment create(Long postId, Long parentCommentId, Long memberId, String content, boolean isAnonymous){
-        Optional<Post> post = postRepository.findById(postId);
-        Optional<Member> member = memberRepository.findById(memberId);
-
-        if(post.isEmpty() || member.isEmpty() || !validateContent(content)){
-            log.info("[Service][create] FAIL");
-            return null;
-        }
+        final Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+        final Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
         Comment comment;
 
         if(parentCommentId == null){
-            comment = new Comment(post.get(),null,member.get(),content,isAnonymous);
-            log.info("[Service][create] SUCCESS - comment");
+            comment = new Comment(post,null,member,content,isAnonymous);
         }
         else{   //대댓글인지 확인
             Optional<Comment> parentComment = commentRepository.findById(parentCommentId);
-            if(parentComment.isEmpty()){
-                log.info("[Service][create] FAIL");
-                return null;
+            if(parentComment.isEmpty()){        // 부모 댓글 id 잘못 됨
+                throw new CustomException(COMMENT_NOT_FOUND);
             }
-            comment = new Comment(post.get(),parentComment.get(),member.get(),content,isAnonymous);
-            log.info("[Service][create] SUCCESS - reply");
+            comment = new Comment(post,parentComment.get(),member,content,isAnonymous);
         }
 
         commentRepository.save(comment);
@@ -54,31 +51,17 @@ public class CommentService {
     }
 
     public void delete(Long commentId){
-        Optional<Comment> comment = commentRepository.findById(commentId);
-        if(comment.isEmpty()){
-            log.info("[Service][delete] FAIL");
-        }
-        else{
-            commentRepository.delete(comment.get());
-            log.info("[Service][delete] SUCCESS");
-        }
+        final Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
+        commentRepository.delete(comment);
     }
 
-    public Comment updateContent(Long commentId, String content){
-        Optional<Comment> comment = commentRepository.findById(commentId);
-        if(comment.isEmpty() || !validateContent(content)){
-            log.info("[Service][updateContent] FAIL");
-            return null;
-        }
+    public void updateContent(Long commentId, String content){
+        final Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
 
-        comment.get().changeContent(content);
-        comment.get().updateDeleteStatus();
-        log.info("[Service][updateContent] SUCCESS");
-        return comment.get();
-    }
-
-    private boolean validateContent(String content){
-        return !content.isEmpty() && content.length() <= MAX_CONTENT_LENGTH;
+        comment.changeContent(content);
+        comment.updateDeleteStatus();
     }
 
 }

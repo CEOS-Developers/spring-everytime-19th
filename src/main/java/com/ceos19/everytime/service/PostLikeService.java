@@ -34,7 +34,7 @@ public class PostLikeService {
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
         if(postLikeRepository.existsByPostIdAndMemberId(post.getId(),member.getId())){
-            throw new CustomException(POST_LIKE_NOT_FOUND);
+            throw new CustomException(DATA_ALREADY_EXISTED);
         }
 
         post.addLike();
@@ -43,7 +43,7 @@ public class PostLikeService {
 
     }
 
-    public LikeResponse cancelLikeMessage (Long postId, LikeRequest likeRequest){
+    public LikeResponse cancelPostLike(Long postId, LikeRequest likeRequest){
         final Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
         final PostLike postLike = postLikeRepository.findByPostIdAndMemberId(postId, likeRequest.getMemberId())

@@ -40,6 +40,7 @@ public class MessageService {
                 .getId();
     }
 
+    @Transactional(readOnly = true)
     public List<MessageResponse> findEveryMessage(Long memberId){
         final Member sender = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
