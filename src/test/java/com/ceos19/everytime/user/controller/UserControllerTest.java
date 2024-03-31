@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.ceos19.everytime.global.exception.BadRequestException;
+import com.ceos19.everytime.global.exception.ExceptionCode;
 import com.ceos19.everytime.user.dto.request.UserSaveRequestDto;
 import com.ceos19.everytime.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +55,7 @@ class UserControllerTest {
         final UserSaveRequestDto request = new UserSaveRequestDto("username", "password", "nickname", "홍익대학교",
                 "컴퓨터공학과");
 
-        doThrow(new BadRequestException("이미 존재하는 사용자입니다.")).when(userService).saveUser(request);
+        doThrow(new BadRequestException(ExceptionCode.ALREADY_EXIST_USERNAME)).when(userService).saveUser(request);
 
         // when & then
         mockMvc.perform(post(USER_DEFAULT_URL)

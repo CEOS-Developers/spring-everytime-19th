@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ceos19.everytime.global.exception.ExceptionCode;
 import com.ceos19.everytime.global.exception.NotFoundException;
 import com.ceos19.everytime.message.domain.Message;
 import com.ceos19.everytime.message.dto.request.MessageReadRequestDto;
@@ -45,6 +46,6 @@ public class MessageService {
 
     private User getUser(final Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("User not found: %d", userId)));
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
     }
 }

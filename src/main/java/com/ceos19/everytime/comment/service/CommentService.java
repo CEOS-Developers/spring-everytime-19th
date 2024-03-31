@@ -7,6 +7,7 @@ import com.ceos19.everytime.comment.domain.Comment;
 import com.ceos19.everytime.comment.dto.request.CommentWriteRequestDto;
 import com.ceos19.everytime.comment.repository.CommentRepository;
 import com.ceos19.everytime.commentlike.repository.CommentLikeRepository;
+import com.ceos19.everytime.global.exception.ExceptionCode;
 import com.ceos19.everytime.global.exception.NotFoundException;
 import com.ceos19.everytime.post.domain.Post;
 import com.ceos19.everytime.post.repository.PostRepository;
@@ -27,9 +28,9 @@ public class CommentService {
     @Transactional
     public void writeComment(final CommentWriteRequestDto request) {
         final User writer = userRepository.findById(request.writerId())
-                .orElseThrow(() -> new NotFoundException(String.format("User not found: %d", request.writerId())));
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
         final Post post = postRepository.findById(request.postId())
-                .orElseThrow(() -> new NotFoundException(String.format(" found: %d", request.postId())));
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
         final Comment parentComment = findParent(request.parentCommentId());
         final Comment comment = Comment.builder()
                 .content(request.content())
@@ -45,7 +46,7 @@ public class CommentService {
     @Transactional
     public void delete(final Long commentId) {
         final Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(String.format("Comment not found: %d", commentId)));
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_COMMENT));
         commentRepository.deleteById(commentId);
         commentLikeRepository.deleteAllByComment(comment);
     }

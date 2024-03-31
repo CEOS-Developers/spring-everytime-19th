@@ -463,3 +463,99 @@ public class Posts {
 
 
 일급 컬렉션은 도메인에 더 가깝다는 생각이 들어서 dto 리스트로 변환하는 로직을 서비스 레이어로 옮기고 Posts 클래스를 삭제했습니다.
+
+## API 만들기
+### 회원 가입 API
+
+- URL: `/api/users`
+- Method: POST
+- Request Body: 
+    ```json
+    {
+        "username": String,
+        "password": String,
+        "nickname": String,
+        "schoolName": String,
+         "department": String
+    }
+    ```
+  
+### 회원 탈퇴 API
+
+- URL: `/api/users/{userId}`
+- Method: DELETE
+- Path Variable: userId(Long)
+
+### 게시글 작성 API
+
+- URL: `/api/post`
+- Method: POST
+- Request Body:
+    ```json
+    {
+        "title": String,
+        "content": String,
+        "isAnonymous": boolean,
+        "boardId": Long,
+        "writerId": Long
+    }
+    ```
+  
+### 모든 게시글 조회 API
+
+- URL: `/api/post`
+- Method: GET
+
+### 게시글 조회 API
+
+- URL: `/api/post/{postId}`
+- Method: GET
+
+### 게시글 좋아요 등록 API
+
+- URL: `/api/post/likes/{postId}`
+- Method: POST
+- Path Variable: postId(Long)
+- Request Body:
+    ```json
+    {
+        "userId": Long
+    }
+    ```
+  
+### 게시글 좋아요 취소 API
+
+- URL: `/api/post/likes/{postId}`
+- Method: DELETE
+- Path Variable: postId(Long)
+- Request Body:
+    ```json
+    {
+        "userId": Long
+    }
+    ```
+  
+### 쪽지 전송 API
+
+- URL: `/api/messages`
+- Method: POST
+- Request Body:
+    ```json
+    {
+        "senderId": Long,
+        "receiverId": Long,
+        "content": String
+    }
+    ```
+  
+### 쪽지 읽기 API
+
+- URL: `/api/messages`
+- Method: GET
+- Request Body:
+    ```json
+    {
+        "senderId": Long,
+        "receiverId": Long
+    }
+    ```

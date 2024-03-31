@@ -15,21 +15,21 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(final NotFoundException e) {
+    public ResponseEntity<ExceptionResponse> handleNotFoundException(final NotFoundException e) {
         logError(e);
-        return ResponseEntity.status(NOT_FOUND).body(ErrorResponse.from(e));
+        return ResponseEntity.status(NOT_FOUND).body(ExceptionResponse.from(e));
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequestException(final BadRequestException e) {
+    public ResponseEntity<ExceptionResponse> handleBadRequestException(final BadRequestException e) {
         logError(e);
-        return ResponseEntity.status(BAD_REQUEST).body(ErrorResponse.from(e));
+        return ResponseEntity.status(BAD_REQUEST).body(ExceptionResponse.from(e));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(final Exception e) {
+    public ResponseEntity<ExceptionResponse> handleException(final Exception e) {
         logError(e);
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(ErrorResponse.from(e));
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(ExceptionResponse.from(e));
     }
 
     private void logError(final Exception e) {
