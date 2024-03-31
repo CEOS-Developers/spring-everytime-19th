@@ -61,6 +61,10 @@ public class Comment {
         this.children.add(childComment);
     }
     public void pressLike() {
-        this.likes ++;
+        this.likes++;
+    }
+
+    public void cancelLike() {
+        this.likes--;
     }
 }

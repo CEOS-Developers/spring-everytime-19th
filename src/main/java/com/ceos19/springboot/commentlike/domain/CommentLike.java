@@ -4,10 +4,12 @@ import com.ceos19.springboot.comment.domain.Comment;
 import com.ceos19.springboot.users.domain.Users;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
+@Getter
 public class CommentLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

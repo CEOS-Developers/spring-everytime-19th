@@ -26,7 +26,11 @@ public class CommentController {
     private final PostService postService;
     private final CommentLikeService commentLikeService;
 
-    //댓글 삭제
+    /**
+     * 목적 : 댓글 삭제
+     * 성공 : 성공 메시지 출력
+     * 실패 : 에러 메시지 출력
+     */
     @DeleteMapping("api/comment/{commentId}")
     public ResponseEntity<ApiResponse<Void>> patchComment(@RequestBody CommentUserRequestDto commentUserRequestDto,
                                                           @PathVariable("commentId") Long commentId) {
@@ -46,7 +50,11 @@ public class CommentController {
         }
     }
 
-    //댓글 작성
+    /**
+     * 목적 : 댓글 작성
+     * 성공 : 작성한 댓글 정보 리턴
+     * 실패 : 에러 메시지 출력
+     */
     @PostMapping("api/comment")
     public ResponseEntity<ApiResponse<CommentResponseDto>> createComment(@RequestBody CommentRequestDto commentRequestDto) {
         try {
@@ -65,7 +73,11 @@ public class CommentController {
         }
     }
 
-    //대댓글 작성
+    /**
+     * 목적 : 대댓글 생성
+     * 성공 : 생성한 대댓글 정보 리턴
+     * 실패 : 에러 메시지 출력
+     */
     @PostMapping("api/comment/{commentId}")
     public ResponseEntity<ApiResponse<CommentResponseDto>> createCoComment(@RequestBody CommentRequestDto commentRequestDto,
                                                                            @PathVariable("commentId") Long commentId) {
@@ -87,34 +99,49 @@ public class CommentController {
         }
     }
 
+    /**
+     * 목적 : 댓글 좋아요 누르기
+     * 성공 : 좋아요 누른 댓글 정보 리턴
+     * 실패 : 에러 메시지 출력
+     */
     @PatchMapping("api/comment/{commentId}/like")
     public ResponseEntity<ApiResponse<CommentResponseDto>> pressLikeComment(@RequestBody CommentUserRequestDto commentUserRequestDto,
                                                                             @PathVariable("commentId") Long commentId){
-        try {
-            Users user = userService.findUser(commentUserRequestDto.getUserId());
-            Comment comment = commentService.findComment(commentId);
-            commentLikeService.pressLike(comment,user);
-            CommentResponseDto commentResponseDto = CommentResponseDto.createFromComment(comment);
-            ApiResponse<CommentResponseDto> response = ApiResponse.of(200, "댓글에 좋아요 누르기 완료", commentResponseDto);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            ApiResponse<CommentResponseDto> response = ApiResponse.of(500, "댓글에 좋아요를 누르는 중 에러가 발생했습니다. : " + e.getMessage(), null);
-            return ResponseEntity.ok(response);
+        if (commentLikeService.alreadyLiked(commentUserRequestDto.getUserId(), commentId)) {
+            ApiResponse<CommentResponseDto> response = ApiResponse.of(406, "이미 좋아요를 누른 댓글 입니다.", null);
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
+        } else{
+            try {
+                Users user = userService.findUser(commentUserRequestDto.getUserId());
+                Comment comment = commentService.findComment(commentId);
+                commentLikeService.pressLike(comment,user);
+                CommentResponseDto commentResponseDto = CommentResponseDto.createFromComment(comment);
+                ApiResponse<CommentResponseDto> response = ApiResponse.of(200, "댓글에 좋아요 누르기 완료", commentResponseDto);
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                ApiResponse<CommentResponseDto> response = ApiResponse.of(500, "댓글에 좋아요를 누르는 중 에러가 발생했습니다. : " + e.getMessage(), null);
+                return ResponseEntity.ok(response);
+            }
         }
     }
 
+    /**
+     * 목적 : 댓글 좋아요 취소하기
+     * 성공 : 좋아요 취소한 댓글 정보 리턴
+     * 실패 : 에러 메시지 출력
+     */
     @PatchMapping("api/comment/{commentId}/unlike")
     public ResponseEntity<ApiResponse<CommentResponseDto>> pressUnlikeComment(@RequestBody CommentUserRequestDto commentUserRequestDto,
                                                                             @PathVariable("commentId") Long commentId){
         try {
             Users user = userService.findUser(commentUserRequestDto.getUserId());
             Comment comment = commentService.findComment(commentId);
-            commentLikeService.pressLike(comment,user);
+            commentLikeService.cancelLike(comment,user);
             CommentResponseDto commentResponseDto = CommentResponseDto.createFromComment(comment);
-            ApiResponse<CommentResponseDto> response = ApiResponse.of(200, "댓글에 좋아요 누르기 완료", commentResponseDto);
+            ApiResponse<CommentResponseDto> response = ApiResponse.of(200, "댓글에 좋아요 취소하기 완료", commentResponseDto);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            ApiResponse<CommentResponseDto> response = ApiResponse.of(500, "댓글에 좋아요를 누르는 중 에러가 발생했습니다. : " + e.getMessage(), null);
+            ApiResponse<CommentResponseDto> response = ApiResponse.of(500, "댓글에 좋아요를 취소하는 중 에러가 발생했습니다. : " + e.getMessage(), null);
             return ResponseEntity.ok(response);
         }
     }
