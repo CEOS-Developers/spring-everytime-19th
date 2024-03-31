@@ -1,11 +1,9 @@
 package com.ceos19.springboot.message.controller;
 
-import com.ceos19.springboot.exception.ApiResponse;
+import com.ceos19.springboot.global.ApiResponse;
 import com.ceos19.springboot.message.domain.Message;
 import com.ceos19.springboot.message.dto.MessageResponseDto;
 import com.ceos19.springboot.message.service.MessageService;
-import com.ceos19.springboot.post.domain.Post;
-import com.ceos19.springboot.post.dto.PostResponseDto;
 import com.ceos19.springboot.users.domain.Users;
 import com.ceos19.springboot.users.service.UserService;
 import lombok.RequiredArgsConstructor;

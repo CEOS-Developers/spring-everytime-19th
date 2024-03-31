@@ -1,4 +1,4 @@
-package com.ceos19.springboot.exception;
+package com.ceos19.springboot.global;
 
 import lombok.Getter;
 import lombok.Builder;

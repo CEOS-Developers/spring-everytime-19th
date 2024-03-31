@@ -1,7 +1,6 @@
 package com.ceos19.springboot.users.controller;
 
-import com.ceos19.springboot.exception.ApiResponse;
-import com.ceos19.springboot.post.dto.PostResponseDto;
+import com.ceos19.springboot.global.ApiResponse;
 import com.ceos19.springboot.users.domain.Users;
 import com.ceos19.springboot.users.dto.UserRequestDto;
 import com.ceos19.springboot.users.dto.UserResponseDto;

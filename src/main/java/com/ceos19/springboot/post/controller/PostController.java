@@ -2,7 +2,7 @@ package com.ceos19.springboot.post.controller;
 
 import com.ceos19.springboot.comment.domain.Comment;
 import com.ceos19.springboot.comment.service.CommentService;
-import com.ceos19.springboot.exception.ApiResponse;
+import com.ceos19.springboot.global.ApiResponse;
 import com.ceos19.springboot.post.domain.Post;
 import com.ceos19.springboot.post.dto.*;
 import com.ceos19.springboot.post.service.PostService;
