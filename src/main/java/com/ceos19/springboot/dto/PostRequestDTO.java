@@ -1,16 +1,14 @@
 package com.ceos19.springboot.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 @Data
 @Getter
-@AllArgsConstructor
-public class PostParam {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PostRequestDTO {
     @NotNull
-    private Long userId;
+    private Long id;
 
     private String title;
     private String content;
