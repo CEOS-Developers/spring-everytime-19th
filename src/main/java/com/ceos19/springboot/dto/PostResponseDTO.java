@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
-@Getter
 @AllArgsConstructor
 public class PostResponseDTO {
     @NotNull

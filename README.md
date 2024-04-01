@@ -183,7 +183,8 @@ public ResponseEntity<Long> addPost(@PathVariable("pid") Long postId, Post post)
 ## Global Exception
 
 ErrorException 클래스를 구현하여 예외 상황에 맞는 HttptStatus 메세지를 리턴
-Slf4j
+
+**@Slf4j**
 
 ```java
 @Getter
@@ -231,7 +232,7 @@ public Long addUser(User user) {
 ## Swagger 적용
 
 <div align="center">
-  <img src="imgs/swagger.png" alt="drawing" width=400"/>
+  <img src="imgs/swagger.png" alt="drawing" width=600"/>
 </div>
 
 

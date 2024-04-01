@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostRequestDTO {
     @NotNull

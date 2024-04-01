@@ -5,6 +5,7 @@ import com.ceos19.springboot.dto.PostResponseDTO;
 import com.ceos19.springboot.exception.ErrorException;
 import com.ceos19.springboot.service.PostService;
 import com.ceos19.springboot.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +21,18 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
 
-    @PostMapping("/{pid}/post")
+    @PostMapping("/{pid}/upload")
+    @ApiOperation(value = "upload post api", notes = "upload post with checking duplication")
     public ResponseEntity<Long> addPost(@PathVariable("pid") Long postId, Post post) {
         // 추후 form 구현 필요
-        PostResponseDTO responseDto = postService.addPost(post);
-        return new ResponseEntity<>(responseDto.getId(), HttpStatus.OK);
+        try {
+            PostResponseDTO responseDto = postService.addPost(post);
+            return new ResponseEntity<>(responseDto.getId(), HttpStatus.OK);
+        }
+        catch (ErrorException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        }
         // error exception 방법
     }
 }
