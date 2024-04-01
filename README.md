@@ -63,7 +63,6 @@ public class User {
 - DTO는 Model과 View를 분리함으로써 서로의 의존성을 낮추고 독립적인 개발을 가능하게 한다.
 - Spring에서는 주로 Controller Layer - Service Layer 사이를 매개한다.
 
-[Lombok DTO](https://velog.io/@kimdy0915/NoArgsConstructor-Getter-%EC%96%B8%EC%A0%9C-%EC%99%9C-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
 
 ### DTO Annotation
 
@@ -111,8 +110,48 @@ public class PostRequestDTO {
 
 ### Result
 
-- RequestDto : @NoArgsConstructor, @Getter 필요
-- ResponseDto : @Getter 필요
+- RequestDTO : @NoArgsConstructor, @Getter 필요
+- ResponseDTO : @Getter 필요
+
+[Lombok DTO Reference](https://velog.io/@kimdy0915/NoArgsConstructor-Getter-%EC%96%B8%EC%A0%9C-%EC%99%9C-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
+
+
+## Service - DTO - Controller
+1. Service에서 Response Dto 생성 후 Controller에서 반환
+2. Service에서 도메인 자체를 반환하여 Controller에서 Response Dto로 변환 후 사용
+
+컨트롤러에 Domain이 노출되므로, 1번 방법 선택
+
+**Trade-off**
+Service에서 Response Dto를 생성하여 Controller에 전달하면
+- Service가 View에 종속적이게 되어 응답의 Format 변경 시 Service도 변경되어 유지보수성이 좋지 않다.
+- 또한, Service 계층의 책임 관점에서도 올바르지 않은 것 같다.
+
+유지보수성과 책임 관점을 따라서 Service에서 도메인을 Controller에 반환한다면
+- 컨트롤러에서 도메인 로직이 실행되는 치명적인 위험이 발생할 수 있다.
+
+<!-- ### 추후 적용
+
+- Response
+  1. Service에서 Response Dto 생성 후 Controller에서 반환
+  2. Service에서 도메인 자체를 반환하여 Controller에서 Response Dto로 변환 후 사용
+
+- Request
+  1. Controller에서 Request Dto를 그대로 Service에 전달하여 사용
+  2. Service Dto를 따로 만들고, Controller에서 Request Dto를 Service Dto로 변환 후 전달하여 사용 -->
+
+### Result
+- Response : Service에서 Response Dto 생성 후 Controller에서 반환
+- Request : Controller에서 Request Dto를 그대로 Service에 전달하여 사용  
+
+서비스의 도메인이 노출되지 않도록.
+
+**Request**
+
+**Response**
+
+
+[Reference](https://ksh-coding.tistory.com/102)
 
 ### UC?
 
