@@ -63,6 +63,59 @@ public class User {
 - DTO는 Model과 View를 분리함으로써 서로의 의존성을 낮추고 독립적인 개발을 가능하게 한다.
 - Spring에서는 주로 Controller Layer - Service Layer 사이를 매개한다.
 
+[Lombok DTO](https://velog.io/@kimdy0915/NoArgsConstructor-Getter-%EC%96%B8%EC%A0%9C-%EC%99%9C-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
+
+### DTO Annotation
+
+```java
+@Data
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PostRequestDTO {
+    @NotNull
+    private Long userId;
+
+    private String title;
+    private String content;
+
+    private Long likeCount;
+    private Long reportCount;
+    private Long scrap;
+
+    private Boolean isAnonymous;
+    private String filePath;
+}
+```
+
+**@NoArgsConstructor 주의사항**
+
+- 이 어노테이션을 클래스에 붙이면, 기본 생성자가 public 으로 생성된다.
+- 굳이 외부에서 생성을 열어둘 필요가 없다면 막는 것이 좋다.
+- 무분별한 객체 생성을 막을 수 있도록 접근 권한을 최소화하는 것을 권장한다.  
+`@NoArgsConstructor(access = AccessLevel.PROTECTED)`
+- 수동으로 기본 생성자 사용할 일이 없는데, 이를 미연에 방지해준다.
+
+**@Getter**
+- DTO
+  - JSON → DTO 로 데이터를 파싱할 때, ObjectMapper의 getter 또는 setter를 이용해서 DTO 필드를 가져온다.
+  - 그런데 값을 주입할 때는 reflection 기능을 통해 주입하므로, setter를 굳이 쓸 필요는 없다.
+
+- RequestDto
+  - 서비스에서 requestDto 의 값을 사용하는 일이 빈번하다.
+  - Service 클래스에서 requestDto getter 메서드를 사용할 때, DTO 클래스에 @Getter가 없으면 컴파일러가 에러를 체크한다.
+
+- ResponseDto
+  - 값을 반환하는 DTO이기 때문에 사실 getter 메서드를 쓸 일이 없다. 실제로 쓰지 않아도 컴파일러 에러 체크도 발생하지 않고, 실제 서버도 작동한다.
+  - 하지만, @Getter가 없는 DTO를 사용하는 로직을 수행하면 예외가 발생한다.
+  - Spring이 Jackson 라이브러리를 사용해서 DTO → Json 으로 데이터를 변환해주는데, 이 때 ResponseDto의 데이터를 호출하게 되고, getter 메서드를 사용하게 된다.
+
+### Result
+
+- RequestDto : @NoArgsConstructor, @Getter 필요
+- ResponseDto : @Getter 필요
+
+### UC?
+
 ## Global Exception
 
 ErrorException 클래스를 구현하여 예외 상황에 맞는 HttptStatus 메세지를 리턴
@@ -97,6 +150,24 @@ public enum ErrorCode {
 - 콘솔뿐만 아니라 파일이나, 네트워크 등 로그를 별도에 위치에 남길 수 있다.
 - log 성능이 System.out 보다도 좋다고 한다.
 
+### Logging Example
+
+```java
+public Long addUser(User user) {
+    if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        log.error("user sign in failed : already exist username");
+        throw new ErrorException(DATA_ALREADY_EXIST, "username already exist");
+    }
+
+    userRepository.save(user);
+    return user.getId();
+}
+```
+
+## Swagger 적용
+
+
+## Controller 통합 테스트
 
 
 
