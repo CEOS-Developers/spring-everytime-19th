@@ -146,9 +146,33 @@ Service에서 Response Dto를 생성하여 Controller에 전달하면
 
 서비스의 도메인이 노출되지 않도록.
 
-**Request**
-
 **Response**
+
+Service
+```java
+public PostResponseDTO addPost(Post post) {
+    if (postRepository.findById(post.getId()).isPresent()) {
+        log.error("post failed : already exist post");
+        throw new ErrorException(ErrorCode.DATA_ALREADY_EXIST, "post already exist");
+    }
+
+    postRepository.save(post);
+    return PostResponseDTO.entityToDto(post);
+}
+```
+
+Controller
+```java
+@PostMapping("/{pid}/post")
+public ResponseEntity<Long> addPost(@PathVariable("pid") Long postId, Post post) {
+    // 추후 form 구현 필요
+    PostResponseDTO responseDto = postService.addPost(post);
+    return new ResponseEntity<>(responseDto.getId(), HttpStatus.OK);
+    // error exception 방법
+}
+```
+
+
 
 
 [Reference](https://ksh-coding.tistory.com/102)
