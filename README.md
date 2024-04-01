@@ -146,9 +146,10 @@ Service에서 Response Dto를 생성하여 Controller에 전달하면
 
 서비스의 도메인이 노출되지 않도록.
 
-**Response**
+### Response Code Example
 
-Service
+**Service**
+
 ```java
 public PostResponseDTO addPost(Post post) {
     if (postRepository.findById(post.getId()).isPresent()) {
@@ -161,7 +162,8 @@ public PostResponseDTO addPost(Post post) {
 }
 ```
 
-Controller
+**Controller**
+
 ```java
 @PostMapping("/{pid}/post")
 public ResponseEntity<Long> addPost(@PathVariable("pid") Long postId, Post post) {
@@ -173,11 +175,10 @@ public ResponseEntity<Long> addPost(@PathVariable("pid") Long postId, Post post)
 ```
 
 
-
-
 [Reference](https://ksh-coding.tistory.com/102)
 
 ### UC?
+
 
 ## Global Exception
 
@@ -229,8 +230,14 @@ public Long addUser(User user) {
 
 ## Swagger 적용
 
+<div align="center">
+  <img src="imgs/swagger.png" alt="drawing" width=400"/>
+</div>
+
+
 
 ## Controller 통합 테스트
+
 
 
 
