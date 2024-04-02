@@ -18,7 +18,7 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping()
-    public ResponseEntity<CreateResponse> createBoard(@RequestBody CreateBoardRequest createBoardRequest){
+    public ResponseEntity<CreateResponse> createBoard(@RequestBody final CreateBoardRequest createBoardRequest){
         final Long boardId = boardService.create(createBoardRequest);
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
                 .body(CreateResponse.from(boardId));
@@ -39,13 +39,13 @@ public class BoardController {
     }
 
     @PutMapping("/{boardId}")
-    public ResponseEntity<Void> updateBoard(@PathVariable final Long boardId, @RequestBody BoardUpdateRequest boardUpdateRequest){
+    public ResponseEntity<Void> updateBoard(@PathVariable final Long boardId, @RequestBody final BoardUpdateRequest boardUpdateRequest){
         boardService.updateBoard(boardId, boardUpdateRequest);
         return ResponseEntity.status(UPDATE_SUCCESS.getHttpStatus()).build();
     }
 
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Void> deleteBoard(@PathVariable final Long boardId, @RequestBody DeleteRequest deleteRequest) {
+    public ResponseEntity<Void> deleteBoard(@PathVariable final Long boardId, @RequestBody final DeleteRequest deleteRequest) {
         boardService.delete(boardId, deleteRequest);
         return ResponseEntity.status(DELETE_SUCCESS.getHttpStatus()).build();
     }

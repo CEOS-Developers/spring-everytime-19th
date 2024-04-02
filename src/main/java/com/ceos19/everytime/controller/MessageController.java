@@ -21,7 +21,7 @@ public class MessageController {
     private final MessageService messageService;
 
     @PostMapping()
-    public ResponseEntity<CreateResponse> createMessage (@RequestBody CreateMessageRequest createMessageRequest){
+    public ResponseEntity<CreateResponse> createMessage (@RequestBody final CreateMessageRequest createMessageRequest){
         final Long messageId = messageService.createMessage(createMessageRequest);
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
                 .body(CreateResponse.from(messageId));
@@ -35,7 +35,7 @@ public class MessageController {
     }
 
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<Void> deleteMessage (@PathVariable final Long messageId, @RequestBody DeleteRequest deleteRequest) {
+    public ResponseEntity<Void> deleteMessage (@PathVariable final Long messageId, @RequestBody final DeleteRequest deleteRequest) {
         messageService.deleteMessage(messageId, deleteRequest);
         return ResponseEntity.status(DELETE_SUCCESS.getHttpStatus()).build();
     }
