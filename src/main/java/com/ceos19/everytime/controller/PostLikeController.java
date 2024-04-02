@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.ceos19.everytime.exception.SuccessCode.DELETE_SUCCESS;
 import static com.ceos19.everytime.exception.SuccessCode.INSERT_SUCCESS;
 
 @RestController
@@ -28,7 +29,7 @@ public class PostLikeController {
     public ResponseEntity<LikeResponse> cancelLikeMessage (@PathVariable final Long postId, @RequestBody final LikeRequest likeRequest) {
 
         final LikeResponse likeResponse = postLikeService.cancelPostLike(postId, likeRequest);
-        return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
+        return ResponseEntity.status(DELETE_SUCCESS.getHttpStatus())
                 .body(likeResponse);
     }
 

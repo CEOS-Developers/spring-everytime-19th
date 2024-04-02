@@ -2,6 +2,7 @@ package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Message;
+import com.ceos19.everytime.dto.BoardResponse;
 import com.ceos19.everytime.dto.CreateMessageRequest;
 import com.ceos19.everytime.dto.DeleteRequest;
 import com.ceos19.everytime.dto.MessageResponse;
@@ -45,12 +46,8 @@ public class MessageService {
         final Member sender = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
-        List<MessageResponse> messageResponseList = new ArrayList<>();
-        for(Message message : messageRepository.findBySenderId(memberId)){
-            messageResponseList.add(MessageResponse.from(message));
-        }
-
-        return messageResponseList;
+        return messageRepository.findBySenderId(memberId)
+                .stream().map(MessageResponse::from).toList();
     }
 
     public void deleteMessage (Long messageId, DeleteRequest deleteRequest){

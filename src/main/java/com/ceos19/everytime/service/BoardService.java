@@ -49,7 +49,6 @@ public class BoardService {
     public BoardResponse findBoard(final Long boardId){
         final Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
-        //return new BoardResponse(board.getId(), board.getBoardName(),board.getDescription(), board.getBoardManager(), board.getUniversity(), board.getPosts());
         return BoardResponse.from(board);
     }
 
@@ -57,12 +56,9 @@ public class BoardService {
     public List<BoardResponse> findBoardList(final Long universityId){
         final University university = universityRepository.findById(universityId)
                 .orElseThrow(() -> new CustomException(UNIVERSITY_NOT_FOUND));
-        List<BoardResponse> boardResponseList = new ArrayList<>();
-        for(Board board : boardRepository.findAllByUniversityId(universityId)){
-            boardResponseList.add(BoardResponse.from(board));
-        }
 
-        return boardResponseList;
+        return boardRepository.findAllByUniversityId(universityId)
+                .stream().map(BoardResponse::from).toList();
     }
 
     public void updateBoard(Long boardId, BoardUpdateRequest boardUpdateRequest){

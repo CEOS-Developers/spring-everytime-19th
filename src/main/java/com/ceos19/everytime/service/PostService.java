@@ -55,12 +55,8 @@ public class PostService {
         final Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
 
-        List<PostResponse> postResponseList = new ArrayList<>();
-        for(Post post : postRepository.findAllByBoardId(boardId)){
-            postResponseList.add(PostResponse.from(post));
-        }
-
-        return postResponseList;
+        return postRepository.findAllByBoardId(boardId)
+                .stream().map(PostResponse::from).toList();
     }
 
     public void updatePost(Long postId, PostUpdateRequest postUpdateRequest){
