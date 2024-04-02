@@ -2,7 +2,6 @@ package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Message;
-import com.ceos19.everytime.dto.BoardResponse;
 import com.ceos19.everytime.dto.CreateMessageRequest;
 import com.ceos19.everytime.dto.DeleteRequest;
 import com.ceos19.everytime.dto.MessageResponse;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,11 +23,11 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 @Transactional
 @Slf4j
 public class MessageService {
-    public static final int MAX_CONTENT_LENGTH = 2000;
 
     private final MessageRepository messageRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public Long createMessage (CreateMessageRequest createMessageRequest){
         final Member sender = memberRepository.findById(createMessageRequest.getSenderId())
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
@@ -50,6 +48,7 @@ public class MessageService {
                 .stream().map(MessageResponse::from).toList();
     }
 
+    @Transactional
     public void deleteMessage (Long messageId, DeleteRequest deleteRequest){
 
         final Member member = memberRepository.findById(deleteRequest.getMemberId())
@@ -63,6 +62,7 @@ public class MessageService {
 
     }
 
+    @Transactional
     public void updateReadStatus(Long receiverId, Long messageId){
         Optional<Message> message = messageRepository.findById(messageId);
         Optional<Member> receiver = memberRepository.findById(receiverId);

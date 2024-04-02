@@ -27,6 +27,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public Comment create(Long postId, Long parentCommentId, Long memberId, String content, boolean isAnonymous){
         final Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
@@ -50,12 +51,14 @@ public class CommentService {
         return comment;
     }
 
+    @Transactional
     public void delete(Long commentId){
         final Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
         commentRepository.delete(comment);
     }
 
+    @Transactional
     public void updateContent(Long commentId, String content){
         final Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));

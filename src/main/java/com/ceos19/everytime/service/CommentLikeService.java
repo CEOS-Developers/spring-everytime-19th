@@ -21,6 +21,7 @@ public class CommentLikeService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public void likeComment (Long commentId, Long memberId){
 
         final Comment comment = commentRepository.findById(commentId)
@@ -37,6 +38,7 @@ public class CommentLikeService {
         commentLikeRepository.save(commentLike);
     }
 
+    @Transactional
     public void cancelCommentLike(Long commentId, Long memberId){
         final Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));

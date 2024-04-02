@@ -19,6 +19,7 @@ public class UniversityService {
 
     private final UniversityRepository universityRepository;
 
+    @Transactional
     public Long create(String name){
         if(!validateName(name)){
             throw new CustomException(INVALID_PARAMETER);
@@ -29,6 +30,7 @@ public class UniversityService {
                 .getId();
     }
 
+    @Transactional
     public void delete(Long universityId){
         final University university = universityRepository.findById(universityId)
                 .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
@@ -36,6 +38,7 @@ public class UniversityService {
         universityRepository.delete(university);
     }
 
+    @Transactional
     public void updateName(Long universityId, String name){
         final University university = universityRepository.findById(universityId)
                 .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
@@ -43,6 +46,7 @@ public class UniversityService {
         university.changeName(name);
     }
 
+    @Transactional
     private boolean validateName(String name){
         if(name.isEmpty() || name.length()> MAX_NAME_LENGTH)
             return false;

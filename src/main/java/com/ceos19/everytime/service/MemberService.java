@@ -18,6 +18,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
+    @Transactional
     public Long join(Member member) {
         if((memberRepository.findByUsernameAndLoginId(member.getUsername(), member.getLoginId()).isPresent())){
             throw new CustomException(DATA_ALREADY_EXISTED);
@@ -27,6 +28,7 @@ public class MemberService {
                 .getId();
     }
 
+    @Transactional
     public void login(String loginId, String userPw){
 
         if(!memberRepository.existsByLoginIdAndUserPw(loginId,userPw)){
@@ -43,12 +45,14 @@ public class MemberService {
         return member.getId();
     }
 
+    @Transactional
     public void updateUsername(final Long memberId, final String userName) {
         final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         member.changeUsername(userName);
     }
 
+    @Transactional
     public void deleteUser(final Long memberId) {
         final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));

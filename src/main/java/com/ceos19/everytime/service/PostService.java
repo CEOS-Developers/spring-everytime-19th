@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.ceos19.everytime.exception.ErrorCode.*;
@@ -31,6 +30,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
 
+    @Transactional
     public Long publish (CreatePostRequest createPostRequest){
         final Member author = memberRepository.findById(createPostRequest.getAuthorId())
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
@@ -59,6 +59,7 @@ public class PostService {
                 .stream().map(PostResponse::from).toList();
     }
 
+    @Transactional
     public void updatePost(Long postId, PostUpdateRequest postUpdateRequest){
         final Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
@@ -68,6 +69,7 @@ public class PostService {
         post.changeAnonymous(postUpdateRequest.isAnonymous());
     }
 
+    @Transactional
     public void delete(Long postId, DeleteRequest deleteRequest){
         final Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
@@ -78,7 +80,6 @@ public class PostService {
             postRepository.delete(post);
         else
             throw new CustomException(INVALID_PARAMETER);
-
     }
 
 }

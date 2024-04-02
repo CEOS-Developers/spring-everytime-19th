@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.ceos19.everytime.exception.ErrorCode.*;
@@ -33,6 +32,7 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final UniversityRepository universityRepository;
 
+    @Transactional
     public Long create(CreateBoardRequest createBoardRequest){
         final Member member = memberRepository.findById(createBoardRequest.getBoardManagerId())
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
@@ -61,6 +61,7 @@ public class BoardService {
                 .stream().map(BoardResponse::from).toList();
     }
 
+    @Transactional
     public void updateBoard(Long boardId, BoardUpdateRequest boardUpdateRequest){
         final Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
@@ -69,6 +70,7 @@ public class BoardService {
         board.changeDescription(boardUpdateRequest.getDescription());
     }
 
+    @Transactional
     public void delete(Long boardId, DeleteRequest deleteRequest){
         final Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));

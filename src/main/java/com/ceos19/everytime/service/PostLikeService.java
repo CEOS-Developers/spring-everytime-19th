@@ -26,6 +26,7 @@ public class PostLikeService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional
     public LikeResponse likePost (Long postId, LikeRequest likeRequest){
 
         final Post post = postRepository.findById(postId)
@@ -43,6 +44,7 @@ public class PostLikeService {
 
     }
 
+    @Transactional
     public LikeResponse cancelPostLike(Long postId, LikeRequest likeRequest){
         final Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
