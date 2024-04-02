@@ -3,6 +3,7 @@ package com.ceos19.everytime.controller;
 import com.ceos19.everytime.dto.LikeRequest;
 import com.ceos19.everytime.dto.LikeResponse;
 import com.ceos19.everytime.service.PostLikeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class PostLikeController {
     private final PostLikeService postLikeService;
 
     @PostMapping("/{postId}")
-    public ResponseEntity<LikeResponse> likeMessage (@PathVariable final Long postId, @RequestBody final LikeRequest likeRequest){
+    public ResponseEntity<LikeResponse> likeMessage (@PathVariable final Long postId, @RequestBody @Valid final LikeRequest likeRequest){
 
         final LikeResponse likeResponse = postLikeService.likePost(postId, likeRequest);
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
@@ -26,7 +27,7 @@ public class PostLikeController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<LikeResponse> cancelLikeMessage (@PathVariable final Long postId, @RequestBody final LikeRequest likeRequest) {
+    public ResponseEntity<LikeResponse> cancelLikeMessage (@PathVariable final Long postId, @RequestBody @Valid final LikeRequest likeRequest) {
 
         final LikeResponse likeResponse = postLikeService.cancelPostLike(postId, likeRequest);
         return ResponseEntity.status(DELETE_SUCCESS.getHttpStatus())
