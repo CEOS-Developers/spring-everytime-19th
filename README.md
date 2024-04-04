@@ -503,7 +503,7 @@ public class Posts {
   
 ### 모든 게시글 조회 API
 
-- URL: `/api/post`
+- URL: `/api/posts`
 - Method: GET
 
 ### 게시글 조회 API
