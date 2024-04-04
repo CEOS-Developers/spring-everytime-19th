@@ -2,6 +2,7 @@ package com.ceos19.everytime.post.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,8 +35,9 @@ public class PostController {
 
     @Operation(summary = "게시글 작성", description = "게시글을 작성합니다.")
     @PostMapping
-    public void createPost(@RequestBody final PostCreateRequestDto request) {
+    public ResponseEntity<Void> createPost(@RequestBody final PostCreateRequestDto request) {
         postService.createPost(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "모든 게시글 조회", description = "모든 게시글을 조회합니다.")
@@ -54,13 +56,15 @@ public class PostController {
 
     @Operation(summary = "게시글 좋아요 등록", description = "게시글 좋아요를 등록합니다.")
     @PostMapping("/likes/{postId}")
-    public void createPostLike(@PathVariable final Long postId, @RequestBody final PostLikeRequestDto request) {
+    public ResponseEntity<Void> createPostLike(@PathVariable final Long postId, @RequestBody final PostLikeRequestDto request) {
         postLikeService.like(postId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "게시글 좋아요 삭제", description = "게시글 좋아요를 삭제합니다.")
     @DeleteMapping("/likes/{postId}")
-    public void deletePostLike(@PathVariable final Long postId, @RequestBody final PostLikeRequestDto request) {
+    public ResponseEntity<Void> deletePostLike(@PathVariable final Long postId, @RequestBody final PostLikeRequestDto request) {
         postLikeService.cancelLike(postId, request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

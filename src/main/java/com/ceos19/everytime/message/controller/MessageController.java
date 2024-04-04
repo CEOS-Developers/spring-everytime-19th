@@ -2,6 +2,7 @@ package com.ceos19.everytime.message.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,8 +29,9 @@ public class MessageController {
 
     @Operation(summary = "쪽지 전송", description = "쪽지를 전송합니다.")
     @PostMapping
-    public void sendMessage(@RequestBody final MessageRequestDto request) {
+    public ResponseEntity<Void> sendMessage(@RequestBody final MessageRequestDto request) {
         messageService.sendMessage(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "쪽지 읽기", description = "쪽지를 읽습니다.")

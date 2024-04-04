@@ -1,5 +1,7 @@
 package com.ceos19.everytime.user.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,13 +26,15 @@ public class UserController {
 
     @Operation(summary = "회원 가입", description = "회원 가입을 합니다.")
     @PostMapping
-    public void signUp(@RequestBody final UserSaveRequestDto request) {
+    public ResponseEntity<Void> signUp(@RequestBody final UserSaveRequestDto request) {
         userService.saveUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 합니다.")
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable final Long userId) {
+    public ResponseEntity<Void> deleteUser(@PathVariable final Long userId) {
         userService.deleteUser(userId);
+        return ResponseEntity.ok().build();
     }
 }
