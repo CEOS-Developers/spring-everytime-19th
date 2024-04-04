@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(PostController.class)
 class PostControllerTest {
 
-    private static final String DEFAULT_POST_URL = "/api/post";
+    private static final String DEFAULT_POST_URL = "/api/posts";
 
     @Autowired
     private MockMvc mockMvc;
@@ -57,7 +57,7 @@ class PostControllerTest {
         mockMvc.perform(post(DEFAULT_POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andDo(print());
     }
 
@@ -113,7 +113,7 @@ class PostControllerTest {
         mockMvc.perform(post(DEFAULT_POST_URL + "/likes/{postId}", postId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andDo(print());
     }
 

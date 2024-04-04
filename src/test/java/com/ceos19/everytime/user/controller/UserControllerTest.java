@@ -46,7 +46,7 @@ class UserControllerTest {
         mockMvc.perform(post(USER_DEFAULT_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
