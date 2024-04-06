@@ -365,3 +365,273 @@ public class UserService {
 그렇지만 Service 계층을 직접 호출하게 되면 순환 참조 문제가 발생할 수 있기 때문에 아직은 Repository에서 직접 조회하는 방법을 사용하고 있습니다.
 
 그러나 이 방법이 옳은지에 대해서는 고민을 더 해봐야 될 것 같습니다.
+
+# Week 4
+## 리팩토링
+### 클래스 레벨에 Transactional(readOnly = true) 적용
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/968227d2-9714-4944-bb10-0200bc0f9577)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/0b4eb524-f308-4f45-8b57-111cb2b96ed7)
+
+이렇게 두 분에게 같은 리뷰를 받고, `@Transactional(readOnly = true)`를 클래스 레벨에 적용했습니다.
+
+### 디비에 저장된 id로 테스트하도록 수정
+
+기존의 코드는 다음과 같습니다.
+
+```java
+@Test
+void 댓글을_삭제한다() {
+    // given
+    final User user = User.builder()
+            .nickname("nickname")
+            .password("password")
+            .username("username")
+            .build();
+    userRepository.save(user);
+
+    final Post post = Post.builder()
+            .title("test")
+            .content("content")
+            .isAnonymous(false)
+            .writer(user)
+            .build();
+    postRepository.save(post);
+
+    final Comment comment = Comment.builder()
+            .content("content")
+            .isAnonymous(false)
+            .user(user)
+            .post(post)
+            .build();
+    commentRepository.save(comment);
+
+    // when
+    commentRepository.deleteById(1L);
+
+    // then
+    final Boolean result = (Boolean) em.createNativeQuery("SELECT is_deleted FROM comment WHERE comment_id = 1",
+                    Boolean.class)
+            .getSingleResult();
+    assertThat(result).isTrue();
+}
+```
+
+하지만 위의 테스트 경우에는 특정 ID에 의존하고 있기 때문에, 데이터베이스에 특정 ID의 댓글이 존재하지 않을 경우 테스트가 실패할 수 있습니다.
+그래서 저장된 Comment 객체를 받아 이 객체의 id로 테스트하도록 수정했습니다.
+
+```java
+@Test
+void 댓글을_삭제한다() {
+    // given
+    ...
+    final Comment savedComment = commentRepository.save(comment);
+
+    // when
+    commentRepository.deleteById(savedComment.getId());
+
+    // then
+    final Boolean result = (Boolean) em.createNativeQuery("SELECT is_deleted FROM comment WHERE comment_id = ?",
+                    Boolean.class)
+            .setParameter(1, savedComment.getId())
+            .getSingleResult();
+    assertThat(result).isTrue();
+}
+```
+
+### Posts 클래스 삭제
+
+Posts 클래스는 Post의 리스트를 감싸는 일급 컬렉션으로, 이 클래스는 dto로 변환하는 메서드만 가지고 있었습니다.
+
+```java
+public class Posts {
+
+    private final List<Post> posts;
+
+    public Posts(final List<Post> posts) {
+        this.posts = posts;
+    }
+
+    public List<BoardPostsResponseDto> toResponseDto() {
+        return posts.stream()
+                .map(BoardPostsResponseDto::from)
+                .toList();
+    }
+}
+```
+
+
+일급 컬렉션은 도메인에 더 가깝다는 생각이 들어서 dto 리스트로 변환하는 로직을 서비스 레이어로 옮기고 Posts 클래스를 삭제했습니다.
+
+## API 만들기
+### 회원 가입 API
+
+- URL: `/api/users`
+- Method: POST
+- Request Body: 
+    ```json
+    {
+        "username": String,
+        "password": String,
+        "nickname": String,
+        "schoolName": String,
+         "department": String
+    }
+    ```
+  
+### 회원 탈퇴 API
+
+- URL: `/api/users/{userId}`
+- Method: DELETE
+- Path Variable: userId(Long)
+
+### 게시글 작성 API
+
+- URL: `/api/post`
+- Method: POST
+- Request Body:
+    ```json
+    {
+        "title": String,
+        "content": String,
+        "isAnonymous": boolean,
+        "boardId": Long,
+        "writerId": Long
+    }
+    ```
+  
+### 모든 게시글 조회 API
+
+- URL: `/api/posts`
+- Method: GET
+
+### 게시글 조회 API
+
+- URL: `/api/post/{postId}`
+- Method: GET
+
+### 게시글 좋아요 등록 API
+
+- URL: `/api/post/likes/{postId}`
+- Method: POST
+- Path Variable: postId(Long)
+- Request Body:
+    ```json
+    {
+        "userId": Long
+    }
+    ```
+  
+### 게시글 좋아요 취소 API
+
+- URL: `/api/post/likes/{postId}`
+- Method: DELETE
+- Path Variable: postId(Long)
+- Request Body:
+    ```json
+    {
+        "userId": Long
+    }
+    ```
+  
+### 쪽지 전송 API
+
+- URL: `/api/messages`
+- Method: POST
+- Request Body:
+    ```json
+    {
+        "senderId": Long,
+        "receiverId": Long,
+        "content": String
+    }
+    ```
+  
+### 쪽지 읽기 API
+
+- URL: `/api/messages`
+- Method: GET
+- Request Body:
+    ```json
+    {
+        "senderId": Long,
+        "receiverId": Long
+    }
+    ```
+  
+## 컨트롤러 테스트
+
+이번 기회에 컨트롤러 테스트 작성까지 적용해보면 좋을 것 같다는 생각에 테스트 코드까지 작성했습니다. 
+우선 `@WebMvcTest`를 사용했습니다. `@WebMvcTest`는 웹 계층에 집중할 수 있게 해주는 애노테이션입니다. 
+웹 계층과 관련된 빈만 등록되기 때문에 `@WebMvcTest`를 사용하면 컨트롤러는 등록이 되지만, `@Repository`나 `@Service` 빈은 등록되지 않습니다.
+따라서, `@WebMvcTest`에서 리포지토리와 서비스를 사용하기 위해서는 `@MockBean`을 사용하여 리포지토리와 서비스를 Mock 객체에 빈으로 등록해줘야 합니다.
+
+```java
+@WebMvcTest(UserController.class)
+class UserControllerTest {
+    
+    private static final String USER_DEFAULT_URL = "/api/users";
+
+    @Autowired
+    private MockMvc mockMvc;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private UserService userService;
+
+    @MockBean
+    private UserRepository userRepository;
+
+    @Test
+    void 회원_가입에_성공한다() throws Exception {
+        // given
+        final UserSaveRequestDto request = new UserSaveRequestDto("username", "password", "nickname", "홍익대학교", "컴퓨터공학과");
+
+        doNothing().when(userService).saveUser(request);
+
+        // when & then
+        mockMvc.perform(post(USER_DEFAULT_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+}
+```
+
+## 정적 팩토리 메서드 사용해보기
+
+```java
+public record PostResponseDto(String title, String content, String username, String boardName, List<Comment> comments) {
+
+    public static PostResponseDto of(final Post post, final List<Comment> comments) {
+        return new PostResponseDto(post.getTitle(), post.getContent(), post.getWriterNickname(),
+                post.getBoard().getName(), comments);
+    }
+}
+```
+
+## Swagger
+### Swagger 애노테이션
+
+- `@Tag`: API에 대한 설명을 추가할 수 있습니다.
+- `@Operation`: API에 대한 설명을 추가할 수 있습니다.
+- `@ApiResponses`: API 응답에 대한 설명을 추가할 수 있습니다.
+- `@Schema`: API 요청/응답에 대한 스키마를 정의할 수 있습니다.
+- `@Parameter`: API 요청 파라미터에 대한 설명을 추가할 수 있습니다.
+
+### Swagger 테스트
+
+Swagger를 사용해서 회원 가입 테스트를 진행했습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/7e4be793-f334-4e56-91c4-494639ece4f2)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/bd35c7af-5f69-4f79-abc0-ddd72fde422a)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/66893a3f-c90f-4830-9046-0dca65146eae)
+
+만약 존재하지 않은 회원이 회원 탈퇴를 요청하면 다음과 같이 에러가 발생합니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/dae820ef-d379-49c2-b02d-ee361d6962e1)

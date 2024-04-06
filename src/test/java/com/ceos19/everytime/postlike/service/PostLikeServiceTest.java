@@ -14,12 +14,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.ceos19.everytime.post.domain.Post;
+import com.ceos19.everytime.post.repository.PostRepository;
 import com.ceos19.everytime.postlike.domain.PostLike;
-import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.postlike.dto.request.PostLikeRequestDto;
 import com.ceos19.everytime.postlike.repository.PostLikeRepository;
-import com.ceos19.everytime.post.repository.PostRepository;
-import com.ceos19.everytime.postlike.service.PostLikeService;
+import com.ceos19.everytime.user.domain.User;
 import com.ceos19.everytime.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,10 +56,10 @@ class PostLikeServiceTest {
         given(postLikeRepository.existsByPostAndUser(any(), any()))
                 .willReturn(false);
 
-        final PostLikeRequestDto request = new PostLikeRequestDto(1L, 1L);
+        final PostLikeRequestDto request = new PostLikeRequestDto(1L);
 
         // when
-        postLikeService.like(request);
+        postLikeService.like(1L, request);
 
         // then
         verify(postLikeRepository).save(any());
@@ -87,11 +86,12 @@ class PostLikeServiceTest {
         given(postLikeRepository.findByPostAndUser(any(), any()))
                 .willReturn(Optional.of(postLike));
 
-        final PostLikeRequestDto request = new PostLikeRequestDto(1L, 1L);
-        postLikeService.like(request);
+        final PostLikeRequestDto request = new PostLikeRequestDto(1L);
+        final Long postId = 1L;
+        postLikeService.like(postId, request);
 
         // when
-        postLikeService.cancelLike(request);
+        postLikeService.cancelLike(postId, request);
 
         // then
         verify(postLikeRepository).delete(any());

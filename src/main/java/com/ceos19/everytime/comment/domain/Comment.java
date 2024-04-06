@@ -13,6 +13,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.ceos19.everytime.global.BaseEntity;
+import com.ceos19.everytime.global.exception.BadRequestException;
+import com.ceos19.everytime.global.exception.ExceptionCode;
 import com.ceos19.everytime.post.domain.Post;
 import com.ceos19.everytime.user.domain.User;
 
@@ -73,7 +75,7 @@ public class Comment extends BaseEntity {
 
     public void decreaseLikeNumber() {
         if (likeNumber <= 0) {
-            throw new IllegalArgumentException();
+            throw new BadRequestException(ExceptionCode.INVALID_LIKE_NUMBER);
         }
         likeNumber--;
     }

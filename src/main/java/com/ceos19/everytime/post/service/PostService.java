@@ -11,8 +11,9 @@ import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
 import com.ceos19.everytime.board.repository.BoardRepository;
 import com.ceos19.everytime.comment.domain.Comment;
 import com.ceos19.everytime.comment.repository.CommentRepository;
+import com.ceos19.everytime.global.exception.ExceptionCode;
+import com.ceos19.everytime.global.exception.NotFoundException;
 import com.ceos19.everytime.post.domain.Post;
-import com.ceos19.everytime.post.domain.Posts;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
 import com.ceos19.everytime.post.dto.response.PostResponseDto;
 import com.ceos19.everytime.post.repository.PostRepository;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PostService {
 
     private final UserRepository userRepository;
@@ -33,7 +35,7 @@ public class PostService {
     @Transactional
     public void createPost(final PostCreateRequestDto request) {
         final User writer = userRepository.findById(request.userId())
-                .orElseThrow(() -> new IllegalArgumentException(String.format("User not found: %d", request.userId())));
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
         final Board board = getBoard(request.boardId());
         final Post post = Post.builder()
                 .title(request.title())
@@ -45,23 +47,23 @@ public class PostService {
         postRepository.save(post);
     }
 
-    @Transactional(readOnly = true)
     public PostResponseDto getPost(final Long postId) {
         final Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Post not found: %d", postId)));
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_POST));
         final List<Comment> comments = commentRepository.findByPost(post);
         return PostResponseDto.of(post, comments);
     }
 
-    @Transactional(readOnly = true)
     public List<BoardPostsResponseDto> getPosts(final BoardPostsRequestDto request) {
         final Board findBoard = getBoard(request.boardId());
-        final Posts posts = new Posts(postRepository.findAllFetchJoin(findBoard));
-        return posts.toResponseDto();
+        final List<Post> posts = postRepository.findAllFetchJoin(findBoard);
+        return posts.stream()
+                .map(BoardPostsResponseDto::from)
+                .toList();
     }
 
     private Board getBoard(final Long boardId) {
         return boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Board not found: %d", boardId)));
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_BOARD));
     }
 }

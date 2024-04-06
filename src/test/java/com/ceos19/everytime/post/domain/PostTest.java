@@ -8,7 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import com.ceos19.everytime.board.domain.Board;
-import com.ceos19.everytime.post.domain.Post;
+import com.ceos19.everytime.global.exception.BadRequestException;
 import com.ceos19.everytime.user.domain.User;
 
 class PostTest {
@@ -48,7 +48,7 @@ class PostTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> post.decreaseLikeNumber())
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(post::decreaseLikeNumber)
+                .isInstanceOf(BadRequestException.class);
     }
 }
