@@ -1,10 +1,12 @@
 package com.ceos19.springeverytime.user.dto.request;
 
 import com.ceos19.springeverytime.user.domain.User;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class UserJoinDto {
+@Builder
+public class UserRequestDto {
     private String id;
     private String password;
     private String name;

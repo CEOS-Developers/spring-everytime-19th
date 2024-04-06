@@ -1,7 +1,6 @@
 package com.ceos19.springeverytime.Image.service;
 
 
-import com.ceos19.springeverytime.Image.domain.Image;
 import com.ceos19.springeverytime.Image.dto.ImageDto;
 import com.ceos19.springeverytime.Image.repository.ImageRepository;
 import com.ceos19.springeverytime.post.domain.Post;
@@ -15,20 +14,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ImageService {
-    private ImageRepository imageRepository;
-    private PostService postService;
+    private final ImageRepository imageRepository;
+    private final PostService postService;
 
-    public List<Image> getImagesByImageIds(List<Long> imageIds) {
-        return imageRepository.findImagesByImageIds(imageIds)
-                .orElseThrow(IllegalAccessError::new);
-    }
     @Transactional
-    public void createImage(ImageDto imageDto){
-        Post post = postService.getPost(imageDto.getPostId());
+    public void createImage(Long postId, ImageDto imageDto){
+        Post post = postService.getPost(postId);
         imageRepository.save(imageDto.toEntity(post));
     }
     @Transactional
     public void deleteImage(Long imageId){
         imageRepository.deleteById(imageId);
+    }
+
+    public List<ImageDto> getImagesByPostId(Long postId){
+        return imageRepository.findByPostId(postId).stream()
+                .map(ImageDto::of)
+                .toList();
     }
 }

@@ -420,4 +420,275 @@ public class Post extends BaseTimeEntity {
 
 핵심은 setter를 사용하지 않는 것이다. 해당 로직의 의미가 명확하게 드러나도록 메소드를 구현했다.
 
+### Controller
 
+이번 주 과제는 컨트롤러를 구현하고 swagger를 통한 통합 테스트의 구현이다.
+
+User 도메인의 예시를 통해 설명해보도록 하겠다.
+
+```java
+@Tag(name = "User Controller", description = "유저 컨트롤러")
+@RestController
+@RequestMapping("api/users")
+@RequiredArgsConstructor
+public class UserController {
+    private final UserService userService;
+
+    @PostMapping()
+    @Operation(summary = "유저 회원가입", description = "새로운 유저를 DB에 등록")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 입력 형식입니다."
+                    // content, schema 옵션들을 통해 상세한 에러 정보를 view에 전달할 수 있다.
+            ),
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 회원입니다.")
+    })
+    public ResponseEntity<Void> userAdd(@RequestBody final UserRequestDto request){
+        userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping()
+    @Operation(summary = "유저 목록 조회", description = "존재하는 모든 유저의 목록을 조회")
+    public ResponseEntity<List<User>> userList(){
+        List<User> users = userService.readAllUsers();
+        return ResponseEntity.status(HttpStatus.OK).body(users);
+    }
+
+    @DeleteMapping("/{userId}")
+    @Operation(summary = "유저 회원탈퇴", description = "존재하는 유저의 정보를 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원탈퇴 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 회원정보")
+    })
+    public ResponseEntity<Void> userRemove(@PathVariable Long userId){
+        userService.deleteUser(userId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/{userId}")
+    @Operation(summary = "단건 회원 조회", description = "특정 유저의 정보를 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원정보 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 회원정보")
+    })
+    public ResponseEntity<ResponseUserDto> userDetails(@PathVariable Long userId){
+        return ResponseEntity.ok(userService.readUser(userId));
+    }
+
+    @PatchMapping("/{userId}")
+    @Operation(summary = "유저정보 수정", description = "존재하는 회원정보를 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원정보 수정 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 회원정보")
+    })
+    public ResponseEntity<Void> userUpdate(@RequestBody UserRequestDto userRequestDto
+            , @PathVariable Long userId){
+        userService.updateUser(userRequestDto, userId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+
+    }
+}
+```
+
+swagger는 springdoc을 통한 메타데이터를 활용해 메소드에 대한 요약과 설명을 작성할 수 있도록 돕는다.
+
+이를 위해 class에는 `@Tag` 어노테이션으로 이름과 설명을 작성할 수 있다.
+
+method는 `@Operation` 어노테이션을 통해 메소드의 요약과 설명을 작성할 수 있다.
+
+또한 `@ApiResponse`를 통해 반환되는 https code에 대한 설명을 code 별로 작성할 수 있다.
+
+`@RequestMapping`은 각 메소드의 디폴트 url을 설정해 가독성을 높힌다.
+
+또한 url에 있는 값을 변수로 사용하기 위해
+
+`{}`으로 사용할 변수를 덮고 `@PathVariable`을 통해 파라미터에 그 값을 담아 사용할 수 있다.
+
+> 💡 `@RequestBody`와 `@RequestParam`의 차이점
+> `@RequestBody`는 JSON 데이터의 KEY값과 자바 객체의 필드 변수명을 매핑해 자동으로 값을 넣어준다
+> 이에 반해 `@RequestParam`은 KEY와 변수명의 매핑을 직접 명시해줘야 한다는 차이점이 있다.
+
+또한 `ResponseUserDto`를 사용해 노출되지 말아야 할 정보를 감추고 필요한 정보만 반환하도록 했다.
+
+```java
+@Data
+@Builder
+public class ResponseUserDto {
+    private Long id;
+    private String LoginId;
+    private String name;
+
+    public static ResponseUserDto of (User user){
+        return ResponseUserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .LoginId(user.getLoginId())
+                .build();
+    }
+}
+```
+
+정적 팩토리 메서드 방식을 통해 `User` 객체를 `ResponseUserDto`로 생성하는 `of` 메소드를 구현했다.
+
+이를 통해 좀 더 직관적으로 메소드의 역할을 알 수 있다.
+
+또한 Http code를 custom에 `UserErrorCode`를 통해 관리했다.
+
+```java
+@Getter
+public enum UserErrorCode{
+    USER_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 회원 정보입니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
+    INVALID_USER_INFO(HttpStatus.BAD_REQUEST, "잘못된 회원 정보입니다.");
+
+
+    private final HttpStatus httpStatus;
+    private final String message;
+
+    UserErrorCode(HttpStatus httpStatus, String message) {
+        this.httpStatus = httpStatus;
+        this.message = message;
+    }
+}
+```
+
+이러한 ErrorCode는 `UserException`을 통해 `throw`할 수 있다.
+
+```java
+public class UserException extends ResponseException {
+
+    public UserException(UserErrorCode userErrorCode) {
+        super(userErrorCode.getMessage(), userErrorCode.getHttpStatus());
+    }
+}
+```
+
+각각 도메인 마다 Exception을 전부 구현하기에 번거로워 `ResponseException`이라는 추상 클래스를 생성했다.
+
+```java
+public abstract class ResponseException extends RuntimeException {
+    private final HttpStatus status;
+
+    protected ResponseException(String message, HttpStatus status) {
+        super(message);
+        this.status = status;
+    }
+
+    public HttpStatus getStatus() {
+        return status;
+    }
+}
+```
+이러한 `ResponseException` 객체들은 `ResponseTemplate`에 담겨 RestApi에서 반환하는 `ResponseEntity`로 변환할 수 있다.
+
+```java
+@Builder
+@AllArgsConstructor
+public class ResponseTemplate {
+    public int status;
+
+    public String message;
+
+    private final LocalDateTime timestamp = LocalDateTime.now();
+
+    public static ResponseEntity<ResponseTemplate> toResponseEntity(HttpStatus status, String message) {
+        return ResponseEntity
+                .status(status)
+                .body(ResponseTemplate.builder()
+                        .message(message)
+                        .status(status.value())
+                        .build());
+    }
+}
+```
+
+`ResponseTemplate`을 `ResponseEntity`로 변환하는 로직은 `ExceptionHandler`가 처리한다.
+
+```java
+@RestControllerAdvice
+public class ExceptionHandler {
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({UserException.class})
+    public ResponseEntity<ResponseTemplate> handleCustomException(ResponseException exception){
+        return ResponseTemplate.toResponseEntity(exception.getStatus(),exception.getMessage());
+    }
+}
+```
+
+`@RestControllerAdvice`를 통해 custom화된 exception을 관리해 직렬화하여 사용자에게 전달할 수 있다.
+
+```java
+    public ResponseUserDto readUser(Long userId) {
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        return ResponseUserDto.of(user);
+    }
+```
+
+위 메소드는 `UserService`에 있는 `readUser`로 유저를 조회해 반환한다.
+
+만약 유저를 찾지 못할 경우 `UserErrorCode`인 `USER_NOT_FOUND`를 Exception으로 던진다.
+
+이제 swagger를 통한 통합 테스트를 살펴보자
+
+`http://localhost:8080/swagger-ui/index.html#/` 을 통해 local swagger ui에 접속할 수 있다.
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/cc6db44e-4784-4cfc-9fd5-7e1be4b2c565">
+</p>
+
+`UserController`의 http method들과 `@Operation`에서 `summary`로 등록한 내용이 노출되어 쉽게 내용을 파악할 수 있다.
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/8a03f4fa-03bc-41fb-9111-80c48f2fdbe4">
+</p>
+
+유저 회원가입의 상세 정보인 `description`의 내용이 여기에 노출되며 request로 보내야 할 body의 내용을 확인할 수 있다.
+
+`Try it out` 버튼을 통해 원하는 값을 body에 넣고 response body를 확인해보자.
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/e6af9f8f-321f-46e9-93b8-cefaa56a6123">
+</p>
+
+다음과 같이 값을 설정해 execute를 누르면
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/a6baf8c8-2363-4800-ba3a-be15411fa307">
+</p>
+
+실행에 대한 http code을 알 수 있으며 그 밑에 `@ApiResponse`로 작성한 각 코드 값에 대한 설명을 알 수 있다.
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/219269f0-3719-4238-b53e-fbadfb6e8a30">
+</p>
+
+## 🥲 번외편
+
+원격 브런치에 커밋하지 않고 계속 새로 생성된? 로컬 브런치에 커밋해 깃허브에 반영되지 않는 문제 발생
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/50992471-d1e8-48ed-a7ea-f39d068c4b41">
+</p>
+
+이렇게 커밋했으나
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/18ae8f2a-a91e-44a9-bf88-79de2b610029">
+</p>
+
+실제로는 반영되어 있지 않음.
+
+자동으로 Merge 했다는 커밋이 발생해서 원상복구 된 줄 알고 `git fetch` 적용
+
+근데 사실 반영이 안 된 원격 브런치를 로컬 브런치에 붙여넣었고,,,
+
+<p align="center">
+  <img src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/8e783182-e652-4333-b86e-09d138790f2f">
+</p>
+
+약 25개의 커밋이 공중분해되었다...
+
+✔️ 앞으로 커밋을 꼼꼼하게 확인하고 GIT에 대해 자세하게 공부하자...
