@@ -1,13 +1,17 @@
 package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.Category;
-import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
-import com.ceos19.springeverytime.domain.like.CommentLike;
-import com.ceos19.springeverytime.domain.like.PostLike;
-import com.ceos19.springeverytime.repository.LikeRepository;
+import com.ceos19.springeverytime.domain.category.domain.Category;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.repository.CommentRepository;
+import com.ceos19.springeverytime.domain.like.service.LikeService;
+import com.ceos19.springeverytime.domain.post.domain.Post;
+import com.ceos19.springeverytime.domain.post.repository.PostRepository;
+import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.like.domain.CommentLike;
+import com.ceos19.springeverytime.domain.like.domain.PostLike;
+import com.ceos19.springeverytime.domain.like.repository.LikeRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,15 +21,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class LikeServiceTest {
     @Mock
     LikeRepository likeRepository;
+    @Mock
+    UserRepository userRepository;
+    @Mock
+    PostRepository postRepository;
+    @Mock
+    CommentRepository commentRepository;
 
     @InjectMocks
     LikeService likeService;
@@ -45,30 +57,68 @@ public class LikeServiceTest {
     }
 
     @Test
-    @DisplayName("게시글_좋아요_생성")
+    @DisplayName("게시글에 좋아요를 누르지 않았다면 좋아요를 생성한다.")
     void 게시글_좋아요_생성() {
         // given
-        PostLike postLike = new PostLike(user1, post);
-        given(likeRepository.save(any(PostLike.class))).willReturn(postLike);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user1));
+        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+        given(likeRepository.findPostLikeByPostIdAndUserId(any(), any())).willReturn(Optional.empty());
 
         // when
-        PostLike testPostLike = likeService.createPostLike(post, user1);
+        likeService.updatePostLike(1L, 1L);
 
         // then
-        Assertions.assertEquals(postLike, testPostLike);
+        verify(likeRepository, times(1)).save(any(PostLike.class));
+        verify(likeRepository, never()).delete(any(PostLike.class));
     }
 
     @Test
-    @DisplayName("댓글_좋아요_생성")
-    void 댓글_좋아요_생성() {
+    @DisplayName("게시글에 좋아요를 눌렀다면 좋아요를 삭제한다.")
+    void 게시글_좋아요_삭제() {
         // given
-        CommentLike commentLike = new CommentLike(user1, comment);
-        given(likeRepository.save(any(CommentLike.class))).willReturn(commentLike);
+        PostLike postLike = new PostLike(user1, post);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user1));
+        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+        given(likeRepository.findPostLikeByPostIdAndUserId(any(), any())).willReturn(Optional.of(postLike));
 
         // when
-        CommentLike testCommentLike = likeService.createCommentLike(comment, user1);
+        likeService.updatePostLike(1L, 1L);
 
         // then
-        Assertions.assertEquals(commentLike, testCommentLike);
+        verify(likeRepository, times(1)).delete(any(PostLike.class));
+        verify(likeRepository, never()).save(any(PostLike.class));
+    }
+
+    @Test
+    @DisplayName("댓글에 좋아요를 누르지 않았다면 좋아요를 생성한다.")
+    void 댓글_좋아요_생성() {
+        // given
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user1));
+        given(commentRepository.findById(anyLong())).willReturn(Optional.of(comment));
+        given(likeRepository.findCommentLikeByCommentIdAndUserId(any(), any())).willReturn(Optional.empty());
+
+        // when
+        likeService.updateCommentLike(1L, 1L);
+
+        // then
+        verify(likeRepository, times(1)).save(any(CommentLike.class));
+        verify(likeRepository, never()).delete(any(CommentLike.class));
+    }
+
+    @Test
+    @DisplayName("댓글에 좋아요를 눌렀다면 좋아요를 삭제한다.")
+    void 댓글_좋아요_삭제() {
+        // given
+        CommentLike commentLike = new CommentLike(user1, comment);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user1));
+        given(commentRepository.findById(anyLong())).willReturn(Optional.of(comment));
+        given(likeRepository.findCommentLikeByCommentIdAndUserId(any(), any())).willReturn(Optional.of(commentLike));
+
+        // when
+        likeService.updateCommentLike(1L, 1L);
+
+        // then
+        verify(likeRepository, times(1)).delete(any(CommentLike.class));
+        verify(likeRepository, never()).save(any(CommentLike.class));
     }
 }

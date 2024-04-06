@@ -1,10 +1,13 @@
 package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.Category;
-import com.ceos19.springeverytime.domain.User;
-import com.ceos19.springeverytime.repository.CategoryRepository;
-import org.assertj.core.api.Assertions;
+import com.ceos19.springeverytime.domain.category.domain.Category;
+import com.ceos19.springeverytime.domain.category.service.CategoryService;
+import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.category.dto.request.CategoryCreateRequest;
+import com.ceos19.springeverytime.global.exception.BadRequestException;
+import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,6 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,6 +29,8 @@ import static org.mockito.Mockito.verify;
 public class CategoryServiceTest {
     @Mock
     CategoryRepository categoryRepository;
+    @Mock
+    UserRepository userRepository;
 
     @InjectMocks
     CategoryService categoryService;
@@ -42,10 +48,12 @@ public class CategoryServiceTest {
     void 게시판_생성_테스트() {
         // given
         Category category = EntityGenerator.generateCategory(user1);
+        CategoryCreateRequest request = CategoryCreateRequest.of(category.getName(), category.getDescription());
         given(categoryRepository.save(any(Category.class))).willReturn(category);
+        given(userRepository.findById(any())).willReturn(Optional.of(user1));
 
         // when
-        Category newCategory = categoryService.create(category);
+        Category newCategory = categoryService.createCategory(1L, request);
 
         // then
         assertThat(newCategory).isEqualTo(category);
@@ -72,11 +80,12 @@ public class CategoryServiceTest {
         // given
         Category category = EntityGenerator.generateCategory(user1);
         category.setDateForTest(LocalDateTime.now());
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(category));
 
         // when
         // then
-        assertThatThrownBy(() -> {categoryService.delete(category);})
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> {categoryService.delete(1L);})
+                .isInstanceOf(BadRequestException.class);
 
     }
 
@@ -86,9 +95,10 @@ public class CategoryServiceTest {
         // given
         Category category = EntityGenerator.generateCategory(user1);
         category.setDateForTest(LocalDateTime.of(2024, 3, 1, 0, 0));
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(category));
 
         // when
-        categoryService.delete(category);
+        categoryService.delete(1L);
 
         // then
         verify(categoryRepository, times(1)).delete(category);

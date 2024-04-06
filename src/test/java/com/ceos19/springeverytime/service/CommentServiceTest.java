@@ -1,12 +1,17 @@
 package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.Category;
-import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
-import com.ceos19.springeverytime.repository.CommentRepository;
-import org.junit.jupiter.api.Assertions;
+import com.ceos19.springeverytime.domain.category.domain.Category;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
+import com.ceos19.springeverytime.domain.comment.dto.request.CommentCreateRequest;
+import com.ceos19.springeverytime.domain.comment.service.CommentService;
+import com.ceos19.springeverytime.domain.post.domain.Post;
+import com.ceos19.springeverytime.domain.post.repository.PostRepository;
+import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.comment.repository.CommentRepository;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
+import com.ceos19.springeverytime.global.exception.BadRequestException;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,15 +20,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceTest {
     @Mock
     CommentRepository commentRepository;
+    @Mock
+    UserRepository userRepository;
+    @Mock
+    PostRepository postRepository;
 
     @InjectMocks
     CommentService commentService;
@@ -45,12 +57,60 @@ public class CommentServiceTest {
     void 댓글_작성_테스트() {
         // given
         Comment comment = new Comment("화이팅", true, user2, post);
+        CommentCreateRequest request = new CommentCreateRequest("화이팅!", true);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user2));
+        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
         given(commentRepository.save(any(Comment.class))).willReturn(comment);
 
         // when
-        Comment comment1 = commentService.createComment(comment);
+        Comment comment1 = commentService.save(1L, 1L, request);
 
         // then
-        Assertions.assertEquals(comment, comment1);
+        Assertions.assertThat(comment1)
+                .usingRecursiveComparison().isEqualTo(comment);
+    }
+
+    @Test
+    @DisplayName("댓글을 삭제한다.")
+    void 댓글_삭제_테스트() {
+        // given & when
+        commentService.deleteComment(1L);
+
+        // then
+        verify(commentRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("주어진 유저가 댓글의 작성자인지 검증한다.")
+    void 댓글_작성자_검증_테스트() {
+        // given
+        given(commentRepository.existsByAuthorUserIdAndCommentId(anyLong(), anyLong()))
+                .willReturn(false);
+
+        // when & then
+        Assertions.assertThatThrownBy(()->{commentService.validateCommentByUser(1L, 1L);})
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("대댓글을 작성한다.")
+    void 대댓글_작성_테스트() {
+        // given
+        Comment parentComment = EntityGenerator.generateComment(user1, post);
+        Comment comment = new Comment("화이팅!", true, user1, parentComment, post);
+        CommentCreateRequest request = new CommentCreateRequest("화이팅!", true);
+        given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(parentComment));
+        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user1));
+        given(commentRepository.save(any(Comment.class))).willReturn(comment);
+
+        // when
+        Comment replyComment = commentService.saveReply(1L, 1L, 1L, request);
+
+        // then
+        Assertions.assertThat(replyComment)
+                .usingRecursiveComparison().isEqualTo(comment);
+
     }
 }

@@ -330,3 +330,199 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
 ```
 게시판 삭제와 같은 로직을 테스트할 때는 특정 데이터를 return 하는 로직이 없으므로 `given()` 함수를 사용할 일이 없다.   
 이런 경우에는 `verify()` 를 사용하여 함수 호출 여부 및 횟수를 검증하여 테스트할 수 있다.
+
+## 4주차
+### API 명세 [ **/api/v1** ]
+<table style="text-align: center">
+  <tr>
+    <th>Domain</th>
+    <th>Method</th>
+    <th>Base URL</th>
+    <th>URL</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td rowspan="4">Category</td>
+    <td>GET</td>
+    <td rowspan="4"><code>/category</code></td>
+    <td><code>/{category_id}/page/{page_number}</code></td>
+    <td>게시판 게시글 조회(페이징)</td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/</code></td>
+    <td>게시판 생성</td>
+  </tr>
+  <tr>
+    <td>PUT</td>
+    <td><code>/{category_id}/description</code></td>
+    <td>게시판 설명 수정</td>
+  </tr>
+  <tr>
+    <td>DELETE</td>
+    <td><code>/{category_id}</code></td>
+    <td>게시판 삭제</td>
+  </tr>
+
+  <tr>
+    <td rowspan="5">Post</td>
+    <td>POST</td>
+    <td rowspan="5"><code>/post</code></td>
+    <td><code>/</code></td>
+    <td>글 작성</td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td><code>/{post_id}</code></td>
+    <td>글 조회</td>
+  </tr>
+  <tr>
+    <td>PUT</td>
+    <td><code>/{post_id}</code></td>
+    <td>글 수정</td>
+  </tr>
+  <tr>
+    <td>DELETE</td>
+    <td><code>/{post_id}</code></td>
+    <td>글 삭제</td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/{post_id}/like</code></td>
+    <td>게시글 좋아요 업데이트(생성/삭제)</td>
+  </tr>
+
+  <tr>
+    <td rowspan="4">Comment</td>
+    <td>POST</td>
+    <td rowspan="4"><code>/comments</code></td>
+    <td><code>/</code></td>
+    <td>댓글 생성</td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/{comment_id}</code></td>
+    <td>대댓글 생성</td>
+  </tr>
+  <tr>
+    <td>DELETE</td>
+    <td><code>/{comment_id}</code></td>
+    <td>댓글 삭제</td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/{comment_id}/like</code></td>
+    <td>댓글 좋아요 업데이트 (생성/삭제)</td>
+  </tr>
+
+  <tr>
+    <td rowspan="4">ChatRoom</td>
+    <td>GET</td>
+    <td rowspan="4"><code>/chat/room</code></td>
+    <td><code>/list</code></td>
+    <td>쪽지함 내 쪽지방 조회</td>
+  </tr>
+  <tr>
+    <td>GET</td>
+    <td><code>/{room_id}</code></td>
+    <td>쪽지방 단건 조회</td>
+  </tr>
+  <tr>
+    <td>DELETE</td>
+    <td><code>/{room_id}</code></td>
+    <td>쪽지방 삭제</td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/</code></td>
+    <td>쪽지방 생성</td>
+  </tr>
+
+  <tr>
+    <td rowspan="1">ChatMessage</td>
+    <td>POST</td>
+    <td rowspan="1"><code>/chat/rooms/{room_id}/message</code></td>
+    <td><code>/</code></td>
+    <td>기존 채팅방에 채팅 전송</td>
+  </tr>
+
+  <tr>
+    <td rowspan="2">Image</td>
+    <td>POST</td>
+    <td rowspan="2"><code>/image</code></td>
+    <td><code>/</code></td>
+    <td>이미지 업로드</td>
+  </tr>
+</table>
+
+### Controller Test를 위한 Swagger 연동 확인
+1. 의존성을 추가한다. spring-doc, spring-fox 가 있는데, spring-fox는 4년전 이후로 업데이트가 없어 spring-doc를 사용하였다. 
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/211f9511-0b7d-416e-9e14-605a19311416)
+
+2. 앱을 실행한 후 아래 주소로 접속하면 된다.    
+    http://localhost:8080/swagger-ui/index.html/
+
+3. 아래는 접속한 이미지이다.
+  ![image](https://github.com/kckc0608/kckc0608/assets/64959010/13e4680b-acdf-4117-b3f8-4f07281f1079)
+
+### 3주차에서 리펙토링한 부분
+
+- `Optional` 객체의 존재 여부를 체크하여 에러를 발생시킬 때 `orElseThrow`를 사용하도록 변경하였다.
+- DTO 파일이 많아져 관리의 용이성을 위해 디렉토리 구조를 계층형에서 도메인형으로 변경하였다.   
+  <img src="https://github.com/kckc0608/kckc0608/assets/64959010/6a717016-915d-4f4e-a4f5-bd731f0a2bad" style="width: 50%"/>
+- 테스트 결과 두 객체를 비교할 때 usingRecursiveComparison 사용 
+- 좋아요를 생성/삭제할 때, post, comment 객체에서 like 메서드를 호출하는 방식대신 likeService.updatePostLike(), updateCommentLike() 메서드로 처리하도록 수정하였다.    
+  이때 좋아요를 생성/삭제하는 메서드를 분리하지 않고, 업데이트 메서드 하나로 없으면 생성, 있으면 삭제하는 방식으로 구현하였다.
+  ```java
+    @Transactional
+    public void updatePostLike(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_POST_ID));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_USER_ID));
+
+        likeRepository.findPostLikeByPostIdAndUserId(postId, userId).ifPresentOrElse(
+                likeRepository::delete,
+                () -> {
+                    final PostLike postLike = new PostLike(user, post);
+                    likeRepository.save(postLike);
+                }
+        );
+    }
+  ```
+- Pageable을 사용하여 페이지 네이션을 적용하였다.
+
+### 4주차 과제를 하면서 새로 공부한 점
+1. DTO 클래스에 필드가 1개만 있을 때, json과 object가 변환되지 못하는 문제가 발생했다.   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/e9e29b5a-feb0-43cc-803f-515afd9e198a)
+   위 그림과 같이 필드가 1개만 있을 때, 생성자를 분명히 넣었음에도 요청을 전송하면 상태코드 406 에러가 발생했다.
+   스프링에서는 아래 에러가 발생했다.
+   ```java
+   (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator)
+   ```
+   구글에서 검색한 해결책은 대부분 기본생성자를 만들라는 것이었는데,다른 DTO는 기본 생성자가 없어도 문제가 없었던 점에서 기본 생성자가 근본적인 해결책같지는 않았다.   
+   다행히 [나와 같은 고민을 한 사람](https://kong-dev.tistory.com/236?category=1072302)이 있었다.   
+   json-object 변환은 jackson 라이브러리를 활용하는데, 클래스의 필드가 1개 일 때는 jackson 라이브러리가 넘어온 데이터를 임의 문자열로 판단해야 할 지 필드가 1개인 객체로 봐야할 지 모호해서 판단을 못한다고 한다.
+  
+   - 문자열 1개인 경우에는 해당 문자열을 적절히 커스텀된 방식으로 파싱할 수 있고 이 때는 `delegating` 방식을 사용한다. (임의 문자열로 판단)   
+   - 객체인 경우에는 `properties`방식을 적용하여 json 형식 객체로 인식하여 자바 객체로 만든다. 원래는 기본적으로 이 방식을 사용한다.
+   
+   따라서 json 형식 객체로 인식시키기 위해 `properties` 방식을 적용하라고 명시적으로 알려주면 문제를 해결 할 수 있다.   
+   이는 생성자 위에 `@JsonCreator` 어노테이션을 달아주면 된다.   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/f9bd9a32-bfcd-487b-8907-4fb522ec75f0)
+
+2. GlobalExceptionHandler를 이용하여 커스텀으로 생성한 에러를 `@ExceptionHandler(BadRequestException.class)` 어노테이션으로 잡을 수 있었다.   
+   다만 매개변수에 넘기는 RequestBody의 `@Valid` 어노테이션을 통한 Validation 체크시 발생한 에러는 `MethodArgumentNotValid`가 발생하는데, 이 에러는 `ResponseEntityExceptionHandler` 클래스를 상속한 뒤 `handleMethodArgumentNotValid` 메서드를 오버라이딩하여 처리할 수 있다.   
+   ```java
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            final MethodArgumentNotValidException ex,
+            final HttpHeaders headers,
+            final HttpStatusCode status,
+            final WebRequest request) {
+
+        String errMsg = Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage();
+        return ResponseEntity.badRequest()
+                .body(new ExceptionResponse(INVALID_REQUEST.getCode(), errMsg));
+    }
+   ```

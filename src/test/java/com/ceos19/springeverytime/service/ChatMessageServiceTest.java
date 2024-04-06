@@ -1,10 +1,11 @@
 package com.ceos19.springeverytime.service;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.ChatMessage;
-import com.ceos19.springeverytime.domain.ChatRoom;
-import com.ceos19.springeverytime.domain.User;
-import com.ceos19.springeverytime.repository.ChatMessageRepository;
+import com.ceos19.springeverytime.domain.chatmessage.domain.ChatMessage;
+import com.ceos19.springeverytime.domain.chatmessage.service.ChatMessageService;
+import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.chatmessage.repository.ChatMessageRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;

@@ -1,32 +1,37 @@
 package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.Category;
-import com.ceos19.springeverytime.domain.Comment;
-import com.ceos19.springeverytime.domain.Post;
-import com.ceos19.springeverytime.domain.User;
-import jakarta.persistence.EntityManager;
+import com.ceos19.springeverytime.domain.category.domain.Category;
+import com.ceos19.springeverytime.domain.comment.repository.CommentRepository;
+import com.ceos19.springeverytime.domain.comment.domain.Comment;
+import com.ceos19.springeverytime.domain.post.domain.Post;
+import com.ceos19.springeverytime.domain.category.repository.CategoryRepository;
+import com.ceos19.springeverytime.domain.post.dto.request.PostUpdateRequest;
+import com.ceos19.springeverytime.domain.post.repository.PostRepository;
+import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
 @Transactional
 public class PostRepositoryTests {
-    @Autowired PostRepository postRepository;
-    @Autowired UserRepository userRepository;
-    @Autowired CommentRepository commentRepository;
-    @Autowired CategoryRepository categoryRepository;
+    @Autowired
+    PostRepository postRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    CommentRepository commentRepository;
+    @Autowired
+    CategoryRepository categoryRepository;
 
     User user;
     Category category;
@@ -54,10 +59,12 @@ public class PostRepositoryTests {
     public void 게시글_수정_테스트() throws Exception {
         //given
         Post post1 = new Post("첫번째 글", "첫번째 글입니다.", true, user, category);
+        PostUpdateRequest request = PostUpdateRequest
+                .of("첫번째 글 수정", "첫번째 글 수정입니다.", true);
         postRepository.save(post1);
 
         //when
-        post1.modify("첫번째 글 수정", "첫번째 글 수정입니다.");
+        post1.update(request);
 
         //then
         Post testPost = postRepository.findById(post1.getPostId()).get();

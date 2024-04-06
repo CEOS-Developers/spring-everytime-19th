@@ -1,8 +1,12 @@
 package com.ceos19.springeverytime.repository;
 
 import com.ceos19.springeverytime.common.EntityGenerator;
-import com.ceos19.springeverytime.domain.ChatRoom;
-import com.ceos19.springeverytime.domain.User;
+import com.ceos19.springeverytime.domain.chatmessage.domain.ChatMessage;
+import com.ceos19.springeverytime.domain.chatmessage.repository.ChatMessageRepository;
+import com.ceos19.springeverytime.domain.chatroom.domain.ChatRoom;
+import com.ceos19.springeverytime.domain.chatroom.repository.ChatRoomRepository;
+import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ChatRoomRepositoryTest {
     @Autowired EntityManager em;
-    @Autowired ChatRoomRepository chatRoomRepository;
-    @Autowired ChatMessageRepository chatMessageRepository;
-    @Autowired UserRepository userRepository;
+    @Autowired
+    ChatRoomRepository chatRoomRepository;
+    @Autowired
+    ChatMessageRepository chatMessageRepository;
+    @Autowired
+    UserRepository userRepository;
 
     User user1, user2;
 
@@ -60,8 +67,8 @@ public class ChatRoomRepositoryTest {
     void 채팅방_삭제시_채팅_데이터_삭제_테스트() {
         // given
         ChatRoom chatRoom = chatRoomRepository.save(new ChatRoom(user1, user2));
-        chatRoom.send(user1, "hello");
-        chatRoom.send(user2, "hello!");
+        ChatMessage message = chatMessageRepository.save(new ChatMessage("hello", chatRoom, user1));
+        ChatMessage message2 = chatMessageRepository.save(new ChatMessage("hello!", chatRoom, user2));
 
         System.out.println("--------------------");
         System.out.println("create Chat Message Data");
@@ -71,10 +78,13 @@ public class ChatRoomRepositoryTest {
         em.clear();
 
         // when
+        ChatRoom chatRoom2 = chatRoomRepository.findById(chatRoom.getRoomId()).get();
         System.out.println("--------------------");
         System.out.println("Delete Chat Message Data");
         System.out.println("--------------------");
-        chatRoomRepository.delete(chatRoom);
+        chatRoomRepository.delete(chatRoom2);
+        em.flush();
+        em.clear();
 
         // then
         Assertions.assertThat(chatRoomRepository.findChatRoomByUser1AndUser2(user1, user2).isEmpty()).isTrue();
