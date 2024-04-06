@@ -2,9 +2,12 @@ package com.ceos19.everyTime.post.dto.response;
 
 import com.ceos19.everyTime.post.domain.Post;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostShortResponseDto {
 
     private Long postId;
@@ -16,14 +19,9 @@ public class PostShortResponseDto {
     private LocalDateTime createdAt;
 
 
-    public PostShortResponseDto(Post post,String writer){
-        this.postId = post.getId();
-        this.title = post.getTitle();
-        this.contents = post.getContents();
-        this.replyCount = post.getReplyCount();
-        this.likeCount = post.getLikeCount();
-        this.writer = writer;
-        this.createdAt = post.getCreatedAt();
+    public static PostShortResponseDto of(Post post,String writer){
+        return new PostShortResponseDto(post.getId(),post.getTitle(),post.getContents(),post.getReplyCount(),post.getLikeCount(),
+            writer,post.getCreatedAt());
     }
 
 }

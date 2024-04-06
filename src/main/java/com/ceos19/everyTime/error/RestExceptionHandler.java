@@ -1,5 +1,6 @@
 package com.ceos19.everyTime.error;
 
+import com.ceos19.everyTime.common.ApiBaseResponse;
 import com.ceos19.everyTime.error.exception.BadRequestException;
 import com.ceos19.everyTime.error.exception.DuplicateException;
 import com.ceos19.everyTime.error.exception.ForbiddenException;
@@ -13,7 +14,9 @@ import java.io.StringWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -24,94 +27,108 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class RestExceptionHandler {
 
     // Custom Bad Request Error
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BadRequestException.class)
-    protected ErrorResponse<String> handleBadRequestException(BadRequestException exception,
+    protected ResponseEntity<ApiBaseResponse<?>> handleBadRequestException(BadRequestException exception,
         HttpServletRequest request) {
         logInfo(request, exception.getMessage());
-        return ErrorResponse.error(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiBaseResponse.createError(
+            exception.getMessage()));
     }
 
 
 
     // Custom Unauthorized Error
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+
     @ExceptionHandler(UnauthorizedException.class)
-    protected ErrorResponse<String> handleUnauthorizedException(UnauthorizedException exception,
+    protected ResponseEntity<ApiBaseResponse<?>> handleUnauthorizedException(UnauthorizedException exception,
         HttpServletRequest request) {
         logInfo(request, exception.getMessage());
-        return ErrorResponse.error(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiBaseResponse.createError(
+            exception.getMessage()));
     }
 
     // Custom Internal Server Error
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+
     @ExceptionHandler(InternalServerErrorException.class)
-    protected ErrorResponse<String> handleInternalServerErrorException(
+    protected ResponseEntity<ApiBaseResponse<?>> handleInternalServerErrorException(
         InternalServerErrorException exception,
         HttpServletRequest request) {
         logInfo(request, exception.getMessage());
-        return ErrorResponse.error(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiBaseResponse.createError(
+            exception.getMessage()));
     }
 
     // @RequestBody valid 에러
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ErrorResponse<String> handleMethodArgNotValidException(
+    protected ApiBaseResponse<?> handleMethodArgNotValidException(
         MethodArgumentNotValidException exception,
         HttpServletRequest request) {
-        String message = exception.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        String message = exception.getBindingResult().getFieldError().getDefaultMessage();
+
+        StringBuilder builder = new StringBuilder();
+        for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
+            builder.append("[");
+            builder.append(fieldError.getField());
+            builder.append("](은)는 ");
+            builder.append(fieldError.getDefaultMessage());
+            builder.append(" 입력된 값: [");
+            builder.append(fieldError.getRejectedValue());
+            builder.append("]");
+        }
+
         logInfo(request, message);
-        return ErrorResponse.error(exception.getMessage());
+        return ApiBaseResponse.createError(builder.toString());
     }
 
     // @ModelAttribute valid 에러
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BindException.class)
-    protected ErrorResponse<String> handleMethodArgNotValidException(BindException exception,
+    protected ApiBaseResponse<?> handleMethodArgNotValidException(BindException exception,
         HttpServletRequest request) {
         String message = exception.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         logInfo(request, message);
-        return ErrorResponse.error(exception.getMessage());
+        return ApiBaseResponse.createError(exception.getMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
-    public ErrorResponse<String> handleNotFoundException(NotFoundException exception,
+    public ApiBaseResponse<?> handleNotFoundException(NotFoundException exception,
         HttpServletRequest request) {
         logInfo(request, exception.getMessage());
-        return ErrorResponse.error(exception.getMessage());
+        return ApiBaseResponse.createError(exception.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DuplicateException.class)
-    public ErrorResponse<String> handleDuplicationException(DuplicateException exception,
+    public ApiBaseResponse<?> handleDuplicationException(DuplicateException exception,
         HttpServletRequest request) {
         logInfo(request, exception.getMessage());
-        return ErrorResponse.error(exception.getMessage());
+        return ApiBaseResponse.createError(exception.getMessage());
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(ForbiddenException.class)
-    public ErrorResponse<String> handlerForbiddenException(ForbiddenException exception,
+    public ApiBaseResponse<?> handlerForbiddenException(ForbiddenException exception,
         HttpServletRequest request) {
         logInfo(request, exception.getMessage());
-        return ErrorResponse.error(exception.getMessage());
+        return ApiBaseResponse.createError(exception.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoSuchElementException.class)
-    public ErrorResponse<String> handlerNoSuchElementException(ForbiddenException exception,
+    public ApiBaseResponse<?> handlerNoSuchElementException(ForbiddenException exception,
         HttpServletRequest request) {
         logInfo(request, exception.getMessage());
-        return ErrorResponse.error(exception.getMessage());
+        return ApiBaseResponse.createError(exception.getMessage());
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(InterruptedException.class)
-    public ErrorResponse<String> handlerNoSuchElementException(InterruptedException exception,
+    public ApiBaseResponse<?> handlerNoSuchElementException(InterruptedException exception,
         HttpServletRequest request) {
         logInfo(request, exception.getMessage());
-        return ErrorResponse.error(exception.getMessage());
+        return ApiBaseResponse.createError(exception.getMessage());
     }
 
     private void logInfo(HttpServletRequest request, String message) {

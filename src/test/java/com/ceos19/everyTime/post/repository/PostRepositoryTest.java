@@ -93,7 +93,7 @@ public class PostRepositoryTest {
     }
 
     private Community createTestCommunity(Member member){
-          return Community.builder().member(member).name("자유게시판").build();
+          return Community.of(member,"자유게시판");
     }
 
     private Post createTestPost(int i){
@@ -233,7 +233,7 @@ public class PostRepositoryTest {
         //given
         Member member1 =Member.builder().name("이진우").nickName("dionisos198").password("harurka198").loginId("ddd").build();
         memberRepository.save(member1);
-        Community community = Community.builder().name("자유게시판").member(member1).build();
+        Community community = Community.of(member1,"자유게시판");
 
         communityRepository.save(community);
 

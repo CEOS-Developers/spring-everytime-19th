@@ -1,23 +1,19 @@
 package com.ceos19.everyTime.post.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.ceos19.everyTime.community.domain.Community;
 import com.ceos19.everyTime.member.domain.Member;
 import com.ceos19.everyTime.post.domain.Post;
 import com.ceos19.everyTime.post.domain.Reply;
-import com.ceos19.everyTime.post.dto.request.PostSaveDto;
-import com.ceos19.everyTime.post.dto.request.ReplyCommentSaveDto;
+import com.ceos19.everyTime.post.dto.request.ReplyCommentSaveRequestDto;
 import com.ceos19.everyTime.post.repository.PostRepository;
 import com.ceos19.everyTime.post.repository.ReplyRepository;
-import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.times;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
@@ -47,7 +43,7 @@ class ReplyServiceTest {
         Member member1 = Member.builder().name("일진우").nickName("dionisos1981").loginId("id1").password("pw1").build();
         Member member2 = Member.builder().name("이진우").nickName("dionisos1982").loginId("id2").password("pw2").build();
         Member member3 = Member.builder().name("삼진우").nickName("dionisos1983").loginId("id3").password("pw3").build();
-        Community community = Community.builder().name("자유게시판").member(member1).build();
+        Community community = Community.of(member1,"자유게시판");
 
         Post post = Post.builder().member(member1).community(community).isHideNickName(true).isQuestion(false).title("테스트 title").contents("테스트 컨텐츠").build();
         Reply parentReply = Reply.builder().parent(null).isHideNickName(true).writer("익명1").post(post).contents("낭낭").member(member2).build();
@@ -58,7 +54,7 @@ class ReplyServiceTest {
         ReflectionTestUtils.setField(member1,"id",1L);
         ReflectionTestUtils.setField(member3,"id",3L);
 
-        ReplyCommentSaveDto replyCommentSaveDto = ReplyCommentSaveDto.builder()
+        ReplyCommentSaveRequestDto replyCommentSaveRequestDto = ReplyCommentSaveRequestDto.builder()
                 .comment("댓글 두번째")
                     .hideNickName(true)
                         .parentId(1L)
@@ -74,7 +70,7 @@ class ReplyServiceTest {
 
 
         //when
-        Reply savedReply1 = replyService.saveTestComment(1L,replyCommentSaveDto,member3);
+        Reply savedReply1 = replyService.saveTestComment(1L, replyCommentSaveRequestDto,member3);
 
 
         //then

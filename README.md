@@ -767,15 +767,15 @@ public PostResponseDto showDetailsPost(Long postId){
         Post post = findPost(postId);
         List<Reply> parentReply = replyRepository.findParentReplyByPostId(postId);
 
-        List<ReplyDto> replyDtoList = new ArrayList<>();
+        List<ReplyDto> replyResponseDtoList = new ArrayList<>();
 
 
         for(Reply parent: parentReply){
-            replyDtoList.add(new ReplyDto(parent,makeNickNameByReply(parent)));
+            replyResponseDtoList.add(new ReplyDto(parent,makeNickNameByReply(parent)));
             
             List<Reply> childList = replyRepository.findChildByParentId(parent.getId());
             childList.stream().forEach(r->{
-                replyDtoList.add(new ReplyDto(r,makeNickNameByReply(r)));
+                replyResponseDtoList.add(new ReplyDto(r,makeNickNameByReply(r)));
             });
 
         }
@@ -784,7 +784,7 @@ public PostResponseDto showDetailsPost(Long postId){
             return postImage.getAccessUrl();
         }).collect(Collectors.toList());
 
-        return new PostResponseDto(post,makeNickNameByPost(post),accessUrlList,replyDtoList);
+        return new PostResponseDto(post,makeNickNameByPost(post),accessUrlList,replyResponseDtoList);
     }
 ```
 
@@ -1057,7 +1057,7 @@ select
 ```java
 
 @Transactional
-public void savePost(PostSaveDto postSaveDto, Long communityId, Member currentMember){
+public void savePost(PostSaveDto postSaveRequestDto, Long communityId, Member currentMember){
         Community community = communityRepository.findById(communityId).orElseThrow(()->new NotFoundException(
         ErrorCode.MESSAGE_NOT_FOUND));
 
@@ -1065,15 +1065,15 @@ public void savePost(PostSaveDto postSaveDto, Long communityId, Member currentMe
         Post post = Post.builder()
         .member(currentMember)
         .community(community)
-        .title(postSaveDto.getTitle())
-        .contents(postSaveDto.getContents())
-        .isQuestion(postSaveDto.isQuestion())
-        .isHideNickName(postSaveDto.isHideNickName())
+        .title(postSaveRequestDto.getTitle())
+        .contents(postSaveRequestDto.getContents())
+        .isQuestion(postSaveRequestDto.isQuestion())
+        .isHideNickName(postSaveRequestDto.isHideNickName())
         .build();
 
 
         //post 사진 저장.
-        postSaveDto.getMultipartFileList().forEach(multipartFile -> {
+        postSaveRequestDto.getMultipartFileList().forEach(multipartFile -> {
         String accessUrl = postImageService.saveImage(multipartFile,POST_IMAGE,
         multipartFile.getOriginalFilename());
 
@@ -1092,7 +1092,7 @@ Service 에서 post 를 저장할 때 위와 같이 void 형을 선언하여서 
 
 ```java
     //when
-        Post findPost = postService.savePost(postSaveDto,1L,member);
+        Post findPost = postService.savePost(postSaveRequestDto,1L,member);
 
         //then
         Assertions.assertThat(findPost.getContents()).isEqualTo("사실 안갔다옴 ㅋ");
@@ -1109,7 +1109,7 @@ Service 에서 post 를 저장할 때 위와 같이 void 형을 선언하여서 
 
 ```java
 @Transactional
-    public void updatePost(PostEditDto postEditDto,Long postId,Member currentMember){
+    public void updatePost(PostEditDto postEditRequestDto,Long postId,Member currentMember){
         Post post=findPost(postId);
 
         //질문글일 경우 수정 불가 
@@ -1123,8 +1123,8 @@ Service 에서 post 를 저장할 때 위와 같이 void 형을 선언하여서 
         }
 
         //post에 대해 title,content,질문글 여부, 익명 여부를 수정. 
-        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditDto.getTitle(), postEditDto.getContents(),
-             postEditDto.isQuestion(),postEditDto.isHideNickName());
+        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditRequestDto.getTitle(), postEditRequestDto.getContents(),
+             postEditRequestDto.isQuestion(),postEditRequestDto.isHideNickName());
 ```
 
 ```post.change...``` 로 모든 것을 수정했다.
@@ -1177,16 +1177,16 @@ public class PostEditor {
 ```java
   //post에 대해 title,content,질문글 여부, 익명 여부를 수정.
 /*
-        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditDto.getTitle(), postEditDto.getContents(),
-             postEditDto.isQuestion(),postEditDto.isHideNickName());
+        post.changeTitleAndContentAndIsQuestionAndIsHideNickName(postEditRequestDto.getTitle(), postEditRequestDto.getContents(),
+             postEditRequestDto.isQuestion(),postEditRequestDto.isHideNickName());
         */
          PostEditor.PostEditorBuilder editorBuilder = post.toEditor();
 
 
-                 PostEditor postEditor = editorBuilder.title(postEditDto.getTitle())
-                 .isQuestion(postEditDto.isQuestion())
-                 .hideNickName(postEditDto.isHideNickName())
-                 .content(postEditDto.getContents())
+                 PostEditor postEditor = editorBuilder.title(postEditRequestDto.getTitle())
+                 .isQuestion(postEditRequestDto.isQuestion())
+                 .hideNickName(postEditRequestDto.isHideNickName())
+                 .content(postEditRequestDto.getContents())
                  .build();
 
                  post.edit(postEditor);
@@ -1273,3 +1273,303 @@ private String makeNickNameByReply(Reply reply){
 항상 NPE 방지를 위해 null 인지 여부를 체크해야 한다.
 
 실제로 이렇게 하는 것이 맞는 방법이 맞는지 확신이 없다. 
+
+---
+
+3주차 Read ME 
+
+# 알아본 이유
+
+새로 프로젝트를 진행하거나 , 프로젝트를 세팅해야 할 날이 오면 항상 이전에 만든 공통 응답 객체를 계속 복사 붙여 넣기 해가면서 별다른 생각 없이 API 의 응답 타입을 넘겨 주었었습니다.
+하지만 종종 ResponseEntity 를 사용하는 코드를 볼 때면 공통 응답 객체와 ResponseEntity 를 사용하는 것 중 무엇이 좋은지 의문이 들었는데 이번에 한 번 정리를 해야 할 것 같습니다.
+
+# ResponseEntity
+
+## ResponseEntity 사용방식
+먼저 아래와 같이 사용이 가능합니다!.
+
+```java
+@GetMapping("/{postId}")
+    @Operation(summary = "게시글 단건 조회", description = "게시판에 게시글을 단건 조회합니다. ")
+    @Parameters({
+        @Parameter(name = "postId",description = "단건 조회할 게시글의 id를 입력해주세요", in = ParameterIn.PATH ,required = true)
+    })
+    public ResponseEntity<PostResponseDto> showPost(@PathVariable("postId") Long postId){
+        return ResponseEntity.ok(postService.showDetailsPost(postId));
+    }
+ ```
+
+DTO 를 ResponseEntity 에 한번 감싸고 그대로 컨트롤러에서 반환합니다.
+
+
+그럼 결과적으로 아래와 같이
+
+![](https://velog.velcdn.com/images/dionisos198/post/ee826dff-81af-4028-8e2c-2865922934d0/image.png)
+
+
+JSON 데이터를 반환할 수 있습니다.
+
+
+## ResponseEntity 장점
+
+아래와 같이
+
+```java
+public ResponseEntity<PostResponseDto> showPost(@PathVariable("postId") Long postId){
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.showDetailsPost(postId));
+       // return ResponseEntity.ok(postService.showDetailsPost(postId));
+    }
+```
+
+
+정교하게 ```HttpStatus``` 를 조절하여
+
+![](https://velog.velcdn.com/images/dionisos198/post/af9360bc-cba3-485b-b98a-226597e65b25/image.png)
+
+그 값을 실제 ```HttpStatus``` 에 반영이 가능합니다.
+
+## ResponseEntity 단점
+
+성공시와 실패 했을 때의 응답 형식이 달라질 수 있습니다.
+
+예시를 보면 성공했을 때의 응답 데이터는
+
+![](https://velog.velcdn.com/images/dionisos198/post/02062d34-f624-4d8e-8c60-2237ae03344a/image.png)
+
+와 같이 딱 DTO 의 내용이 들어가 있는데
+
+실패했을 때의 응답 데이터는
+
+![](https://velog.velcdn.com/images/dionisos198/post/f4413d05-8a76-431f-89fd-cd2f27db9de1/image.png)
+
+그 형식이 성공했을 때의 다르다는 것을 볼 수 있습니다.
+
+이렇게 응답 형식이 달라진다면
+
+**해당응답을 전달받는 주로 프론트 개발자가 사용하기 어려운 데이터**가 될 수 있고,
+
+**성공했을 때와 실패했을 떄의 응답 형식을 항상 조작하기 쉽도록 ```JSON``` 데이터를 일관되게 내려 주는 것이 좋다**고 합니다.
+
+
+이에 대한 단점을 이야기 하는 블로그 :https://velog.io/@wisdom08/%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8-%EA%B3%B5%ED%86%B5-%EC%9D%91%EB%8B%B5-API-%EA%B0%9C%EB%B0%9C-%EA%B3%BC%EC%A0%95,
+
+
+# 공통 응답 객체
+
+공통 응답 객체는 아래와 같은 ```Error``` 상황과 ```Success``` 상황의 공통 클래스를 만들어
+
+```Success``` 상황과 ```Error``` 상황에서 공통된 응답 형식을 내려줄 수 있습니다.
+### 공통 객체
+
+```java
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ApiResponse<T> {
+    private static final String SUCCESS_STATUS = "success";
+    private static final String FAIL_STATUS = "fail";
+    private static final String ERROR_STATUS = "error";
+
+
+
+    private String status;
+    private String message;
+    private T data;
+
+    public static <T> ApiResponse<T> createSuccess(T data) {
+        return new ApiResponse<>(SUCCESS_STATUS, data, null);
+    }
+
+    public static ApiResponse<?> createSuccessWithNoContent() {
+        return new ApiResponse<>(SUCCESS_STATUS, null, null);
+    }
+
+
+
+    // 예외 발생으로 API 호출 실패시 반환
+    public static ApiResponse<?> createError(String message) {
+        return new ApiResponse<>(ERROR_STATUS, null, message);
+    }
+
+    private ApiResponse(String status, T data, String message) {
+        this.status = status;
+        this.data = data;
+        this.message = message;
+    }
+
+
+}
+```
+참고:https://velog.io/@qotndus43/%EC%8A%A4%ED%94%84%EB%A7%81-API-%EA%B3%B5%ED%86%B5-%EC%9D%91%EB%8B%B5-%ED%8F%AC%EB%A7%B7-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0
+
+### 성공시 사용
+
+```java
+@GetMapping("/two/{postId}")
+    @Operation(summary = "게시글 단건 조회", description = "게시판에 게시글을 단건 조회합니다. ")
+    @Parameters({
+        @Parameter(name = "postId",description = "단건 조회할 게시글의 id를 입력해주세요", in = ParameterIn.PATH ,required = true)
+    })
+    public ApiResponse<PostResponseDto> showPost2(@PathVariable("postId") Long postId){
+        return ApiResponse.createSuccess(postService.showDetailsPost(postId));
+    }
+```
+
+### 실패시 사용
+```java
+@ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NotFoundException.class)
+    public ApiResponse<?> handleNotFoundException(NotFoundException exception,
+        HttpServletRequest request) {
+        logInfo(request, exception.getMessage());
+        return ApiResponse.createError(exception.getMessage());
+    }
+```
+
+## 공통 응답 객체 장점
+
+### 성공시
+
+![](https://velog.velcdn.com/images/dionisos198/post/9c22335e-0786-4c22-ad59-593da29b5cfc/image.png)
+
+
+### 실패시
+
+![](https://velog.velcdn.com/images/dionisos198/post/dce84901-b0dd-4638-ba0b-2bbc0c83bf6b/image.png)
+
+
+위와 같이  오류가 발생했을 때와 오류가 나지 않고 정상적으로 반환되었을 때의 상황에 대해
+공통 클래스로 만든 ```ApiResponse``` 의 필드를 공통적으로 사용,
+
+
+조금 더 일관적인 데이터를 넘겨 줄 수 있습니다.
+
+물론 ```ApiResponse``` 에서 공통적으로 필요한 필드는 프론트와 백앤드의 협업에 따라 달라질 수 있고요!
+
+
+
+## 공통 응답 객체 단점
+
+프론트의 ```Request```가 성공적으로 수행되었을 때
+정교한 ```HttpStatus```를 설정하기 까다로울 수 있을 수 있다는 단점이 존재하는 것 같습니다.
+
+상태 코드도 역시 에러일때와 정상적인 상황일 때 모두 상태코드를 반환하기에 이 점을 프론트와 협의하여  공통 응답 객체에 ```httpStatus``` 라는 필드를 추가해서 ```JSON``` 데이터에 상태 코드를 추가하는 상황을 가정해보겠습니다.
+
+
+아래와 같이 공통 객체를 수정하고
+
+```java
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ApiResponse<T> {
+    private static final String SUCCESS_STATUS = "success";
+    private static final String FAIL_STATUS = "fail";
+    private static final String ERROR_STATUS = "error";
+
+
+
+
+    private String status;
+    private String message;
+    private HttpStatus httpStatus;
+    private T data;
+
+    public static <T> ApiResponse<T> createSuccess(T data,HttpStatus httpStatus) {
+        return new ApiResponse<>(SUCCESS_STATUS, data, null,httpStatus);
+    }
+
+
+    private ApiResponse(String status, T data, String message,HttpStatus httpStatus) {
+        this.status = status;
+        this.data = data;
+        this.message = message;
+        this.httpStatus = httpStatus;
+    }
+
+}
+
+```
+
+
+컨트롤러에서
+
+
+```java
+@GetMapping("/two/{postId}")
+    @Operation(summary = "게시글 단건 조회", description = "게시판에 게시글을 단건 조회합니다. ")
+    @Parameters({
+        @Parameter(name = "postId",description = "단건 조회할 게시글의 id를 입력해주세요", in = ParameterIn.PATH ,required = true)
+    })
+    public ApiResponse<PostResponseDto> showPost2(@PathVariable("postId") Long postId){
+        return ApiResponse.createSuccess(postService.showDetailsPost(postId),HttpStatus.CREATED);
+    }
+```
+
+이렇게 수정합니다.
+
+그 결과는
+![](https://velog.velcdn.com/images/dionisos198/post/de6be52c-cb6f-44aa-b137-4fc35efe9db4/image.png)
+
+
+와 같은데 이 경우 문제점은  우리가 ```Body``` 에 담아준 상태코드와 실제 ```HttpStatus``` 의 상태 코드가 다르다는 문제점이 존재할 수 있습니다.
+
+
+
+또한 정교한 응답 코드를 위해 ```ResponseEntity``` 대신 ```ResponseStatus``` 를 사용하면 ```ResponseEntity``` 만의 정교한 코드 설정 및 헤더 설정의 장점이 사라질 수 있는 여지가 있다고 합니다.
+
+
+## 단점에 대한 해결책
+
+![](https://velog.velcdn.com/images/dionisos198/post/88604769-eede-4a79-81d5-715373106179/image.png)
+
+
+먼저 위 글에서 나온 것처럼 오직 응답 바디에 있는 값만을 사용하기로 프론트와 규약을 정할 수도
+
+
+```java
+@GetMapping("/three/{postId}")
+    @Operation(summary = "게시글 단건 조회", description = "게시판에 게시글을 단건 조회합니다. ")
+    @Parameters({
+        @Parameter(name = "postId",description = "단건 조회할 게시글의 id를 입력해주세요", in = ParameterIn.PATH ,required = true)
+    })
+    public ResponseEntity<ApiResponse<PostResponseDto>> showPost3(@PathVariable("postId") Long postId){
+        HttpStatus httpStatus = HttpStatus.CREATED;
+        return ResponseEntity.status(httpStatus).body(ApiResponse.createSuccess(postService.showDetailsPost(postId),httpStatus));
+    }
+```
+
+위 같이 실제 ```HttpStatus``` 와 Body 에 들어갈 httpStatus 를 맞춰 줄 수도 있어 보입니다.
+
+![](https://velog.velcdn.com/images/dionisos198/post/1ae934c8-0a5e-4372-97b5-0bc51491b088/image.png)
+
+
+하지만 위 경우 역시
+
+Body에 상태 코드를 넣던 넣지 않던 간에 ```ResponseEntity``` 안에 ```ApiResponse```, ```ApiResponse``` 안에 ```Dto``` 를 넣어 중첩에 중첩을 해야 하는 단점이 존재하고,
+
+
+Body에 상태 코드를 넣을 경우 실제 상태 코드와 Body의 상태코드를 동기화시켜주어야 하는 작업 또한 존재할 수 있습니다.
+
+# 결론
+
+
+여러 블로그에서 내린 결론과 마찬가지로 어느 방법을 사용하던 정답은 없어 보입니다.
+
+또한 프론트을 잘 몰라 결론을 내리기 힘든 측면도 있습니다.
+
+다만 한동안 프로젝트를 세팅할 때
+
+공통 응답 객체를 사용하면 구조적인 측면에서 통일성이 갖춰진다는 점으로 공통 응답 객체를 사용하면 더 좋을 것 같다는 생각이 들고,
+
+프론트에서 상태 코드를 JSON 데이터로 보냈을 때 편리한 점이 있다고 하면 그냥 컨트롤러에서 공통응답 객체를 리턴하고, 상태 코드를 ```Body``` 에 있는 값만 사용하게 하며 ,
+
+만약 상태 코드를 JSON 데이터로 보내지 않아도 될때는 컨트롤러에서 반환할 때 ResponseEntity 에 공통 응답 객체를 감싸서 보내는 식으로 할 것 같습니다!.
+
+
+# 참고
+
+Body 상태 코드 관련: https://www.inflearn.com/questions/1037608/apiresponse%EC%97%90-httpstatus%EB%A5%BC-%EC%84%A4%EC%A0%95%ED%95%98%EB%8A%94%EA%B2%83%EC%9D%98-%EC%9D%98%EB%AF%B8-%EA%B4%80%EB%A0%A8-%EC%A7%88%EB%AC%B8
+
+@ResponseStatus vs @ResponseEntity:
+https://joojimin.tistory.com/54
+
+중첩: https://velog.io/@kseysh/ResponseEntity-vs-ApiResponse

@@ -4,11 +4,12 @@ import com.ceos19.everyTime.post.domain.Post;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostResponseDto {
     private Long postId;
     private String title;
@@ -19,21 +20,10 @@ public class PostResponseDto {
     private Long memberId;
     private LocalDateTime createdAt;
     private List<String> accessUrlList = new ArrayList<>();
-    private List<ReplyDto> replyDtoList = new ArrayList<>();
+    private List<ReplyResponseDto> replyResponseDtoList = new ArrayList<>();
 
-
-
-
-    public PostResponseDto(Post post,String writer,List<String> accessUrlList,List<ReplyDto> replyDtoList){
-        this.postId = post.getId();
-        this.title = post.getTitle();
-        this.contents = post.getContents();
-        this.replyCount = post.getReplyCount();
-        this.likeCount = post.getLikeCount();
-        this.writer = writer;
-        this.createdAt = post.getCreatedAt();
-        this.replyDtoList = replyDtoList;
-        this.accessUrlList = accessUrlList;
-        this.memberId = post.getMember().getId();
+    public static PostResponseDto of(Post post,String writer,List<String> accessUrlList,List<ReplyResponseDto> replyResponseDtoList){
+        return new PostResponseDto(post.getId(),post.getTitle(),post.getContents(),post.getReplyCount(),post.getLikeCount(),
+            writer,post.getMember().getId(),post.getCreatedAt(),accessUrlList,replyResponseDtoList);
     }
 }
