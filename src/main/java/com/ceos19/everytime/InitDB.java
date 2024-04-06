@@ -45,7 +45,7 @@ public class InitDB {
 
         public void init() {
             // 학교 저장
-            School school = new School("홍익대학교");
+            School school = new School("슈퍼울트라대학교");
             schoolService.addSchool(school);
 
             // 게시판 저장
@@ -101,13 +101,13 @@ public class InitDB {
             Post post = new Post("새로운 포스팅", "ㅈㄱㄴ", false, false, board, user1);
             // Post에 사진 추가
             Attachment attachment1 = Attachment.builder()
-                    .originFileName("사진")
+                    .originFileName("사진1")
                     .storePath("/usr")
                     .attachmentType(AttachmentType.IMAGE)
                     .build();
             post.addAttachment(attachment1);
             Attachment attachment2 = Attachment.builder()
-                    .originFileName("사진")
+                    .originFileName("사진2")
                     .storePath("/usr")
                     .attachmentType(AttachmentType.IMAGE)
                     .build();
@@ -115,7 +115,6 @@ public class InitDB {
             postService.addPost(post);
 
             // Post에 좋아요 추가
-            postLikeService.addPostLike(post.getId(), user1.getId());
             postLikeService.addPostLike(post.getId(), user2.getId());
 
             Comment comment1 = new Comment("comment1", user2, post, null);

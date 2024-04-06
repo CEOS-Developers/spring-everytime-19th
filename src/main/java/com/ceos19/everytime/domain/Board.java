@@ -35,4 +35,11 @@ public class Board {
         this.name = name;
         this.school = school;
     }
+
+    /**
+     * 업데이트 로직
+     */
+    public void updateName(String name) {
+        this.name = name;
+    }
 }

@@ -1,7 +1,8 @@
 # 연관관계 매핑
 
 이번에 게시판 서비스를 만들면서 설계한 엔티티간의 연관관계 구조는 다음과 같다.
-![img_4.png](img_4.png)
+![img_4](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/87fd119c-859c-4c6f-9773-a4bf7e4891d3)
+
 
 # 개발 중 문제점 및 고민점
 
@@ -354,7 +355,7 @@ public class PostService {
 ~~~
 
 postService에는 deletePost()라는 제거 메서드가 존재한다. 게시물에는 연관된 유저, 댓글, 게시판, 첨부파일이 존재한다.
-![img_5.png](img_5.png)
+![img_5](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/87c84813-01ad-4384-b91e-5de9965f4a07)
 올바른 제거를 위해서 deletePost() 내부에는 먼저 해당 게시물의 외래키를 갖고있는 다른 엔티티들을 먼저 제거하였다.
 그리고 첨부파일(Attachement) 엔티티는 Post에 cascade 설정을 통해서 Post를 제거시 자동으로 같이 제거가 되도록 하였다.
 
@@ -485,7 +486,7 @@ hibernate에서는 @OneToMany 또는 @ManyToOne과 같은 연관 관계 매핑�
 
 # 4주차 CRUD API 설계하기
 
-## 파라미터 받기
+## Parameter 받기
 
 url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 적합한지 의문이 들어 알아보았다.  
 특히나 @RequestParam은 쿼리 스트링을 통해서, @RequestBody는 json, xml 데이터를 통해서 한번에 여러 값을 받을 수 있다는 공통점이 존재하여 더욱 헷갈렸었다.  
@@ -501,53 +502,53 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 그중 PK 정보로 조회하는 경우에는 @PathVariable을 여러개의 값을 통해서 검색하거나 필터링, 정렬 기능을 사용시에는 @RequestParam을 적용하였다.    
 그리고 POST, PUT 메서드를 사용할 만한 상황 ***(예: 수정)*** 에서는 @RequestBody를 통해서 Json 데이터를 받아 처리하는 방식으로 구현했다.
 
-## 컨트롤러 구현
+## Rest Api 구현
 
 ### 학교(SchoolController)
 
 - 등록
     1. 학교 등록(/schools) O
-    2. 게시판 등록(/schools/{sid}/boards)
-    3. 수업 등록(/schools/{sid}/courses)
+    2. 게시판 등록(/schools/{sid}/boards) O
+    3. 수업 등록(/schools/{sid}/courses) O
 - 조회
     - 단건 조회
-        1. PK (/schools/{sid}) x
-        2. 학교 명 (/schools?name={학교명}) x
+        1. PK (/schools/{sid}) O
+        2. 학교 명 (/schools?name={학교명}) O
     - 다중 조회
         1. 모든 학교 조회 (/schools) O
     - 학교에 속한 게시판 조회
-        1. 해당 학교에 있는 모든 게시판 조회(/schools/{sid}/boards)
-        2. 학교 FK + 게시판 명(/schools/{sid}/boards?name={게시판명})
+        1. 해당 학교에 있는 모든 게시판 조회(/schools/{sid}/boards) O
+        2. 학교 FK + 게시판 명(/schools/{sid}/boards?name={게시판명}) O
     - 학교에 속한 수업 조회
-        1. 해당 학교에 있는 모든 수업 조회 (/schools/{sid}/courses)
-        2. 학교 FK + 수업명 (/schools/{sid}/courses?name={수업명})
-        3. 학교 FK + 교수명 (/schools/{sid}/courses?professorName={교수명})
-        4. 학교 FK + 수업명 + 교수명 (/schools/{sid}/courses?name={수업명}&professorName={교수명})
+        1. 해당 학교에 있는 모든 수업 조회 (/schools/{sid}/courses) O
+        2. 학교 FK + 수업명 (/schools/{sid}/courses?name={수업명}) O
+        3. 학교 FK + 교수명 (/schools/{sid}/courses?professorName={교수명}) O
+        4. 학교 FK + 수업명 + 교수명 (/schools/{sid}/courses?name={수업명}&professorName={교수명}) O
 - 수정 (/schools/{sid}) O
     1. 학교명
 
 ### 게시판(BoardController)
 
 - 등록
-    1. 게시물 등록(POST /boards/{bid}/posts)
+    1. 게시물 등록(POST /boards/{bid}/posts) O
 - 조회
     - 단건 조회
-        1. PK (/boards/{bid})
+        1. PK (/boards/{bid}) O
     - 게시판에 속한 게시물 조회
-        1. 해당 게시판의 모든 게시물 조회  (/boards/{bid}/posts?limit={}&offset={})
-        2. 게시물 등록일자로 조회 (/boards/{bid}/posts?date={xxxx-xx-xx}&limit={}&offset={})
-        3. 게시물 명으로 조회 (/boards/{bid}/posts?name={게시물명})
-- 수정 (/boards/{bid})
+        1. 해당 게시판의 모든 게시물 조회  (/boards/{bid}/posts) O
+        2. 게시물 등록일자로 조회 (/boards/{bid}/posts?date={xxxx-xx-xx}) O
+        3. 게시물 명으로 조회 (/boards/{bid}/posts?title={게시물명}) O
+- 수정 (/boards/{bid}) O
     1. 게시판 이름
 
 ### 게시물(PostController)
 
 - 등록
-    1. 좋아요 등록 (/posts/{pid}/postLikes)
+    1. 좋아요 등록 (/posts/{pid}/postLikes) O
     2. 해당 게시물에 댓글 달기 (/posts/{pid}/comments)
 - 조회
     - 단건 조회
-        1. PK (/posts/{pid})
+        1. PK (/posts/{pid}) O
     - 게시물에 속한 댓글 조회
         1. 해당 게시물에 속한 모든 댓글 조회 (/post/{pid}/comments?limit={}&offset={})
     - 게시물에 속한 좋아요 조회
@@ -629,5 +630,140 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 
 - 제거 (/timeTables/{tid})
     1. 시간표의 수업 제거(/timeTables/{tid}/courses/{cid})
+## 컨트롤러 구현
+### 1) BaseResponse
+~~~java
+@GetMapping("/{sid}")
+public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long schoolId) {
+    try {
+        School school = schoolService.findSchoolById(schoolId);
+        ReadSchoolResponse readSchoolResponse = ReadSchoolResponse.from(school);
+        return new BaseResponse<>(HttpStatus.OK, null, readSchoolResponse, 1);
+    } catch (AppException e) {
+        return new BaseResponse<>(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+    }
+}
+~~~
+readSchool() 메서드는 "/api/schools/{sid}" url로 request가 들어온 경우 해당 sid(= PK)에 맞는 학교 정보를 찾아서 반환해주는 메서드이다.
+이때 반환형을 보면 BaseResponse<ReadSchoolResponse>인 것을 확인할 수 있는데, 모든 컨트롤러 메서드에 BaseResponse 메서드를 wrapping하여서 반환 데이터가 규격화되도록 구현했다.
+~~~java
+@Getter
+public class BaseResponse<T> {
+    private HttpStatus httpStatus;
+    private String message;
+    private T value;
+    private int count;
+
+    public BaseResponse(HttpStatus httpStatus, String message, T value, int count) {
+        this.httpStatus = httpStatus;
+        this.message = message;
+        this.value = value;
+        this.count = count;
+    }
+}
+~~~
+BaseResponse는 기본적으로 Http 상태, 상태 메시지, 반환값, 반환 값 개수를 response 반환시에 함께 반환하도록 구현된 wrapper 클래스이다.
+따라서 어떠한 데이터를 반환할 경우, 반환 데이터의 형태는 다음과 같다.
+~~~
+{
+  "httpStatus": "100 CONTINUE",
+  "message": "string",
+  "value": {},
+  "count": 0
+}
+~~~
+### 2) 정적 팩토리 메서드 적용
+그동안 Dto에 데이터를 넣을때마다 별도의 생성자를 통해서 Dto를 생성하는 방식으로 진행했다.  
+그러다 스터디를 통해서 정적팩토리 메서드를 통해서 데이터를 주입 받는 방식을 배우게 되어 적용해 보았다.
+~~~java
+@Data
+@AllArgsConstructor
+public class ReadSchoolResponse {
+    private Long id;
+    private String name;
+
+    // 정적 팩토리 메서드
+    public static ReadSchoolResponse from(School school) {
+        return new ReadSchoolResponse(school.getId(), school.getName());
+    }
+}
+~~~
+from() 정적 팩토리 메서드를 통해서 번거롭게 dto에 값을 하나하나 넣지 않고 엔티티를 넣는다면 자동으로 반환값이 들어가도록 구현할 수 있었다.  
+이를 통해서 훨씬 개발 생산성 뿐만이 아니라 반환값을 넣는 과정에서 발생할 수 있는 실수도 줄이는 장점을 볼 수 있었다.  
+정적 팩토리 메서드 패턴은 굉장히 좋은 방식이라고 생각했다!
+
+### 3) Global Exception
+알고 보니 운이 좋게도 과제가 나오기 전에 이미 Global Exception을 구현해서 사용하고 있었다.  
+나는 AppException이라는 별도의 예외 클래스를 생성하여 예외 발생시 상황에 맞는 HttpStatus와 메시지를 반환 할 수 있도록 구현하였다.
+~~~java
+@AllArgsConstructor
+@Getter
+public class AppException extends RuntimeException{  // global exception
+    private ErrorCode errorCode;
+    private String message;
+}
+
+@AllArgsConstructor
+@Getter
+public enum ErrorCode {
+    DATA_ALREADY_EXISTED(HttpStatus.CONFLICT, ""),
+    NO_DATA_EXISTED(HttpStatus.NOT_FOUND, ""),
+    NOT_NULL(HttpStatus.NO_CONTENT,""),
+
+    ID_DUPLICATED(HttpStatus.CONFLICT, ""),
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, ""),
+
+    NO_DATA_ALLOCATED(HttpStatus.FAILED_DEPENDENCY, ""),
+
+    KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, ""),
+    INVALID_VALUE_ASSIGNMENT(HttpStatus.BAD_REQUEST, ""),
+    INVALID_URI_ACCESS(HttpStatus.NOT_FOUND,"");
 
 
+    private final HttpStatus httpStatus;
+    private final String message;
+}
+~~~
+사용중에 잘못된 경우에 대한 예외처리를 하기 위해서 RunTimeException을 상속받도록 하였다.  
+AppException은 ErrorCode를 반환하도록 하였는데, ErrorCode는 HttpStatus와 message로 구성이되는 방식을 택했다.   
+하지만 상황에 따라서 별도의 메시지를 반환하도록 중간에 수정을 거쳐서 ErrorCode 내부의 메시지는
+따로 사용하지 않고 일단은 비워놓았다. 하지만 나중에 사용될 경우를 염두해서 제거를 하진 않았다.
+<br/>
+<br/>
+AppException의 사용 예시는 다음과 같다. 서비스 단에서 예외가 발생되도록 구현했다.
+~~~java
+public School findSchoolById(Long schoolId) {
+    return schoolRepository.findById(schoolId)
+            .orElseThrow(() -> {
+                log.error("에러 내용: 학교 조회 실패 " +
+                        "발생 원인: 존재하지 않는 PK 값으로 조회");
+                return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+            });
+}
+~~~
+만일 잘못된 PK로 조회를 하는 경우 ErrorCode중 NO_DATA_EXISTED라는 값과 "존재하지 않는 학교입니다"라는 메시지를 담은 예외가 발생한다.
+<br/>
+<br/>
+
+~~~java
+@GetMapping("/{sid}")
+public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long schoolId) {
+    try {
+        School school = schoolService.findSchoolById(schoolId);
+        ReadSchoolResponse readSchoolResponse = ReadSchoolResponse.from(school);
+        return new BaseResponse<>(HttpStatus.OK, null, readSchoolResponse, 1);
+    } catch (AppException e) {
+        return new BaseResponse<>(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);  // 여기서 예외 CATCH
+    }
+}
+~~~
+예외가 발생하는 경우, 컨트롤러에서 catch되어 BaseResponse에 해당 에러의 HttpStatus와 message가 담겨 반환된다.
+<br/>
+<br/>
+![img_6](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/23d53438-bcab-4a06-af2c-0634125623bd)  
+포스트 맨으로 테스트해본 결과 정상적으로 작동됨을 알 수 있었다.
+### 4) swagger 연동
+이번에 처음으로 swagger를 접하였는데 굉장히 유용하였다. api에 대한 데이터 구조를 직관적으로 볼 수 있다는 점에서 굉장히 앞으로도 애용할 것 같다!
+![img_7](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/99772109-cd3f-430b-8bb8-b3a69b895fdb)
+![img_8](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/95f71023-671e-41de-9456-33f642935b0b)
+json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 있어 굉장히 유용하였다!
