@@ -3,6 +3,9 @@ package com.ceos19.everytime.service;
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.PostLike;
+import com.ceos19.everytime.dto.LikeRequest;
+import com.ceos19.everytime.dto.LikeResponse;
+import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.MemberRepository;
 import com.ceos19.everytime.repository.PostLikeRepository;
 import com.ceos19.everytime.repository.PostRepository;
@@ -11,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import static com.ceos19.everytime.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,31 +26,35 @@ public class PostLikeService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
-    public void createPostLike(Long postId, Long memberId){
-        Optional<Post> post = postRepository.findById(postId);
-        Optional<Member> member = memberRepository.findById(memberId);
+    @Transactional
+    public LikeResponse likePost (Long postId, LikeRequest likeRequest){
 
-        if(post.isEmpty() || member.isEmpty()){
-            log.info("[Service][addPostLike] FAIL");
+        final Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+        final Member member = memberRepository.findById(likeRequest.getMemberId())
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+        if(postLikeRepository.existsByPostIdAndMemberId(post.getId(),member.getId())){
+            throw new CustomException(DATA_ALREADY_EXISTED);
         }
-        else{
-            PostLike postLike = new PostLike(post.get(), member.get());
-            post.get().addLike();
-            log.info("[Service][addPostLike] SUCCESS");
-            postLikeRepository.save(postLike);
-        }
+
+        post.addLike();
+        postLikeRepository.save(new PostLike(post,member));
+        return LikeResponse.of(post.getLikes(), true);
+
     }
 
-    public void deletePostLike(Long postId, Long memberId){
-        Optional<PostLike> postLike = postLikeRepository.findByPostIdAndMemberId(postId, memberId);
+    @Transactional
+    public LikeResponse cancelPostLike(Long postId, LikeRequest likeRequest){
+        final Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+        final PostLike postLike = postLikeRepository.findByPostIdAndMemberId(postId, likeRequest.getMemberId())
+                .orElseThrow(() -> new CustomException(POST_LIKE_NOT_FOUND));
 
-        if (postLike.isEmpty()) {
-            log.info("[Service][deletePostLike] FAIL");
-        }
-        else{
-            log.info("[Service][deletePostLike] SUCCESS");
-            postLikeRepository.deleteById(postLike.get().getId());
-        }
+        post.cancelLike();
+        postLikeRepository.delete(postLike);
+
+        return LikeResponse.of(post.getLikes(), false);
     }
 
 }

@@ -1,13 +1,14 @@
 package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.University;
+import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.UniversityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import static com.ceos19.everytime.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -18,43 +19,34 @@ public class UniversityService {
 
     private final UniversityRepository universityRepository;
 
-    public University create(String name){
+    @Transactional
+    public Long create(String name){
         if(!validateName(name)){
-            log.info("[Service][create] FAIL");
-            return null;
+            throw new CustomException(INVALID_PARAMETER);
         }
 
         University university = new University(name);
-        universityRepository.save(university);
-        log.info("[Service][create] SUCCESS");
-        return university;
+        return universityRepository.save(university)
+                .getId();
     }
 
+    @Transactional
     public void delete(Long universityId){
-        Optional<University> university = universityRepository.findById(universityId);
+        final University university = universityRepository.findById(universityId)
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
 
-        if(university.isEmpty()){
-            log.info("[Service][delete] FAIL");
-        }
-        else{
-            universityRepository.delete(university.get());
-            log.info("[Service][delete] SUCCESS");
-        }
+        universityRepository.delete(university);
     }
 
+    @Transactional
     public void updateName(Long universityId, String name){
-        Optional<University> university = universityRepository.findById(universityId);
+        final University university = universityRepository.findById(universityId)
+                .orElseThrow(() -> new CustomException(DATA_NOT_FOUND));
 
-        if(university.isEmpty() || !validateName(name)){
-            log.info("[Service][updateName] FAIL");
-        }
-        else{
-            university.get().changeName(name);
-            log.info("[Service][updateName] SUCCESS");
-        }
-
+        university.changeName(name);
     }
 
+    @Transactional
     private boolean validateName(String name){
         if(name.isEmpty() || name.length()> MAX_NAME_LENGTH)
             return false;

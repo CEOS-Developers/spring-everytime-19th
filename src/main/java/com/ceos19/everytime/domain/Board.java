@@ -1,5 +1,7 @@
 package com.ceos19.everytime.domain;
 
+import com.ceos19.everytime.exception.CustomException;
+import com.ceos19.everytime.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -48,29 +50,23 @@ public class Board extends BaseTimeEntity {
     }
 
     public void changeBoardName(String boardName) {
+        validateBoardName(boardName);
         this.boardName = boardName;
     }
 
     public void changeDescription(String description) {
+        validateDescription(description);
         this.description = description;
     }
 
-    private boolean validateBoardName(String boardName) {
+    private void validateBoardName(String boardName) {
         if (boardName.isEmpty() || boardName.length() > MAX_NAME_LENGTH)
-            return false;
-        return true;
+            throw new CustomException(ErrorCode.INVALID_PARAMETER);
     }
 
-    private boolean validateDescription(String description) {
+    private void validateDescription(String description) {
         if (description.isEmpty() || description.length() > MAX_DESCRIPTION_LENGTH)
-            return false;
-        return true;
-    }
-
-    private boolean validateBoard(String boardName, String description) {
-        if (!validateBoardName(boardName) || !validateDescription(description))
-            return false;
-        return true;
+            throw new CustomException(ErrorCode.INVALID_PARAMETER);
     }
 
 }

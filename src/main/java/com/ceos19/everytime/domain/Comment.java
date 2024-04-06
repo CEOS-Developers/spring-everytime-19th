@@ -64,7 +64,7 @@ public class Comment extends BaseTimeEntity{
         this.likes++;
     }
 
-    public void deleteLike(){
+    public void cancelLike(){
         if(this.likes > 0)
             this.likes--;
     }

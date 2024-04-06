@@ -1,13 +1,14 @@
 package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.Member;
+import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import static com.ceos19.everytime.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -17,70 +18,46 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public Member join(Member member) {
-        Optional<Member> byUserName = memberRepository.findByUsername(member.getUsername());
-        Optional<Member> byUserId = memberRepository.findByLoginId(member.getLoginId());
-
-        if (byUserName.isEmpty() && byUserId.isEmpty()) {
-            log.info("[Service][join] SUCCESS    username:{}", byUserName.get().getUsername());
-            return member;
-        }
-        else if(byUserName.isPresent()){
-            log.info("[Service][join] DUPLICATE USERNAME    username:{}", byUserName.get().getUsername());
-        }
-        else{
-            log.info("[Service][join] DUPLICATE USERID    LoginId:{}", byUserName.get().getLoginId());
+    @Transactional
+    public Long join(Member member) {
+        if((memberRepository.findByUsernameAndLoginId(member.getUsername(), member.getLoginId()).isPresent())){
+            throw new CustomException(DATA_ALREADY_EXISTED);
         }
 
-        return null;      // 중복으로 인해 회원가입 불가
+        return memberRepository.save(member)
+                .getId();
     }
 
-    public Member login(String loginId, String userPw){
-        Optional<Member> byLoginId = memberRepository.findByLoginId(loginId);
+    @Transactional
+    public void login(String loginId, String userPw){
 
-        if(byLoginId.isPresent()){
-            if(userPw.equals(byLoginId.get().getUserPw())){
-                log.info("[Service][login] SUCCESS    username:{}", byLoginId.get().getUsername());
-                return byLoginId.get();
-            }
+        if(!memberRepository.existsByLoginIdAndUserPw(loginId,userPw)){
+            throw new CustomException(MEMBER_NOT_FOUND);
         }
 
-        log.info("[Service][login] LOGIN Fail");
-        return null;
     }
 
-    public Member findByLoginId(String loginId) {
-        Optional<Member> byLoginId = memberRepository.findByLoginId(loginId);
+    @Transactional(readOnly = true)
+    public Long findByLoginId(String loginId) {
+        final Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
-        if (byLoginId.isEmpty()) {
-            log.info("[Service][findByLoginId] SUCCESS    username:{}", byLoginId.get().getUsername());
-            return byLoginId.get();
-        }
-
-        log.info("[Service][findByLoginId] FAIL    username:{}", byLoginId.get().getUsername());
-        return null;
+        return member.getId();
     }
 
+    @Transactional
     public void updateUsername(final Long memberId, final String userName) {
-        Optional<Member> byMemberId = memberRepository.findById(memberId);
-        if(byMemberId.isPresent()){
-            log.info("[Service][updateUsername] SUCCESS    username:{}   updated:{}", byMemberId.get().getUsername(), userName);
-            byMemberId.get().changeUsername(userName);
-        }
-        else{
-            log.info("[Service][updateUsername] FAIL");
-        }
+        final Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        member.changeUsername(userName);
     }
 
+    @Transactional
     public void deleteUser(final Long memberId) {
-        Optional<Member> byMemberId = memberRepository.findById(memberId);
+        final Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
-        if(byMemberId.isPresent()){
-            log.info("[Service][deleteUser] SUCCESS    username:{}", byMemberId.get().getUsername());
-            memberRepository.deleteById(memberId);
-        }
-
-        log.info("[Service][deleteUser] FAIL");
+        memberRepository.deleteById(memberId);
     }
 
 }

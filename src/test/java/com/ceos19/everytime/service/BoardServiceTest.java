@@ -3,9 +3,12 @@ package com.ceos19.everytime.service;
 import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.University;
+import com.ceos19.everytime.dto.CreateBoardRequest;
+import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.BoardRepository;
 import com.ceos19.everytime.repository.MemberRepository;
 import com.ceos19.everytime.repository.UniversityRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,26 +42,31 @@ public class BoardServiceTest {
     @Test
     void 게시판_생성(){
         //given
+        CreateBoardRequest createBoardRequest1 = new CreateBoardRequest("맛집 추천", "맛집 탐방하는 게시판", boardManager.getId(),university.getId());
+        CreateBoardRequest createBoardRequest2 = new CreateBoardRequest("강의 추천", "강의 추천하는 게시판", boardManager.getId(),university.getId());
 
         //when
-        board1 = boardService.create(boardManager.getId(),"맛집 추천", "맛집 탐방하는 게시판", university.getId());
-        board2 = boardService.create(boardManager.getId(),"강의 추천", "강의 추천하는 게시판", university.getId());
+        Long boardId1 = boardService.create(createBoardRequest1);
+        Long boardId2 = boardService.create(createBoardRequest2);
 
         //then
         assertEquals(2, boardRepository.count());
     }
 
-    @DisplayName("게시판이 올바르게 삭제된다")
+
+    @DisplayName("잘못된 게시판 아이디로 게시판 조회")
     @Test
-    void 게시판_삭제(){
+    void 게시판_조회() throws CustomException {
         //given
-        board1 = boardService.create(boardManager.getId(),"맛집 추천", "맛집 탐방하는 게시판", university.getId());
+        CreateBoardRequest createBoardRequest1 = new CreateBoardRequest("맛집 추천", "맛집 탐방하는 게시판", boardManager.getId(),university.getId());
+        Long boardId1 = boardService.create(createBoardRequest1);
+        Long wrongId = boardId1*2;
 
         //when
-        boardService.delete(board1.getId(), boardManager.getId());
+        Assertions.assertThrows(CustomException.class, () ->{
+            boardService.findBoard(wrongId);
+        });
 
-        //then
-        assertEquals(0, boardRepository.count());
     }
 
 }
