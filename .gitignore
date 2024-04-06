@@ -39,5 +39,5 @@ target
 secrets.yml
 .gradletasknamecache
 .sts4-cache
-.yml
+application.yml
 .idea

@@ -2,13 +2,23 @@ package com.ceos19.everytime.domain.AboutUser;
 
 import com.ceos19.everytime.domain.*;
 import com.ceos19.everytime.domain.AboutCourse.Timetable;
-import com.ceos19.everytime.domain.AboutMessage.Message;
-import com.ceos19.everytime.domain.AboutMessage.MessageBox;
 import com.ceos19.everytime.domain.AboutPost.Comment;
 import com.ceos19.everytime.domain.AboutPost.Post;
 import com.ceos19.everytime.domain.AboutPost.Scrap;
-import jakarta.persistence.*;
-import lombok.*;
+import com.ceos19.everytime.domain.BaseTimeEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -19,25 +29,22 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
-
 public class User extends BaseTimeEntity {
     @Id
-    @Column
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(length=15, nullable = false)
+    @Column(length = 15, nullable = false)
     private String loginId;
 
-    @Column(length=20, nullable = false)
+    @Column(length = 20, nullable = false)
     private String loginPassword;
 
     @Column(nullable = false)
     private String username;
 
-    @Column(length=20, nullable = false)
+    @Column(length = 20, nullable = false)
     private String nickname;
 
     @Column(nullable = false)
@@ -50,33 +57,42 @@ public class User extends BaseTimeEntity {
     private String email;
 
     @Column(nullable = false)
-    @Builder.Default
-    private boolean isActive=true;
+    private boolean isActive = true;
 
-    @Column(name="login_at",nullable = false)
-    @Builder.Default
-    private Timestamp loginAt=Timestamp.valueOf(LocalDateTime.now());
+    @Column(nullable = false)
+    private Timestamp loginAt = Timestamp.valueOf(LocalDateTime.now());
 
     //User->School
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="school_id")
+    @JoinColumn(name = "school_id")
     private School school;
 
     @OneToMany(mappedBy = "user")
-    @Builder.Default
     List<Timetable> timetables = new ArrayList<Timetable>();
 
     @OneToMany(mappedBy = "user")
-    @Builder.Default
     List<Scrap> scraps = new ArrayList<Scrap>();
 
     @OneToMany(mappedBy = "user")
-    @Builder.Default
     List<Post> posts = new ArrayList<Post>();
 
     @OneToMany(mappedBy = "user")
-    @Builder.Default
     List<Comment> comments = new ArrayList<Comment>();
+
+    @Builder
+    public User(Long userId, String loginId, String loginPassword, String username, String nickname, String department, Long studentId, String email, boolean isActive, Timestamp loginAt, School school) {
+        this.userId = userId;
+        this.loginId = loginId;
+        this.loginPassword = loginPassword;
+        this.username = username;
+        this.nickname = nickname;
+        this.department = department;
+        this.studentId = studentId;
+        this.email = email;
+        this.isActive = isActive;
+        this.loginAt = loginAt;
+        this.school = school;
+    }
 
     public User(String username, School school){
         this.username = username;

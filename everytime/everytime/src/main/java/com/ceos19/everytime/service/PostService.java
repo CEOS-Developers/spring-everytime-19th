@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class PostService {
     //2. 게시글 작성하기
     @Transactional
     public Post savePost(PostDTO postDTO){
-        return postRepository.save(postDTO.toPost(0L));
+        return postRepository.save(postDTO.toPost());
     }
 
     //3. 게시글에 댓글 및 대댓글 기능
@@ -42,22 +43,13 @@ public class PostService {
         return commentRepository.save(addedComment);// 댓글 저장
     }
 
-
     //4. 게시글에 좋아요 기능
     @Transactional
     public Post addLikeToPost(long postId){
-        //postId로 게시글 조회 -> 존재하는지 Optional을 통해 확인
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-
-            post.addLikeNum(post.getLikeNum()); // 좋아요 수 +1
-            post = postRepository.save(post); // 변경 사항 저장
-            return post;
-        } else {
-            // 게시글을 찾을 수 없는 경우, 적절한 예외 처리 또는 로직을 구현
-            throw new RuntimeException("Not Found: " + postId);
-        }
+        Post post = postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("Not Found: "+postId));
+        post.addLikeNum(post.getLikeNum()); // 좋아요 수 +1
+        post = postRepository.save(post); // 변경 사항 저장
+        return post;
     }
 
     //5. 게시글 삭제 기능
@@ -69,18 +61,10 @@ public class PostService {
     //6. 게시글 좋아요 삭제 기능
     @Transactional
     public Post deleteLikeNum(long postId) {
-        //postId로 게시글 조회 -> 존재하는지 Optional을 통해 확인
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-
-            post.deleteLikeNum(post.getLikeNum()); // 좋아요 수 -1
-            post = postRepository.save(post); // 변경 사항 저장
-            return post;
-        } else {
-            // 게시글을 찾을 수 없는 경우, 적절한 예외 처리 또는 로직을 구현
-            throw new RuntimeException("Not Found: " + postId);
-        }
+        Post post = postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("Not Found: "+postId));
+        post.deleteLikeNum(post.getLikeNum()); // 좋아요 수 -1
+        post = postRepository.save(post); // 변경 사항 저장
+        return post;
     }
 
     //7. 게시글 댓글 삭제 기능
@@ -92,17 +76,15 @@ public class PostService {
     //8. 게시글 대댓글 삭제 기능
     @Transactional
     public Comment deleteSubcomment(long commentId) {
-        //postId로 게시글 조회 -> 존재하는지 Optional을 통해 확인
-        Optional<Comment> optionalComment = commentRepository.findById(commentId);
-        if (optionalComment.isPresent()) {
-            Comment comment = optionalComment.get();
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()->new IllegalArgumentException("Not Found: "+commentId));
+        comment.deleteSubcomment(comment.getCommentId());
+        comment = commentRepository.save(comment); // 변경 사항 저장
+        return comment;
+    }
 
-            comment.deleteSubcomment(comment.getLikeNum()); // 좋아요 수 -1
-            comment = commentRepository.save(comment); // 변경 사항 저장
-            return comment;
-        } else {
-            // 게시글을 찾을 수 없는 경우, 적절한 예외 처리 또는 로직을 구현
-            throw new RuntimeException("Not Found: " + commentId);
-        }
+    //9. 모든 게시글 조회
+    @Transactional(readOnly = true)
+    public List<Post> findAll() {
+        return postRepository.findAll();
     }
 }

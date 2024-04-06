@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 class PostServiceTest {
@@ -44,7 +44,7 @@ class PostServiceTest {
     @Test
     void savePostTest() {
         // given
-        when(postRepository.save(any(Post.class))).thenReturn(post);
+        given(postRepository.save(any(Post.class))).willReturn(post);
 
         //when
         Post testedResult = postService.savePost(postDTO);
@@ -65,8 +65,8 @@ class PostServiceTest {
                 .contents("This is the test.")
                 .likeNum(initialLikeNum + 1) // 좋아요 수를 1 증가시킨 post 객체
                 .build();
-        when(postRepository.findById(post.getPostId())).thenReturn(Optional.of(post));
-        when(postRepository.save(any(Post.class))).thenReturn(updatedPost);
+        given(postRepository.findById(post.getPostId())).willReturn(Optional.of(post));
+        given(postRepository.save(any(Post.class))).willReturn(updatedPost);
 
         // when
         Post testedResult2 = postService.addLikeToPost(post.getPostId());
@@ -87,8 +87,8 @@ class PostServiceTest {
                 .contents("This is the test.")
                 .likeNum(initialLikeNum - 1) // 좋아요 수를 1 감소시킨 post 객체
                 .build();
-        when(postRepository.findById(post.getPostId())).thenReturn(Optional.of(post));
-        when(postRepository.save(any(Post.class))).thenReturn(updatedPost);
+        given(postRepository.findById(post.getPostId())).willReturn(Optional.of(post));
+        given(postRepository.save(any(Post.class))).willReturn(updatedPost);
 
         // when
         Post testedResult3 = postService.deleteLikeNum(post.getPostId());
