@@ -41,7 +41,7 @@ public class PostLikeService {
         Post post = postOptional.orElseThrow(
                 () -> new RestApiException(ErrorType.NOT_FOUND)
         );
-        Optional<postLike> postLikeOptional = postLikeRepository.findByUserAndComment(user1,post);
+        Optional<postLike> postLikeOptional = postLikeRepository.findByUserAndPost(user1,post);
         if (postLikeOptional.isPresent()) {
             throw new RestApiException(ErrorType.ALREADY_EXIST);
         }
@@ -51,4 +51,22 @@ public class PostLikeService {
             return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "commentLike Create Success"));
         }
     }
+    @Transactional
+    public ApiResponseDto<SuccessResponse> postLikeDelete(UserDetails loginUser, Long postId) {
+        User user = userRepository.findByUsername(loginUser.getUsername())
+                .orElseThrow(() -> new RestApiException(ErrorType.NOT_FOUND_USER));
+
+        Optional<Post> postOptional = postRepository.findById(postId);
+        Post post = postOptional.orElseThrow(() -> new RestApiException(ErrorType.NOT_FOUND));
+
+        Optional<postLike> postLikeOptional = postLikeRepository.findByUserAndPost(user, post);
+        if (postLikeOptional.isPresent()) {
+            postLike postLike = postLikeOptional.get();
+            postLikeRepository.delete(postLike);
+            return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "Like deleted successfully."));
+        } else {
+            throw new RestApiException(ErrorType.NOT_FOUND);
+        }
+    }
+
 }

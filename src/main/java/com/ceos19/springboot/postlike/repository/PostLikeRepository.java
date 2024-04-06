@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface PostLikeRepository extends JpaRepository<postLike, Long> {
 
     @Query("SELECT p FROM postLike p WHERE p.user = :user and p.post = :post")
-    Optional<postLike> findByUserAndComment(User user, Post post);
+    Optional<postLike> findByUserAndPost(User user, Post post);
 
 }

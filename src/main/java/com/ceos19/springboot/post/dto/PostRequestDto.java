@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PostRequestDto {
+    private Long boardId;
     private String title;
     private String content;
     private Boolean anonymous;

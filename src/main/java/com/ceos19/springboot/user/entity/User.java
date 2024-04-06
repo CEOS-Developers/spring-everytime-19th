@@ -38,7 +38,7 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String nickName;
 
     @OneToOne(fetch = FetchType.LAZY)
