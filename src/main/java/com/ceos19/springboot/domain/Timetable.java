@@ -2,9 +2,11 @@ package com.ceos19.springboot.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Timetable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,12 +1,15 @@
 package com.ceos19.springboot.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,9 +19,9 @@ public class Message {
     @Column(nullable = false, length = 1000)
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id")
+//    private User user;
 
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime transferTime;
@@ -30,4 +33,12 @@ public class Message {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "receiver_id")
     private User receiver;
+
+    @Builder
+    public Message(String content, User sender, User receiver) {
+        this.content = content;
+        this.transferTime = LocalDateTime.now();
+        this.sender = sender;
+        this.receiver = receiver;
+    }
 }

@@ -46,6 +46,201 @@ public class User {
 }
 
 ```
+# 4주차 - CRUD API
+
+## About DTO(Data Transfer Object)?
+
+<div align="center">
+  <img src="imgs/dto.png" alt="drawing" width=400"/>
+</div>
+
+- 프로세스 간에 데이터를 전달하는 객체를 의미
+- 비즈니스 로직 등의 복잡한 코드 없이, 순수하게 전달하고 싶은 데이터만 담겨있다.
+
+### Why use DTO?
+- Controller는 View로부터 들어온 사용자 요청을 해석하여 Model을 업데이트하거나 Model로부터 데이터를 받아 View로 전달하는 작업 등을 수행한다.
+- 도메인 객체를 View에 직접 전달할 수 있지만, 민감한 도메인 비즈니스 기능이 노출될 수 있으며 Model과 View사이에 의존성이 생기게 된다.
+- DTO는 Model과 View를 분리함으로써 서로의 의존성을 낮추고 독립적인 개발을 가능하게 한다.
+- Spring에서는 주로 Controller Layer - Service Layer 사이를 매개한다.
+
+
+### DTO Annotation
+
+```java
+@Data
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PostRequestDTO {
+    @NotNull
+    private Long userId;
+
+    private String title;
+    private String content;
+
+    private Long likeCount;
+    private Long reportCount;
+    private Long scrap;
+
+    private Boolean isAnonymous;
+    private String filePath;
+}
+```
+
+**@NoArgsConstructor 주의사항**
+
+- 이 어노테이션을 클래스에 붙이면, 기본 생성자가 public 으로 생성된다.
+- 굳이 외부에서 생성을 열어둘 필요가 없다면 막는 것이 좋다.
+- 무분별한 객체 생성을 막을 수 있도록 접근 권한을 최소화하는 것을 권장한다.  
+`@NoArgsConstructor(access = AccessLevel.PROTECTED)`
+- 수동으로 기본 생성자 사용할 일이 없는데, 이를 미연에 방지해준다.
+
+**@Getter**
+- DTO
+  - JSON → DTO 로 데이터를 파싱할 때, ObjectMapper의 getter 또는 setter를 이용해서 DTO 필드를 가져온다.
+  - 그런데 값을 주입할 때는 reflection 기능을 통해 주입하므로, setter를 굳이 쓸 필요는 없다.
+
+- RequestDto
+  - 서비스에서 requestDto 의 값을 사용하는 일이 빈번하다.
+  - Service 클래스에서 requestDto getter 메서드를 사용할 때, DTO 클래스에 @Getter가 없으면 컴파일러가 에러를 체크한다.
+
+- ResponseDto
+  - 값을 반환하는 DTO이기 때문에 사실 getter 메서드를 쓸 일이 없다. 실제로 쓰지 않아도 컴파일러 에러 체크도 발생하지 않고, 실제 서버도 작동한다.
+  - 하지만, @Getter가 없는 DTO를 사용하는 로직을 수행하면 예외가 발생한다.
+  - Spring이 Jackson 라이브러리를 사용해서 DTO → Json 으로 데이터를 변환해주는데, 이 때 ResponseDto의 데이터를 호출하게 되고, getter 메서드를 사용하게 된다.
+
+### Result
+
+- RequestDTO : @NoArgsConstructor, @Getter 필요
+- ResponseDTO : @Getter 필요
+
+[Lombok DTO Reference](https://velog.io/@kimdy0915/NoArgsConstructor-Getter-%EC%96%B8%EC%A0%9C-%EC%99%9C-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
+
+
+## Service - DTO - Controller
+1. Service에서 Response Dto 생성 후 Controller에서 반환
+2. Service에서 도메인 자체를 반환하여 Controller에서 Response Dto로 변환 후 사용
+
+컨트롤러에 Domain이 노출되므로, 1번 방법 선택
+
+**Trade-off**
+Service에서 Response Dto를 생성하여 Controller에 전달하면
+- Service가 View에 종속적이게 되어 응답의 Format 변경 시 Service도 변경되어 유지보수성이 좋지 않다.
+- 또한, Service 계층의 책임 관점에서도 올바르지 않은 것 같다.
+
+유지보수성과 책임 관점을 따라서 Service에서 도메인을 Controller에 반환한다면
+- 컨트롤러에서 도메인 로직이 실행되는 치명적인 위험이 발생할 수 있다.
+
+<!-- ### 추후 적용
+
+- Response
+  1. Service에서 Response Dto 생성 후 Controller에서 반환
+  2. Service에서 도메인 자체를 반환하여 Controller에서 Response Dto로 변환 후 사용
+
+- Request
+  1. Controller에서 Request Dto를 그대로 Service에 전달하여 사용
+  2. Service Dto를 따로 만들고, Controller에서 Request Dto를 Service Dto로 변환 후 전달하여 사용 -->
+
+### Result
+- Response : Service에서 Response Dto 생성 후 Controller에서 반환
+- Request : Controller에서 Request Dto를 그대로 Service에 전달하여 사용  
+
+서비스의 도메인이 노출되지 않도록.
+
+### Response Code Example
+
+**Service**
+
+```java
+public PostResponseDTO addPost(Post post) {
+    if (postRepository.findById(post.getId()).isPresent()) {
+        log.error("post failed : already exist post");
+        throw new ErrorException(ErrorCode.DATA_ALREADY_EXIST, "post already exist");
+    }
+
+    postRepository.save(post);
+    return PostResponseDTO.entityToDto(post);
+}
+```
+
+**Controller**
+
+```java
+@PostMapping("/{pid}/post")
+public ResponseEntity<Long> addPost(@PathVariable("pid") Long postId, Post post) {
+    // 추후 form 구현 필요
+    PostResponseDTO responseDto = postService.addPost(post);
+    return new ResponseEntity<>(responseDto.getId(), HttpStatus.OK);
+    // error exception 방법
+}
+```
+
+
+[Reference](https://ksh-coding.tistory.com/102)
+
+### UC?
+
+
+## Global Exception
+
+ErrorException 클래스를 구현하여 예외 상황에 맞는 HttptStatus 메세지를 리턴
+
+**@Slf4j**
+
+```java
+@Getter
+@AllArgsConstructor
+public enum ErrorCode {
+    DATA_ALREADY_EXIST(CONFLICT, ""),
+    NO_DATA_EXIST(NOT_FOUND, ""),
+    NOT_NULL(NO_CONTENT, ""),
+
+    ID_DUPLICATED(CONFLICT, ""),
+    INVALID_PASSWORD(UNAUTHORIZED, ""),
+
+    NO_DATA_ALLOCATED(FAILED_DEPENDENCY, ""),
+
+    KEYWORD_TOO_SHORT(BAD_REQUEST, ""),
+    INVALID_VALUE_ASSIGNMENT(BAD_REQUEST, ""),
+    INVALID_URI_ACCESS(NOT_FOUND, "");
+
+
+    private final HttpStatus httpStatus;
+    private  final String  message;
+}
+```
+
+### 로깅 vs System.out.println()
+- 출력 형식을 지정할 수 있음
+- 로그 레벨에 따라 남기고 싶은 로그를 별도로 지정할 수 있음
+- 콘솔뿐만 아니라 파일이나, 네트워크 등 로그를 별도에 위치에 남길 수 있다.
+- log 성능이 System.out 보다도 좋다고 한다.
+
+### Logging Example
+
+```java
+public Long addUser(User user) {
+    if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        log.error("user sign in failed : already exist username");
+        throw new ErrorException(DATA_ALREADY_EXIST, "username already exist");
+    }
+
+    userRepository.save(user);
+    return user.getId();
+}
+```
+
+## Swagger 적용
+
+<div align="center">
+  <img src="imgs/swagger.png" alt="drawing" width=600"/>
+</div>
+
+
+
+## Controller 통합 테스트
+
+
+
 
 # 3주차 - JPA 심화
 

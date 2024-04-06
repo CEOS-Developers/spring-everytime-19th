@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @MappedSuperclass
@@ -18,8 +19,10 @@ public abstract class BaseTimeEntity {
 
     @CreatedDate
     @Column(updatable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd/HH:mm:ss")
     private LocalDateTime createdDate;
 
     @LastModifiedDate
+    @DateTimeFormat(pattern = "yyyy-MM-dd/HH:mm:ss")
     private LocalDateTime modifiedDate;
 }
