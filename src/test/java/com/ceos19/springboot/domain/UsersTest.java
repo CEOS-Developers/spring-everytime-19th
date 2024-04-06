@@ -1,6 +1,7 @@
 package com.ceos19.springboot.domain;
 
-import com.ceos19.springboot.repository.UserRepository;
+import com.ceos19.springboot.users.repository.UserRepository;
+import com.ceos19.springboot.users.domain.Users;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

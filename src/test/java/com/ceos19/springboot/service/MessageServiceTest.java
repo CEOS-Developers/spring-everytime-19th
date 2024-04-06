@@ -1,11 +1,12 @@
 package com.ceos19.springboot.service;
 
-import com.ceos19.springboot.domain.Message;
-import com.ceos19.springboot.domain.School;
-import com.ceos19.springboot.domain.Users;
-import com.ceos19.springboot.repository.MessageRepository;
-import com.ceos19.springboot.repository.SchoolRepository;
-import com.ceos19.springboot.repository.UserRepository;
+import com.ceos19.springboot.message.domain.Message;
+import com.ceos19.springboot.message.service.MessageService;
+import com.ceos19.springboot.school.domain.School;
+import com.ceos19.springboot.users.domain.Users;
+import com.ceos19.springboot.message.repository.MessageRepository;
+import com.ceos19.springboot.school.repository.SchoolRepository;
+import com.ceos19.springboot.users.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class MessageServiceTest {

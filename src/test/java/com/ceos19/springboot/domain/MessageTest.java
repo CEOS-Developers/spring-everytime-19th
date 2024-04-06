@@ -1,13 +1,13 @@
 package com.ceos19.springboot.domain;
 
-import com.ceos19.springboot.repository.MessageRepository;
-import com.ceos19.springboot.repository.UserRepository;
+import com.ceos19.springboot.message.domain.Message;
+import com.ceos19.springboot.message.repository.MessageRepository;
+import com.ceos19.springboot.users.repository.UserRepository;
+import com.ceos19.springboot.users.domain.Users;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class MessageTest {

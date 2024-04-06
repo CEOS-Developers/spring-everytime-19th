@@ -621,5 +621,215 @@ public class MessageService {
 }
 ```
 쪽지를 보낼 경우에는 사용자가 입력한 쪽지 내용(content)과, 보내는 사람(sender), 받는 사람(receiver)가 정해져 있기 때문에 위와 같이 작성했다.  
+***
+***
+## 4주차 CRUD API 만들기
+여태껏 만들었던 Entity와 Repository를 기반으로 한 Service를 토대로 Controller를 만들어 보았다.   
 
-  
+RESTful 한 API를 위해 각 컨트롤러에서 URI를 다음과 같이 구성하였다.
+### 게시글(Post)
+1. 게시글 생성 -> api/post + Post 방식
+2. 여러 게시글 조회(게시판) -> api/post + Get 방식
+3. 게시글 하나 조회 -> api/post{postId} + Get 방식
+4. 특정 게시글 삭제 -> api/post/{postId} + Delete 방식
+5. 게시글 수정 -> api/post/{postId} + Patch 방식
+6. 좋아요 누르기 -> api/post/{postId}/like + Patch 방식
+
+> 게시글에 수정사항이 있을때 어렴풋이 Patch 혹은 Put을 사용한다고 이해하고 있었는데 이번 기회에 검색을 통해 둘을 구분해보았다.  
+Put : 타겟 리소스를 전체 교체할때 사용된다.  
+Patch : 타겟 리소스의 일부 수정을 할때 사용된다. 클라이언트는 변경하고자 하는 필드만 따로 전송할 수 있다.  
+
+따라서 Patch 방식을 사용하였다.  
+### 댓글(Comment)  
+1. 댓글 작성 -> api/comment + Post
+2. 댓글 삭제 -> api/comment/{commentId} + Delete
+3. 대댓글 작성 -> api/comment/{commentId} + Post 
+4. 댓글에 좋아요 누르기 -> api/comment/{commentId}/like + Patch
+5. 댓글에 좋아요 취소하기 -> api/comment/{commentId}/unlike + Patch
+
+### 쪽지(Message)  
+1. 쪽지 전송 -> api/message + Post
+2. 쪽지 조회 -> api/message + Get  
+
+### 사용자(User)  
+사용자 로그인과 회원가입 관련해서는 추후에 Spring Security와 같이 진행한다고 알고 있어서 간단하게 회원을 저장하는 정도의 로직만 구현했다.  
+1. 사용자 로그인 -> api/user/login + Post  
+
+
+예시로 PostController의 코드를 보자.  
+```java
+/**
+ * 목적 : 게시글 생성
+ * 성공 : 생성된 게시글 정보 리턴
+ * 실패 : 에러 메시지 출력
+ */
+@PostMapping("api/post")
+public ResponseEntity<ApiResponse<PostResponseDto>> createPost(@RequestBody CombinedDto combinedDto) {
+    try {
+        Users user = userService.findUser(combinedDto.getUser().getUserId());
+        Post createdPost = Post.builder()
+            .createdAt(LocalDateTime.now())
+            .content(combinedDto.getPost().getContent())
+            .title(combinedDto.getPost().getTitle())
+            .imageUrl(combinedDto.getPost().getImageUrl())
+            .user(user)
+            .likes(0)
+            .build();
+        Long savePostId = postService.savePost(createdPost);
+        PostResponseDto postResponseDto = PostResponseDto.createFromPost(createdPost, savePostId);
+
+        ApiResponse<PostResponseDto> response = ApiResponse.of(201, "게시글 생성 성공", postResponseDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    } catch (Exception e) {
+        ApiResponse<PostResponseDto> errorResponse = ApiResponse.of(500, e.getMessage(), null);
+        return ResponseEntity.internalServerError().body(errorResponse);
+    }
+}
+```
+게시글을 생성할때 프론트측으로 부터 게시글 정보를 받아서 builder를 통해 생성하게 되는데 이때 내 코드 상에서는 컨트롤러단에서 생성한다.   
+
+하지만 생각해보면 핵심 비즈니스 로직은 Service 계층에서 담당하는것이 맞다고 생각 하기 때문에, 단순히 savePost() 를 통해서 생성된 게시글 객체를 저장만 하는것이 아니라 createPost() 라는 메서드를 통해서 게시글 객체를 생성과 동시에 저장하는 것이 맞을 것 같다는 생각이 든다!!
+        
+### DTO
+보통 데이터를 프론트로부터 전달 받을때 DTO를 사용하게끔 작성했고, 리턴해주는 값도 DTO에 담아서 전달하였다.  
+정적 팩토리 메서드를 통해서 구현했다.  
+```java
+@Getter
+public class PostResponseDto {
+    private Long postId;
+    private Long userId;
+    private String title;
+    private String content;
+    private LocalDateTime createdAt;
+    private int likes;
+    private String imageUrl;
+
+    private PostResponseDto(Long postId, Long userId, String title, String content, LocalDateTime createdAt, int likes, String imageUrl) {
+        this.postId = postId;
+        this.userId = userId;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.likes = likes;
+        this.imageUrl = imageUrl;
+    }
+
+    // 정적 팩토리 메서드
+    public static PostResponseDto createFromPost(Post post, Long postId) {
+        return new PostResponseDto(
+                postId,
+                post.getUser().getUserId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getCreatedAt(),
+                post.getLikes(),
+                post.getImageUrl());
+    }
+
+    public static PostResponseDto updateFromPost(Post post, Long postId) {
+        return new PostResponseDto(
+                postId,
+                post.getUser().getUserId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getCreatedAt(),
+                post.getLikes(),
+                post.getImageUrl());
+    }
+}
+```
+생성자를 private으로 만들어서 클래스 내부에서만 사용할 수 있게 만들고, 정적 팩토리 메서드를 생성하여 외부에서 이 메서드를 사용하게끔 만든다.  
+
+### ApiResponse  
+```java
+@Getter
+public class ApiResponse<T> {
+
+    // API 응답 결과 Response
+    private T result;
+
+    // API 응답 코드 Response
+    private int resultCode;
+
+    // API 응답 코드 Message
+    private String resultMsg;
+
+    @Builder
+    public ApiResponse(final T result, final int resultCode, final String resultMsg) {
+        this.result = result;
+        this.resultCode = resultCode;
+        this.resultMsg = resultMsg;
+    }
+    public static <T> ApiResponse<T> of(int resultCode, String resultMsg, T result) {
+        return new ApiResponse<>(result,resultCode,resultMsg);
+    }
+}
+```
+매번 ResponseEntity에 다른 값을 담아서 리턴하는 것은 가독성이 떨어질 수 있기 때문에 위와 같이 응답 클래스를 생성하고 이를 활용하였다.
+
+### Swagger
+이전에 사용해본적은 있으나, 다른 팀원분이 설정해주신 것을 토대로 사용만 하였기 때문에 완전히 이해하지 못하고 있었다.  
+단순히 적용 이외에도 여러 다양한 어노테이션을 사용해 설정할 수 있는 것 같다. 
+
+나는 SpringDoc OpenAPI (Swagger 3) 를 사용했다.
+
+- @Operation: 메서드 레벨에서 사용되며, API 작업에 대한 정보를 작성한다.
+- @Parameter: 메서드의 파라미터에 사용되어, 파라미터에 대한 데이터를 제공한다.
+- @ApiResponse: 메서드의 응답에 대한 정보를 나타낸다.
+- @ApiResponses: 하나 이상의 @ApiResponse 어노테이션을 그룹화한다.
+- @Tag: API를 그룹화한다.  
+
+이번 작업시에는 위의 여러 어노테이션들을 직접 적용해보지는 못하였지만 다음 리팩토링때 적용해보고 싶다.  
+
+### 실제 동작하는지  
+<img width="723" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/b1559b71-50c8-4688-bd7d-7ae9bcfc9bab">  
+위의 이미지는 내가 작성한 컨트롤러들이 Swagger에 의해 정리 되어있는 것을 보여주는 이미지이다.  
+
+게시글을 생성하는 컨트롤러를 Swagger로 테스트 해보자.  
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/bf8520dc-4e16-4f3a-8b46-1c76b83b4ba5">
+위와 같이 Request 를 채워주고 실행한다.  
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/2a560373-57c9-4bd1-be9e-72cf596c4728">
+그러면 잘 생성된 것을 볼 수 있다. DB에 보면 잘 반영되어 있는 것을 볼 수 있다.  
+<img width="1153" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/be2f0de7-5545-4fd4-beb2-86d6230435d4">  
+
+
+### 수정하고 싶은 사항  
+#### 1. 에러 코드에 대한 Global Exception 처리.  
+이번 과제에서는 일단 컨트롤러 구현에 집중했기 때문에 글로벌 Exception 처리를 완전히 구현하지는 못했다. 추후에 추가해보자.  
+
+#### 2. 어노테이션을 활용한 사용자 정보 가져오기  
+예를들어 게시글을 생성할때, 어떤 사용자가 어떤 정보를 토대로 게시글을 생성하는지가 필요하기 때문에 DTO가 두가지 필요하다는 생각이 들었다.  
+```java
+@Getter
+public class PostUserRequestDto {
+    private Long userId;
+    private String nickname;
+}
+```
+이는 사용자 정보를 알기위한 DTO이다.  
+```java
+@Getter
+public class PostRequestDto {
+    private String title;
+    private String content;
+    private String imageUrl;
+}
+```
+이는 게시글을 생성하기 위한 DTO이다.  
+이 두가지 DTO를 모두 사용해야 했는데 @RequestBody는 한번만 사용가능하므로 다음과 같이 구성했었다.  
+```java
+@Getter
+public class CombinedDto {
+    private PostUserRequestDto user;
+    private PostRequestDto post;
+}
+```
+이렇게 하여 사용자 정보와 게시글 정보를 가져올 수 있었다.  
+하지만 추후에 로그인과 회원가입 관련 로직이 구현되면 커스텀 어노테이션을 만들어 로그인되어있는 사용자 정보를 가져올 수 있게 만들고 싶다. 예를 들면 다음과 같다.  
+```java
+@PostMapping("api/post")
+public ResponseEntity<ApiResponse<PostResponseDto>> createPost(@LoginUser Users user, @RequestBody PostRequestDto postRequestDto){
+    //... 로직 구현
+}
+```
+

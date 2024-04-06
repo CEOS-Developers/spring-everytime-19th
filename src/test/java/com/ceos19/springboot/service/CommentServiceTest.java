@@ -1,13 +1,15 @@
 package com.ceos19.springboot.service;
 
-import com.ceos19.springboot.domain.Comment;
-import com.ceos19.springboot.domain.Post;
-import com.ceos19.springboot.domain.School;
-import com.ceos19.springboot.domain.Users;
-import com.ceos19.springboot.repository.CommentRepository;
-import com.ceos19.springboot.repository.PostRepository;
-import com.ceos19.springboot.repository.SchoolRepository;
-import com.ceos19.springboot.repository.UserRepository;
+import com.ceos19.springboot.comment.domain.Comment;
+import com.ceos19.springboot.comment.service.CommentService;
+import com.ceos19.springboot.post.domain.Post;
+import com.ceos19.springboot.school.domain.School;
+import com.ceos19.springboot.post.service.PostService;
+import com.ceos19.springboot.users.domain.Users;
+import com.ceos19.springboot.comment.repository.CommentRepository;
+import com.ceos19.springboot.post.repository.PostRepository;
+import com.ceos19.springboot.school.repository.SchoolRepository;
+import com.ceos19.springboot.users.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,7 +95,7 @@ class CommentServiceTest {
         commentService.saveComment(comment3);
         Comment findComment = commentRepository.findById(saveComment)
                 .orElseThrow(() -> new EntityNotFoundException("해당 ID를 가진 댓글이 없습니다"));
-
+        //postService.deletePost(savePost);
         //then
         Assertions.assertThat(findComment.getContent()).isEqualTo("댓글 내용ㅇ오오옹ㅇ");
     }

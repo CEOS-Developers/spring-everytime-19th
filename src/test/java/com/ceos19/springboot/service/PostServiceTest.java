@@ -1,13 +1,15 @@
 package com.ceos19.springboot.service;
 
-import com.ceos19.springboot.domain.Post;
-import com.ceos19.springboot.domain.PostLike;
-import com.ceos19.springboot.domain.School;
-import com.ceos19.springboot.domain.Users;
-import com.ceos19.springboot.repository.PostLikeRepository;
-import com.ceos19.springboot.repository.PostRepository;
-import com.ceos19.springboot.repository.SchoolRepository;
-import com.ceos19.springboot.repository.UserRepository;
+import com.ceos19.springboot.post.domain.Post;
+import com.ceos19.springboot.postlike.domain.PostLike;
+import com.ceos19.springboot.postlike.service.PostLikeService;
+import com.ceos19.springboot.school.domain.School;
+import com.ceos19.springboot.post.service.PostService;
+import com.ceos19.springboot.users.domain.Users;
+import com.ceos19.springboot.postlike.repository.PostLikeRepository;
+import com.ceos19.springboot.post.repository.PostRepository;
+import com.ceos19.springboot.school.repository.SchoolRepository;
+import com.ceos19.springboot.users.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class PostServiceTest {
@@ -179,7 +178,7 @@ class PostServiceTest {
         postService.savePost(post1);
 
         //when
-        postService.pressLike(post1); // 사용자가 좋아요를 누르면
+        postService.pressLike(post1.getPostId()); // 사용자가 좋아요를 누르면
 
         PostLike postLike = PostLike.builder() // 좋아요 누른 정보를 생성 후 디비에 저장
                 .post(post1)
@@ -207,7 +206,7 @@ class PostServiceTest {
                 .build();
         postService.savePost(post1);
         //when
-        postService.pressLike(post1); // 사용자가 좋아요를 누르면
+        postService.pressLike(post1.getPostId()); // 사용자가 좋아요를 누르면
 
         PostLike postLike = PostLike.builder() // 좋아요 누른 정보를 생성 후 디비에 저장
                 .post(post1)
@@ -238,8 +237,17 @@ class PostServiceTest {
                 .user(saveUser)
                 .build();
         postService.savePost(post1);
+        Post post2 = Post.builder()
+                .createdAt(LocalDateTime.now())
+                .content("삭제안할 게시글임")
+                .imageUrl("image url")
+                .title("남아있을 게시글 제목")
+                .likes(4)
+                .user(saveUser)
+                .build();
+        postService.savePost(post2);
         //when
-        postService.deletePost(post1);
+        postService.deletePost(post1.getPostId());
         //then
     }
 }
