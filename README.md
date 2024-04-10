@@ -507,24 +507,24 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 ### 학교(SchoolController)
 
 - 등록
-    1. 학교 등록(/schools) O
-    2. 게시판 등록(/schools/{sid}/boards) O
-    3. 수업 등록(/schools/{sid}/courses) O
+    1. 학교 등록(/school) O
+    2. 게시판 등록(/school/{sid}/boards) O
+    3. 수업 등록(/school/{sid}/courses) O
 - 조회
     - 단건 조회
-        1. PK (/schools/{sid}) O
-        2. 학교 명 (/schools?name={학교명}) O
+        1. PK (/school/{sid}) O
+        2. 학교 명 (/school?name={학교명}) O
     - 다중 조회
         1. 모든 학교 조회 (/schools) O
     - 학교에 속한 게시판 조회
-        1. 해당 학교에 있는 모든 게시판 조회(/schools/{sid}/boards) O
-        2. 학교 FK + 게시판 명(/schools/{sid}/boards?name={게시판명}) O
+        1. 해당 학교에 있는 모든 게시판 조회(/school/{sid}/boards) O
+        2. 학교 FK + 게시판 명(/school/{sid}/boards?name={게시판명}) O
     - 학교에 속한 수업 조회
-        1. 해당 학교에 있는 모든 수업 조회 (/schools/{sid}/courses) O
-        2. 학교 FK + 수업명 (/schools/{sid}/courses?name={수업명}) O
-        3. 학교 FK + 교수명 (/schools/{sid}/courses?professorName={교수명}) O
-        4. 학교 FK + 수업명 + 교수명 (/schools/{sid}/courses?name={수업명}&professorName={교수명}) O
-- 수정 (/schools/{sid}) O
+        1. 해당 학교에 있는 모든 수업 조회 (/school/{sid}/courses) O
+        2. 학교 FK + 수업명 (/school/{sid}/courses?name={수업명}) O
+        3. 학교 FK + 교수명 (/school/{sid}/courses?professorName={교수명}) O
+        4. 학교 FK + 수업명 + 교수명 (/school/{sid}/courses?name={수업명}&professorName={교수명}) O
+- 수정 (/school/{sid}) O
     1. 학교명
 
 ### 게시판(BoardController)
