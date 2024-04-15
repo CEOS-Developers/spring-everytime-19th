@@ -37,4 +37,9 @@ class JwtUtilTest {
     void 토큰에서_카테고리를_추출한다() {
         assertThat(jwtUtil.getCategory(jwt)).isEqualTo("access");
     }
+
+    @Test
+    void 토큰이_만료되지_않았으면_false를_반환한다() {
+        assertThat(jwtUtil.isExpired(jwt)).isFalse();
+    }
 }
