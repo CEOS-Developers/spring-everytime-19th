@@ -11,6 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 @Component
@@ -40,39 +41,29 @@ public class JwtUtil {
     }
 
     public String getUsername(final String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("username", String.class);
+        return getPayload(token).get("username", String.class);
     }
 
     public String getRole(final String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("role", String.class);
+        return getPayload(token).get("role", String.class);
     }
 
     public String getCategory(final String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
+        return getPayload(token)
                 .get("category", String.class);
     }
 
     public boolean isExpired(final String token) {
+        return getPayload(token)
+                .getExpiration()
+                .before(new Date());
+    }
+
+    private Claims getPayload(final String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getExpiration()
-                .before(new Date());
+                .getPayload();
     }
 }
