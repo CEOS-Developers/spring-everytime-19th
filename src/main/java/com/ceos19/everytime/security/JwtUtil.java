@@ -59,6 +59,12 @@ public class JwtUtil {
                 .before(new Date());
     }
 
+    public void validateAccessToken(final String accessToken) {
+        if (!"access".equals(getCategory(accessToken))) {
+            throw new IllegalArgumentException("Invalid access token");
+        }
+    }
+
     private Claims getPayload(final String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)

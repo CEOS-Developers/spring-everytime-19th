@@ -1,6 +1,7 @@
 package com.ceos19.everytime.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,5 +42,14 @@ class JwtUtilTest {
     @Test
     void 토큰이_만료되지_않았으면_false를_반환한다() {
         assertThat(jwtUtil.isExpired(jwt)).isFalse();
+    }
+
+    @Test
+    void 토큰의_카테고리가_access가_아니면_예외가_발생한다() {
+        final String jwt = jwtUtil.createJwt("refresh", "username", "role");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> jwtUtil.validateAccessToken(jwt))
+                .withMessage("Invalid access token");
     }
 }
