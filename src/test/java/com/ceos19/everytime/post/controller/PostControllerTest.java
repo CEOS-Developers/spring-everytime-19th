@@ -17,11 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.ceos19.everytime.board.dto.request.BoardPostsRequestDto;
 import com.ceos19.everytime.board.dto.response.BoardPostsResponseDto;
+import com.ceos19.everytime.config.SecurityConfig;
 import com.ceos19.everytime.post.dto.request.PostCreateRequestDto;
 import com.ceos19.everytime.post.dto.response.PostResponseDto;
 import com.ceos19.everytime.post.service.PostService;
@@ -30,6 +32,7 @@ import com.ceos19.everytime.postlike.service.PostLikeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(PostController.class)
+@Import(SecurityConfig.class)
 class PostControllerTest {
 
     private static final String DEFAULT_POST_URL = "/api/posts";

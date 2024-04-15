@@ -16,9 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.ceos19.everytime.config.SecurityConfig;
 import com.ceos19.everytime.message.dto.request.MessageReadRequestDto;
 import com.ceos19.everytime.message.dto.request.MessageRequestDto;
 import com.ceos19.everytime.message.dto.response.MessageResponseDto;
@@ -26,9 +28,11 @@ import com.ceos19.everytime.message.service.MessageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(MessageController.class)
+@Import(SecurityConfig.class)
 class MessageControllerTest {
 
     private static final String DEFAULT_MESSAGE_URL = "/api/messages";
+
     @Autowired
     private MockMvc mockMvc;
 

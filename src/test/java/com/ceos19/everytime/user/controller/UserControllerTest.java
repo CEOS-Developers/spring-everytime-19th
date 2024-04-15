@@ -11,9 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.ceos19.everytime.config.SecurityConfig;
 import com.ceos19.everytime.global.exception.BadRequestException;
 import com.ceos19.everytime.global.exception.ExceptionCode;
 import com.ceos19.everytime.user.dto.request.UserSaveRequestDto;
@@ -21,6 +23,7 @@ import com.ceos19.everytime.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(UserController.class)
+@Import(SecurityConfig.class)
 class UserControllerTest {
 
     private static final String USER_DEFAULT_URL = "/api/users";
