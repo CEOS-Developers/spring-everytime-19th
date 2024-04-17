@@ -774,8 +774,10 @@ json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 
 기존에는 와일드 카드를 이용한 BaseResponse 엔티티를 사용하여 반환을 진행했다. 이 과정에서 HttpStatus가 클라이언트에게 반환되지 않는다는 문제를 발견하여
 ResponseEntity를 통해서 HttpStatus를 명시해줬다.
 ![수정전](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ef19026b-38da-4fab-b0df-b2bf5bb85a8f)
+</br>
 -수정전-
 ![수정후](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/47045cb9-ebe0-4071-a614-77f1a5b09520)
+</br>
 -수정후-
 3) **Controller 리팩토링**</br>
 코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
