@@ -3,6 +3,7 @@ package com.ceos19.everytime.service;
 import com.ceos19.everytime.domain.Course;
 import com.ceos19.everytime.domain.School;
 import com.ceos19.everytime.domain.TimeTableCourse;
+import com.ceos19.everytime.dto.AddCourseRequest;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.exception.ErrorCode;
 import com.ceos19.everytime.repository.CourseRepository;
@@ -32,6 +33,33 @@ public class CourseService {
     public Long addCourse(Course course) {
         Long schoolId = course.getSchool().getId();
         String courseNumber = course.getCourseNumber();
+
+        if (!courseRepository.findBySchoolIdAndCourseNumber(schoolId, courseNumber).isEmpty()) {
+            log.error("에러 내용: 과목 등록 실패 " +
+                    "발생 원인: 이미 존재하는 학수 번호로 등록 시도");
+            throw new AppException(DATA_ALREADY_EXISTED, "이미 등록된 학수 번호입니다");
+        }
+        courseRepository.save(course);
+        return course.getId();
+    }
+
+    public Long addCourse(AddCourseRequest request, Long schoolId) {
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> {
+                    log.error("에러 내용: 과목 등록 실패 " +
+                            "발생 원인: 존재하지 않은 학교 PK로 조회");
+                    throw new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 학교입니다");
+                });
+        Course course = Course.builder()
+                .name(request.getName())
+                .courseNumber(request.getCourseNumber())
+                .room(request.getRoom())
+                .openingGrade(request.getOpeningGrade())
+                .professorName(request.getProfessorName())
+                .credit(request.getCredit())
+                .school(school)
+                .build();
+        String courseNumber = request.getCourseNumber();
 
         if (!courseRepository.findBySchoolIdAndCourseNumber(schoolId, courseNumber).isEmpty()) {
             log.error("에러 내용: 과목 등록 실패 " +
