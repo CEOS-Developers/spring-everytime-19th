@@ -45,8 +45,8 @@ public class InitDB {
 
         public void init() {
             // 학교 저장
-            School school = new School("슈퍼울트라대학교");
-            schoolService.addSchool(school);
+            Long schoolId = schoolService.addSchool("슈퍼울트라대학교");
+            School school = schoolService.findSchoolById(schoolId);
 
             // 게시판 저장
             Board board = new Board("컴공게시판", school);

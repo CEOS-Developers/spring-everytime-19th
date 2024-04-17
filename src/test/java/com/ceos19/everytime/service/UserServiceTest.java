@@ -57,8 +57,8 @@ class UserServiceTest {
     @BeforeEach
     public void each() {
         // 학교 저장
-        School school = new School("홍익대학교");
-        schoolService.addSchool(school);
+        Long schoolId = schoolService.addSchool("홍익대학교");
+        school = schoolService.findSchoolById(schoolId);
 
         // 게시판 저장
         Board board = new Board("컴공게시판", school);
