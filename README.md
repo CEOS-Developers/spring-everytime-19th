@@ -773,11 +773,13 @@ json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 
 1) **ResponseEntity 추가**</br>
 기존에는 와일드 카드를 이용한 BaseResponse 엔티티를 사용하여 반환을 진행했다. 이 과정에서 HttpStatus가 클라이언트에게 반환되지 않는다는 문제를 발견하여
 ResponseEntity를 통해서 HttpStatus를 명시해줬다.
+![수정전](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ef19026b-38da-4fab-b0df-b2bf5bb85a8f)
 -수정전-
+![수정후](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/47045cb9-ebe0-4071-a614-77f1a5b09520)
 -수정후-
-2) **Controller 리팩토링**</br>
+3) **Controller 리팩토링**</br>
 코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
 추가적으로 나중에는 Service에서 바로 DTO를 반환하도록 구현하는 것도 고민해봐야겠다.</br>
 이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다.
-3) **Service 리팩토링**</br>
+4) **Service 리팩토링**</br>
 lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다. 
