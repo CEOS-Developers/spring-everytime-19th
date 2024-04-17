@@ -21,8 +21,9 @@ public class SchoolService {
     private final SchoolRepository schoolRepository;
 
     @Transactional(readOnly = false)
-    public Long addSchool(School school) {
-        schoolRepository.findByName(school.getName()).ifPresent(
+    public Long addSchool(String schoolName) {
+        School school = new School(schoolName);
+        schoolRepository.findByName(schoolName).ifPresent(
                 sc -> {
                     log.error("에러 내용: 학교 등록 실패 " +
                             "발생 원인: 이미 존재하는 이름으로 학교 등록 시도");
