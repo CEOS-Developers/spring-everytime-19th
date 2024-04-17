@@ -508,47 +508,47 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 
 - 등록
     1. 학교 등록(/school) O
-    2. 게시판 등록(/school/{sid}/boards) O
-    3. 수업 등록(/school/{sid}/courses) O
+    2. 게시판 등록(/school/{school_id}/board) O
+    3. 수업 등록(/school/{school_id}/course) O
 - 조회
     - 단건 조회
-        1. PK (/school/{sid}) O
+        1. PK (/school/{school_id}) O
         2. 학교 명 (/school?name={학교명}) O
     - 다중 조회
         1. 모든 학교 조회 (/schools) O
     - 학교에 속한 게시판 조회
-        1. 해당 학교에 있는 모든 게시판 조회(/school/{sid}/boards) O
-        2. 학교 FK + 게시판 명(/school/{sid}/boards?name={게시판명}) O
+        1. 해당 학교에 있는 모든 게시판 조회(/school/{school_id}/boards) O
+        2. 학교 FK + 게시판 명(/school/{school_id}/board?name={게시판명}) O
     - 학교에 속한 수업 조회
-        1. 해당 학교에 있는 모든 수업 조회 (/school/{sid}/courses) O
-        2. 학교 FK + 수업명 (/school/{sid}/courses?name={수업명}) O
-        3. 학교 FK + 교수명 (/school/{sid}/courses?professorName={교수명}) O
-        4. 학교 FK + 수업명 + 교수명 (/school/{sid}/courses?name={수업명}&professorName={교수명}) O
-- 수정 (/school/{sid}) O
+        1. 해당 학교에 있는 모든 수업 조회 (/school/{school_id}/courses) O
+        2. 학교 FK + 수업명 (/school/{school_id}/courses?name={수업명}) O
+        3. 학교 FK + 교수명 (/school/{school_id}/courses?professorName={교수명}) O
+        4. 학교 FK + 수업명 + 교수명 (/school/{school_id}/courses?name={수업명}&professorName={교수명}) O
+- 수정 (/school/{school_id}) O
     1. 학교명
 
 ### 게시판(BoardController)
 
 - 등록
-    1. 게시물 등록(POST /boards/{bid}/posts) O
+    1. 게시물 등록(POST /boards/{bid}/posts) 
 - 조회
     - 단건 조회
-        1. PK (/boards/{bid}) O
+        1. PK (/boards/{bid}) 
     - 게시판에 속한 게시물 조회
-        1. 해당 게시판의 모든 게시물 조회  (/boards/{bid}/posts) O
-        2. 게시물 등록일자로 조회 (/boards/{bid}/posts?date={xxxx-xx-xx}) O
-        3. 게시물 명으로 조회 (/boards/{bid}/posts?title={게시물명}) O
-- 수정 (/boards/{bid}) O
+        1. 해당 게시판의 모든 게시물 조회  (/boards/{bid}/posts) 
+        2. 게시물 등록일자로 조회 (/boards/{bid}/posts?date={xxxx-xx-xx}) 
+        3. 게시물 명으로 조회 (/boards/{bid}/posts?title={게시물명}) 
+- 수정 (/boards/{bid}) 
     1. 게시판 이름
 
 ### 게시물(PostController)
 
 - 등록
-    1. 좋아요 등록 (/posts/{pid}/postLikes) O
+    1. 좋아요 등록 (/posts/{pid}/postLikes) 
     2. 해당 게시물에 댓글 달기 (/posts/{pid}/comments)
 - 조회
     - 단건 조회
-        1. PK (/posts/{pid}) O
+        1. PK (/posts/{pid}) 
     - 게시물에 속한 댓글 조회
         1. 해당 게시물에 속한 모든 댓글 조회 (/post/{pid}/comments?limit={}&offset={})
     - 게시물에 속한 좋아요 조회
@@ -767,3 +767,17 @@ public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long sch
 ![img_7](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/99772109-cd3f-430b-8bb8-b3a69b895fdb)
 ![img_8](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/95f71023-671e-41de-9456-33f642935b0b)
 json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 있어 굉장히 유용하였다!
+
+# 5주차
+## 리팩토링 진행
+1) **ResponseEntity 추가**</br>
+기존에는 와일드 카드를 이용한 BaseResponse 엔티티를 사용하여 반환을 진행했다. 이 과정에서 HttpStatus가 클라이언트에게 반환되지 않는다는 문제를 발견하여
+ResponseEntity를 통해서 HttpStatus를 명시해줬다.
+-수정전-
+-수정후-
+2) **Controller 리팩토링**</br>
+코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
+추가적으로 나중에는 Service에서 바로 DTO를 반환하도록 구현하는 것도 고민해봐야겠다.</br>
+이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다.
+3) **Service 리팩토링**</br>
+lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다. 
