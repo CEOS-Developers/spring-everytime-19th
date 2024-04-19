@@ -1,6 +1,8 @@
 package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.*;
+import com.ceos19.everytime.dto.AddPostRequest;
+import com.ceos19.everytime.dto.AttachmentDto;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.exception.ErrorCode;
 import com.ceos19.everytime.repository.*;
@@ -17,7 +19,7 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class PostService {
@@ -27,6 +29,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final BoardRepository boardRepository;
 
+    @Transactional
     public Long addPost(Post post, Attachment... attachments) {
         postRepository.save(post);
         for (Attachment attachment : attachments) {
@@ -38,6 +41,40 @@ public class PostService {
             post.addAttachment(attachment);
         }
         return post.getId();
+    }
+
+    @Transactional
+    public Post addPost(AddPostRequest request, Long boardId) {
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> {
+            log.error("에러 내용: 게시물 등록 실패 " +
+                    "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> {
+            log.error("에러 내용: 게시물 등록 실패 " +
+                    "발생 원인: 존재하지 않는 Board PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시판입니다");
+        });
+
+        // Post 생성
+        Post post = Post.builder().
+                title(request.getTitle())
+                .content(request.getContent())
+                .isQuestion(request.isQuestion())
+                .isAnonymous(request.isAnonymous())
+                .board(board)
+                .author(user)
+                .build();
+
+        // Post에 첨부파일 추가
+        for (AttachmentDto dto : request.getAttachments()) {
+            Attachment attachment
+                    = new Attachment(dto.getOriginalFileName(), dto.getStoredPath(), dto.getAttachmentType());
+
+            post.addAttachment(attachment);
+        }
+        postRepository.save(post);
+        return post;
     }
 
     public Post findPostById(Long postId) {
@@ -97,6 +134,7 @@ public class PostService {
         return postRepository.findByBoardIdAndCreatedDate(boardId, createdDate.getYear(), createdDate.getMonthValue(), createdDate.getDayOfMonth());
     }
 
+    @Transactional
     public void removePost(Long postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
