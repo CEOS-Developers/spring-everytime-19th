@@ -530,77 +530,76 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 ### 게시판(BoardController)
 
 - 등록
-    1. 게시물 등록(POST /boards/{bid}/posts) 
+    1. 게시물 등록(POST /board/{board_id}/post) O
 - 조회
     - 단건 조회
-        1. PK (/boards/{bid}) 
+        1. PK (/board/{board_id}) 
     - 게시판에 속한 게시물 조회
-        1. 해당 게시판의 모든 게시물 조회  (/boards/{bid}/posts) 
-        2. 게시물 등록일자로 조회 (/boards/{bid}/posts?date={xxxx-xx-xx}) 
-        3. 게시물 명으로 조회 (/boards/{bid}/posts?title={게시물명}) 
-- 수정 (/boards/{bid}) 
+        1. 해당 게시판의 모든 게시물 조회  (/board/{board_id}/posts) O
+        2. 게시물 등록일자로 조회 (/board/{board_id}/posts?date={xxxx-xx-xx}) O 
+        3. 게시물 명으로 조회 (/board/{board_id}/posts?title={게시물명}) O
+- 수정 (/board/{board_id}) O
     1. 게시판 이름
 
 ### 게시물(PostController)
 
 - 등록
-    1. 좋아요 등록 (/posts/{pid}/postLikes) 
-    2. 해당 게시물에 댓글 달기 (/posts/{pid}/comments)
+    1. 좋아요 등록 (/post/{post_id}/postLike) O
+    2. 해당 게시물에 댓글 달기 (/post/{post_id}/comment) O
 - 조회
     - 단건 조회
-        1. PK (/posts/{pid}) 
+        1. PK (/post/{post_id})  O
     - 게시물에 속한 댓글 조회
-        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{pid}/comments?limit={}&offset={})
+        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{post_id}/comments)
     - 게시물에 속한 좋아요 조회
-        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{pid}/postLike)
-- 수정 (/posts/{pid})
+        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{post_id}/postLike)
+- 수정 (/post/{post_id})
     1. 내용
     2. 질문 여부
     3. 익명 여부
     4. 첨부 파일(추가 및 삭제)
 - 제거
-    1. 게시물 (/posts/{pid})
+    1. 게시물 (/post/{post_id})
 
-### 댓글(CommentController)
-
+### 댓글(CommentController
 - 등록
-    1. 대댓글 달기 (/comments/{cid}/replies)
+    1. 대댓글 달기 (/comment/{comment_id}/replies)
 - 조회
     - 다중 조회
-        1. 대댓글 전체 조회 (/comments/{cid}/replies?limit={}&offset={})
-- 댓글 수정 (/comments/{comment_id})
-- 댓글 제거 (/comments/{comment_id})
+        1. 대댓글 전체 조회 (/comment/{comment_id}/replies)
+- 댓글 수정 (/comment/{comment_id})
+- 댓글 제거 (/comment/{comment_id})
 
 ### 게시물 좋아요(PostLikeController)
 
-- 제거 (/postLikes/{plid})
+- 제거 (/postLike/{plid})
 
 ### 수업(CourseController)
 
 - 조회
     - 단건 조회
-        1. PK (/courses/{cid})
-- 제거 (/courses/{cid})
+        1. PK (/course/{course_id})
+- 제거 (/courses/{course_id})
 
 ### 유저(UserController)
 
 - 등록
-    1. 시간표 등록(/users/{uid}/timeTables)
+    1. 시간표 등록(/user/{user_id}/timeTables)
 - 조회
     - 단건 조회
         - 구현 예정 ...
     - 다중 조회
         - 구현 예정 ...
     - 유저가 쓴 게시물 조회
-        1. 유저가 쓴 게시물 전체 조회(/users/{uid}/posts?limit={}&offset={})
+        1. 유저가 쓴 게시물 전체 조회(/user/{user_id}/posts)
     - 유저가 속해 있는 채팅방 조회
-        1. 유저가 속해 있는 채팅방 전체 조회 (/users/{uid}/chattingRooms?limit={}&offset={})
+        1. 유저가 속해 있는 채팅방 전체 조회 (/users/{user_id}/chattingRooms)
     - 유저가 쓴 댓글 조회
-        1. 유저가 쓴 댓글 전체 조회 (/users/{uid}/comments?limit={}&offset={})
+        1. 유저가 쓴 댓글 전체 조회 (/users/{user_id}/comments)
     - 유저의 시간표 조회
-        1. 유저의 시간표 전체 조회 (/users/{udi}/timeTables)
-        2. 연도, 학기를 조건으로 유저의 시간표 전체 조회 (/users/{udi}/timeTables?year={연도}&학기={semester})
-        3. 연도, 학기, 시간표 명을 조건으로 유저의 시간표 전체 조회 (/users/{udi}/timeTables?year={연도}&학기={semester}&name={시간표명})
+        1. 유저의 시간표 전체 조회 (/users/{user_id}/timeTables)
+        2. 연도, 학기를 조건으로 유저의 시간표 전체 조회 (/users/{user_id}/timeTables?year={연도}&학기={semester})
+        3. 연도, 학기, 시간표 명을 조건으로 유저의 시간표 전체 조회 (/users/{user_id}/timeTables?year={연도}&학기={semester}&name={시간표명})
 - 제거
 
 ### 채팅방(ChattingRoomController)
