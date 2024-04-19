@@ -16,56 +16,53 @@ import com.ceos19.everytime.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts")
+@RequestMapping("/api/post")
 public class PostController {
     private final PostService postService;
     private final PostLikeService postLikeService;
     private final CommentService commentService;
     private final UserService userService;
 
-    @GetMapping("/{pid}")
-    public BaseResponse<ReadPostResponse> readPost(@PathVariable("pid") Long postId) {
+    @GetMapping("/{post_id}")
+    public ResponseEntity<BaseResponse<ReadPostResponse>> readPost(@PathVariable("post_id") Long postId) {
         try {
             Post post = postService.findPostById(postId);
             ReadPostResponse value = ReadPostResponse.from(post);
-            return new BaseResponse<>(HttpStatus.OK, null, value, 1);
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, 1));
         } catch (AppException e) {
-            return new BaseResponse<>(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
         }
     }
 
-    @PostMapping("/{pid}/postLikes")
-    public BaseResponse addPostLike(@PathVariable("pid") Long postId, @Valid @RequestBody AddPostLikeRequest request) {
+    @PostMapping("/{post_id}/postLike")
+    public ResponseEntity<BaseResponse> addPostLike(@PathVariable("post_id") Long postId, @Valid @RequestBody AddPostLikeRequest request) {
         try {
             Long id = postLikeService.addPostLike(postId, request.getUserId());
-            return new BaseResponse(HttpStatus.OK, null, id, 1);
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, id, 1));
         } catch (AppException e) {
-            return new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
         }
     }
 
-    @PostMapping("/{pid}/comments")
-    public BaseResponse addComment(@PathVariable("pid") Long postId, @Valid @RequestBody AddCommentRequest request) {
+    @PostMapping("/{post_id}/comment")
+    public ResponseEntity<BaseResponse> addComment(@PathVariable("post_id") Long postId, @Valid @RequestBody AddCommentRequest request) {
         try {
-            Post post = postService.findPostById(postId);
-            User commenter = userService.findUserById(request.getCommenterId());
-            Comment parentComment = null;
+            Comment comment = commentService.addComment(request, postId);
 
-            // parentId는 null일 수 있다.
-            if (request.getParentCommentId() != null)
-                parentComment = commentService.findCommentById(request.getParentCommentId());
-
-            Comment comment = new Comment(request.getContent(), commenter, post, parentComment);
-
-            Long id = commentService.addComment(comment);
-
-            return new BaseResponse(HttpStatus.OK, null, id, 1);
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, comment.getId(), 1));
         } catch (AppException e) {
-            return new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
         }
     }
 
