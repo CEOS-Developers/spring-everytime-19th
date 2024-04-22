@@ -29,12 +29,18 @@ public class MessageService {
 
     @Transactional
     public Long createMessage (CreateMessageRequest createMessageRequest){
+
         final Member sender = memberRepository.findById(createMessageRequest.getSenderId())
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         final Member receiver = memberRepository.findById(createMessageRequest.getReceiverId())
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
-        Message message = new Message(sender, receiver, createMessageRequest.getContent());
+        Message message = Message.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .content(createMessageRequest.getContent())
+                .build();
+
         return messageRepository.save(message)
                 .getId();
     }
@@ -44,7 +50,7 @@ public class MessageService {
         final Member sender = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
-        return messageRepository.findBySenderId(memberId)
+        return messageRepository.findBySenderId(sender.getId())
                 .stream().map(MessageResponse::from).toList();
     }
 
@@ -59,7 +65,6 @@ public class MessageService {
         if(messageRepository.existsByIdAndSenderId(message.getId(), member.getId()) || messageRepository.existsByIdAndReceiverId(message.getId(), member.getId())){
             messageRepository.deleteById(messageId);
         }
-
     }
 
     @Transactional

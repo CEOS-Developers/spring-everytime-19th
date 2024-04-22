@@ -25,7 +25,10 @@ public class UniversityService {
             throw new CustomException(INVALID_PARAMETER);
         }
 
-        University university = new University(name);
+        University university = University.builder()
+                .name(name)
+                .build();
+
         return universityRepository.save(university)
                 .getId();
     }

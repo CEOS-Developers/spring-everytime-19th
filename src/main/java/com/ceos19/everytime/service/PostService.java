@@ -23,9 +23,6 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 @Slf4j
 public class PostService {
 
-    public static final int MAX_TITLE_LENGTH = 100;
-    public static final int MAX_CONTENT_LENGTH = 2000;
-
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
@@ -37,7 +34,12 @@ public class PostService {
         final Board board = boardRepository.findById(createPostRequest.getBoardId())
                 .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
 
-        Post post = new Post(createPostRequest.getTitle(), createPostRequest.getContent(), author, board, createPostRequest.isAnonymous());
+        Post post = Post.builder()
+                .title(createPostRequest.getTitle())
+                .content(createPostRequest.getContent())
+                .board(board)
+                .isAnonymous(createPostRequest.isAnonymous())
+                .build();
 
         return postRepository.save(post)
                 .getId();

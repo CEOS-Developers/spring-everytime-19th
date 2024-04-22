@@ -21,7 +21,6 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 @Transactional
 @Slf4j
 public class CommentService {
-    public static final int MAX_CONTENT_LENGTH = 1000;
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
@@ -37,14 +36,26 @@ public class CommentService {
         Comment comment;
 
         if(parentCommentId == null){
-            comment = new Comment(post,null,member,content,isAnonymous);
+            comment = Comment.builder()
+                    .post(post)
+                    .parentComment(null)
+                    .author(member)
+                    .content(content)
+                    .isAnonymous(isAnonymous)
+                    .build();
         }
         else{   //대댓글인지 확인
             Optional<Comment> parentComment = commentRepository.findById(parentCommentId);
             if(parentComment.isEmpty()){        // 부모 댓글 id 잘못 됨
                 throw new CustomException(COMMENT_NOT_FOUND);
             }
-            comment = new Comment(post,parentComment.get(),member,content,isAnonymous);
+            comment = Comment.builder()
+                    .post(post)
+                    .parentComment(parentComment.get())
+                    .author(member)
+                    .content(content)
+                    .isAnonymous(isAnonymous)
+                    .build();
         }
 
         commentRepository.save(comment);

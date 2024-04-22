@@ -33,7 +33,11 @@ public class CommentLikeService {
             throw new CustomException(DATA_ALREADY_EXISTED);
         }
 
-        CommentLike commentLike = new CommentLike(comment, member);
+        CommentLike commentLike = CommentLike.builder()
+                .comment(comment)
+                .member(member)
+                .build();
+
         comment.addLike();
         commentLikeRepository.save(commentLike);
     }

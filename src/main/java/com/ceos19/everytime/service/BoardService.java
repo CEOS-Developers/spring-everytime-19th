@@ -25,8 +25,6 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 @Transactional
 @Slf4j
 public class BoardService {
-    public static final int MAX_NAME_LENGTH = 20;
-    public static final int MAX_DESCRIPTION_LENGTH = 50;
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
@@ -39,7 +37,12 @@ public class BoardService {
         final University university = universityRepository.findById(createBoardRequest.getBoardManagerId())
                 .orElseThrow(() -> new CustomException(UNIVERSITY_NOT_FOUND));
 
-        Board board = new Board(createBoardRequest.getBoardName(),createBoardRequest.getDescription(),member,university);
+        Board board = Board.builder()
+                .boardName(createBoardRequest.getBoardName())
+                .description(createBoardRequest.getDescription())
+                .boardManager(member)
+                .university(university)
+                .build();
 
         return boardRepository.save(board)
                 .getId();

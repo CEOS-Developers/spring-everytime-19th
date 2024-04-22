@@ -20,7 +20,7 @@ public class Comment extends BaseTimeEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    private Post postId;
+    private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
@@ -49,8 +49,8 @@ public class Comment extends BaseTimeEntity{
 
 
     @Builder
-    public Comment(Post postId, Comment parentComment, Member author, String content, boolean isAnonymous) {
-        this.postId = postId;
+    public Comment(Post post, Comment parentComment, Member author, String content, boolean isAnonymous) {
+        this.post = post;
         this.parentComment = parentComment;
         //this.childrenComment = childrenComment;
         this.author = author;
