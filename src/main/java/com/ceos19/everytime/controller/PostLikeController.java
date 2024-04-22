@@ -13,7 +13,7 @@ import static com.ceos19.everytime.exception.SuccessCode.INSERT_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/postlike")
+@RequestMapping("/api/postlikes")
 public class PostLikeController {
 
     private final PostLikeService postLikeService;
