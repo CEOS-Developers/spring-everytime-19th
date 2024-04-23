@@ -18,7 +18,7 @@ import io.jsonwebtoken.Jwts;
 public class JwtUtil {
 
     private final SecretKey secretKey;
-    private final  long expiredMs;
+    private final long expiredMs;
 
     public JwtUtil(@Value("${spring.jwt.secret}") final String secret,
                    @Value("${spring.jwt.expired}") final long expiredMs) {
