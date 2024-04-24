@@ -19,14 +19,13 @@ import static com.ceos19.everytime.exception.ErrorCode.DATA_ALREADY_EXISTED;
 import static com.ceos19.everytime.exception.ErrorCode.NO_DATA_EXISTED;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class BoardService {
     private final BoardRepository boardRepository;
     private final SchoolRepository schoolRepository;
 
-    @Transactional(readOnly = false)
     public Board addBoard(String name, Long schoolId) {
         School school = schoolRepository.findById(schoolId).orElseThrow(() -> {
             log.error("에러 내용: 게시판 등록 실패 " +
@@ -45,45 +44,36 @@ public class BoardService {
         return board;
     }
 
+    @Transactional(readOnly = true)
     public Board findBoardById(Long boardId) {
-        Optional<Board> optionalBoard = boardRepository.findById(boardId);
-        if (optionalBoard.isEmpty()) {
+        return boardRepository.findById(boardId).orElseThrow(() -> {
             log.error("에러 내용: 게시판 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 게시판입니다");
-        }
-        return optionalBoard.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시판입니다");
+        });
     }
 
+    @Transactional(readOnly = true)
     public List<Board> findBoardBySchoolId(Long schoolId) {
-        if (schoolRepository.findById(schoolId).isEmpty()) {
+        schoolRepository.findById(schoolId).orElseThrow(() -> {
             log.error("에러 내용: 게시판 조회 실패 " +
                     "발생 원인: 존재하지 않는 학교 PK로 조회");
-            throw new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 학교입니다");
-        }
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+        });
+
         return boardRepository.findBySchoolId(schoolId);
     }
 
-    public boolean isBoardExist(Long schoolId, String name) {
-        if (schoolRepository.findById(schoolId).isEmpty()) {
-            log.error("에러 내용: 게시판 조회 실패 " +
-                    "발생 원인: 존재하지 않는 학교 PK로 조회");
-            throw new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 학교입니다");
-        }
-        return boardRepository.findBySchoolIdAndName(schoolId, name).isPresent();
-    }
-
+    @Transactional(readOnly = true)
     public Board findBoardBySchoolIdAndName(Long schoolId, String name) {
-        Optional<Board> optionalBoard = boardRepository.findBySchoolIdAndName(schoolId, name);
-        if (optionalBoard.isEmpty()) {
-            log.error("에러 내용: 게시판 조회 실패 " +
-                    "발생 원인: 존재하지 않는 게시판명으로 조회");
-            throw new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 게시판입니다");
-        }
-        return optionalBoard.get();
+        return boardRepository.findBySchoolIdAndName(schoolId, name)
+                .orElseThrow(() -> {
+                    log.error("에러 내용: 게시판 조회 실패 " +
+                            "발생 원인: 존재하지 않는 게시판명으로 조회");
+                    return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시판입니다");
+                });
     }
 
-    @Transactional(readOnly = false)
     public void modifyBoard(Long boardId, String name) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> {
