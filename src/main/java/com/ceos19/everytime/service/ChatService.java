@@ -18,18 +18,18 @@ import static com.ceos19.everytime.exception.ErrorCode.NO_DATA_EXISTED;
 
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class ChatService {
     private final ChatRepository chatRepository;
 
-    @Transactional(readOnly = false)
     public Long addChat(Chat chat) {
         chatRepository.save(chat);
         return chat.getId();
     }
 
+    @Transactional(readOnly = true)
     public Chat findChatById(Long chatId) {
         Optional<Chat> optionalChat = chatRepository.findById(chatId);
         if (optionalChat.isEmpty()) {
@@ -40,14 +40,17 @@ public class ChatService {
         return optionalChat.get();
     }
 
+    @Transactional(readOnly = true)
     public List<Chat> findChatByAuthorId(Long authorId) {
         return chatRepository.findByAuthorId(authorId);
     }
 
+    @Transactional(readOnly = true)
     public List<Chat> findChatByChattingRoomId(Long chattingRoomId) {
         return chatRepository.findByChattingRoomId(chattingRoomId);
     }
 
+    @Transactional(readOnly = true)
     public List<Chat> findChatBySendDate(LocalDate targetDate) {
         LocalDateTime startOfDay = LocalDateTime.of(targetDate, LocalTime.MIN);
         LocalDateTime endOfDay = LocalDateTime.of(targetDate, LocalTime.MAX);
@@ -55,7 +58,6 @@ public class ChatService {
         return chatRepository.findBySentAtBetween(startOfDay, endOfDay);
     }
 
-    @Transactional(readOnly = false)
     public void removeChat(Long chatId) {
         Optional<Chat> optionalChat = chatRepository.findById(chatId);
         if (optionalChat.isEmpty()) {
