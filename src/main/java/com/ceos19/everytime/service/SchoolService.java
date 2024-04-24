@@ -14,13 +14,12 @@ import java.util.Optional;
 import static com.ceos19.everytime.exception.ErrorCode.*;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class SchoolService {
     private final SchoolRepository schoolRepository;
 
-    @Transactional(readOnly = false)
     public Long addSchool(String schoolName) {
         School school = new School(schoolName);
         schoolRepository.findByName(schoolName).ifPresent(
@@ -33,6 +32,7 @@ public class SchoolService {
         return school.getId();
     }
 
+    @Transactional(readOnly = true)
     public School findSchoolById(Long schoolId) {
         return schoolRepository.findById(schoolId)
                 .orElseThrow(() -> {
@@ -42,6 +42,7 @@ public class SchoolService {
                 });
     }
 
+    @Transactional(readOnly = true)
     public School findSchoolByName(String name) {
         return schoolRepository.findByName(name)
                 .orElseThrow(() -> {
@@ -51,11 +52,11 @@ public class SchoolService {
                 });
     }
 
+    @Transactional(readOnly = true)
     public List<School> findSchools() {
         return schoolRepository.findAll();
     }
 
-    @Transactional(readOnly = false)
     public void modifySchool(Long schoolId, String name) {
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> {
