@@ -17,7 +17,7 @@ import static lombok.AccessLevel.*;
 @NoArgsConstructor(access = PROTECTED)
 @Getter
 @ToString
-public class User {
+public class User extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "user_id")

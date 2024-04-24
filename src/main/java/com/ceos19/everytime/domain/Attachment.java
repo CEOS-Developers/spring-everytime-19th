@@ -13,7 +13,7 @@ import static lombok.AccessLevel.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "post")
-public class Attachment {  // 게시물에 달 사진
+public class Attachment extends BaseTimeEntity{  // 게시물에 달 사진
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "attachment_id")

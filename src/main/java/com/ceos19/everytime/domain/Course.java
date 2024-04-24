@@ -18,7 +18,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @Entity
 @ToString
-public class Course {
+public class Course extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "course_id")  // PK 값을 학수 번호로 설정
