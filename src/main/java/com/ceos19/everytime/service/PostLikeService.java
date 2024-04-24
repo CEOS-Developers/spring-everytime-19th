@@ -69,38 +69,40 @@ public class PostLikeService {
 
     @Transactional(readOnly = true)
     public List<PostLike> findPostLikeByPostId(Long postId) {
+        postRepository.findById(postId).orElseThrow(() -> {
+            log.error("에러 내용: 좋아요 조회 실패 " +
+                    "발생 원인: 존재하지 않는 Post의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시물입니다");
+        });
         return postLikeRepository.findByPostId(postId);
     }
 
     @Transactional(readOnly = true)
     public PostLike findByPostIdAndUserId(Long postId, Long userId) {
-        Optional<PostLike> optionalPostLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
-        if (optionalPostLike.isEmpty()) {
+        return postLikeRepository.findByPostIdAndUserId(postId, userId).orElseThrow(()->{
             log.error("에러 내용: 좋아요 조회 실패 " +
-                    "발생 원인: 존재하지 않는 FK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 좋아요입니다");
-        }
-        return optionalPostLike.get();
+                    "발생 원인: 존재하지 않는 Post 혹은 User의 FK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시물 혹은 유저입니다");
+        });
     }
 
     public void removePostLike(Long postLikeId) {
-        Optional<PostLike> optionalPostLike = postLikeRepository.findById(postLikeId);
-        if (optionalPostLike.isEmpty()) {
+        postLikeRepository.findById(postLikeId).orElseThrow(() -> {
             log.error("에러 내용: 좋아요 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 좋아요입니다");
-        }
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 좋아요입니다");
+        });
+
         postLikeRepository.deleteById(postLikeId);
     }
 
     public void removePostLike(Long postId, Long userId) {
-        Optional<PostLike> optionalPostLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
-        if (optionalPostLike.isEmpty()) {
+        PostLike postLike = postLikeRepository.findByPostIdAndUserId(postId, userId).orElseThrow(() -> {
             log.error("에러 내용: 좋아요 조회 실패 " +
-                    "발생 원인: 존재하지 않는 FK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 좋아요입니다");
-        }
-        PostLike postLike = optionalPostLike.get();
+                    "발생 원인: 존재하지 않는 Post 혹은 User의 FK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시물 혹은 유저입니다");
+        });
+
         postLikeRepository.deleteById(postLike.getId());
     }
 }
