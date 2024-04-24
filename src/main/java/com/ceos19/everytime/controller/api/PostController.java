@@ -4,10 +4,7 @@ import com.ceos19.everytime.domain.Comment;
 import com.ceos19.everytime.domain.Post;
 import com.ceos19.everytime.domain.PostLike;
 import com.ceos19.everytime.domain.User;
-import com.ceos19.everytime.dto.AddCommentRequest;
-import com.ceos19.everytime.dto.AddPostLikeRequest;
-import com.ceos19.everytime.dto.BaseResponse;
-import com.ceos19.everytime.dto.ReadPostResponse;
+import com.ceos19.everytime.dto.*;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.service.CommentService;
 import com.ceos19.everytime.service.PostLikeService;
@@ -18,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,4 +66,84 @@ public class PostController {
         }
     }
 
+    @GetMapping("{post_id}/comments")
+    public ResponseEntity<BaseResponse<List<ReadCommentResponse>>> readComments(@PathVariable("post_id") Long postId) {
+        try {
+            List<ReadCommentResponse> value = new ArrayList<>();
+            commentService.findCommentByPostId(postId).forEach(comment -> {
+                value.add(ReadCommentResponse.from(comment));
+            });
+
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, value.size()));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @GetMapping("/{post_id}/postLike")
+    public ResponseEntity<BaseResponse> readNumberOfPostLike(@PathVariable("post_id") Long postId) {
+        try {
+            int value = postLikeService.findPostLikeByPostId(postId).size();
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, value, 1));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @GetMapping("/{post_id}/attachments")
+    public ResponseEntity<BaseResponse<List<ReadAttachmentResponse>>> readAttachments(@PathVariable("post_id") Long postId) {
+        try {
+            List<ReadAttachmentResponse> value = new ArrayList<>();
+            postService.findPostById(postId).getAttachments().forEach(attachment -> {
+                value.add(ReadAttachmentResponse.from(attachment));
+            });
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, value.size()));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @PutMapping("/{post_id}")
+    public ResponseEntity<BaseResponse> modifyPost(@PathVariable("post_id") Long postId, @Valid @RequestBody ModifyPostRequest request) {
+        try {
+            System.out.println("request = " + request.getIsAnonymous());
+            postService.modifyPost(postId, request);
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, null, 0));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @PostMapping("/post/{post_id}/attachment")
+    public ResponseEntity<BaseResponse> addAttachment(@PathVariable("post_id") Long postId, @RequestBody AddAttachmentRequest request) {
+        try {
+            Long id = postService.addAttachment(postId, request);
+
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, id, 1));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @DeleteMapping("/{post_id}")
+    public ResponseEntity<BaseResponse> deletePost(@PathVariable("post_id") Long postId) {
+        try {
+            postService.removePost(postId);
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, null, 0));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
 }
