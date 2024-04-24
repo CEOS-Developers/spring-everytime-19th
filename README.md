@@ -3,7 +3,6 @@
 이번에 게시판 서비스를 만들면서 설계한 엔티티간의 연관관계 구조는 다음과 같다.
 ![img_4](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/87fd119c-859c-4c6f-9773-a4bf7e4891d3)
 
-
 # 개발 중 문제점 및 고민점
 
 1. 이번에 User와 Post 사이에 좋아요 기능을 추가하기 위해서 Like 엔티티를 설계했었다. 하지만 like 키워드는 DB에서 이미 사용중인 예약어로 테이블 명으로 사용할 수 없었다. 따라서 Heart로
@@ -533,10 +532,10 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
     1. 게시물 등록(POST /board/{board_id}/post) O
 - 조회
     - 단건 조회
-        1. PK (/board/{board_id}) 
+        1. PK (/board/{board_id})
     - 게시판에 속한 게시물 조회
         1. 해당 게시판의 모든 게시물 조회  (/board/{board_id}/posts) O
-        2. 게시물 등록일자로 조회 (/board/{board_id}/posts?date={xxxx-xx-xx}) O 
+        2. 게시물 등록일자로 조회 (/board/{board_id}/posts?date={xxxx-xx-xx}) O
         3. 게시물 명으로 조회 (/board/{board_id}/posts?title={게시물명}) O
 - 수정 (/board/{board_id}) O
     1. 게시판 이름
@@ -546,22 +545,30 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 - 등록
     1. 좋아요 등록 (/post/{post_id}/postLike) O
     2. 해당 게시물에 댓글 달기 (/post/{post_id}/comment) O
+    3. 해당 게시물에 첨부 파일 추가(/post/{post_id}/attachment) O
 - 조회
     - 단건 조회
         1. PK (/post/{post_id})  O
     - 게시물에 속한 댓글 조회
-        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{post_id}/comments)
+        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{post_id}/comments) O
     - 게시물에 속한 좋아요 조회
-        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{post_id}/postLike)
-- 수정 (/post/{post_id})
+        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{post_id}/postLike) O
+    - 게시물에 속한 첨부파일 조회
+        1. 해당 게시물에 속한 모든 첨부파일 조회(/post/{post_id}/attachments) O
+- 수정 (/post/{post_id}) O
     1. 내용
     2. 질문 여부
     3. 익명 여부
-    4. 첨부 파일(추가 및 삭제)
 - 제거
-    1. 게시물 (/post/{post_id})
+    1. 게시물 (/post/{post_id}) O
+
+### 첨부파일(AttachmentController)
+
+- 제거
+    1. 첨부파일 (/attachment/{attachment_id}) O
 
 ### 댓글(CommentController
+
 - 등록
     1. 대댓글 달기 (/comment/{comment_id}/replies)
 - 조회
@@ -629,9 +636,13 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 
 - 제거 (/timeTables/{tid})
     1. 시간표의 수업 제거(/timeTables/{tid}/courses/{cid})
+
 ## 컨트롤러 구현
+
 ### 1) BaseResponse
+
 ~~~java
+
 @GetMapping("/{sid}")
 public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long schoolId) {
     try {
@@ -643,9 +654,13 @@ public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long sch
     }
 }
 ~~~
+
 readSchool() 메서드는 "/api/schools/{sid}" url로 request가 들어온 경우 해당 sid(= PK)에 맞는 학교 정보를 찾아서 반환해주는 메서드이다.
-이때 반환형을 보면 BaseResponse<ReadSchoolResponse>인 것을 확인할 수 있는데, 모든 컨트롤러 메서드에 BaseResponse 메서드를 wrapping하여서 반환 데이터가 규격화되도록 구현했다.
+이때 반환형을 보면 BaseResponse<ReadSchoolResponse>인 것을 확인할 수 있는데, 모든 컨트롤러 메서드에 BaseResponse 메서드를 wrapping하여서 반환 데이터가 규격화되도록
+구현했다.
+
 ~~~java
+
 @Getter
 public class BaseResponse<T> {
     private HttpStatus httpStatus;
@@ -661,8 +676,10 @@ public class BaseResponse<T> {
     }
 }
 ~~~
+
 BaseResponse는 기본적으로 Http 상태, 상태 메시지, 반환값, 반환 값 개수를 response 반환시에 함께 반환하도록 구현된 wrapper 클래스이다.
 따라서 어떠한 데이터를 반환할 경우, 반환 데이터의 형태는 다음과 같다.
+
 ~~~
 {
   "httpStatus": "100 CONTINUE",
@@ -671,10 +688,14 @@ BaseResponse는 기본적으로 Http 상태, 상태 메시지, 반환값, 반환
   "count": 0
 }
 ~~~
+
 ### 2) 정적 팩토리 메서드 적용
+
 그동안 Dto에 데이터를 넣을때마다 별도의 생성자를 통해서 Dto를 생성하는 방식으로 진행했다.  
 그러다 스터디를 통해서 정적팩토리 메서드를 통해서 데이터를 주입 받는 방식을 배우게 되어 적용해 보았다.
+
 ~~~java
+
 @Data
 @AllArgsConstructor
 public class ReadSchoolResponse {
@@ -687,17 +708,21 @@ public class ReadSchoolResponse {
     }
 }
 ~~~
+
 from() 정적 팩토리 메서드를 통해서 번거롭게 dto에 값을 하나하나 넣지 않고 엔티티를 넣는다면 자동으로 반환값이 들어가도록 구현할 수 있었다.  
 이를 통해서 훨씬 개발 생산성 뿐만이 아니라 반환값을 넣는 과정에서 발생할 수 있는 실수도 줄이는 장점을 볼 수 있었다.  
 정적 팩토리 메서드 패턴은 굉장히 좋은 방식이라고 생각했다!
 
 ### 3) Global Exception
+
 알고 보니 운이 좋게도 과제가 나오기 전에 이미 Global Exception을 구현해서 사용하고 있었다.  
 나는 AppException이라는 별도의 예외 클래스를 생성하여 예외 발생시 상황에 맞는 HttpStatus와 메시지를 반환 할 수 있도록 구현하였다.
+
 ~~~java
+
 @AllArgsConstructor
 @Getter
-public class AppException extends RuntimeException{  // global exception
+public class AppException extends RuntimeException {  // global exception
     private ErrorCode errorCode;
     private String message;
 }
@@ -707,7 +732,7 @@ public class AppException extends RuntimeException{  // global exception
 public enum ErrorCode {
     DATA_ALREADY_EXISTED(HttpStatus.CONFLICT, ""),
     NO_DATA_EXISTED(HttpStatus.NOT_FOUND, ""),
-    NOT_NULL(HttpStatus.NO_CONTENT,""),
+    NOT_NULL(HttpStatus.NO_CONTENT, ""),
 
     ID_DUPLICATED(HttpStatus.CONFLICT, ""),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, ""),
@@ -716,13 +741,14 @@ public enum ErrorCode {
 
     KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, ""),
     INVALID_VALUE_ASSIGNMENT(HttpStatus.BAD_REQUEST, ""),
-    INVALID_URI_ACCESS(HttpStatus.NOT_FOUND,"");
+    INVALID_URI_ACCESS(HttpStatus.NOT_FOUND, "");
 
 
     private final HttpStatus httpStatus;
     private final String message;
 }
 ~~~
+
 사용중에 잘못된 경우에 대한 예외처리를 하기 위해서 RunTimeException을 상속받도록 하였다.  
 AppException은 ErrorCode를 반환하도록 하였는데, ErrorCode는 HttpStatus와 message로 구성이되는 방식을 택했다.   
 하지만 상황에 따라서 별도의 메시지를 반환하도록 중간에 수정을 거쳐서 ErrorCode 내부의 메시지는
@@ -730,6 +756,7 @@ AppException은 ErrorCode를 반환하도록 하였는데, ErrorCode는 HttpStat
 <br/>
 <br/>
 AppException의 사용 예시는 다음과 같다. 서비스 단에서 예외가 발생되도록 구현했다.
+
 ~~~java
 public School findSchoolById(Long schoolId) {
     return schoolRepository.findById(schoolId)
@@ -740,11 +767,13 @@ public School findSchoolById(Long schoolId) {
             });
 }
 ~~~
+
 만일 잘못된 PK로 조회를 하는 경우 ErrorCode중 NO_DATA_EXISTED라는 값과 "존재하지 않는 학교입니다"라는 메시지를 담은 예외가 발생한다.
 <br/>
 <br/>
 
 ~~~java
+
 @GetMapping("/{sid}")
 public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long schoolId) {
     try {
@@ -756,33 +785,38 @@ public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long sch
     }
 }
 ~~~
+
 예외가 발생하는 경우, 컨트롤러에서 catch되어 BaseResponse에 해당 에러의 HttpStatus와 message가 담겨 반환된다.
 <br/>
 <br/>
 ![img_6](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/23d53438-bcab-4a06-af2c-0634125623bd)  
 포스트 맨으로 테스트해본 결과 정상적으로 작동됨을 알 수 있었다.
+
 ### 4) swagger 연동
+
 이번에 처음으로 swagger를 접하였는데 굉장히 유용하였다. api에 대한 데이터 구조를 직관적으로 볼 수 있다는 점에서 굉장히 앞으로도 애용할 것 같다!
 ![img_7](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/99772109-cd3f-430b-8bb8-b3a69b895fdb)
 ![img_8](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/95f71023-671e-41de-9456-33f642935b0b)
 json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 있어 굉장히 유용하였다!
 
 # 5주차
-## 리팩토링 진행
-1) **ResponseEntity 추가**</br>
-기존에는 와일드 카드를 이용한 BaseResponse 엔티티를 사용하여 반환을 진행했다. 이 과정에서 HttpStatus가 클라이언트에게 반환되지 않는다는 문제를 발견하여
-ResponseEntity를 통해서 HttpStatus를 명시해줬다.
 
-    ![수정전](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ef19026b-38da-4fab-b0df-b2bf5bb85a8f)
-    
-    -수정전-</br>
-   
-    ![수정후](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/47045cb9-ebe0-4071-a614-77f1a5b09520)
-    
-    -수정후-</br>
+## 리팩토링 진행
+
+1) **ResponseEntity 추가**</br>
+   기존에는 와일드 카드를 이용한 BaseResponse 엔티티를 사용하여 반환을 진행했다. 이 과정에서 HttpStatus가 클라이언트에게 반환되지 않는다는 문제를 발견하여
+   ResponseEntity를 통해서 HttpStatus를 명시해줬다.
+
+   ![수정전](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ef19026b-38da-4fab-b0df-b2bf5bb85a8f)
+
+   -수정전-</br>
+
+   ![수정후](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/47045cb9-ebe0-4071-a614-77f1a5b09520)
+
+   -수정후-</br>
 3) **Controller 리팩토링**</br>
-코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
-추가적으로 나중에는 Service에서 바로 DTO를 반환하도록 구현하는 것도 고민해봐야겠다.</br>
-이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다.
+   코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
+   추가적으로 나중에는 Service에서 바로 DTO를 반환하도록 구현하는 것도 고민해봐야겠다.</br>
+   이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다.
 4) **Service 리팩토링**</br>
-lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다. 
+   lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다. 
