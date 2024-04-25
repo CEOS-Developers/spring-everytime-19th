@@ -1,9 +1,8 @@
 package com.ceos19.everytime.controller.api;
 
-import com.ceos19.everytime.domain.Attachment;
 import com.ceos19.everytime.dto.BaseResponse;
 import com.ceos19.everytime.exception.AppException;
-import com.ceos19.everytime.service.AttachmentService;
+import com.ceos19.everytime.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,20 +12,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/attachment")
+@RequestMapping("/api/postlike")
 @RequiredArgsConstructor
-public class AttachmentController {
-    private final AttachmentService attachmentService;
+public class PostLikeController {
+    private final PostLikeService postLikeService;
 
-    @DeleteMapping("/{attachment_id}")
-    public ResponseEntity<BaseResponse> deleteAttachment(@PathVariable("attachment_id") Long attachmentId) {
+    @DeleteMapping("/{postlike_id}")
+    public ResponseEntity<BaseResponse> deletePostLike(@PathVariable("postlike_id") Long postLikeId) {
         try {
-            attachmentService.removeAttachment(attachmentId);
-            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, null, 0));
+            postLikeService.removePostLike(postLikeId);
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, null, 0));
+
         } catch (AppException e) {
             BaseResponse response =
                     new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
             return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
         }
     }
+
+
 }
