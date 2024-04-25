@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.ceos19.everytime.exception.ErrorCode.NO_DATA_EXISTED;
 
@@ -47,17 +46,36 @@ public class CommentService {
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시물입니다");
         });
 
-        Long parentCommentId = request.getParentCommentId();
-        Comment parentComment = null;
-        if (parentCommentId != null)
-            parentComment = commentRepository.findById(parentCommentId).orElseThrow(() -> {
-                log.error("에러 내용: 게시물 조회 실패 " +
-                        "발생 원인: 존재하지 않는 Comment의 PK 값으로 조회");
-                return new AppException(NO_DATA_EXISTED, "대댓글을 달 수 있는 댓글이 존재하지 않습니다");
-            });
+
+        Comment comment = new Comment(request.getContent(), commenter, post, null);
+        commentRepository.save(comment);
+        return comment;
+    }
+
+    public Comment addReply(AddCommentRequest request, Long commentId) {
+        System.out.println("1 ===================== ");
+        User commenter = userRepository.findById(request.getCommenterId()).orElseThrow(() -> {
+            log.error("에러 내용: 댓글 조회 실패 " +
+                    "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
+
+        System.out.println("2 ===================== ");
+
+        Comment parentComment = commentRepository.findById(commentId).orElseThrow(() -> {
+            log.error("에러 내용: 게시물 조회 실패 " +
+                    "발생 원인: 존재하지 않는 Comment의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "대댓글을 달 수 있는 댓글이 존재하지 않습니다");
+        });
+
+        System.out.println("3 ===================== ");
+
+        Post post = parentComment.getPost();
+        System.out.println("4 ===================== ");
 
         Comment comment = new Comment(request.getContent(), commenter, post, parentComment);
         commentRepository.save(comment);
+
         return comment;
     }
 
@@ -116,5 +134,14 @@ public class CommentService {
             reply.removeParentComment();
         }
         commentRepository.deleteById(commentId);
+    }
+
+    public void modifyComment(Long commentId, String content) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> {
+            log.error("에러 내용: 댓글 조회 실패 " +
+                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 댓글입니다");
+        });
+        comment.updateContent(content);
     }
 }
