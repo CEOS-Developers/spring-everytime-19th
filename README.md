@@ -567,31 +567,32 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 - 제거
     1. 첨부파일 (/attachment/{attachment_id}) O
 
-### 댓글(CommentController
+### 댓글(CommentController)
 
 - 등록
-    1. 대댓글 달기 (/comment/{comment_id}/replies)
+    1. 대댓글 달기 (/comment/{comment_id}/reply) O
 - 조회
     - 다중 조회
-        1. 대댓글 전체 조회 (/comment/{comment_id}/replies)
-- 댓글 수정 (/comment/{comment_id})
-- 댓글 제거 (/comment/{comment_id})
+        1. 대댓글 전체 조회 (/comment/{comment_id}/replies) O
+- 댓글 수정 (/comment/{comment_id}) O
+    1. 콘텐츠 수정
+- 댓글 제거 (/comment/{comment_id}) O
 
 ### 게시물 좋아요(PostLikeController)
 
-- 제거 (/postLike/{plid})
+- 제거 (/postLike/{postlike_id}) O
 
 ### 수업(CourseController)
 
 - 조회
     - 단건 조회
-        1. PK (/course/{course_id})
-- 제거 (/courses/{course_id})
+        1. PK (/course/{course_id}) O
+- 제거 (/course/{course_id}) O
 
 ### 유저(UserController)
 
 - 등록
-    1. 시간표 등록(/user/{user_id}/timeTables)
+    1. 시간표 등록(/user/{user_id}/timeTable)
 - 조회
     - 단건 조회
         - 구현 예정 ...
@@ -612,27 +613,27 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 ### 채팅방(ChattingRoomController)
 
 - 등록
-    1. 채팅방 등록(/chattingRooms) ({"participant1":fk1, "participant2":fk2...})
-    2. 채팅 등록(/chattingRooms/{crid}/chats) ({"author":fk, "content":"내용..."})
+    1. 채팅방 등록(/chattingRoom) ({"participant1":fk1, "participant2":fk2...})
+    2. 채팅 등록(/chattingRooms/{crid}/chat) ({"author":fk, "content":"내용..."})
 - 조회
     - 단건 조회
-        1. PK (/chattingRooms/{crid})
+        1. PK (/chattingRoom/{crid})
     - 채팅방에 속해 있는 채팅 전체 조회(/chattingRooms/{crid}/chats)
-- 제거 (/chattingRooms/{crid})
+- 제거 (/chattingRoom/{crid})
 
 ### 채팅(ChatController)
 
-- 채팅 제거(chats/{cid})
+- 채팅 제거(chat/{cid})
 
 ### 시간표(TimeTableController)
 
 - 등록
-    1. 시간표에 수업 추가(/timeTables/{tid}/courses)
+    1. 시간표에 수업 추가(/timeTable/{tid}/course)
 - 조회
     - 단건 조회
-        1. PK(/timeTables/{tid})
+        1. PK(/timeTable/{tid})
     - 시간표에 등록된 수업 조회
-        1. 시간표상의 모든 수업 조회(/timeTables/{tid}/courses)
+        1. 시간표상의 모든 수업 조회(/timeTable/{tid}/courses)
 
 - 제거 (/timeTables/{tid})
     1. 시간표의 수업 제거(/timeTables/{tid}/courses/{cid})
