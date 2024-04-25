@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/post")
+@RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
     private final PostLikeService postLikeService;
@@ -83,10 +83,12 @@ public class PostController {
     }
 
     @GetMapping("/{post_id}/postLike")
-    public ResponseEntity<BaseResponse> readNumberOfPostLike(@PathVariable("post_id") Long postId) {
+    public ResponseEntity<BaseResponse<List<ReadPostLikeResponse>>> readPostLike(@PathVariable("post_id") Long postId) {
         try {
-            int value = postLikeService.findPostLikeByPostId(postId).size();
-            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, value, 1));
+            List<ReadPostLikeResponse> value = new ArrayList<>();
+            postLikeService.findPostLikeByPostId(postId).forEach(postLike -> {
+                value.add(ReadPostLikeResponse.from(postLike));});
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, value, value.size()));
         } catch (AppException e) {
             BaseResponse response =
                     new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
@@ -112,7 +114,6 @@ public class PostController {
     @PutMapping("/{post_id}")
     public ResponseEntity<BaseResponse> modifyPost(@PathVariable("post_id") Long postId, @Valid @RequestBody ModifyPostRequest request) {
         try {
-            System.out.println("request = " + request.getIsAnonymous());
             postService.modifyPost(postId, request);
             return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, null, 0));
         } catch (AppException e) {
