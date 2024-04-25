@@ -28,9 +28,7 @@ import java.util.List;
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
 public class BoardController {
-    private final SchoolService schoolService;
     private final BoardService boardService;
-    private final UserService userService;
     private final PostService postService;
 
     @PostMapping("/{board_id}/post")
