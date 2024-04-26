@@ -17,7 +17,7 @@ import static lombok.AccessLevel.*;
 @NoArgsConstructor(access = PROTECTED)
 @Getter
 @ToString
-public class User extends BaseTimeEntity{
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "user_id")
@@ -25,31 +25,37 @@ public class User extends BaseTimeEntity{
 
     @Column(unique = true, nullable = false, updatable = false, length = 50)
     private String username;
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, length = 20)
     private String name;
 
-    @Column(nullable = false,length = 20)
+    @Column(nullable = false, length = 20)
     private String studentNo;
 
     @Email
     @Column(nullable = false, length = 50)
     private String email;
 
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "school_id")
     private School school;
 
     @Builder
-    public User(String username, String password, String name, String studentNo, String email, School school) {
+    public User(String username, String password, String name, String studentNo, String email, School school,
+                Role role) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.studentNo = studentNo;
         this.email = email;
         this.school = school;
+        this.role = role;
     }
 
     /**
