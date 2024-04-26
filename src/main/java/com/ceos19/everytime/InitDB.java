@@ -66,9 +66,9 @@ public class InitDB {
             courseRepository.save(course2);
 
             // 유저 가입
-            User user1 = new User("myUsername", "myPassword", "김재석", "B000011", "um@naver.com", school);
+            User user1 = new User("myUsername", "myPassword", "김재석", "B000011", "um@naver.com", school,Role.ADMIN);
             userService.addUser(user1);
-            User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "um1@naver.com", school);
+            User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "um1@naver.com", school,Role.USER);
             userService.addUser(user2);
 
             // 시간표 생성
