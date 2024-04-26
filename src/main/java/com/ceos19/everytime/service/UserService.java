@@ -1,11 +1,13 @@
 package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.*;
+import com.ceos19.everytime.dto.AddUserRequest;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,72 +30,114 @@ public class UserService {
     private final CommentRepository commentRepository;
     private final SchoolRepository schoolRepository;
     private final PostLikeRepository postLikeRepository;
+    private final BCryptPasswordEncoder encoder;
     private final EntityManager em;
 
     public Long addUser(User user) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            log.error("에러 내용: 유저 가입 실패 " +
-                    "발생 원인: 이미 존재하는 아이디로 가입 시도");
-            throw new AppException(DATA_ALREADY_EXISTED, "이미 존재하는 아이디입니다");
-        }
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            log.error("에러 내용: 유저 가입 실패 " +
-                    "발생 원인: 이미 존재하는 이메일로 가입 시도");
-            throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 이메일입니다");
-        }
-        if (userRepository.findBySchoolIdAndStudentNo(user.getSchool().getId(), user.getStudentNo()).isPresent()) {
-            log.error("에러 내용: 유저 가입 실패 " +
-                    "발생 원인: 이미 존재하는 학번으로 가입 시도");
-            throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 학번입니다");
-        }
+        userRepository.findByUsername(user.getUsername())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 아이디로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 존재하는 아이디입니다");
+                });
+        userRepository.findByEmail(user.getEmail())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 이메일로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 이메일입니다");
+                });
+        userRepository.findBySchoolIdAndStudentNo(user.getSchool().getId(), user.getStudentNo())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 학번으로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 학번입니다");
+                });
 
         userRepository.save(user);
         return user.getId();
     }
 
+    public User addUser(AddUserRequest request) {
+        // 중복 검사
+        userRepository.findByUsername(request.getUsername())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 아이디로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 존재하는 아이디입니다");
+                });
+        userRepository.findByEmail(request.getEmail())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 이메일로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 이메일입니다");
+                });
+        userRepository.findBySchoolIdAndStudentNo(request.getSchoolId(), request.getStudentNo())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 학번으로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 학번입니다");
+                });
+
+
+        School school = schoolRepository.findById(request.getSchoolId()).orElseThrow(() -> {
+            log.error("에러 내용: 유저 가입 실패 " +
+                    "발생 원인: 존재하지 않는 School PK로 조회");
+            return new AppException(DATA_ALREADY_EXISTED, "존재하지 않은 학교입니다");
+        });
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(encoder.encode(request.getPassword()))
+                .name(request.getName())
+                .studentNo(request.getStudentNo())
+                .email(request.getEmail())
+                .role(request.getRole())
+                .school(school)
+                .build();
+        userRepository.save(user);
+
+        return user;
+    }
+
     @Transactional(readOnly = true)
     public User findUserById(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
+        return userRepository.findById(userId).orElseThrow(() -> {
             log.error("에러 내용: 유저 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
-        }
-        return optionalUser.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
     }
 
     @Transactional(readOnly = true)
     public User findUserByUsername(String username) {
-        Optional<User> optionalUser = userRepository.findByUsername(username);
-        if (optionalUser.isEmpty()) {
+        return userRepository.findByUsername(username).orElseThrow(() -> {
             log.error("에러 내용: 유저 조회 실패 " +
                     "발생 원인: 존재하지 않는 아이디 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
-        }
-
-        return optionalUser.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
     }
 
     @Transactional(readOnly = true)
     public User findUserByEmail(String email) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
+        return userRepository.findByEmail(email).orElseThrow(() -> {
             log.error("에러 내용: 유저 조회 실패 " +
                     "발생 원인: 존재하지 않는 이메일 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
-        }
-        return optionalUser.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
     }
 
     @Transactional(readOnly = true)
     public User findUserBySchoolIdAndStudentNo(Long schoolId, String studentNo) {
-        Optional<User> optionalUser = userRepository.findBySchoolIdAndStudentNo(schoolId, studentNo);
-        if (optionalUser.isEmpty()) {
+        return userRepository.findBySchoolIdAndStudentNo(schoolId, studentNo).orElseThrow(() -> {
             log.error("에러 내용: 유저 조회 실패 " +
                     "발생 원인: 존재하지 않는 학교, 학번으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
-        }
-        return optionalUser.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> findUserByName(String name) {
+        return userRepository.findByName(name);
     }
 
     public void removeUser(Long userId) {
