@@ -22,3 +22,9 @@ logging:
 
 file:
   dir: E:\CEOS FILE\spring-everytime-19th\attachment_file\
+
+jwt:
+  token:
+    secret: ${JWT_TOKEN_SECRET}  # 실제로 사용하는 비밀키는 환경변수로 로컬에 저장.(노출 방지)
+    expireAccessTokenTimeMs: 3600000 # 1 hour
+    expireRefreshTokenTimeMs: 604800000 # 7 days
