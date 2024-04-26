@@ -592,15 +592,17 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 ### 유저(UserController)
 
 - 등록
-    1. 시간표 등록(/user/{user_id}/timeTable)
+    1. 회원가입(/join) O
+    2. 시간표 등록(/user/{user_id}/timeTable)
+
 - 조회
     - 단건 조회
         1. PK(/user/{user_id}) O
-        2. email(/user?email={이메일})
-        3. 학번(/user?school={학교PK}&studentNo={학번}) 
+        2. email(/user?email={이메일}) O
+        3. 학번(/user?school_id={학교PK}&studentNo={학번}) O
+        4. 로그인(/login)
     - 다중 조회
-        1. 이름(/users?name={이름})
-        2. 학교(/users?school 
+        1. 이름(/users?name={이름}) O
     - 유저가 쓴 게시물 조회
         1. 유저가 쓴 게시물 전체 조회(/user/{user_id}/posts)
     - 유저가 속해 있는 채팅방 조회
@@ -823,4 +825,49 @@ json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 
    추가적으로 나중에는 Service에서 바로 DTO를 반환하도록 구현하는 것도 고민해봐야겠다.</br>
    이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다.
 4) **Service 리팩토링**</br>
-   lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다. 
+   lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다.
+5) **global exception handler 구현**</br>
+
+~~~java
+
+@RestControllerAdvice
+public class ApiControllerAdvice {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)  // @Valid에서 에러가 발생한 경우 여기에서 처리
+    public ResponseEntity<BaseResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors()
+                .forEach(c -> errors.put(((FieldError) c).getField(), c.getDefaultMessage()));
+
+        return ResponseEntity.badRequest()
+                .body(new BaseResponse<>(HttpStatus.BAD_REQUEST, "invalid request parameter", errors, 0));
+    }
+
+
+    // ConstraintViolationException 처리
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<BaseResponse<Object>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation ->
+                errors.put(violation.getPropertyPath().toString(), violation.getMessage()));
+
+        for (ConstraintViolation set : ex.getConstraintViolations()) {
+            System.out.println("set.getMessage() = " + set.getMessage());
+            System.out.println("set.getInvalidValue() = " + set.getInvalidValue());
+        }
+
+        BaseResponse<Object> response = new BaseResponse<>(HttpStatus.BAD_REQUEST, "validation failure", errors, 0);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // 기타 예외 처리
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponse<Object>> handleException(Exception ex) {
+        BaseResponse<Object> response = new BaseResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, "server error", null, 0);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+~~~
+
+전역 예외를 처리하기 위해서 ApiControllerAdvice라는 global exception handler를 구현했다.
+위의 두개의 handler에서 처리하지 못한 예외는 맨 아래의 exception handler에서 Exception을 처리하도록 해 전체적으로 처리하도록 구현했다.
