@@ -11,8 +11,9 @@ public class ReadUserResponse {
     private String name;
     private String studentNo;
     private String email;
+    private String school;
 
     public static ReadUserResponse from(User user) {
-        return new ReadUserResponse(user.getId(), user.getName(), user.getStudentNo(), user.getEmail());
+        return new ReadUserResponse(user.getId(), user.getName(), user.getStudentNo(), user.getEmail(),user.getSchool().getName());
     }
 }

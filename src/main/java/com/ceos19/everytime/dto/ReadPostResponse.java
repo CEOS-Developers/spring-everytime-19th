@@ -21,8 +21,8 @@ public class ReadPostResponse {
     private Long id;
     private String title;
     private String content;
-    private boolean isQuestion;
-    private boolean isAnonymous;
+    private Boolean isQuestion;
+    private Boolean isAnonymous;
     private String authorName;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
