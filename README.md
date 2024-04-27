@@ -903,6 +903,8 @@ public class ApiControllerAdvice {
 위의 두개의 handler에서 처리하지 못한 예외는 맨 아래의 exception handler에서 Exception을 처리하도록 해 전체적으로 처리하도록 구현했다.
 
 ## Spring Security
+### 필터 구조
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/72225923-1496-484b-8398-d257b3f61907)
 
 ### 회원가입
 ~~~java
