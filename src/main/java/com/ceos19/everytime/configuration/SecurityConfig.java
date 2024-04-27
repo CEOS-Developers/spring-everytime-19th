@@ -49,13 +49,14 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
                 .permitAll()// swagger 경로 접근 허용
-                .requestMatchers("/login", "/", "/join","**").permitAll()  // root 경로 접근 허용 (추후 "**" 제거해야함. 개발시 편의를 위해 설정)
+                .requestMatchers("/login", "/", "/join", "**").permitAll()  // root 경로 접근 허용 (추후 "**" 제거해야 함. 개발시 편의를 위해 설정)
                 .requestMatchers("/admin").hasRole("ADMIN")  // admin만 접근 허용
                 .anyRequest().authenticated() // 이외의 경로는 로그인한 사용자만 접근 허용
         );
 
         // Form로그인 disable로 인해 기존에 설정 되었던 UsernamePasswordAuthenticationFilter가 사용되지 않으므로
         // 새로이 생성한 커스텀 필터(LoginFilter)를 해당 필터 자리에 대신 해서 넣어줌
+        // ~/login에 대한 post 요청은 여기에서 처리
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
 
         //세션 stateless 설정
