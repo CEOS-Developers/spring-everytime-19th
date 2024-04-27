@@ -806,30 +806,60 @@ public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long sch
 json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 있어 굉장히 유용하였다!
 
 # 5주차
-
 ## 리팩토링 진행
 
 1) **ResponseEntity 추가**</br>
-   기존에는 와일드 카드를 이용한 BaseResponse 엔티티를 사용하여 반환을 진행했다. 이 과정에서 HttpStatus가 클라이언트에게 반환되지 않는다는 문제를 발견하여
+   - 기존에는 와일드 카드를 이용한 BaseResponse 객체를 만들어 반환을 진행했다. 이 과정에서 HttpStatus가 클라이언트에게 반환되지 않는다는 문제를 발견하여
    ResponseEntity를 통해서 HttpStatus를 명시해줬다.
 
+#### ***- 수정전***    
+~~~java
+@GetMapping("/school/{school_id}")
+public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("school_id") Long schoolId) {
+    try {
+        School school = schoolService.findSchoolById(schoolId);
+        ReadSchoolResponse value = ReadSchoolResponse.from(school);
+
+        return new BaseResponse<>(HttpStatus.OK, null, value, 1);
+    } catch (AppException e) {
+        return BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+    }
+}
+~~~
    ![수정전](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ef19026b-38da-4fab-b0df-b2bf5bb85a8f)
+</br></br>
 
-   -수정전-</br>
 
+#### ***- 수정후***
+~~~java
+@GetMapping("/school/{school_id}")
+public ResponseEntity<BaseResponse<ReadSchoolResponse>> readSchool(@PathVariable("school_id") Long schoolId) {
+    try {
+        School school = schoolService.findSchoolById(schoolId);
+        ReadSchoolResponse value = ReadSchoolResponse.from(school);
+
+        return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, 1));
+    } catch (AppException e) {
+        BaseResponse response =
+                new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+        return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+    }
+}
+~~~
    ![수정후](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/47045cb9-ebe0-4071-a614-77f1a5b09520)
 
-   -수정후-</br>
-3) **Controller 리팩토링**</br>
-   코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
+2) **Controller 리팩토링**</br>
+   - 코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
    추가적으로 나중에는 Service에서 바로 DTO를 반환하도록 구현하는 것도 고민해봐야겠다.</br>
-   이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다.
-4) **Service 리팩토링**</br>
-   lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다.
-5) **global exception handler 구현**</br>
+   이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다. </br>
+   - rest api도 재설계하였다. 피드백을 보니 기존의 url에서 단건/다중 조회시에 구분이 명확하지 않다는 피드백이 있었다. 예를들어, 기존에 PK로 학교를 조회하는 url은 /schools/{school_id}이었고, 모든 학교를 조회하는 api는 /schools이었다.
+   처음 생각하기에는 여러개의 학교들 중에서 하나의 학교를 school_id를 통해서 조회하는 것이니 /schools/{school_id}로 url을 설계하면 되겠다라고 생각했었다. 그러다 피드백을 받고 다시 생각을 해보니, 하나의 학교만을 조회하는 것이니 s를 빼는게 맞겠다는 생각이 들어
+   /school/{school_id}로 다시 리팩토링을 진행했다. 유사한 방식으로 설계했었던 다른 url들도 이와 같은 방식으로 수정했다.
+3) **Service 리팩토링**</br>
+   - lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다.
+4) **global exception handler 구현**</br>
 
 ~~~java
-
 @RestControllerAdvice
 public class ApiControllerAdvice {
 
@@ -871,3 +901,159 @@ public class ApiControllerAdvice {
 
 전역 예외를 처리하기 위해서 ApiControllerAdvice라는 global exception handler를 구현했다.
 위의 두개의 handler에서 처리하지 못한 예외는 맨 아래의 exception handler에서 Exception을 처리하도록 해 전체적으로 처리하도록 구현했다.
+
+## Spring Security
+
+### 회원가입
+~~~java
+@Service
+@Transactional
+@RequiredArgsConstructor
+@Slf4j
+public class UserService implements UserDetailsService {
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder encoder;
+
+    // 회원가입 로직
+    public User join(JoinUserRequest request) {
+        // 중복 검사
+        userRepository.findByUsername(request.getUsername())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 아이디로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 존재하는 아이디입니다");
+                });
+        userRepository.findByEmail(request.getEmail())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 이메일로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 이메일입니다");
+                });
+        userRepository.findBySchoolIdAndStudentNo(request.getSchoolId(), request.getStudentNo())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 학번으로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 학번입니다");
+                });
+
+
+        School school = schoolRepository.findById(request.getSchoolId()).orElseThrow(() -> {
+            log.error("에러 내용: 유저 가입 실패 " +
+                    "발생 원인: 존재하지 않는 School PK로 조회");
+            return new AppException(DATA_ALREADY_EXISTED, "존재하지 않은 학교입니다");
+        });
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(encoder.encode(request.getPassword()))
+                .name(request.getName())
+                .studentNo(request.getStudentNo())
+                .email(request.getEmail())
+                .role(request.getRole())
+                .school(school)
+                .build();
+        userRepository.save(user);
+
+        return user;
+    }
+}
+~~~
+회원가입을 위한 join 메서드를 userService에 구현하였다. 먼저 중복 검사 및 학교 정보를 검사해서 잘못된 경우 exception을 발생시키고, 정상적인 경우 유저 정보를 DB에 저장한다.</br> 
+이때 중요한 것이 유저의 비밀번호를 인코딩 한 후 DB에 저장하는 것이다. 만일 인코딩이 되지 않은 상태로 DB에 저장하면
+혹시라도 DB가 털렸을 때 유저의 비밀번호가 모두 그대로 유출되기 때문에 반드시 인코딩을 한 후 DB에 저장해야한다.
+
+인코딩을 하기 위해서 BCryptPasswordEncoder를 먼저 스프링 빈으로 등록한 후 사용하였다. 이때 spring security 관련 빈들은 Configuration을 위한 SecurityConfig 클래스에 선언하여 관리하도록 하였다.
+~~~java
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+    @Bean  // passwordEncoder 빈 등록
+    public BCryptPasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+    ...
+}
+~~~
+
+</br>SecurityConfig에 @EnableWebSecurity 어노테이션을 적용하여 web security 관련 기능을 활성화 시킬 수 있다.
+~~~java
+/**
+ * Add this annotation to an {@code @Configuration} class to have the Spring Security
+ * configuration defined in any {@link WebSecurityConfigurer} or more likely by exposing a
+ * {@link SecurityFilterChain} bean:
+ *
+ * <pre class="code">
+ * &#064;Configuration
+ * &#064;EnableWebSecurity
+ * public class MyWebSecurityConfiguration {
+ *
+ * 	&#064;Bean
+ * 	public WebSecurityCustomizer webSecurityCustomizer() {
+ * 		return (web) -> web.ignoring()
+ * 		// Spring Security should completely ignore URLs starting with /resources/
+ * 				.requestMatchers(&quot;/resources/**&quot;);
+ * 	}
+ *
+ * 	&#064;Bean
+ * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+ * 		http.authorizeHttpRequests().requestMatchers(&quot;/public/**&quot;).permitAll().anyRequest()
+ * 				.hasRole(&quot;USER&quot;).and()
+ * 				// Possibly more configuration ...
+ * 				.formLogin() // enable form based log in
+ * 				// set permitAll for all URLs associated with Form Login
+ * 				.permitAll();
+ * 		return http.build();
+ * 	}
+ *
+ * 	&#064;Bean
+ * 	public UserDetailsService userDetailsService() {
+ * 		UserDetails user = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;user&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;USER&quot;)
+ * 			.build();
+ * 		UserDetails admin = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;admin&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+ * 			.build();
+ * 		return new InMemoryUserDetailsManager(user, admin);
+ * 	}
+ *
+ * 	// Possibly more bean methods ...
+ * }
+ * </pre>
+ *
+ * @see WebSecurityConfigurer
+ * @author Rob Winch
+ * @since 3.2
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+@Import({ WebSecurityConfiguration.class, SpringWebMvcImportSelector.class, OAuth2ImportSelector.class,
+		HttpSecurityConfiguration.class })
+@EnableGlobalAuthentication
+public @interface EnableWebSecurity {
+
+	/**
+	 * Controls debugging support for Spring Security. Default is false.
+	 * @return if true, enables debug support with Spring Security
+	 */
+	boolean debug() default false;
+
+}
+~~~
+@EnableWebSecurity는 환경 설정에 많이 사용되므로 보통 @Configuration과 함께 사용되며 WebSecurityConfiguration.class, SpringWebMvcImportSelector.class, OAuth2ImportSelector.class,
+HttpSecurityConfiguration.class등을 import 해주어 security 관련 기능을 제공한다.
+
+### 로그인
+
+### token secret key 생성
+jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요하다. 나는 openssl을 사용해서 랜덤 키를 생성하여 사용하였다.
+랜덤키를 생성하는 방법은 여러가지가 있지만 shell에서 다음 명령어를 이용한다면 쉽게 생성할 수 있다.
+
+~~~shell
+openssl rand -hex 64
+~~~
