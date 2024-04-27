@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,8 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.ceos19.everytime.board.dto.request.BoardPostsRequestDto;
@@ -31,8 +34,9 @@ import com.ceos19.everytime.postlike.dto.request.PostLikeRequestDto;
 import com.ceos19.everytime.postlike.service.PostLikeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest(PostController.class)
-@Import(SecurityConfig.class)
+@WebMvcTest(value = PostController.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class))
+@WithMockUser
 class PostControllerTest {
 
     private static final String DEFAULT_POST_URL = "/api/posts";
@@ -58,6 +62,7 @@ class PostControllerTest {
 
         // when & then
         mockMvc.perform(post(DEFAULT_POST_URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -114,6 +119,7 @@ class PostControllerTest {
 
         // when & then
         mockMvc.perform(post(DEFAULT_POST_URL + "/likes/{postId}", postId)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -130,6 +136,7 @@ class PostControllerTest {
 
         // when & then
         mockMvc.perform(delete(DEFAULT_POST_URL + "/likes/{postId}", postId)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
