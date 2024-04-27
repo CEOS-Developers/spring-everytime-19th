@@ -12,8 +12,9 @@ public class ReadUserResponse {
     private String studentNo;
     private String email;
     private String school;
+    private String role;
 
     public static ReadUserResponse from(User user) {
-        return new ReadUserResponse(user.getId(), user.getName(), user.getStudentNo(), user.getEmail(),user.getSchool().getName());
+        return new ReadUserResponse(user.getId(), user.getName(), user.getStudentNo(), user.getEmail(), user.getSchool().getName(), user.getRole());
     }
 }

@@ -38,9 +38,8 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 50)
     private String email;
 
-    @Enumerated(value = EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Role role;
+    private String role;  // ROLE_USER, ROLE_ADMIN
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "school_id")
@@ -48,7 +47,7 @@ public class User extends BaseTimeEntity {
 
     @Builder
     public User(String username, String password, String name, String studentNo, String email, School school,
-                Role role) {
+                String role) {
         this.username = username;
         this.password = password;
         this.name = name;
