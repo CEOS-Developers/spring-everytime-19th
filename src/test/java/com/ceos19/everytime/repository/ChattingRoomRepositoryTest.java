@@ -29,8 +29,8 @@ class ChattingRoomRepositoryTest {
     @Test
     public void findTest() throws Exception{
         //given
-        User user = new User("a", "a", "a", "a", "a@n.com", null);
-        User user1 = new User("b", "b", "b", "b", "b@n.com", null);
+        User user = new User("a", "a", "a", "a", "a@n.com", null,"ROLE_ADMIN");
+        User user1 = new User("b", "b", "b", "b", "b@n.com", null,"ROLE_ADMIN");
         userRepository.save(user);
         userRepository.save(user1);
 
