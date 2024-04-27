@@ -847,6 +847,7 @@ public ResponseEntity<BaseResponse<ReadSchoolResponse>> readSchool(@PathVariable
 }
 ~~~
    ![수정후](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/47045cb9-ebe0-4071-a614-77f1a5b09520)
+<br></br>
 
 2) **Controller 리팩토링**</br>
    - 코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
@@ -854,9 +855,9 @@ public ResponseEntity<BaseResponse<ReadSchoolResponse>> readSchool(@PathVariable
    이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다. </br>
    - rest api도 재설계하였다. 피드백을 보니 기존의 url에서 단건/다중 조회시에 구분이 명확하지 않다는 피드백이 있었다. 예를들어, 기존에 PK로 학교를 조회하는 url은 /schools/{school_id}이었고, 모든 학교를 조회하는 api는 /schools이었다.
    처음 생각하기에는 여러개의 학교들 중에서 하나의 학교를 school_id를 통해서 조회하는 것이니 /schools/{school_id}로 url을 설계하면 되겠다라고 생각했었다. 그러다 피드백을 받고 다시 생각을 해보니, 하나의 학교만을 조회하는 것이니 s를 빼는게 맞겠다는 생각이 들어
-   /school/{school_id}로 다시 리팩토링을 진행했다. 유사한 방식으로 설계했었던 다른 url들도 이와 같은 방식으로 수정했다.
+   /school/{school_id}로 다시 리팩토링을 진행했다. 유사한 방식으로 설계했었던 다른 url들도 이와 같은 방식으로 수정했다.<br></br>
 3) **Service 리팩토링**</br>
-   - lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다.
+   - lambda 메서드를 적극 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다.<br></br>
 4) **global exception handler 구현**</br>
 
 ~~~java
@@ -958,10 +959,9 @@ public class UserService implements UserDetailsService {
     }
 }
 ~~~
-회원가입을 위한 join 메서드를 userService에 구현하였다. 먼저 중복 검사 및 학교 정보를 검사해서 잘못된 경우 exception을 발생시키고, 정상적인 경우 유저 정보를 DB에 저장한다.</br> 
+회원가입을 위한 join 메서드를 userService에 구현하였다. 먼저 중복 검사 및 학교 정보를 검사해서 잘못된 경우 exception을 발생시키고, 정상적인 경우 유저 정보를 DB에 저장한다.</br>
 이때 중요한 것이 유저의 비밀번호를 인코딩 한 후 DB에 저장하는 것이다. 만일 인코딩이 되지 않은 상태로 DB에 저장하면
-혹시라도 DB가 털렸을 때 유저의 비밀번호가 모두 그대로 유출되기 때문에 반드시 인코딩을 한 후 DB에 저장해야한다.
-
+혹시라도 DB가 털렸을 때 유저의 비밀번호가 모두 그대로 유출되기 때문에 반드시 인코딩을 한 후 DB에 저장해야한다.</br>
 인코딩을 하기 위해서 BCryptPasswordEncoder를 먼저 스프링 빈으로 등록한 후 사용하였다. 이때 spring security 관련 빈들은 Configuration을 위한 SecurityConfig 클래스에 선언하여 관리하도록 하였다.
 ~~~java
 @Configuration
@@ -1049,6 +1049,92 @@ public @interface EnableWebSecurity {
 HttpSecurityConfiguration.class등을 import 해주어 security 관련 기능을 제공한다.
 
 ### 로그인
+~~~java
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+    //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체
+    private final AuthenticationConfiguration authenticationConfiguration;
+
+    @Bean  //AuthenticationManager Bean 등록
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean  // 필터 등록
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        //csrf disable
+        http.csrf(AbstractHttpConfigurer::disable);  // jwt는 session을 stateless하게 유지하므로 csrf에 대한 방어가 필요하지 않다
+
+        //From 로그인 방식 disable -> UsernamePasswordAuthenticationFilter 커스텀 구현 필요
+        http.formLogin(AbstractHttpConfigurer::disable);
+
+        //http basic 인증 방식 disable
+        http.httpBasic(AbstractHttpConfigurer::disable);
+
+        //경로별 인가 작업
+        http.authorizeHttpRequests((auth) -> auth
+                .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
+                .permitAll()// swagger 경로 접근 허용
+                .requestMatchers("/login", "/", "/join", "**").permitAll()  // root 경로 접근 허용 (추후 "**" 제거해야 함. 개발시 편의를 위해 설정)
+                .requestMatchers("/admin").hasRole("ADMIN")  // admin만 접근 허용
+                .anyRequest().authenticated() // 이외의 경로는 로그인한 사용자만 접근 허용
+        );
+
+        // Form로그인 disable로 인해 기존에 설정 되었던 UsernamePasswordAuthenticationFilter가 사용되지 않으므로
+        // 새로이 생성한 커스텀 필터(LoginFilter)를 해당 필터 자리에 대신 해서 넣어줌
+        // ~/login에 대한 post 요청은 여기에서 처리
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
+
+        //세션 stateless 설정
+        http.sessionManagement((session) -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+    }
+}
+
+@Slf4j
+@RequiredArgsConstructor
+public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+    private final AuthenticationManager authenticationManager;
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+
+        // request로 부터 username, password 가져오기
+        String username = obtainUsername(request);
+        String password = obtainPassword(request);
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+
+        return authenticationManager.authenticate(authToken);  // DB에서 user 정보를 가져와서 authToken에 대한 검증 진행
+    }
+
+    //로그인 성공시 실행하는 메소드 (JWT 발급)
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
+        String username = obtainUsername(request);
+
+        log.info("successful authentication: {}",username);
+    }
+
+    //로그인 실패시 실행하는 메소드
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+        String username = obtainUsername(request);
+
+        log.info("unsuccessful authentication: {}",username);
+        response.setStatus(401);
+    }
+}
+~~~
+session 로그인 방식에서는 UsernamePasswordAuthenticationFilter에서 로그인 처리를 진행하지만, 이번에는 jwt 방식을 사용하기 위해서 form 로그인 방식을 disable 시켰기 때문에 더 이상 UsernamePasswordAuthenticationFilter는 동작하지 않는다.
+그렇기에 jwt를 이용한 로그인 기능을 위해 별도의 LoginFilter를 선언한 후 addFilterAt() 메서드를 이용해 UsernamePasswordAuthenticationFilter 자리에 넣어주었다.
+
+이제 로그인 기능은 Spring Security의 LoginFilter가 담당하게 되었다. 따라서 **컨트롤러에서 별도로 로그인 api를 만들지 않고 필터를 통해서 로그인을 진행할 수 있게된다(/login에 post요청으로 로그인 가능)**.
 
 ### token secret key 생성
 jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요하다. 나는 openssl을 사용해서 랜덤 키를 생성하여 사용하였다.
