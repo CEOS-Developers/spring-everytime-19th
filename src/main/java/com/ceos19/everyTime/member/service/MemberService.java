@@ -16,7 +16,7 @@ public class MemberService {
 
     //멤버 저장 메서드
     @Transactional
-    public void saveMember(MemberSignUpDto memberSignUpDto){
+    public Long saveMember(MemberSignUpDto memberSignUpDto){
         Member member=Member.builder()
                 .name(memberSignUpDto.getName())
                     .loginId(memberSignUpDto.getLoginId())
@@ -25,7 +25,9 @@ public class MemberService {
                                 .build();
 
 
-        memberRepository.save(member);
+        Member savedMember = memberRepository.save(member);
+
+        return savedMember.getId();
     }
 
 }
