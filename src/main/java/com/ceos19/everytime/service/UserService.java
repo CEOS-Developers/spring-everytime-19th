@@ -1,18 +1,20 @@
 package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.*;
-import com.ceos19.everytime.dto.AddUserRequest;
+import com.ceos19.everytime.dto.JoinUserRequest;
+import com.ceos19.everytime.dto.CustomUserDetails;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.repository.*;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.ceos19.everytime.exception.ErrorCode.*;
 
@@ -20,7 +22,7 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final TimeTableRepository timeTableRepository;
     private final ChattingRoomRepository chattingRoomRepository;
@@ -31,7 +33,6 @@ public class UserService {
     private final SchoolRepository schoolRepository;
     private final PostLikeRepository postLikeRepository;
     private final BCryptPasswordEncoder encoder;
-    private final EntityManager em;
 
     public Long addUser(User user) {
         userRepository.findByUsername(user.getUsername())
@@ -57,7 +58,7 @@ public class UserService {
         return user.getId();
     }
 
-    public User addUser(AddUserRequest request) {
+    public User join(JoinUserRequest request) {
         // 중복 검사
         userRepository.findByUsername(request.getUsername())
                 .ifPresent(f -> {
@@ -115,6 +116,17 @@ public class UserService {
                     "발생 원인: 존재하지 않는 아이디 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
         });
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> {
+            log.error("에러 내용: 유저 조회 실패 " +
+                    "발생 원인: 존재하지 않는 아이디 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
+
+        return new CustomUserDetails(user);
     }
 
     @Transactional(readOnly = true)
