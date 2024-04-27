@@ -1137,6 +1137,8 @@ session 로그인 방식에서는 UsernamePasswordAuthenticationFilter에서 로
 그렇기에 jwt를 이용한 로그인 기능을 위해 별도의 LoginFilter를 선언한 후 addFilterAt() 메서드를 이용해 UsernamePasswordAuthenticationFilter 자리에 넣어주었다.
 
 이제 로그인 기능은 Spring Security의 LoginFilter가 담당하게 되었다. 따라서 **컨트롤러에서 별도로 로그인 api를 만들지 않고 필터를 통해서 로그인을 진행할 수 있게된다(/login에 post요청으로 로그인 가능)**.
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/96ded288-45f0-4aa1-9735-0ad40219b7c2)
+
 
 ### token secret key 생성
 jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요하다. 나는 openssl을 사용해서 랜덤 키를 생성하여 사용하였다.
