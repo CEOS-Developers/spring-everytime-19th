@@ -4,6 +4,7 @@ import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.user.dto.request.UserCreateRequest;
 import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,11 +13,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public User register(UserCreateRequest request) {
         User user = new User(
                 request.getLoginId(),
-                request.getPassword(),
+                passwordEncoder.encode(request.getPassword()),
                 request.getNickname(),
                 request.getName(),
                 request.getMajor(),
