@@ -1,6 +1,8 @@
 package com.ceos19.everyTime.post.controller;
 
 import com.ceos19.everyTime.common.ApiBaseResponse;
+import com.ceos19.everyTime.error.ErrorCode;
+import com.ceos19.everyTime.error.exception.NotFoundException;
 import com.ceos19.everyTime.member.domain.Member;
 import com.ceos19.everyTime.member.repository.MemberRepository;
 import com.ceos19.everyTime.post.dto.request.PostEditRequestDto;
@@ -24,6 +26,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -42,48 +46,45 @@ public class PostController {
     private final MemberRepository memberRepository;
     private final LikePostService likePostService;
 
-    @PostMapping(value = "/{communityId}/{memberId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{communityId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "게시글 저장", description = "게시판에 게시글을 작성합니다.")
     @Parameters({
         @Parameter(name = "communityId",description = "커뮤니티 즉 게시판의 ID 를 입력해주세요", in = ParameterIn.PATH ,required = true),
-        @Parameter(name = "memberId",description = "게시글을 작성하는 User 의 ID를 입력해주세요", in = ParameterIn.PATH , required = true),
     })
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201",description = "게시물 생성 완료"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long communityId,@PathVariable("memberId") final Long memberId,@ModelAttribute @Valid final PostSaveRequestDto postSaveRequestDto){
-        postService.savePost(postSaveRequestDto,communityId,getfindMember(memberId));
+    public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long communityId,@ModelAttribute @Valid final PostSaveRequestDto postSaveRequestDto){
+        postService.savePost(postSaveRequestDto,communityId,getMember());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PatchMapping(value = "/{postId}/{memberId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{postId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "게시글 수정", description = "게시판에 게시글을 수정합니다.")
     @Parameters({
-        @Parameter(name = "postId",description = "수정할 게시글의 ID를 입력해주세요", in = ParameterIn.PATH ,required = true),
-        @Parameter(name = "memberId",description = "현재 로그인 멤버의 ID를 입력해주세요", in = ParameterIn.PATH,required = true)
+        @Parameter(name = "postId",description = "수정할 게시글의 ID를 입력해주세요", in = ParameterIn.PATH ,required = true)
     })
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200",description = "업데이트 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public ResponseEntity<Void> changePost(@PathVariable("postId") final Long postId,@PathVariable("memberId")final Long memberId,@ModelAttribute @Valid final PostEditRequestDto postEditRequestDto){
-        postService.updatePost(postEditRequestDto,postId,getfindMember(memberId));
+    public ResponseEntity<Void> changePost(@PathVariable("postId") final Long postId, @ModelAttribute @Valid final PostEditRequestDto postEditRequestDto){
+        postService.updatePost(postEditRequestDto,postId,getMember());
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{postId}/{memberId}")
+    @DeleteMapping("/{postId}")
     @Operation(summary = "게시글 삭제", description = "게시판에 게시글을 삭제합니다.")
     @Parameters({
-        @Parameter(name = "postId",description = "삭제할 게시글의 id를 입력해주세요", in = ParameterIn.PATH ,required = true),
-        @Parameter(name = "memberId",description = "삭제할 사람의 id를 입력해주세요", in = ParameterIn.PATH ,required = true)
+        @Parameter(name = "postId",description = "삭제할 게시글의 id를 입력해주세요", in = ParameterIn.PATH ,required = true)
     })
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200",description = "삭제 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public void deletePost(@PathVariable("postId") final Long postId,@PathVariable("memberId") final Long memberId){
-        postService.deletePost(postId,getfindMember(memberId));
+    public void deletePost(@PathVariable("postId") final Long postId){
+        postService.deletePost(postId,getMember());
     }
 
     @GetMapping("/{communityId}/list")
@@ -120,15 +121,14 @@ public class PostController {
     @PostMapping("/like/{postId}/{memberId}")
     @Operation(summary = "게시글 좋아요", description = "게시글에 좋아요 혹은 좋아요 취소를 누릅니다. ")
     @Parameters({
-        @Parameter(name = "postId",description = "좋아요/취소 를 누를 게시글의 id를 입력해주세요", in = ParameterIn.PATH ,required = true),
-        @Parameter(name = "memberId",description = "좋아요/취소를 누르는 작성자의 ID를 입력해주세요", in = ParameterIn.PATH ,required = true)
+        @Parameter(name = "postId",description = "좋아요/취소 를 누를 게시글의 id를 입력해주세요", in = ParameterIn.PATH ,required = true)
     })
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200",description = "게시글 좋아요 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public void likePost(@PathVariable("postId") final Long postId,@PathVariable("memberId") final Long memberId){
-        likePostService.likePost(getfindMember(memberId),postId);
+    public void likePost(@PathVariable("postId") final Long postId){
+        likePostService.likePost(getMember(),postId);
     }
 
 
@@ -136,5 +136,11 @@ public class PostController {
 
     private Member getfindMember(Long id){
         return memberRepository.findById(id).get();
+    }
+
+    private Member getMember(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return memberRepository.findMemberByLoginId(authentication.getName()).orElseThrow(()->new NotFoundException(
+                ErrorCode.MESSAGE_NOT_FOUND));
     }
 }
