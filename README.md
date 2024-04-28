@@ -1573,3 +1573,138 @@ Body 상태 코드 관련: https://www.inflearn.com/questions/1037608/apirespons
 https://joojimin.tistory.com/54
 
 중첩: https://velog.io/@kseysh/ResponseEntity-vs-ApiResponse
+
+-----
+
+#   시큐리티 흐름 방식 흐름 정리 
+
+## 회원 가입시 
+
+```java
+Member member = Member.createNormalMember(memberSignUpDto.getName(),
+                memberSignUpDto.getLoginId(), passwordEncoder.encode(memberSignUpDto.getPassword()),memberSignUpDto.getNickName());
+
+        Member savedMember = memberRepository.save(member);
+```
+
+ - 회원가입 시 사용자가 입력한 비밀번호를 ```BCrpytPasswordEncoder``` 를 사용해서 비밀번호를 암호화 해서 사용 하게 함.
+
+## 로그인 시 
+
+![img_9.png](img_9.png)
+
+위 이미지는 Form Login 에서 사용되는 인증 흐름 이다. 
+이 과정을 JWT 를 사용한 방식으로 재구성하는게 목표다. 
+
+### 전체적 코드 
+```java
+@Transactional
+    public TokenResponseDto login(SignInDto signInDto){
+
+       //1
+        Member findMember=memberRepository.findMemberByLoginId(signInDto.getUserID()).orElseThrow(()->new NotFoundException(
+                ErrorCode.MESSAGE_NOT_FOUND));
+
+        if(!passwordEncoder.matches(signInDto.getPassword(),findMember.getPassword())){
+            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
+        
+        //2
+        UsernamePasswordAuthenticationToken authenticationToken=signInDto.getAuthenticationToken();
+        //3
+        Authentication authentication= authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        TokenDto tokenDto=tokenProvider.createToken(authentication);
+
+        redisTemplate.opsForValue().set(authentication.getName(),tokenDto.getRefreshToken(),tokenDto.getRefreshTokenValidationTime(), TimeUnit.MILLISECONDS);
+        return new TokenResponseDto(tokenDto.getType(),tokenDto.getAccessToken(),tokenDto.getRefreshToken(),tokenDto.getAccessTokenValidationTime());
+
+    }
+```
+
+- 1 부분은 사용자가 아이디와 비밀번호를 입력하였을 때 고유한 값인 ID 를 바탕으로 사용자를 찾은 후 
+찾은 아이디의 비밀번호와 사용자가 입력한 비밀 번호가 맞는지 확인하는 작업을 한다.
+
+### id 와 password 로 이루어진 Authentiation 만들기 
+- 2 부분은 사용자가 로그인을 위해 입력한 ID 와 Password를 바탕으로 ```Authentication``` 객체를 만든다. 
+
+```java
+@Getter
+public class SignInDto {
+    private String userID;
+    private String password;
+    public UsernamePasswordAuthenticationToken getAuthenticationToken(){
+        return new UsernamePasswordAuthenticationToken(userID,password);
+    }
+}
+
+```
+
+UsernamePasswordAuthenticationToken 은 Authentication 의 구현체 를 상속 받은 것 
+
+### AuthenticationManager 를 통해 authenticate 실행 
+
+```java
+Authentication authentication= authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+```
+
+위 과정을 통해 수행되며 내부에서 다시 ```AuthenticationManager``` 가 ```AuthenticationProvider``` 에게 위임
+
+
+### DaoAuthenticationProvider 가 loadByUsername 호출 ###
+
+```java
+@Override
+	protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
+			throws AuthenticationException {
+		prepareTimingAttackProtection();
+		try {
+			UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+			if (loadedUser == null) {
+				throw new InternalAuthenticationServiceException(
+						"UserDetailsService returned null, which is an interface contract violation");
+			}
+			return loadedUser;
+		}
+```
+
+위는 DaoAuthenticationProvider 의 일부분 
+위 과정에서 ```this.getUserDetailsService().loadUserByUsername(username)``` 를 통해 사용자의 정보를 담는 ```UserDetails``` 를 반환받을 수 있다.
+이를 Custom 하게 만들기 위해 UserDetailsService 를 상속받아 처리가능 
+
+```java
+public class JwtUserDetailsService implements UserDetailsService {
+    private final MemberRepository memberRepository;
+
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return memberRepository.findMemberByLoginId(username)
+                .map(this::getUserDetails)
+                .orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
+    }
+
+    public UserDetails getUserDetails(Member member) {
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(member.getAuthority().toString());
+
+        return new User(member.getLoginId(), member.getPassword(), Collections.singleton(authority));
+    }
+}
+```
+
+### 새로운 Authentication 만들기
+
+![img_10.png](img_10.png)
+
+```ProviderManager``` 에서 위 코드를 통해 새로운 인증 객체 ```Authentication``` 을 만들고 
+
+```java
+//3
+        Authentication authentication= authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        TokenDto tokenDto=tokenProvider.createToken(authentication);
+```
+
+login 서비스 코드에서 반환받은 ```Authentication``` 을 가지고 Token 을 생성하고 클라이언트에게 반환한다. 
+
+# 기존 방식 중 수정한 것 및 궁금한 것 
+
