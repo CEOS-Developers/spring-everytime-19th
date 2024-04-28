@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((requests) ->
                         requests.
                                 requestMatchers(HttpMethod.GET,"/post/*").permitAll()
-                                .requestMatchers("/post/*").hasRole("GENERAL")
+                                .requestMatchers("/post/*").hasAuthority("GENERAL")
                                 .anyRequest().permitAll())
 
                  .addFilterBefore(new JwtFilter(tokenProvider,redisTemplate),
