@@ -1,6 +1,7 @@
 package com.ceos19.springeverytime.domain.user.service;
 
 import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.dto.request.UserCreateRequest;
 import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,16 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public User register(User user) {
+    public User register(UserCreateRequest request) {
+        User user = new User(
+                request.getLoginId(),
+                request.getPassword(),
+                request.getNickname(),
+                request.getName(),
+                request.getMajor(),
+                request.getAdmissionYear(),
+                request.getEmail()
+        );
         validateDuplicatedUser(user);
         return userRepository.save(user);
     }

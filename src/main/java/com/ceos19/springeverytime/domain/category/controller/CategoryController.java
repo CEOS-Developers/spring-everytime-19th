@@ -4,6 +4,7 @@ import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.category.dto.response.CategoryPostResponse;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import com.ceos19.springeverytime.domain.user.service.UserService;
 import com.ceos19.springeverytime.domain.category.dto.request.CategoryCreateRequest;
 import com.ceos19.springeverytime.domain.category.dto.request.CategoryUpdateRequest;
@@ -25,11 +26,12 @@ import java.util.List;
 public class CategoryController {
     private final CategoryService categoryService;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<Void> createCategory(@RequestBody @Valid final CategoryCreateRequest request) {
         // test user
-        User user = userService.register(new User(
+        User user = userRepository.save(new User(
             "test",
             "1234",
             "nickname",
