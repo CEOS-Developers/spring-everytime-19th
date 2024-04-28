@@ -3,6 +3,8 @@ package com.ceos19.springeverytime.domain.user.service;
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.user.dto.request.UserCreateRequest;
 import com.ceos19.springeverytime.domain.user.repository.UserRepository;
+import com.ceos19.springeverytime.global.exception.BadRequestException;
+import com.ceos19.springeverytime.global.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,9 +42,8 @@ public class UserService {
     }
 
     private void validateDuplicatedUser(User user) {
-        Optional<User> findUser = userRepository.findByLoginId(user.getLoginId());
-        if (findUser.isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 회원 아이디입니다.");
+        if (userRepository.existsByLoginId(user.getLoginId())) {
+            throw new BadRequestException(ExceptionCode.DUPLICATED_LOGIN_ID);
         }
     }
 }
