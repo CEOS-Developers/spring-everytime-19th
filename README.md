@@ -1155,7 +1155,7 @@ session 로그인 방식에서는 UsernamePasswordAuthenticationFilter에서 로
 
 ### 로그인 과정
 
-![img.png](img.png) </br>
+![img](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/08205881-a265-4634-b29e-adde08f5a874) </br>
 
 ~~~java
 package com.ceos19.everytime.jwt;
