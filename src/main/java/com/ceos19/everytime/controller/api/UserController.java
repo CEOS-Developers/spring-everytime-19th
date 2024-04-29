@@ -29,8 +29,8 @@ public class UserController {
 
     public ResponseEntity<BaseResponse> join(@Valid @RequestBody JoinUserRequest request) {
         try {
-            User user = userService.join(request);
-            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, user.getId(), 1));
+            Long id = userService.join(request);
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, id, 1));
         } catch (AppException e) {
             BaseResponse response =
                     new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
@@ -38,6 +38,17 @@ public class UserController {
         }
     }
 
+    @PostMapping("/user/{user_id}/timeTable")
+    public ResponseEntity<BaseResponse> addTimeTable(@PathVariable("user_id") Long userId, @Valid @RequestBody AddTimeTableRequest request) {
+        try {
+            Long id = timeTableService.addTimeTable(userId, request);
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, id, 1));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
 
     @GetMapping("/user/{user_id}")
     public ResponseEntity<BaseResponse<ReadUserResponse>> readUser(@PathVariable("user_id") Long userId) {
