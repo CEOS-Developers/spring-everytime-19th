@@ -136,9 +136,9 @@ public class SchoolController {
     @PostMapping("/school/{school_id}/board")
     public ResponseEntity<BaseResponse> addBoard(@PathVariable("school_id") Long schoolId, @Valid @RequestBody AddBoardRequest request) {
         try {
-            Board board = boardService.addBoard(request.getName(), schoolId);
+            Long id = boardService.addBoard(request.getName(), schoolId);
 
-            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, board.getId(), 1));
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, id, 1));
         } catch (AppException e) {
             BaseResponse response =
                     new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
@@ -200,7 +200,6 @@ public class SchoolController {
     public ResponseEntity<BaseResponse> addCourse(@PathVariable("school_id") Long schoolId,
                                   @Valid @RequestBody AddCourseRequest request) {
         try {
-            School school = schoolService.findSchoolById(schoolId);
             Long courseId = courseService.addCourse(request, schoolId);
 
             return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, courseId, 1));

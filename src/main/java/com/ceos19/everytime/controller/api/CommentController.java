@@ -25,8 +25,8 @@ public class CommentController {
     @PostMapping("/{comment_id}/reply")
     public ResponseEntity<BaseResponse> addReply(@PathVariable("comment_id") Long commentId, @Valid @RequestBody AddCommentRequest request) {
         try {
-            Comment reply = commentService.addReply(request, commentId);
-            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, reply.getId(), 1));
+            Long id = commentService.addReply(request, commentId);
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, id, 1));
         } catch (AppException e) {
             BaseResponse response =
                     new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);

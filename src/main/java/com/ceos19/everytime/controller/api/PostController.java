@@ -56,9 +56,9 @@ public class PostController {
     @PostMapping("/{post_id}/comment")
     public ResponseEntity<BaseResponse> addComment(@PathVariable("post_id") Long postId, @Valid @RequestBody AddCommentRequest request) {
         try {
-            Comment comment = commentService.addComment(request, postId);
+            Long id = commentService.addComment(request, postId);
 
-            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, comment.getId(), 1));
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, id, 1));
         } catch (AppException e) {
             BaseResponse response =
                     new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
@@ -87,7 +87,8 @@ public class PostController {
         try {
             List<ReadPostLikeResponse> value = new ArrayList<>();
             postLikeService.findPostLikeByPostId(postId).forEach(postLike -> {
-                value.add(ReadPostLikeResponse.from(postLike));});
+                value.add(ReadPostLikeResponse.from(postLike));
+            });
             return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, value, value.size()));
         } catch (AppException e) {
             BaseResponse response =

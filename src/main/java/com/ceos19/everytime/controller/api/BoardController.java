@@ -34,8 +34,8 @@ public class BoardController {
     @PostMapping("/{board_id}/post")
     public ResponseEntity<BaseResponse> addPost(@PathVariable("board_id") Long boardId, @Valid @RequestBody AddPostRequest request) {
         try {
-            Post post = postService.addPost(request, boardId);
-            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, post.getId(), 1));
+            Long id = postService.addPost(request, boardId);
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, id, 1));
         } catch (AppException e) {
             BaseResponse response =
                     new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
