@@ -66,10 +66,10 @@ public class InitDB {
             courseRepository.save(course2);
 
             // 유저 가입
-            User user1 = new User("myUsername", "myPassword", "김재석", "B000011", "um@naver.com", school,"ROLE_ADMIN");
-            userService.addUser(user1);
-            User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "um1@naver.com", school,"ROLE_USER");
-            userService.addUser(user2);
+            User user1 =
+                    userService.addUser(new User("user1", "myPassword", "user1", "B000011", "um@naver.com", school, "ROLE_ADMIN"));
+            User user2 =
+                    userService.addUser(new User("user2", "myPassword", "user2", "A000012", "um1@naver.com", school, "ROLE_USER"));
 
             // 시간표 생성
             TimeTable timeTable1 = new TimeTable("22년 2학기", 2022, Semester.SECOND, user1);
