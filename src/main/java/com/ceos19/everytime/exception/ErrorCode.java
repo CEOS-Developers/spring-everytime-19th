@@ -20,7 +20,8 @@ public enum ErrorCode {
     INVALID_REQUEST_DATA(BAD_REQUEST,""),
 
     KEYWORD_TOO_SHORT(BAD_REQUEST, ""),
-    INVALID_URI_ACCESS(NOT_FOUND,"");
+    INVALID_URI_ACCESS(NOT_FOUND,""),
+    NOT_INCLUDED_USER_ACCESS(CONFLICT, "");
 
 
     private final HttpStatus httpStatus;
