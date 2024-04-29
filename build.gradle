@@ -39,6 +39,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation "org.springframework.security:spring-security-test"
     testImplementation("org.junit.vintage:junit-vintage-engine") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
