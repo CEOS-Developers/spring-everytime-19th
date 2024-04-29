@@ -1,10 +1,11 @@
 package com.ceos19.everytime.controller.api;
 
+import com.ceos19.everytime.domain.Semester;
 import com.ceos19.everytime.domain.User;
 import com.ceos19.everytime.dto.*;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.exception.ErrorCode;
-import com.ceos19.everytime.service.UserService;
+import com.ceos19.everytime.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final PostService postService;
+    private final ChattingRoomService chattingRoomService;
+    private final CommentService commentService;
+    private final TimeTableService timeTableService;
 
     @PostMapping("/join")
+
     public ResponseEntity<BaseResponse> join(@Valid @RequestBody JoinUserRequest request) {
         try {
             User user = userService.join(request);
@@ -31,7 +37,6 @@ public class UserController {
             return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
         }
     }
-
 
 
     @GetMapping("/user/{user_id}")
@@ -75,6 +80,97 @@ public class UserController {
             userService.findUserByName(name).forEach(user -> {
                 value.add(ReadUserResponse.from(user));
             });
+
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, value.size()));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @GetMapping("/user/{user_id}/posts")
+    public ResponseEntity<BaseResponse<List<ReadPostResponse>>> readPosts(@PathVariable("user_id") Long userId) {
+        try {
+            List<ReadPostResponse> value = new ArrayList<>();
+
+            postService.findPostByAuthorId(userId).forEach(post -> {
+                value.add(ReadPostResponse.from(post));
+            });
+
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, value.size()));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @GetMapping("/user/{user_id}/chattingRooms")
+    public ResponseEntity<BaseResponse<List<ReadChattingRoomResponse>>> readChattingRooms(@PathVariable("user_id") Long userId) {
+        try {
+            List<ReadChattingRoomResponse> value = new ArrayList<>();
+
+            chattingRoomService.findChattingRoomByParticipantId(userId).forEach(room -> {
+                value.add(ReadChattingRoomResponse.from(room));
+            });
+
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, value.size()));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @GetMapping("/user/{user_id}/comments")
+    public ResponseEntity<BaseResponse<List<ReadCommentResponse>>> readComments(@PathVariable("user_id") Long userId) {
+        try {
+            List<ReadCommentResponse> value = new ArrayList<>();
+            commentService.findCommentByCommenterId(userId).forEach(comment -> value.add(ReadCommentResponse.from(comment)));
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, value.size()));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @GetMapping("/user/{user_id}/timeTable")
+    public ResponseEntity<BaseResponse<ReadTimeTableResponse>> readTimeTable(@PathVariable("user_id") Long userId,
+                                                                             @RequestParam Integer year,
+                                                                             @RequestParam Semester semester,
+                                                                             @RequestParam String name) {
+        try {
+            ReadTimeTableResponse value
+                    = ReadTimeTableResponse.from(
+                    timeTableService
+                            .findTimeTableByUserIdAndYearAndSemesterAndName(userId, year, semester, name)
+            );
+
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, 1));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @GetMapping("/user/{user_id}/timeTables")
+    public ResponseEntity<BaseResponse<List<ReadTimeTableResponse>>> readTimeTables(@PathVariable("user_id") Long userId,
+                                                                                    @RequestParam(required = false) Integer year,
+                                                                                    @RequestParam(required = false) Semester semester
+    ) {
+        try {
+            List<ReadTimeTableResponse> value = new ArrayList<>();
+            if (year != null && semester != null) {
+                timeTableService.findTimeTableByUserIdAndYearAndSemester(userId, year, semester).forEach(table ->
+                        value.add(ReadTimeTableResponse.from(table)));
+            } else {
+                timeTableService.findTimeTableByUserId(userId).forEach(table ->
+                        value.add(ReadTimeTableResponse.from(table))
+                );
+            }
 
             return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, value.size()));
         } catch (AppException e) {
