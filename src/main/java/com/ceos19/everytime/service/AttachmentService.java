@@ -30,7 +30,7 @@ public class AttachmentService {
 
     public void removeAttachment(Long attachmentId) {
         attachmentRepository.findById(attachmentId).orElseThrow(() -> {
-            log.error("에러 내용: 파일 조회 실패 " +
+            log.error("에러 내용: 파일 제거 실패 " +
                     "발생 원인: 존재하지 않는 Attachment의 PK로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 파일입니다");
         });

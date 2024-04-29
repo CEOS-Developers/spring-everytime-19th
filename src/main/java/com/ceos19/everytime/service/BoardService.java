@@ -29,7 +29,7 @@ public class BoardService {
     public Long addBoard(String name, Long schoolId) {
         School school = schoolRepository.findById(schoolId).orElseThrow(() -> {
             log.error("에러 내용: 게시판 등록 실패 " +
-                    "발생 원인: 존재하지 않는 School PK로 조회");
+                    "발생 원인: 존재하지 않는 School의 PK로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
         });
         boardRepository.findBySchoolIdAndName(schoolId, name).ifPresent(s -> {
@@ -57,7 +57,7 @@ public class BoardService {
     public List<Board> findBoardBySchoolId(Long schoolId) {
         schoolRepository.findById(schoolId).orElseThrow(() -> {
             log.error("에러 내용: 게시판 조회 실패 " +
-                    "발생 원인: 존재하지 않는 학교 PK로 조회");
+                    "발생 원인: 존재하지 않는 School의 PK로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
         });
 
@@ -66,6 +66,12 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public Board findBoardBySchoolIdAndName(Long schoolId, String name) {
+        schoolRepository.findById(schoolId).orElseThrow(() -> {
+            log.error("에러 내용: 게시판 조회 실패 " +
+                    "발생 원인: 존재하지 않는 School의 PK로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+        });
+
         return boardRepository.findBySchoolIdAndName(schoolId, name)
                 .orElseThrow(() -> {
                     log.error("에러 내용: 게시판 조회 실패 " +
@@ -77,8 +83,8 @@ public class BoardService {
     public void modifyBoard(Long boardId, String name) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> {
-                            log.error("에러 내용: 게시판 조회 실패 " +
-                                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+                            log.error("에러 내용: 게시판 수정 실패 " +
+                                    "발생 원인: 존재하지 않는 Board의 PK 값으로 조회");
                             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시판입니다");
                         }
                 );

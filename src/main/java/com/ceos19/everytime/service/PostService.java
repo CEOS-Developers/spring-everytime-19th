@@ -91,8 +91,8 @@ public class PostService {
     public List<Post> findPostByName(Long boardId, String name) {
         boardRepository.findById(boardId)
                 .orElseThrow(() -> {
-                            log.error("에러 내용: 게시판 조회 실패 " +
-                                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+                            log.error("에러 내용: 게시물 조회 실패 " +
+                                    "발생 원인: 존재하지 않는 Board의 PK 값으로 조회");
                             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시판입니다");
                         }
                 );
@@ -101,6 +101,12 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<Post> findPostByAuthorId(Long authorId) {
+        userRepository.findById(authorId).orElseThrow(() -> {
+            log.error("에러 내용: 게시물 조회 실패 " +
+                    "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
+
         return postRepository.findByAuthorId(authorId);
     }
 
@@ -108,8 +114,8 @@ public class PostService {
     public List<Post> findPostByBoardId(Long boardId) {
         boardRepository.findById(boardId)
                 .orElseThrow(() -> {
-                            log.error("에러 내용: 게시판 조회 실패 " +
-                                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+                            log.error("에러 내용: 게시물 조회 실패 " +
+                                    "발생 원인: 존재하지 않는 Board의 PK 값으로 조회");
                             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시판입니다");
                         }
                 );
@@ -120,8 +126,8 @@ public class PostService {
     public List<Post> findPostByBoardIdAndTitle(Long boardId, String title) {
         boardRepository.findById(boardId)
                 .orElseThrow(() -> {
-                            log.error("에러 내용: 게시판 조회 실패 " +
-                                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+                            log.error("에러 내용: 게시물 조회 실패 " +
+                                    "발생 원인: 존재하지 않는 Board의 PK 값으로 조회");
                             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시판입니다");
                         }
                 );
@@ -132,8 +138,8 @@ public class PostService {
     public List<Post> findPostByBoardIdAndCreatedDate(Long boardId, LocalDate createdDate) {
         boardRepository.findById(boardId)
                 .orElseThrow(() -> {
-                            log.error("에러 내용: 게시판 조회 실패 " +
-                                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+                            log.error("에러 내용: 게시물 조회 실패 " +
+                                    "발생 원인: 존재하지 않는 Board의 PK 값으로 조회");
                             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시판입니다");
                         }
                 );
@@ -142,7 +148,7 @@ public class PostService {
 
     public void removePost(Long postId) {
         postRepository.findById(postId).orElseThrow(() -> {
-            log.error("에러 내용: 게시물 조회 실패 " +
+            log.error("에러 내용: 게시물 제거 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시물입니다");
         });
@@ -164,7 +170,7 @@ public class PostService {
 
     public void modifyPost(Long postId, ModifyPostRequest request) {
         Post post = postRepository.findById(postId).orElseThrow(() -> {
-            log.error("에러 내용: 게시물 조회 실패 " +
+            log.error("에러 내용: 게시물 수정 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시물입니다");
         });
@@ -176,7 +182,7 @@ public class PostService {
 
     public Long addAttachment(Long postId, AddAttachmentRequest request) {
         Post post = postRepository.findById(postId).orElseThrow(() -> {
-            log.error("에러 내용: 게시물 조회 실패 " +
+            log.error("에러 내용: 파일 추가 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 게시물입니다");
         });

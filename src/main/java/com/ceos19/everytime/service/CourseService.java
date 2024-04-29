@@ -47,8 +47,8 @@ public class CourseService {
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> {
                     log.error("에러 내용: 과목 등록 실패 " +
-                            "발생 원인: 존재하지 않은 학교 PK로 조회");
-                    return new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 학교입니다");
+                            "발생 원인: 존재하지 않은 School의 PK로 조회");
+                    return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
                 });
         Course course = Course.builder()
                 .name(request.getName())
@@ -83,11 +83,11 @@ public class CourseService {
 
     @Transactional(readOnly = true)
     public List<Course> findCourseBySchoolId(Long schoolId) {
-        if (schoolRepository.findById(schoolId).isEmpty()) {
-            log.error("에러 내용: 학교 조회 실패 " +
-                    "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
-        }
+        schoolRepository.findById(schoolId).orElseThrow(() -> {
+            log.error("에러 내용: 과목 조회 실패 " +
+                    "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+        });
 
         return courseRepository.findBySchoolId(schoolId);
     }
@@ -109,48 +109,46 @@ public class CourseService {
 
     @Transactional(readOnly = true)
     public List<Course> findCourseByProfessorName(Long schoolId, String professorName) {
-        if (schoolRepository.findById(schoolId).isEmpty()) {
-            log.error("에러 내용: 학교 조회 실패 " +
-                    "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
-        }
+        schoolRepository.findById(schoolId).orElseThrow(() -> {
+            log.error("에러 내용: 과목 조회 실패 " +
+                    "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+        });
         return courseRepository.findBySchoolIdAndProfessorName(schoolId, professorName);
     }
 
     @Transactional(readOnly = true)
     public List<Course> findCourseByNameAndProfessorName(Long schoolId, String name, String professorName) {
-        if (schoolRepository.findById(schoolId).isEmpty()) {
-            log.error("에러 내용: 학교 조회 실패 " +
-                    "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
-        }
+        schoolRepository.findById(schoolId).orElseThrow(() -> {
+            log.error("에러 내용: 과목 조회 실패 " +
+                    "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+        });
         return courseRepository.findBySchoolIdAndNameAndProfessorName(schoolId, name, professorName);
     }
 
     @Transactional(readOnly = true)
     public List<Course> findCourseByName(Long schoolId, String name) {
-        if (schoolRepository.findById(schoolId).isEmpty()) {
-            log.error("에러 내용: 학교 조회 실패 " +
-                    "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
-        }
+        schoolRepository.findById(schoolId).orElseThrow(() -> {
+            log.error("에러 내용: 과목 조회 실패 " +
+                    "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+        });
+
         return courseRepository.findBySchoolIdAndName(schoolId, name);
     }
 
-
     public void removeCourseById(Long courseId) {
-        Optional<Course> optionalCourse = courseRepository.findById(courseId);
-        if (optionalCourse.isEmpty()) {
-            log.error("에러 내용: 시간표 조회 실패 " +
+        courseRepository.findById(courseId).orElseThrow(()->{
+            log.error("에러 내용: 과목 제거 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 시간표입니다");
-        }
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 과목입니다");
+        });
+
         // 연관 관계 제거
         timeTableCourseRepository.deleteAllByCourseId(courseId);
 
         // Course 제거
         courseRepository.deleteById(courseId);
     }
-
-
 }

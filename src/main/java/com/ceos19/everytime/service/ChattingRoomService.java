@@ -47,12 +47,12 @@ public class ChattingRoomService {
     public Long addChattingRoom(AddChattingRoomRequest request) {
         User participant1 = userRepository.findById(request.getParticipant1_id()).orElseThrow(() -> {
             log.error("에러 내용: 유저 조회 실패 " +
-                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+                    "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
         });
         User participant2 = userRepository.findById(request.getParticipant2_id()).orElseThrow(() -> {
             log.error("에러 내용: 유저 조회 실패 " +
-                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+                    "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
         });
 
@@ -74,14 +74,11 @@ public class ChattingRoomService {
 
     @Transactional(readOnly = true)
     public ChattingRoom findChattingRoomById(Long chattingRoomId) {
-        Optional<ChattingRoom> optionalChattingRoom = chattingRoomRepository.findById(chattingRoomId);
-        if (optionalChattingRoom.isEmpty()) {
+        return chattingRoomRepository.findById(chattingRoomId).orElseThrow(() -> {
             log.error("에러 내용: 채팅방 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅방입니다");
-        }
-
-        return optionalChattingRoom.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅방입니다");
+        });
     }
 
     @Transactional(readOnly = true)
@@ -91,23 +88,20 @@ public class ChattingRoomService {
 
     @Transactional(readOnly = true)
     public ChattingRoom findChattingRoomByParticipantsId(Long participant1Id, Long participant2Id) {
-        Optional<ChattingRoom> optionalChattingRoom
-                = chattingRoomRepository.findByParticipant1IdOrParticipant2Id(participant1Id, participant2Id);
-        if (optionalChattingRoom.isEmpty()) {
+        return chattingRoomRepository.findByParticipant1IdOrParticipant2Id(participant1Id, participant2Id).orElseThrow(() -> {
             log.error("에러 내용: 채팅방 조회 실패 " +
                     "발생 원인: 해당 유저들로 구성된 채팅방 존재 안함");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅방입니다");
-        }
-        return optionalChattingRoom.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅방입니다");
+        });
     }
 
     public void removeChattingRoom(Long chattingRoomId) {
-        Optional<ChattingRoom> optionalChattingRoom = chattingRoomRepository.findById(chattingRoomId);
-        if (optionalChattingRoom.isEmpty()) {
+        chattingRoomRepository.findById(chattingRoomId).orElseThrow(() -> {
             log.error("에러 내용: 채팅방 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅방입니다");
-        }
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅방입니다");
+        });
+
         List<Chat> chats = chatRepository.findByChattingRoomId(chattingRoomId);
         // 연관된 Chat들 제거
         chatRepository.deleteAll(chats);

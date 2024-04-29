@@ -45,8 +45,8 @@ public class TimeTableService {
 
     public Long addTimeTable(Long userId, AddTimeTableRequest request) {
         User user = userRepository.findById(userId).orElseThrow(() -> {
-            log.error("에러 내용: 유저 조회 실패 " +
-                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+            log.error("에러 내용: 시간표 생성 불가 " +
+                    "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
         });
         timeTableRepository.findByUserIdAndYearAndSemesterAndName(userId,
@@ -108,9 +108,9 @@ public class TimeTableService {
 
     public void removeTimeTable(Long timeTableId) {
         timeTableRepository.findById(timeTableId).orElseThrow(() -> {
-            log.error("에러 내용: 시간표 조회 실패 " +
+            log.error("에러 내용: 시간표 제거 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 시간표입니다");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 시간표입니다");
         });
 
         // 연관관계 제거

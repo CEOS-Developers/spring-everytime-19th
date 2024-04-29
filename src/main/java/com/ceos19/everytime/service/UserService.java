@@ -92,7 +92,7 @@ public class UserService implements UserDetailsService {
         School school = schoolRepository.findById(request.getSchoolId()).orElseThrow(() -> {
             log.error("에러 내용: 유저 가입 실패 " +
                     "발생 원인: 존재하지 않는 School PK로 조회");
-            return new AppException(DATA_ALREADY_EXISTED, "존재하지 않은 학교입니다");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않은 학교입니다");
         });
 
         User user = User.builder()
@@ -151,9 +151,14 @@ public class UserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public User findUserBySchoolIdAndStudentNo(Long schoolId, String studentNo) {
+        schoolRepository.findById(schoolId).orElseThrow(() -> {
+            log.error("에러 내용: 유저 조회 실패 " +
+                    "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
+        });
         return userRepository.findBySchoolIdAndStudentNo(schoolId, studentNo).orElseThrow(() -> {
             log.error("에러 내용: 유저 조회 실패 " +
-                    "발생 원인: 존재하지 않는 학교, 학번으로 조회");
+                    "발생 원인: 존재하지 않는 학번으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
         });
     }
