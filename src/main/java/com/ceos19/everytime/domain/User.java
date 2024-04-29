@@ -38,8 +38,8 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 50)
     private String email;
 
-    @Column(nullable = false, length = 20)
-    private String role;  // ROLE_USER, ROLE_ADMIN
+    @Column(nullable = false, length = 20, columnDefinition = "ENUM('ROLE_USER','ROLE_ADMIN') default 'ROLE_USER'")
+    private String role;  // (ROLE_USER, ROLE_ADMIN)
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "school_id")
@@ -55,6 +55,15 @@ public class User extends BaseTimeEntity {
         this.email = email;
         this.school = school;
         this.role = role;
+    }
+
+    // 임시 유저 생성 (jwt 임시 세션 유지용)
+    public static User createTempUser(String username, String password, String role) {
+        return User.builder()
+                .username(username)
+                .password(password)
+                .role(role)
+                .build();
     }
 
     /**

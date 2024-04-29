@@ -34,7 +34,7 @@ public class UserService implements UserDetailsService {
     private final PostLikeRepository postLikeRepository;
     private final BCryptPasswordEncoder encoder;
 
-    public Long addUser(User user) {
+    public User addUser(User user) {
         userRepository.findByUsername(user.getUsername())
                 .ifPresent(f -> {
                     log.error("에러 내용: 유저 가입 실패 " +
@@ -54,8 +54,17 @@ public class UserService implements UserDetailsService {
                     throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 학번입니다");
                 });
 
-        userRepository.save(user);
-        return user.getId();
+        User saveuser = User.builder()
+                .username(user.getUsername())
+                .password(encoder.encode(user.getPassword()))
+                .name(user.getName())
+                .studentNo(user.getStudentNo())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .school(user.getSchool())
+                .build();
+        userRepository.save(saveuser);
+        return saveuser;
     }
 
     public User join(JoinUserRequest request) {
@@ -100,6 +109,17 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    @Override  // UserDetailsService로 부터 override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> {
+            log.error("에러 내용: 유저 조회 실패 " +
+                    "발생 원인: 존재하지 않는 아이디 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
+
+        return new CustomUserDetails(user);
+    }
+
     @Transactional(readOnly = true)
     public User findUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> {
@@ -118,16 +138,7 @@ public class UserService implements UserDetailsService {
         });
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> {
-            log.error("에러 내용: 유저 조회 실패 " +
-                    "발생 원인: 존재하지 않는 아이디 값으로 조회");
-            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
-        });
 
-        return new CustomUserDetails(user);
-    }
 
     @Transactional(readOnly = true)
     public User findUserByEmail(String email) {
