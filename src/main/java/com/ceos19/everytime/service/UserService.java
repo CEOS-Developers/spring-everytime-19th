@@ -164,14 +164,23 @@ public class UserService implements UserDetailsService {
     }
 
     public void removeUser(Long userId) {
+        // user 존재 여부 검증
+        userRepository.findById(userId).orElseThrow(() -> {
+            log.error("에러 내용: 유저 조회 실패 " +
+                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
+
+        /** 연관 관계 해제 **/
+        // user와 연관된 TimeTable 제거
         List<TimeTable> timeTables = timeTableRepository.findByUserId(userId);
         for (TimeTable timeTable : timeTables) {
             timeTableCourseRepository.deleteAllByTimeTableId(timeTable.getId());
         }
         timeTableRepository.deleteAll(timeTables);
 
-        List<Post> posts = postRepository.findByAuthorId(userId);
 
+        List<Post> posts = postRepository.findByAuthorId(userId);
         for (Post post : posts) {
             // Post와 연관된 PostLike 제거
             List<PostLike> postLikes = postLikeRepository.findByPostId(post.getId());
@@ -184,6 +193,8 @@ public class UserService implements UserDetailsService {
             }
             commentRepository.deleteAll(comments);
         }
+
+        // 유저와 연관된 Post 제거
         postRepository.deleteAllByAuthorId(userId);
 
         // User가 다른 Post에 쓴 comments 제거
@@ -200,6 +211,7 @@ public class UserService implements UserDetailsService {
             chattingRoomRepository.deleteById(userId);
         }
 
+        // user 제거
         userRepository.deleteById(userId);
     }
 }

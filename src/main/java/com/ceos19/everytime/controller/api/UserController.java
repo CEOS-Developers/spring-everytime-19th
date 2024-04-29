@@ -191,4 +191,16 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/user/{user_id}")
+    public ResponseEntity<BaseResponse> deleteUser(@PathVariable("user_id") Long userId) {
+        try {
+            userService.removeUser(userId);
+
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, null, 0));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
 }
