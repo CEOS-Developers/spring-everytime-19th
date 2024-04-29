@@ -620,13 +620,13 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 
 - 등록
     1. 채팅방 등록(/chattingRoom) O
-    2. 채팅 등록(/chattingRoom/{crid}/chat) ({"author":fk, "content":"내용..."})
+    2. 채팅 등록(/chattingRoom/{chattingRoom_id}/chat) O
 - 조회
     - 단건 조회
-        1. PK (/chattingRoom/{crid})
-    - 다중조회
-        1. 채팅방에 속해 있는 채팅 전체 조회(/chattingRoom/{crid}/chats)
-- 제거 (/chattingRoom/{crid})
+        1. PK (/chattingRoom/{chattingRoom_id}) O
+    - 다중 조회
+        1. 채팅방에 속해 있는 채팅 전체 조회(/chattingRoom/{chattingRoom_id}/chats) O
+- 제거 (/chattingRoom/{chattingRoom_id}) O
 
 ### 채팅(ChatController)
 
