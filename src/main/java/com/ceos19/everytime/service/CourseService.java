@@ -48,7 +48,7 @@ public class CourseService {
                 .orElseThrow(() -> {
                     log.error("에러 내용: 과목 등록 실패 " +
                             "발생 원인: 존재하지 않은 학교 PK로 조회");
-                    throw new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 학교입니다");
+                    return new AppException(DATA_ALREADY_EXISTED, "존재하지 않는 학교입니다");
                 });
         Course course = Course.builder()
                 .name(request.getName())

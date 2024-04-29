@@ -34,7 +34,7 @@ public class CommentService {
         return comment.getId();
     }
 
-    public Comment addComment(AddCommentRequest request, Long postId) {
+    public Long addComment(AddCommentRequest request, Long postId) {
         User commenter = userRepository.findById(request.getCommenterId()).orElseThrow(() -> {
             log.error("에러 내용: 댓글 조회 실패 " +
                     "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
@@ -49,18 +49,15 @@ public class CommentService {
 
         Comment comment = new Comment(request.getContent(), commenter, post, null);
         commentRepository.save(comment);
-        return comment;
+        return comment.getId();
     }
 
-    public Comment addReply(AddCommentRequest request, Long commentId) {
-        System.out.println("1 ===================== ");
+    public Long addReply(AddCommentRequest request, Long commentId) {
         User commenter = userRepository.findById(request.getCommenterId()).orElseThrow(() -> {
             log.error("에러 내용: 댓글 조회 실패 " +
                     "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
         });
-
-        System.out.println("2 ===================== ");
 
         Comment parentComment = commentRepository.findById(commentId).orElseThrow(() -> {
             log.error("에러 내용: 게시물 조회 실패 " +
@@ -68,15 +65,12 @@ public class CommentService {
             return new AppException(NO_DATA_EXISTED, "대댓글을 달 수 있는 댓글이 존재하지 않습니다");
         });
 
-        System.out.println("3 ===================== ");
-
         Post post = parentComment.getPost();
-        System.out.println("4 ===================== ");
 
         Comment comment = new Comment(request.getContent(), commenter, post, parentComment);
         commentRepository.save(comment);
 
-        return comment;
+        return comment.getId();
     }
 
     @Transactional(readOnly = true)

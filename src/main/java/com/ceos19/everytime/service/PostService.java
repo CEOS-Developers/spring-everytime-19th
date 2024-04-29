@@ -44,7 +44,7 @@ public class PostService {
         return post.getId();
     }
 
-    public Post addPost(AddPostRequest request, Long boardId) {
+    public Long addPost(AddPostRequest request, Long boardId) {
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> {
             log.error("에러 내용: 게시물 등록 실패 " +
                     "발생 원인: 존재하지 않는 User의 PK 값으로 조회");
@@ -74,7 +74,7 @@ public class PostService {
             post.addAttachment(attachment);
         }
         postRepository.save(post);
-        return post;
+        return post.getId();
     }
 
     @Transactional(readOnly = true)

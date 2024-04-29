@@ -26,7 +26,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final SchoolRepository schoolRepository;
 
-    public Board addBoard(String name, Long schoolId) {
+    public Long addBoard(String name, Long schoolId) {
         School school = schoolRepository.findById(schoolId).orElseThrow(() -> {
             log.error("에러 내용: 게시판 등록 실패 " +
                     "발생 원인: 존재하지 않는 School PK로 조회");
@@ -41,7 +41,7 @@ public class BoardService {
         Board board = new Board(name, school);
         boardRepository.save(board);
 
-        return board;
+        return board.getId();
     }
 
     @Transactional(readOnly = true)

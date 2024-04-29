@@ -67,7 +67,7 @@ public class UserService implements UserDetailsService {
         return saveuser;
     }
 
-    public User join(JoinUserRequest request) {
+    public Long join(JoinUserRequest request) {
         // 중복 검사
         userRepository.findByUsername(request.getUsername())
                 .ifPresent(f -> {
@@ -106,7 +106,7 @@ public class UserService implements UserDetailsService {
                 .build();
         userRepository.save(user);
 
-        return user;
+        return user.getId();
     }
 
     @Override  // UserDetailsService로 부터 override

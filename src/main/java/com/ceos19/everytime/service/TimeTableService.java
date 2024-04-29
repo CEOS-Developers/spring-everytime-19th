@@ -1,6 +1,7 @@
 package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.*;
+import com.ceos19.everytime.dto.AddTimeTableRequest;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.exception.ErrorCode;
 import com.ceos19.everytime.repository.TimeTableCourseRepository;
@@ -26,7 +27,6 @@ public class TimeTableService {
     private final UserRepository userRepository;
 
     public Long addTimeTable(TimeTable timeTable) {
-        List<TimeTable> timeTables = timeTableRepository.findByUserId(timeTable.getUser().getId());
         timeTableRepository.findByUserIdAndYearAndSemesterAndName
                         (timeTable.getUser().getId(),
                                 timeTable.getYear(),
@@ -38,6 +38,28 @@ public class TimeTableService {
                     throw new AppException(DATA_ALREADY_EXISTED, "중복된 시간표입니다");
                 });
 
+
+        timeTableRepository.save(timeTable);
+        return timeTable.getId();
+    }
+
+    public Long addTimeTable(Long userId, AddTimeTableRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.error("에러 내용: 유저 조회 실패 " +
+                    "발생 원인: 존재하지 않는 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 유저입니다");
+        });
+        timeTableRepository.findByUserIdAndYearAndSemesterAndName(userId,
+                        request.getYear(),
+                        request.getSemester(),
+                        request.getName())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 시간표 생성 불가 " +
+                            "발생 원인: 중복된 시간표 등록");
+                    throw new AppException(DATA_ALREADY_EXISTED, "중복된 시간표입니다");
+                });
+
+        TimeTable timeTable = new TimeTable(request.getName(), request.getYear(), request.getSemester(), user);
 
         timeTableRepository.save(timeTable);
         return timeTable.getId();
