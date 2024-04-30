@@ -1,4 +1,4 @@
-package com.ceos19.everyTime.member.dto;
+package com.ceos19.everyTime.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
-package com.ceos19.everyTime.common.jwt;
+package com.ceos19.everyTime.auth.jwt;
 
-import com.ceos19.everyTime.member.dto.TokenDto;
+import com.ceos19.everyTime.auth.dto.TokenDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -12,7 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -30,11 +29,15 @@ public class TokenProvider implements InitializingBean {
     private final String secret;
     private Key key;
 
+    private final JwtUserDetailsService jwtUserDetailsService;
+
     public TokenProvider(@Value("${jwt.secret}") String secret,
-            @Value("${jwt.validationTime}") Long validationTime) {
+            @Value("${jwt.validationTime}") Long validationTime,
+            JwtUserDetailsService jwtUserDetailsService) {
         this.secret = secret;
         this.validationTime = validationTime * 1000;
         this.refreshTokenValidationTime = validationTime * 2 * 1000;
+        this.jwtUserDetailsService = jwtUserDetailsService;
     }
 
     @Override
@@ -53,11 +56,36 @@ public class TokenProvider implements InitializingBean {
 
         String accessToken = Jwts.builder()
                 .setHeaderParam("typ","JWT")
-                .setExpiration(new Date(now + validationTime))
-                .setSubject(authentication.getName())
-                .claim(AUTHORIZATION_KEY, authorities)
+                .setExpiration(new Date(now + validationTime))//토큰 만료시간 payload 에 exp 의 형태로
+                .setSubject(authentication.getName()) //토큰 sub (토큰 제목)
+                .claim(AUTHORIZATION_KEY, authorities)// auth 라는 key 로 authroities 즉 General or ADMIN 이 들어감
                 .signWith(this.key, SignatureAlgorithm.HS512)
                 .compact();
+
+        //JWT (auth0) 을 활용해보기
+/*
+        String accessToken2 = JWT.create()
+                .withSubject(authentication.getName())
+                .withExpiresAt(new Date(now+ validationTime))
+                .withClaim(AUTHORIZATION_KEY,authorities)
+                .sign(Algorithm.HMAC512(this.key.getEncoded()));
+
+        System.out.println("여기요 ㅠ: "+accessToken2);
+
+        try{
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC512(this.key.getEncoded())).build();
+            DecodedJWT jwt = verifier.verify(accessToken2);
+            System.out.println(jwt.getToken());
+            System.out.println(jwt.getHeader());
+            System.out.println(jwt.getPayload());
+            System.out.println(jwt.getClaims());
+            System.out.println(JWT.decode(accessToken2).getToken());
+
+
+            System.out.println(verifier);
+        }catch (JWTVerificationException e){
+            System.out.println("Verify Error");
+        }*/
 
 
         String refreshToken = Jwts.builder()
@@ -85,7 +113,7 @@ public class TokenProvider implements InitializingBean {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        CustomUserDetails principal = (CustomUserDetails) jwtUserDetailsService.loadUserByUsername(claims.getSubject());
 
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
@@ -109,6 +137,7 @@ public class TokenProvider implements InitializingBean {
 
     public Claims parseData(String token) {
         try{
+
             return Jwts.parserBuilder()
                     .setSigningKey(this.key)
                     .build().parseClaimsJws(token).getBody();

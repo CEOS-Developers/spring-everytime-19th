@@ -1,4 +1,4 @@
-package com.ceos19.everyTime.common.jwt;
+package com.ceos19.everyTime.auth.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
