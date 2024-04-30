@@ -43,6 +43,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 
+	implementation 'com.auth0:java-jwt:4.0.0'
+
 
 
 
