@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.global.config;
 
+import com.ceos19.springeverytime.domain.auth.jwt.JWTFilter;
 import com.ceos19.springeverytime.domain.auth.jwt.JWTUtil;
 import com.ceos19.springeverytime.domain.auth.jwt.LoginFilter;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/swagger-ui/**", "/login").permitAll()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
         );
 
         http.csrf((auth) -> auth.disable());
@@ -50,6 +51,11 @@ public class SecurityConfig {
         http.addFilterAt(
                 new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
                 UsernamePasswordAuthenticationFilter.class
+        );
+
+        http.addFilterAt(
+                new JWTFilter(jwtUtil),
+                LoginFilter.class
         );
 
         /**
