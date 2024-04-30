@@ -4,6 +4,7 @@ import com.ceos19.everytime.domain.*;
 import com.ceos19.everytime.dto.AddTimeTableRequest;
 import com.ceos19.everytime.exception.AppException;
 import com.ceos19.everytime.exception.ErrorCode;
+import com.ceos19.everytime.repository.CourseRepository;
 import com.ceos19.everytime.repository.TimeTableCourseRepository;
 import com.ceos19.everytime.repository.TimeTableRepository;
 import com.ceos19.everytime.repository.UserRepository;
@@ -25,6 +26,7 @@ public class TimeTableService {
     private final TimeTableRepository timeTableRepository;
     private final TimeTableCourseRepository timeTableCourseRepository;
     private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
 
     public Long addTimeTable(TimeTable timeTable) {
         timeTableRepository.findByUserIdAndYearAndSemesterAndName
@@ -63,6 +65,29 @@ public class TimeTableService {
 
         timeTableRepository.save(timeTable);
         return timeTable.getId();
+    }
+
+    public Long addCourseToTimeTable(Long timeTableId, Long courseId) {
+        TimeTable timeTable = timeTableRepository.findById(timeTableId).orElseThrow(() -> {
+            log.error("에러 내용: 수업 등록 실패 " +
+                    "발생 원인: 존재하지 않는 TimeTable의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 시간표입니다");
+        });
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> {
+            log.error("에러 내용: 수업 등록 실패 " +
+                    "발생 원인: 존재하지 않는 Course의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 수업입니다");
+        });
+        timeTableCourseRepository.findByTimeTableIdAndCourseId(timeTableId, courseId).ifPresent(f -> {
+            log.error("에러 내용: 수업 등록 실패 " +
+                    "발생 원인: 시간표에 이미 등록된 수업을 등록 시도");
+            throw new AppException(DATA_ALREADY_EXISTED, "이미 등록된 수업입니다");
+        });
+
+        TimeTableCourse timeTableCourse = new TimeTableCourse(timeTable, course);
+        timeTableCourseRepository.save(timeTableCourse);
+
+        return timeTableCourse.getId();
     }
 
     @Transactional(readOnly = true)
@@ -118,6 +143,26 @@ public class TimeTableService {
 
         // timeTable 제거
         timeTableRepository.deleteById(timeTableId);
+    }
+
+    public void removeCourseFromTimeTable(Long timeTableId, Long courseId) {
+        TimeTable timeTable = timeTableRepository.findById(timeTableId).orElseThrow(() -> {
+            log.error("에러 내용: 수업 삭제 실패 " +
+                    "발생 원인: 존재하지 않는 TimeTable의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 시간표입니다");
+        });
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> {
+            log.error("에러 내용: 수업 삭제 실패 " +
+                    "발생 원인: 존재하지 않는 Course의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 수업입니다");
+        });
+        TimeTableCourse timeTableCourse = timeTableCourseRepository.findByTimeTableIdAndCourseId(timeTableId, courseId).orElseThrow(() -> {
+            log.error("에러 내용: 수업 삭제 실패 " +
+                    "발생 원인: 시간표에 등록되지 않은 수업 삭제 시도");
+            return new AppException(NO_DATA_EXISTED, "해당 시간표에 등록되지 않은 수업입니다");
+        });
+
+        timeTableCourseRepository.delete(timeTableCourse);
     }
 
 }
