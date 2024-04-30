@@ -16,7 +16,7 @@ import org.hibernate.annotations.Where;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE PostLike SET deleted = true WHERE like_id = ?")
+@SQLDelete(sql = "UPDATE post_like SET deleted = true WHERE like_id = ?")
 @Where(clause = "deleted = false")
 public class PostLike {
     @Id
