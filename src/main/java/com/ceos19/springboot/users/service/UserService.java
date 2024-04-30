@@ -1,15 +1,18 @@
 package com.ceos19.springboot.users.service;
 
+import com.ceos19.springboot.common.code.ErrorCode;
+import com.ceos19.springboot.global.exception.BusinessExceptionHandler;
+import com.ceos19.springboot.users.domain.UserRoleEnum;
 import com.ceos19.springboot.users.domain.Users;
 import com.ceos19.springboot.comment.repository.CommentRepository;
 import com.ceos19.springboot.postlike.repository.PostLikeRepository;
 import com.ceos19.springboot.post.repository.PostRepository;
+import com.ceos19.springboot.users.dto.UserRequestDto;
 import com.ceos19.springboot.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -19,15 +22,23 @@ public class UserService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final PostLikeRepository postLikeRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public Long saveUser(Users user) {
-        Users saveUser = userRepository.save(user);
-        return saveUser.getUserId();
+    public Users createUser(UserRequestDto userRequestDto) {
+        Users user = Users.builder()
+                .nickname(userRequestDto.getNickname())
+                .username(userRequestDto.getLoginId())
+                .loginId(userRequestDto.getLoginId())
+                .password(bCryptPasswordEncoder.encode(userRequestDto.getPassword()))
+                .email("")
+                .role(UserRoleEnum.USER)
+                .build();
+        return userRepository.save(user);
     }
 
     public Users findUser(Long userId) {
-       return userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("없음"));
+       return userRepository.findById(userId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     @Transactional
@@ -38,5 +49,9 @@ public class UserService {
         commentRepository.deleteByUser(user);
 
         userRepository.delete(user);
+    }
+
+    public Users findUserByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 }

@@ -38,6 +38,9 @@ public class Users {
     private School university;
     private final boolean deleted = false; // 기본값을 false로 설정
 
+    @Enumerated(value = EnumType.STRING)
+    private UserRoleEnum role;
+
     public Users(String username,
                  String nickname,
                  School university,
