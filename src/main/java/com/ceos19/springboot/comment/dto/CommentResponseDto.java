@@ -7,13 +7,15 @@ import lombok.Getter;
 public class CommentResponseDto {
     private String content;
     private Long postId;
+    private Long userId;
 
-    private CommentResponseDto(String content, Long postId) {
+    private CommentResponseDto(String content, Long postId, Long userId) {
         this.content = content;
         this.postId = postId;
+        this.userId = userId;
     }
 
     public static CommentResponseDto createFromComment(Comment comment){
-        return new CommentResponseDto(comment.getContent(), comment.getPost().getPostId());
+        return new CommentResponseDto(comment.getContent(), comment.getPost().getPostId(), comment.getUser().getUserId());
     }
 }

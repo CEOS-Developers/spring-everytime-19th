@@ -3,6 +3,8 @@ package com.ceos19.springboot.commentlike.service;
 import com.ceos19.springboot.comment.domain.Comment;
 import com.ceos19.springboot.commentlike.domain.CommentLike;
 import com.ceos19.springboot.commentlike.repository.CommentLikeRepository;
+import com.ceos19.springboot.common.code.ErrorCode;
+import com.ceos19.springboot.global.exception.BusinessExceptionHandler;
 import com.ceos19.springboot.postlike.domain.PostLike;
 import com.ceos19.springboot.users.domain.Users;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,7 +34,7 @@ public class CommentLikeService {
     @Transactional
     public void cancelLike(Comment comment, Users user){
         comment.cancelLike();
-        CommentLike commentLike = commentLikeRepository.findByComment(comment).orElseThrow(() -> new EntityNotFoundException("해당 댓글에 대한 좋아요 정보가 없습니다."));
+        CommentLike commentLike = commentLikeRepository.findByComment(comment).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
         commentLikeRepository.delete(commentLike);
     }
 

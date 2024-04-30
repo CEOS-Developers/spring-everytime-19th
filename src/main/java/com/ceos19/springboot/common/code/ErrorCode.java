@@ -1,4 +1,4 @@
-package com.ceos19.springboot.exception.code;
+package com.ceos19.springboot.common.code;
 
 import lombok.Getter;
 
@@ -38,6 +38,8 @@ public enum ErrorCode {
 
     // 입력/출력 값이 유효하지 않음
     IO_ERROR(400, "G005", "I/O Exception"),
+
+    UNAUTHORIZED_ERROR(401, "G006", "Unauthorized Exception"),
 
     // 권한이 없음
     FORBIDDEN_ERROR(403, "G008", "Forbidden Exception"),
