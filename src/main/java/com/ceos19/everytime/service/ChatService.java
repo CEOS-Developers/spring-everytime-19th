@@ -57,7 +57,7 @@ public class ChatService {
                 && !Objects.equals(chattingRoom.getParticipant2().getId(), authorId)) {
             log.error("에러 내용: 채팅 등록 실패 " +
                     "발생 원인: 채팅방에 속하지 않은 유저가 채팅 등록 시도");
-            throw  new AppException(ErrorCode.NOT_INCLUDED_USER_ACCESS, "채팅방에 속하지 않은 유저입니다");
+            throw new AppException(ErrorCode.NOT_INCLUDED_USER_ACCESS, "채팅방에 속하지 않은 유저입니다");
         }
 
         Chat chat = new Chat(request.getContent(), author, chattingRoom);
@@ -68,13 +68,11 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public Chat findChatById(Long chatId) {
-        Optional<Chat> optionalChat = chatRepository.findById(chatId);
-        if (optionalChat.isEmpty()) {
+        return chatRepository.findById(chatId).orElseThrow(() -> {
             log.error("에러 내용: 채팅 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅입니다");
-        }
-        return optionalChat.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅입니다");
+        });
     }
 
     @Transactional(readOnly = true)
@@ -98,15 +96,21 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public List<Chat> findChatBySendDate(LocalDate targetDate) {
+    public List<Chat> findChatByChattingRoomIdAndSendDate(Long chattingRoomId, LocalDate targetDate) {
+        chattingRoomRepository.findById(chattingRoomId).orElseThrow(() -> {
+            log.error("에러 내용: 채팅 조회 실패 " +
+                    "발생 원인: 존재하지 않는 ChattingRoom의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅방입니다");
+        });
+
         LocalDateTime startOfDay = LocalDateTime.of(targetDate, LocalTime.MIN);
         LocalDateTime endOfDay = LocalDateTime.of(targetDate, LocalTime.MAX);
 
-        return chatRepository.findBySentAtBetween(startOfDay, endOfDay);
+        return chatRepository.findByChattingRoomIdAndSentAtBetween(chattingRoomId, startOfDay, endOfDay);
     }
 
     public void removeChat(Long chatId) {
-        chatRepository.findById(chatId).orElseThrow(()->{
+        chatRepository.findById(chatId).orElseThrow(() -> {
             log.error("에러 내용: 채팅 제거 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 채팅입니다");

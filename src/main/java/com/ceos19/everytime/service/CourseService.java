@@ -29,13 +29,14 @@ public class CourseService {
     private final SchoolRepository schoolRepository;
     private final CourseRepository courseRepository;
     private final TimeTableCourseRepository timeTableCourseRepository;
+    private final TimeTableRepository timeTableRepository;
 
     public Long addCourse(Course course) {
         Long schoolId = course.getSchool().getId();
         String courseNumber = course.getCourseNumber();
 
         if (!courseRepository.findBySchoolIdAndCourseNumber(schoolId, courseNumber).isEmpty()) {
-            log.error("에러 내용: 과목 등록 실패 " +
+            log.error("에러 내용: 수업 등록 실패 " +
                     "발생 원인: 이미 존재하는 학수 번호로 등록 시도");
             throw new AppException(DATA_ALREADY_EXISTED, "이미 등록된 학수 번호입니다");
         }
@@ -46,7 +47,7 @@ public class CourseService {
     public Long addCourse(AddCourseRequest request, Long schoolId) {
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> {
-                    log.error("에러 내용: 과목 등록 실패 " +
+                    log.error("에러 내용: 수업 등록 실패 " +
                             "발생 원인: 존재하지 않은 School의 PK로 조회");
                     return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
                 });
@@ -62,7 +63,7 @@ public class CourseService {
         String courseNumber = request.getCourseNumber();
 
         if (!courseRepository.findBySchoolIdAndCourseNumber(schoolId, courseNumber).isEmpty()) {
-            log.error("에러 내용: 과목 등록 실패 " +
+            log.error("에러 내용: 수업 등록 실패 " +
                     "발생 원인: 이미 존재하는 학수 번호로 등록 시도");
             throw new AppException(DATA_ALREADY_EXISTED, "이미 등록된 학수 번호입니다");
         }
@@ -72,19 +73,18 @@ public class CourseService {
 
     @Transactional(readOnly = true)
     public Course findCourseById(Long courseId) {
-        Optional<Course> optionalCourse = courseRepository.findById(courseId);
-        if (optionalCourse.isEmpty()) {
-            log.error("에러 내용: 과목 조회 실패 " +
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> {
+            log.error("에러 내용: 수업 조회 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            throw new AppException(NO_DATA_EXISTED, "존재하지 않는 과목입니다");
-        }
-        return optionalCourse.get();
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 수업입니다");
+        });
+        return course;
     }
 
     @Transactional(readOnly = true)
     public List<Course> findCourseBySchoolId(Long schoolId) {
         schoolRepository.findById(schoolId).orElseThrow(() -> {
-            log.error("에러 내용: 과목 조회 실패 " +
+            log.error("에러 내용: 수업 조회 실패 " +
                     "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
         });
@@ -94,6 +94,11 @@ public class CourseService {
 
     @Transactional(readOnly = true)
     public List<Course> findCourseByTimeTableId(Long timeTableId) {
+        timeTableRepository.findById(timeTableId).orElseThrow(() -> {
+            log.error("에러 내용: 수업 조회 실패 " +
+                    "발생 원인: 존재하지 않는 TimeTable의 PK 값으로 조회");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 시간표입니다");
+        });
         List<TimeTableCourse> timeTableCourses = timeTableCourseRepository.findByTimeTableId(timeTableId);
 
         List<Course> courses = new ArrayList<>();
@@ -110,7 +115,7 @@ public class CourseService {
     @Transactional(readOnly = true)
     public List<Course> findCourseByProfessorName(Long schoolId, String professorName) {
         schoolRepository.findById(schoolId).orElseThrow(() -> {
-            log.error("에러 내용: 과목 조회 실패 " +
+            log.error("에러 내용: 수업 조회 실패 " +
                     "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
         });
@@ -120,7 +125,7 @@ public class CourseService {
     @Transactional(readOnly = true)
     public List<Course> findCourseByNameAndProfessorName(Long schoolId, String name, String professorName) {
         schoolRepository.findById(schoolId).orElseThrow(() -> {
-            log.error("에러 내용: 과목 조회 실패 " +
+            log.error("에러 내용: 수업 조회 실패 " +
                     "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
         });
@@ -130,7 +135,7 @@ public class CourseService {
     @Transactional(readOnly = true)
     public List<Course> findCourseByName(Long schoolId, String name) {
         schoolRepository.findById(schoolId).orElseThrow(() -> {
-            log.error("에러 내용: 과목 조회 실패 " +
+            log.error("에러 내용: 수업 조회 실패 " +
                     "발생 원인: 존재하지 않는 School의 PK 값으로 조회");
             return new AppException(NO_DATA_EXISTED, "존재하지 않는 학교입니다");
         });
@@ -140,9 +145,9 @@ public class CourseService {
 
     public void removeCourseById(Long courseId) {
         courseRepository.findById(courseId).orElseThrow(()->{
-            log.error("에러 내용: 과목 제거 실패 " +
+            log.error("에러 내용: 수업 제거 실패 " +
                     "발생 원인: 존재하지 않는 PK 값으로 조회");
-            return new AppException(NO_DATA_EXISTED, "존재하지 않는 과목입니다");
+            return new AppException(NO_DATA_EXISTED, "존재하지 않는 수업입니다");
         });
 
         // 연관 관계 제거
