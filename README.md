@@ -1599,18 +1599,18 @@ Member member = Member.createNormalMember(memberSignUpDto.getName(),
 ### 전체적 코드 
 ```java
 @Transactional
-    public TokenResponseDto login(SignInDto signInDto){
+    public TokenResponseDto login(SignInDto signInRequestDto){
 
        //1
-        Member findMember=memberRepository.findMemberByLoginId(signInDto.getUserID()).orElseThrow(()->new NotFoundException(
+        Member findMember=memberRepository.findMemberByLoginId(signInRequestDto.getUserID()).orElseThrow(()->new NotFoundException(
                 ErrorCode.MESSAGE_NOT_FOUND));
 
-        if(!passwordEncoder.matches(signInDto.getPassword(),findMember.getPassword())){
+        if(!passwordEncoder.matches(signInRequestDto.getPassword(),findMember.getPassword())){
             throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
         }
         
         //2
-        UsernamePasswordAuthenticationToken authenticationToken=signInDto.getAuthenticationToken();
+        UsernamePasswordAuthenticationToken authenticationToken=signInRequestDto.getAuthenticationToken();
         //3
         Authentication authentication= authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         TokenDto tokenDto=tokenProvider.createToken(authentication);
@@ -1707,4 +1707,184 @@ public class JwtUserDetailsService implements UserDetailsService {
 login 서비스 코드에서 반환받은 ```Authentication``` 을 가지고 Token 을 생성하고 클라이언트에게 반환한다. 
 
 # 기존 방식 중 수정한 것 및 궁금한 것 
+
+
+## 수정한 것 1: SecurityContextHolder 에서 직접 꺼내는 대신 @AuthenticationPrincipal 활용 
+
+### 기존에 사용했던 방식 
+
+```java
+private Member getMember(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return memberRepository.findMemberByLoginId(authentication.getName()).orElseThrow(()->new NotFoundException(
+                ErrorCode.MESSAGE_NOT_FOUND));
+    }
+```
+
+위 코드처럼 직접 ```SecurityContextHolder``` 에서 인증객체를 직접 꺼내는 방식을  컨트롤러 단이나 서비스 단에서 수행했었다. 
+
+하지만 다른 방법도 시도해보자 (장단점이 있을까?)
+
+### 대안 
+
+아래와 같이 ```@AuthenticatinoPrincipal``` 을 이용해서 이를 해결할 수 있다. 
+
+```java
+ public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long communityId,@ModelAttribute @Valid final PostSaveRequestDto postSaveRequestDto,
+@AuthenticationPrincipal final UserDetails userDetails){
+        postService.savePost(postSaveRequestDto,communityId,userDetails.getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+```
+
+### 대안에 대한 문제점 발생 가능성 
+
+
+하지만 위 방법에서 만약  로그인된 사용자, 로그인되지 않은 사용자가 동시에 사용하기 때문에 
+인가 처리를 하지 않은 경우 혹은 로그인된 사용자만 사용하지만 인가처리를 실수로 못한 경우 등(Filter에서 거르지 못했을 때)
+에는 ```UserDetails``` 에 ```Null``` 값이 들어갈 수 있다. 
+
+
+그리고 그 ```Null``` 값이 생긴다면 각 서비스 코드에서 ```Null```  에 대한 처리를 해줘야 하는 번거로움이 생길 수 있다고 한다. 실제로 얼마나 번거로울지는 모르겠지만
+
+
+
+### 그 원인 
+
+위 내용의 상황 같은 경우 Authentication 객체에는 Null 이 들어가지 않고 ```Authentication.getName() ,getPrincipal()```
+에는 ```anonymousUser``` 라는 값이 들어가있다. 
+
+따라서 ```@AuthenticationPrincipal``` 사용시 ```AuthenticationPrincipalArgumentResolver```
+의 ```resolveArgument``` 메서드의 아래 그림의 파란색 부분에서 null 이 반환되는 것이다.
+
+![img_11.png](img_11.png)
+
+
+### 해결책: 직접 resolveArgument 를 구현해서 이를 해결하기 
+
+위에 대한 문제 해결을 위해 
+
+https://wildeveloperetrain.tistory.com/324
+
+https://velog.io/@hann1233/AuthenticationPrincipal-%EC%A0%81%EC%9A%A9
+
+여러 블로그에서 따로 resolveArgument 를 구현한 것을 볼 수 있었다.
+
+일단 중요한 것은 ```NPE``` 방지 이므로 ```reture NULL``` 대신 예외를 던지는 식으로 처리를 해준 것을 볼 수 있다. 
+
+
+### 해결책: SpEL
+
+```@AuthenticationPrincipal``` 을 상속한 커스텀 어노테이션을 만들어서 반환값이 ```UserDetails``` 대신 ```loginId```를 반환하게 하겠다.
+
+이 과정에서 userDetails가 ```NULL``` 이라면 loginId 를 ```null``` 로 세팅하여서 객체가 null 이 아니도록 할 수 있다. 
+
+```java
+@Target({ElementType.PARAMETER, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : #this.getUsername()")
+public @interface CurrentMemberLoginId {
+
+}
+```
+
+```java
+public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long communityId,@ModelAttribute @Valid final PostSaveRequestDto postSaveRequestDto,
+            @CurrentMemberLoginId final String loginId){
+        postService.savePost(postSaveRequestDto,communityId,getMemberByLoginId(loginId));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+```
+
+```java
+private Member getMemberByLoginId(String loginId){
+        return memberRepository.findMemberByLoginId(loginId).orElseThrow(()->new NotFoundException(
+                ErrorCode.MESSAGE_NOT_FOUND));
+    }
+```
+
+어차피 null 이 들어가봤자 loginId 에 대한 NULL 이라서 ```NPE``` 가 발생하지 않는다. 
+
+
+# 수정해보기 2: 그냥 Spel 을 이용 로그인된 객체를 바로 사용해보기 
+
+
+###  ```CustomUserDetails``` 를 따로 만들어 ```getMember()``` 란 메서드를 따로 만든다. 
+
+```java
+@RequiredArgsConstructor
+public class CustomUserDetails implements UserDetails, CredentialsContainer {
+
+    private final String username;
+    private  String password;
+    private final boolean enabled;
+    private final boolean accountNonExpired;
+    private final boolean credentialsNonExpired;
+    private final boolean accountNonLocked;
+    private final Set<GrantedAuthority> authorities;
+
+    private final Member member;
+
+    public Member getMember(){
+        return member;
+    }
+
+    public CustomUserDetails(String username,String password,Collection<? extends GrantedAuthority> authorities,Member member){
+        this(username, password, true, true, true, true, authorities,member);
+    }
+
+    public CustomUserDetails(String username, String password, boolean enabled, boolean accountNonExpired,
+            boolean credentialsNonExpired, boolean accountNonLocked,
+```
+
+### 이를 이용해서 CustomUserDetails 를 따로 반환한다.
+
+```java
+@Override
+    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return memberRepository.findMemberByLoginId(username)
+                .map(this::getUserDetails)
+                .orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
+    }
+
+    public CustomUserDetails getUserDetails(Member member) {
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(member.getAuthority().toString());
+
+        return new CustomUserDetails(member.getLoginId(), member.getPassword(), Collections.singleton(authority),member);
+    }
+```
+
+### @AuthenticationPrincipal 을 가진 어노테이션을 새로 생성한다.
+
+```java
+@Target({ElementType.PARAMETER, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : #this.getMember()")
+public @interface CurrentMember {
+
+}
+
+```
+
+### 위 방식을 이용해서 컨트롤러 수정 
+
+```java
+public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long communityId,@ModelAttribute @Valid final PostSaveRequestDto postSaveRequestDto,
+            @CurrentMember Member member){
+        postService.savePost(postSaveRequestDto,communityId,member);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+```
+
+
+이로써 따로 가져온 Member 에 대해서 다시 아이디를  뭐 가져오거나 이럴 필요가 없어서 
+더 좋은 측면이 있어보인다. 
+
+
+
+
+
+
+
+
 
