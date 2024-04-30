@@ -1,10 +1,10 @@
 package com.ceos19.springeverytime.domain.auth.jwt;
 
+import com.ceos19.springeverytime.domain.user.dto.response.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +19,7 @@ import java.io.IOException;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    private final JWTUtil jwtUtil;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -36,8 +37,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      * */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        System.out.println("login success");
-        super.successfulAuthentication(request, response, chain, authResult);
+        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
+        String username = customUserDetails.getUsername();
+
+        String token = jwtUtil.createJwt(username, 60*60*10L);
+
+        response.addHeader("Authorization", "Bearer " + token);
     }
 
     /**
@@ -45,7 +50,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      * */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        System.out.println("login fail");
-        super.unsuccessfulAuthentication(request, response, failed);
+        response.setStatus(401);
     }
 }

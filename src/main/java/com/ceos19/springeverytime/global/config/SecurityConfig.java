@@ -1,5 +1,6 @@
 package com.ceos19.springeverytime.global.config;
 
+import com.ceos19.springeverytime.domain.auth.jwt.JWTUtil;
 import com.ceos19.springeverytime.domain.auth.jwt.LoginFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final JWTUtil jwtUtil;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -46,7 +48,7 @@ public class SecurityConfig {
 
         // 커스텀으로 작성한 아이디 비밀번호 인증 필터 등록
         http.addFilterAt(
-                new LoginFilter(authenticationManager(authenticationConfiguration)),
+                new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
                 UsernamePasswordAuthenticationFilter.class
         );
 
