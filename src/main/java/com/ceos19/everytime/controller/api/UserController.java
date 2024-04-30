@@ -1,6 +1,7 @@
 package com.ceos19.everytime.controller.api;
 
 import com.ceos19.everytime.domain.Semester;
+import com.ceos19.everytime.domain.TimeTable;
 import com.ceos19.everytime.domain.User;
 import com.ceos19.everytime.dto.*;
 import com.ceos19.everytime.exception.AppException;
@@ -149,15 +150,13 @@ public class UserController {
 
     @GetMapping("/user/{user_id}/timeTable")
     public ResponseEntity<BaseResponse<ReadTimeTableResponse>> readTimeTable(@PathVariable("user_id") Long userId,
-                                                                             @RequestParam Integer year,
-                                                                             @RequestParam Semester semester,
-                                                                             @RequestParam String name) {
+                                                                             @RequestParam("year") Integer year,
+                                                                             @RequestParam("semester") Semester semester,
+                                                                             @RequestParam("name") String name) {
         try {
-            ReadTimeTableResponse value
-                    = ReadTimeTableResponse.from(
-                    timeTableService
-                            .findTimeTableByUserIdAndYearAndSemesterAndName(userId, year, semester, name)
-            );
+            TimeTable timeTable = timeTableService
+                    .findTimeTableByUserIdAndYearAndSemesterAndName(userId, year, semester, name);
+            ReadTimeTableResponse value = ReadTimeTableResponse.from(timeTable);
 
             return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, 1));
         } catch (AppException e) {
@@ -169,8 +168,8 @@ public class UserController {
 
     @GetMapping("/user/{user_id}/timeTables")
     public ResponseEntity<BaseResponse<List<ReadTimeTableResponse>>> readTimeTables(@PathVariable("user_id") Long userId,
-                                                                                    @RequestParam(required = false) Integer year,
-                                                                                    @RequestParam(required = false) Semester semester
+                                                                                    @RequestParam(value = "year",required = false) Integer year,
+                                                                                    @RequestParam(value = "semester",required = false) Semester semester
     ) {
         try {
             List<ReadTimeTableResponse> value = new ArrayList<>();
