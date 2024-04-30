@@ -16,6 +16,9 @@ public interface TimeTableCourseRepository extends JpaRepository<TimeTableCourse
     @EntityGraph(attributePaths = {"course"})
     List<TimeTableCourse> findByTimeTableId(Long timeTableId);  // 특정 TimeTable로 조회
 
+    @EntityGraph(attributePaths = {"timeTable","course"})
+    Optional<TimeTableCourse> findByTimeTableIdAndCourseId(Long timeTableId, Long courseId);
+
     void deleteAllByTimeTableId(Long timeTableId);
 
     void deleteAllByCourseId(Long courseId);
