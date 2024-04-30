@@ -1,3 +1,6 @@
+jwt:
+  secret: ${JWT_SECRET_KEY}
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -15,3 +18,9 @@ spring:
         database-platform: org.hibernate.dialect.MySQLDialect
       show_sql: true
       format_sql: true
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      multiline: true
+      logging: slf4j
