@@ -1,6 +1,6 @@
 package com.ceos19.springboot.message.controller;
 
-import com.ceos19.springboot.global.ApiResponse;
+import com.ceos19.springboot.common.response.ApiResponse;
 import com.ceos19.springboot.message.domain.Message;
 import com.ceos19.springboot.message.dto.MessageResponseDto;
 import com.ceos19.springboot.message.service.MessageService;
