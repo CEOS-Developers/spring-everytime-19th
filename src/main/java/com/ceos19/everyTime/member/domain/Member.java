@@ -49,7 +49,7 @@ public class Member {
     private Authority authority;
 
     @Builder
-    private Member(String name,String loginId,String password,String nickName,Authority authority){
+    protected Member(String name,String loginId,String password,String nickName,Authority authority){
         this.name = name;
         this.loginId = loginId;
         this.password =password;

@@ -3,6 +3,7 @@ package com.ceos19.everyTime.post.controller;
 import com.ceos19.everyTime.common.ApiBaseResponse;
 import com.ceos19.everyTime.error.ErrorCode;
 import com.ceos19.everyTime.error.exception.NotFoundException;
+import com.ceos19.everyTime.auth.interfaces.CurrentMember;
 import com.ceos19.everyTime.member.domain.Member;
 import com.ceos19.everyTime.member.repository.MemberRepository;
 import com.ceos19.everyTime.post.dto.request.PostEditRequestDto;
@@ -43,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "게시글에 대한 컨트롤러", description = "게시글 관련 API")
 public class PostController {
     private final PostService postService;
-    private final MemberRepository memberRepository;
     private final LikePostService likePostService;
 
     @PostMapping(value = "/{communityId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -55,8 +55,9 @@ public class PostController {
         @ApiResponse(responseCode = "201",description = "게시물 생성 완료"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long communityId,@ModelAttribute @Valid final PostSaveRequestDto postSaveRequestDto){
-        postService.savePost(postSaveRequestDto,communityId,getMember());
+    public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long communityId,@ModelAttribute @Valid final PostSaveRequestDto postSaveRequestDto,
+            @CurrentMember Member member){
+        postService.savePost(postSaveRequestDto,communityId,member);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -69,8 +70,9 @@ public class PostController {
         @ApiResponse(responseCode = "200",description = "업데이트 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public ResponseEntity<Void> changePost(@PathVariable("postId") final Long postId, @ModelAttribute @Valid final PostEditRequestDto postEditRequestDto){
-        postService.updatePost(postEditRequestDto,postId,getMember());
+    public ResponseEntity<Void> changePost(@PathVariable("postId") final Long postId, @ModelAttribute @Valid final PostEditRequestDto postEditRequestDto,
+            @CurrentMember final Member member){
+        postService.updatePost(postEditRequestDto,postId,member);
         return ResponseEntity.ok().build();
     }
 
@@ -83,8 +85,8 @@ public class PostController {
         @ApiResponse(responseCode = "200",description = "삭제 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public void deletePost(@PathVariable("postId") final Long postId){
-        postService.deletePost(postId,getMember());
+    public void deletePost(@PathVariable("postId") final Long postId,@CurrentMember final Member member){
+        postService.deletePost(postId,member);
     }
 
     @GetMapping("/{communityId}/list")
@@ -127,20 +129,27 @@ public class PostController {
         @ApiResponse(responseCode = "200",description = "게시글 좋아요 성공"),
         @ApiResponse(responseCode = "404",description = "자원 식별 불가")
     })
-    public void likePost(@PathVariable("postId") final Long postId){
-        likePostService.likePost(getMember(),postId);
+    public void likePost(@PathVariable("postId") final Long postId,@CurrentMember final Member member){
+        likePostService.likePost(member,postId);
     }
 
 
 
 
-    private Member getfindMember(Long id){
+    /*private Member getfindMember(Long id){
         return memberRepository.findById(id).get();
     }
 
     private Member getMember(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication.getPrincipal());//anonymousUser
+        System.out.println(authentication.getName());//anonymousUser
         return memberRepository.findMemberByLoginId(authentication.getName()).orElseThrow(()->new NotFoundException(
                 ErrorCode.MESSAGE_NOT_FOUND));
     }
+
+    private Member getMemberByLoginId(String loginId){
+        return memberRepository.findMemberByLoginId(loginId).orElseThrow(()->new NotFoundException(
+                ErrorCode.MESSAGE_NOT_FOUND));
+    }*/
 }
