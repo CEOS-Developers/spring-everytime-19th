@@ -506,144 +506,150 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 ### 학교(SchoolController)
 
 - 등록
-    1. 학교 등록(/school) O
-    2. 게시판 등록(/school/{school_id}/board) O
-    3. 수업 등록(/school/{school_id}/course) O
+    1. 학교 등록(/school)
+    2. 게시판 등록(/school/{school_id}/board)
+    3. 수업 등록(/school/{school_id}/course)
 - 조회
     - 단건 조회
-        1. PK (/school/{school_id}) O
-        2. 학교 명 (/school?name={학교명}) O
+        1. PK (/school/{school_id})
+        2. 학교 명 (/school?name={학교명})
     - 다중 조회
-        1. 모든 학교 조회 (/schools) O
+        1. 모든 학교 조회 (/schools)
     - 학교에 속한 게시판 조회
-        1. 해당 학교에 있는 모든 게시판 조회(/school/{school_id}/boards) O
-        2. 학교 FK + 게시판 명(/school/{school_id}/board?name={게시판명}) O
+        1. 해당 학교에 있는 모든 게시판 조회(/school/{school_id}/boards)
+        2. 학교 FK + 게시판 명(/school/{school_id}/board?name={게시판명})
     - 학교에 속한 수업 조회
-        1. 해당 학교에 있는 모든 수업 조회 (/school/{school_id}/courses) O
-        2. 학교 FK + 수업명 (/school/{school_id}/courses?name={수업명}) O
-        3. 학교 FK + 교수명 (/school/{school_id}/courses?professorName={교수명}) O
-        4. 학교 FK + 수업명 + 교수명 (/school/{school_id}/courses?name={수업명}&professorName={교수명}) O
-- 수정 (/school/{school_id}) O
+        1. 해당 학교에 있는 모든 수업 조회 (/school/{school_id}/courses)
+        2. 학교 FK + 수업명 (/school/{school_id}/courses?name={수업명})
+        3. 학교 FK + 교수명 (/school/{school_id}/courses?professorName={교수명})
+        4. 학교 FK + 수업명 + 교수명 (/school/{school_id}/courses?name={수업명}&professorName={교수명})
+- 수정 (/school/{school_id})
     1. 학교명
 
 ### 게시판(BoardController)
 
 - 등록
-    1. 게시물 등록(POST /board/{board_id}/post) O
+    1. 게시물 등록(POST /board/{board_id}/post)
 - 조회
     - 단건 조회
         1. PK (/board/{board_id})
     - 게시판에 속한 게시물 조회
-        1. 해당 게시판의 모든 게시물 조회  (/board/{board_id}/posts) O
-        2. 게시물 등록일자로 조회 (/board/{board_id}/posts?date={xxxx-xx-xx}) O
-        3. 게시물 명으로 조회 (/board/{board_id}/posts?title={게시물명}) O
-- 수정 (/board/{board_id}) O
+        1. 해당 게시판의 모든 게시물 조회  (/board/{board_id}/posts)
+        2. 게시물 등록일자로 조회 (/board/{board_id}/posts?date={xxxx-xx-xx})
+        3. 게시물 명으로 조회 (/board/{board_id}/posts?title={게시물명})
+- 수정 (/board/{board_id})
     1. 게시판 이름
 
 ### 게시물(PostController)
 
 - 등록
-    1. 좋아요 등록 (/post/{post_id}/postLike) O
-    2. 해당 게시물에 댓글 달기 (/post/{post_id}/comment) O
-    3. 해당 게시물에 첨부 파일 추가(/post/{post_id}/attachment) O
+    1. 좋아요 등록 (/post/{post_id}/postLike)
+    2. 해당 게시물에 댓글 달기 (/post/{post_id}/comment)
+    3. 해당 게시물에 첨부 파일 추가(/post/{post_id}/attachment)
 - 조회
     - 단건 조회
-        1. PK (/post/{post_id})  O
+        1. PK (/post/{post_id})
     - 게시물에 속한 댓글 조회
-        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{post_id}/comments) O
+        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{post_id}/comments)
     - 게시물에 속한 좋아요 조회
-        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{post_id}/postLike) O
+        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{post_id}/postLike)
     - 게시물에 속한 첨부파일 조회
-        1. 해당 게시물에 속한 모든 첨부파일 조회(/post/{post_id}/attachments) O
-- 수정 (/post/{post_id}) O
+        1. 해당 게시물에 속한 모든 첨부파일 조회(/post/{post_id}/attachments)
+- 수정 (/post/{post_id})
     1. 내용
     2. 질문 여부
     3. 익명 여부
 - 제거
-    1. 게시물 (/post/{post_id}) O
+    1. 게시물 (/post/{post_id})
 
 ### 첨부파일(AttachmentController)
 
 - 제거
-    1. 첨부파일 (/attachment/{attachment_id}) O
+    1. 첨부파일 (/attachment/{attachment_id})
 
 ### 댓글(CommentController)
 
 - 등록
-    1. 대댓글 달기 (/comment/{comment_id}/reply) O
+    1. 대댓글 달기 (/comment/{comment_id}/reply)
 - 조회
     - 다중 조회
-        1. 대댓글 전체 조회 (/comment/{comment_id}/replies) O
-- 댓글 수정 (/comment/{comment_id}) O
+        1. 대댓글 전체 조회 (/comment/{comment_id}/replies)
+- 댓글 수정 (/comment/{comment_id})
     1. 콘텐츠 수정
-- 댓글 제거 (/comment/{comment_id}) O
+- 댓글 제거 (/comment/{comment_id})
 
 ### 게시물 좋아요(PostLikeController)
 
-- 제거 (/postLike/{postlike_id}) O
+- 제거 (/postLike/{postlike_id})
 
 ### 수업(CourseController)
 
 - 조회
     - 단건 조회
-        1. PK (/course/{course_id}) O
-- 제거 (/course/{course_id}) O
+        1. PK (/course/{course_id})
+- 제거 (/course/{course_id})
 
 ### 유저(UserController)
 
 - 등록
-    1. 회원가입(/join) O
-    2. 시간표 등록(/user/{user_id}/timeTable) O
+    1. 회원가입(/join)
+    2. 시간표 등록(/user/{user_id}/timeTable)
 
 - 조회
     - 단건 조회
-        1. PK(/user/{user_id}) O
-        2. email(/user?email={이메일}) O
-        3. 학번(/user?school_id={학교PK}&studentNo={학번}) O
+        1. PK(/user/{user_id})
+        2. email(/user?email={이메일})
+        3. 학번(/user?school_id={학교PK}&studentNo={학번})
     - 다중 조회
-        1. 이름(/users?name={이름}) O
+        1. 이름(/users?name={이름})
     - 유저가 쓴 게시물 조회
-        1. 유저가 쓴 게시물 전체 조회(/user/{user_id}/posts) O
+        1. 유저가 쓴 게시물 전체 조회(/user/{user_id}/posts)
     - 유저가 속해 있는 채팅방 조회
-        1. 유저가 속해 있는 채팅방 전체 조회 (/user/{user_id}/chattingRooms) O
+        1. 유저가 속해 있는 채팅방 전체 조회 (/user/{user_id}/chattingRooms)
     - 유저가 쓴 댓글 조회
-        1. 유저가 쓴 댓글 전체 조회 (/user/{user_id}/comments) O
+        1. 유저가 쓴 댓글 전체 조회 (/user/{user_id}/comments)
     - 유저의 시간표 조회
         - 단건 조회
-            1. 연도, 학기를 조건으로 유저의 시간표 전체 조회 (/user/{user_id}/timeTable?year={연도}&학기={semester}) O
+            1. 연도, 학기를 조건으로 유저의 시간표 전체 조회 (/user/{user_id}/timeTable?year={연도}&학기={semester})
         - 다중 조회
-            1. 유저의 시간표 전체 조회 (/user/{user_id}/timeTables) O
-            2. 연도, 학기, 시간표 명을 조건으로 유저의 시간표 전체 조회 (/user/{user_id}/timeTables?year={연도}&학기={semester}&name={시간표명}) O
-- 제거(/user/{user_id}) O
+            1. 유저의 시간표 전체 조회 (/user/{user_id}/timeTables)
+            2. 연도, 학기, 시간표 명을 조건으로 유저의 시간표 전체 조회 (/user/{user_id}/timeTables?year={연도}&학기={semester}&name={시간표명})
+- 제거
+  1. 유저 제거 (/user/{user_id})
 
 ### 채팅방(ChattingRoomController)
 
 - 등록
-    1. 채팅방 등록(/chattingRoom) O
-    2. 채팅 등록(/chattingRoom/{chattingRoom_id}/chat) O
+    1. 채팅방 등록(/chattingRoom)
+    2. 채팅 등록(/chattingRoom/{chattingRoom_id}/chat)
 - 조회
     - 단건 조회
-        1. PK (/chattingRoom/{chattingRoom_id}) O
+        1. PK (/chattingRoom/{chattingRoom_id})
     - 다중 조회
-        1. 채팅방에 속해 있는 채팅 전체 조회(/chattingRoom/{chattingRoom_id}/chats) O
-- 제거 (/chattingRoom/{chattingRoom_id}) O
+        1. 채팅방에 속해 있는 채팅 전체 조회(/chattingRoom/{chattingRoom_id}/chats)
+        2. 채팅방에 속해 있는 채팅 날짜로 조회(/chattingRoom/{chattingRoom_id}/chats?send_date={작성 일자})
+- 제거 (/chattingRoom/{chattingRoom_id})
 
 ### 채팅(ChatController)
 
-- 채팅 제거(chat/{cid})
+- 조회
+    1. PK(/chat/{chat_id})
+- 제거(/chat/{cid})
 
 ### 시간표(TimeTableController)
 
-- 등록
-    1. 시간표에 수업 추가(/timeTable/{tid}/course)
 - 조회
     - 단건 조회
-        1. PK(/timeTable/{tid})
+        1. PK(/timeTable/{timeTable_id})
     - 시간표에 등록된 수업 조회
-        1. 시간표상의 모든 수업 조회(/timeTable/{tid}/courses)
+        1. 시간표 상의 모든 수업 조회(/timeTable/{timeTable_id}/courses)
 
-- 제거 (/timeTables/{tid})
-    1. 시간표의 수업 제거(/timeTable/{tid}/course/{cid})
+- 제거 
+  1. 시간표 제거((/timeTable/{timeTable_id})
+  2. 시간표에서 수업 제거(/timeTable/{timeTable_id}/course/{course_id})
+
+- 수정
+    1. 시간표에 수업 추가(/timeTable/{timeTable_id}/course)
 
 ## 컨트롤러 구현
 
