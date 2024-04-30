@@ -1,13 +1,12 @@
-package com.ceos19.everyTime.member.service;
+package com.ceos19.everyTime.auth.service;
 
-import com.ceos19.everyTime.common.jwt.TokenProvider;
+import com.ceos19.everyTime.auth.jwt.TokenProvider;
 import com.ceos19.everyTime.error.ErrorCode;
 import com.ceos19.everyTime.error.exception.NotFoundException;
 import com.ceos19.everyTime.member.domain.Member;
-import com.ceos19.everyTime.member.dto.SignInDto;
-import com.ceos19.everyTime.member.dto.TokenDto;
-import com.ceos19.everyTime.member.dto.TokenRequestDto;
-import com.ceos19.everyTime.member.dto.TokenResponseDto;
+import com.ceos19.everyTime.auth.dto.SignInRequestDto;
+import com.ceos19.everyTime.auth.dto.TokenDto;
+import com.ceos19.everyTime.auth.dto.TokenResponseDto;
 import com.ceos19.everyTime.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,16 +32,17 @@ public class AuthService {
 
 
     @Transactional
-    public TokenResponseDto login(SignInDto signInDto){
+    public TokenResponseDto login(final SignInRequestDto signInRequestDto){
 
-        Member findMember=memberRepository.findMemberByLoginId(signInDto.getUserID()).orElseThrow(()->new NotFoundException(
+        Member findMember=memberRepository.findMemberByLoginId(signInRequestDto.getUserID()).orElseThrow(()->new NotFoundException(
                 ErrorCode.MESSAGE_NOT_FOUND));
 
-        if(!passwordEncoder.matches(signInDto.getPassword(),findMember.getPassword())){
+        if(!passwordEncoder.matches(signInRequestDto.getPassword(),findMember.getPassword())){
             throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken=signInDto.getAuthenticationToken();
+
+        UsernamePasswordAuthenticationToken authenticationToken= signInRequestDto.getAuthenticationToken();
         Authentication authentication= authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         TokenDto tokenDto=tokenProvider.createToken(authentication);
 
@@ -53,9 +53,7 @@ public class AuthService {
 
 
     @Transactional
-    public TokenResponseDto reIssue(TokenRequestDto tokenRequestDto){
-        String accessToken=tokenRequestDto.getAccessToken();
-        String refreshToken=tokenRequestDto.getRefreshToken();
+    public TokenResponseDto reIssue(final String accessToken, final String refreshToken){
         Authentication authentication= tokenProvider.getAuthentication(accessToken);
 
         if(!redisTemplate.opsForValue().get(authentication.getName()).equals(refreshToken)){
@@ -69,23 +67,21 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(TokenRequestDto tokenRequestDto){
+    public void logout(final String accessToken){
 
-        if (!tokenProvider.validateToken(tokenRequestDto.getAccessToken())){
-            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+        if (!tokenProvider.validateToken(accessToken)){
+            throw new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND);
         }
 
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
 
         if (redisTemplate.opsForValue().get(authentication.getName())!=null){
             redisTemplate.delete(authentication.getName());
         }
 
 
-
-
-        Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
-        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration,TimeUnit.MILLISECONDS);
+        Long expiration = tokenProvider.getExpiration(accessToken);
+        redisTemplate.opsForValue().set(accessToken,"logout",expiration,TimeUnit.MILLISECONDS);
     }
 
 }
