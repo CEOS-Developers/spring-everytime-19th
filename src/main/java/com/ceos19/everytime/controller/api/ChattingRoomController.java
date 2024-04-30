@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,12 +63,19 @@ public class ChattingRoomController {
     }
 
     @GetMapping("/{chattingRoom_id}/chats")
-    public ResponseEntity<BaseResponse<List<ReadChatResponse>>> readChats(@PathVariable("chattingRoom_id") Long chattingRoomId) {
+    public ResponseEntity<BaseResponse<List<ReadChatResponse>>> readChats(@PathVariable("chattingRoom_id") Long chattingRoomId,
+                                                                          @RequestParam(value = "send_date", required = false) LocalDate sendDate) {
         try {
             List<ReadChatResponse> value = new ArrayList<>();
-            chatService.findChatByChattingRoomId(chattingRoomId).forEach(chat -> {
-                value.add(ReadChatResponse.from(chat));
-            });
+            if (sendDate == null) {
+                chatService.findChatByChattingRoomId(chattingRoomId).forEach(chat ->
+                        value.add(ReadChatResponse.from(chat))
+                );
+            } else {
+                chatService.findChatByChattingRoomIdAndSendDate(chattingRoomId, sendDate).forEach(chat ->
+                        value.add(ReadChatResponse.from(chat))
+                );
+            }
 
             return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, value.size()));
         } catch (AppException e) {
