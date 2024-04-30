@@ -1,6 +1,8 @@
-package com.ceos19.springboot.exception.code;
+package com.ceos19.springboot.common.code;
 
 import lombok.Getter;
+
+
 
 /**
  * [공통 코드] API 통신에 대한 '에러 코드'를 Enum 형태로 관리를 한다.
