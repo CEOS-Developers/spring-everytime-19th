@@ -52,7 +52,7 @@ public class InitDB {
             Board board = new Board("컴공게시판", school);
             boardRepository.save(board);
 
-            // 과목 저장
+            // 수업 저장
             Course course1 = new Course("1234-123", "갈비탕개론", 2, "미스터갈비탕교수", 3, "t123", school);
             course1.addClassTime(FRI, 5);
             course1.addClassTime(FRI, 6);
