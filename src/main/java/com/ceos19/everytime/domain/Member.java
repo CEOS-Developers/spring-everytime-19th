@@ -1,6 +1,5 @@
 package com.ceos19.everytime.domain;
 
-import com.ceos19.everytime.security.AuthMemberController;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -50,12 +49,10 @@ public class Member extends BaseTimeEntity{
         this.authority = authority;
     }
 
-    public boolean changeUsername(final String username) {      //반환을 어떻게 해아할지?
+    public void changeUsername(final String username) {      //반환을 어떻게 해아할지?
         if(validateUsername(username) != null){
             this.username = username;
-            return true;
         }
-        return false;
     }
 
     private String validateUsername(final String username) {

@@ -1,10 +1,19 @@
 package com.ceos19.everytime.service;
 
+import com.ceos19.everytime.domain.Authority;
 import com.ceos19.everytime.domain.Member;
+import com.ceos19.everytime.dto.member.MemberDto;
+import com.ceos19.everytime.dto.member.SignUpRequest;
 import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.MemberRepository;
+import com.ceos19.everytime.security.TokenDto;
+import com.ceos19.everytime.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -17,24 +26,41 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final TokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public Long join(Member member) {
-        if((memberRepository.findByUsernameAndLoginId(member.getUsername(), member.getLoginId()).isPresent())){
-            throw new CustomException(DATA_ALREADY_EXISTED);
-        }
+    public TokenDto login (String loginId, String password) {
+        // 1. username + password 를 기반으로 Authentication 객체 생성
+        // 이때 authentication 은 인증 여부를 확인하는 authenticated 값이 false
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginId, password);
 
-        return memberRepository.save(member)
-                .getId();
+        // 2. 실제 검증. authenticate() 메서드를 통해 요청된 Member 에 대한 검증 진행
+        // authenticate 메서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드 실행
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        // 3. 인증 정보를 기반으로 JWT 토큰 생성
+        TokenDto tokenDto = tokenProvider.generateToken(authentication);
+
+        log.info("request loginId = {}, password = {}", loginId, password);
+        log.info("jwtToken accessToken = {}, refreshToken = {}", tokenDto.getAccessToken(), tokenDto.getRefreshToken());
+
+        return tokenDto;
     }
 
     @Transactional
-    public void login(String loginId, String userPw){
-
-        if(!memberRepository.existsByLoginIdAndUserPw(loginId,userPw)){
-            throw new CustomException(MEMBER_NOT_FOUND);
+    public MemberDto signUp(SignUpRequest signUpRequest) {
+        if (memberRepository.existsByLoginIdAndUserPw(signUpRequest.getLoginId(), signUpRequest.getUserPw())) {
+            throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
         }
 
+        // Password 암호화
+        String encodedPassword = passwordEncoder.encode(signUpRequest.getUserPw());
+
+        log.info("password original = {}, encoded = {}", signUpRequest.getUserPw(), encodedPassword);
+
+        return MemberDto.toDto(memberRepository.save(signUpRequest.toEntity(encodedPassword, Authority.ROLE_USER)));
     }
 
     @Transactional(readOnly = true)

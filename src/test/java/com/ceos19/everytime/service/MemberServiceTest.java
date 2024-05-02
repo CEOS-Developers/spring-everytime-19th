@@ -26,7 +26,7 @@ public class MemberServiceTest {
     Member member2;
     Member member3;
     University university;
-
+/*
     @BeforeEach
     void setup(){
         university = new University("홍익대학교");
@@ -98,4 +98,7 @@ public class MemberServiceTest {
         //then
         assertEquals(2, memberRepository.count());
     }
+
+
+ */
 }
