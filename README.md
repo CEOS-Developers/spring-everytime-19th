@@ -850,3 +850,55 @@ public class AuthService {
 ```
 
 이렇게 구현을 해서 서비스 계층이 Servlet API에 의존하지 않도록 했습니다.
+
+### 로그인을 할 때 비밀번호는 어디에서 검증을 할까?
+
+로그인을 할 때 사용자가 요청을 하면 `JwtValidationFilter`를 거쳐서 액세스 토큰이 없기 때문에 다음 필터인 `JwtAuthenticationFilter`로 넘어갑니다.
+`JwtAuthenticationFilter`에서 사용자가 입력한 아이디와 비밀번호로 `Authentication` 객체를 통해 로그인을 시도합니다.
+이떄 `UserDetailsService`를 상속받은 `CustomUserDetailsService`의 loadUserByUsername 메서를 호출합니다.
+그런데 loadUserByUsername 메서드를 보면 비밀번호 검증을 하지 않고 있습니다. 그러면 어떻게 정상적으로 로그인이 동작하는 걸까요?
+
+```java
+@Service
+@RequiredArgsConstructor
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        final User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        return new CustomUserDetails(user);
+    }
+}
+```
+
+비밀번호 검증은 `DaoAuthenticationProvider`에서 진행됩니다.
+
+```java
+public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+
+    protected void additionalAuthenticationChecks(UserDetails userDetails,
+            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        if (authentication.getCredentials() == null) {
+            this.logger.debug("Failed to authenticate since no credentials provided");
+            throw new BadCredentialsException(this.messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+        } else {
+            String presentedPassword = authentication.getCredentials().toString();
+            if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
+                this.logger.debug(
+                        "Failed to authenticate since password does not match stored value");
+                throw new BadCredentialsException(this.messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                        "Bad credentials"));
+            }
+        }
+    }
+}
+```
+
+`JwtAuthenticationFilter`에서 `AuthenticationManager.authenticate()`를 호출하면 스프링 시큐리티에 내장된 AuthenticationProvider의 authenticate() 메서드가 호출되는데
+이때 `DaoAuthenticationProvider`의 `additionalAuthenticationChecks()` 메서드에서 비밀번호 검증을 합니다.
