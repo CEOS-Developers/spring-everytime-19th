@@ -726,3 +726,127 @@ OAuth 인증 프로세스의 이해는 개발자가 보안성 높은 애플리�
 - [Introduction to JSON Web Tokens](https://jwt.io/introduction)
 - [Understanding JSON Web Tokens (JWT): A Secure Approach to Web Authentication](https://medium.com/@extio/understanding-json-web-tokens-jwt-a-secure-approach-to-web-authentication-f551e8d66deb)
 - [Understand JWT: Access token vs Refresh token](https://jackywxd.medium.com/understand-jwt-access-token-vs-refresh-token-2951e5e45193)
+
+## 3. 로그인 테스트
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/8acdc785-b89e-48a9-82ed-e8be2b54b053)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/8e6260f5-f710-456b-b3db-b4ba3ffa2194)
+
+## 고민한 부분
+### 서비스 계층이 Servlet API에 의존해도 되는가?
+
+처음에 토큰 재발급 API를 구현할 때 다음과 같이 구현했습니다.
+
+```java
+@RestController
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+
+    @Operation(summary = "액세스 토큰 재발급", description = "리프레시 토큰을 사용해서 액세스 토큰을 재발급합니다.")
+    @PostMapping("/reissue")
+    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+        authService.reissue(request, response);
+        return ResponseEntity.ok().build();
+    }
+}
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+    private final TokenProvider tokenProvider;
+
+    @Transactional
+    public void reissue(HttpServletRequest request, HttpServletResponse response) {
+      ...
+    }
+}
+```
+
+하지만 이렇게 HttpServletRequest와 HttpServletResponse를 서비스로 넘겨주는 것은 서비스 계층이 Servlet API에 의존하게 되는데 이게 옳은 방법인지에 대해서 고민이 되었습니다.
+서비스에서 컨트롤러에 의존하기 때문에 레이어드 아키텍처 관점에서 봤을 때 올바르지 않다고 생각했습니다.
+레이어드 아키텍처에서는 하위 계층은 상위 계층을 몰라야 되기 때문입니다. 즉 서비스 계층은 컨트롤러 계층을 알면 안 됩니다.
+
+또한 `도메인 주도 개발 시작하기-최범균` 책에서도 다음과 같이 언급하고 있습니다.
+
+> 표현 영역에 해당하는 HttpServletRequest나 HttpSession을 응용 서비스에 파라미터로 전달하면 안된다. 응용 서비스에서 표현 영역에 대한 의존이 발생하면 응용 서비스만 단독으로 테스트하기가 어려워진다. 게다가 표현 영역의 구현이 변경되면 응용 서비스의 구현도 함께 변경해야 하는 문제도 발생한다.
+
+그래서 서비스 계층에서 필요한 데이터로 변환해서 전달하는 방법을 사용했습니다.
+
+```java
+@Tag(name = "Auth Controller", description = "인증/인가 관련 API")
+@RestController
+@RequiredArgsConstructor
+public class AuthController {
+
+  private static final String REFRESH = "refresh";
+
+  private final AuthService authService;
+
+  @Operation(summary = "액세스 토큰 재발급", description = "리프레시 토큰을 사용해서 액세스 토큰을 재발급합니다.")
+  @PostMapping("/reissue")
+  public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+    final ReissueResponse reissueResponse = authService.reissue(getRefreshToken(request));
+    response.setHeader("access", reissueResponse.newAccess());
+    response.addCookie(createCookie(reissueResponse.newRefresh()));
+    return ResponseEntity.ok().build();
+  }
+
+  private String getRefreshToken(HttpServletRequest request) {
+    return Arrays.stream(request.getCookies())
+            .filter(cookie -> REFRESH.equals(cookie.getName()))
+            .map(Cookie::getValue)
+            .findAny()
+            .orElse(null);
+  }
+
+  private Cookie createCookie(String value) {
+    Cookie cookie = new Cookie(REFRESH, value);
+    cookie.setMaxAge(24 * 60 * 60);
+    // cookie.setSecure(true);
+    // cookie.setPath("/");
+    cookie.setHttpOnly(true);
+
+    return cookie;
+  }
+}
+```
+
+```java
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AuthService {
+
+    private static final String REFRESH = "refresh";
+    private static final String ACCESS = "access";
+
+    private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshRepository;
+
+    @Transactional
+    public ReissueResponse reissue(String refresh) {
+        validateRefreshToken(refresh);
+
+        String username = jwtUtil.getUsername(refresh);
+        String role = jwtUtil.getRole(refresh);
+
+        // make new JWT
+        String newAccess = jwtUtil.createJwt(ACCESS, username, role);
+        String newRefresh = jwtUtil.createJwt(REFRESH, username, role);
+
+        // Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
+        refreshRepository.deleteByRefreshToken(refresh);
+        addRefreshEntity(username, newRefresh, 86400000L);
+
+        log.info("reissue success");
+
+        return new ReissueResponse(newAccess, newRefresh);
+    }
+}
+```
+
+이렇게 구현을 해서 서비스 계층이 Servlet API에 의존하지 않도록 했습니다.
