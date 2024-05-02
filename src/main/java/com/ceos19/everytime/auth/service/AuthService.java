@@ -1,15 +1,17 @@
 package com.ceos19.everytime.auth.service;
 
+import java.util.Date;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ceos19.everytime.auth.dto.response.ReissueResponse;
 import com.ceos19.everytime.jwt.JwtUtil;
 import com.ceos19.everytime.jwt.RefreshToken;
 import com.ceos19.everytime.jwt.RefreshTokenRepository;
-import io.jsonwebtoken.ExpiredJwtException;
-import java.util.Date;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +46,7 @@ public class AuthService {
 
     private void validateRefreshToken(String refresh) {
         validateRefreshTokenNull(refresh);
-        validateRefreshTokenExpired(refresh);
+        jwtUtil.validateTokenExpired(refresh);
         validateRefreshTokenCategory(refresh);
         validateRefreshTokenValidity(refresh);
     }
@@ -64,14 +66,6 @@ public class AuthService {
     private void validateRefreshTokenNull(String refresh) {
         if (refresh == null) {
             throw new IllegalArgumentException("refresh token null");
-        }
-    }
-
-    private void validateRefreshTokenExpired(String refresh) {
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
-            throw new IllegalArgumentException("refresh token expired");
         }
     }
 

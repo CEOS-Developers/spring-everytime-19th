@@ -5,14 +5,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.Date;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class JwtUtil {
@@ -70,6 +70,14 @@ public class JwtUtil {
 
     public boolean isEqualToRefreshTokenCategory(final String refreshToken) {
         return REFRESH.equals(getCategory(refreshToken));
+    }
+
+    public void validateTokenExpired(final String token) {
+        try {
+            isExpired(token);
+        } catch (ExpiredJwtException e) {
+            throw new IllegalArgumentException(getCategory(token) + " token expired");
+        }
     }
 
     private Claims getPayload(final String token) {
