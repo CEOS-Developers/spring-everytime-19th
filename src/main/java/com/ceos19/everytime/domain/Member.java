@@ -1,5 +1,6 @@
 package com.ceos19.everytime.domain;
 
+import com.ceos19.everytime.security.AuthMemberController;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -22,7 +23,7 @@ public class Member extends BaseTimeEntity{
     @Column(nullable = false, unique = true, length = 20)
     private String loginId;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false)
     private String userPw;
 
     @Column(nullable = false, unique = true, length = 10)
@@ -35,13 +36,18 @@ public class Member extends BaseTimeEntity{
     @JoinColumn(name = "university_id")
     private University university;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
+
     @Builder
-    public Member(final String username, final String loginId, final String userPw, final String email, final University university) {
+    public Member(final String username, final String loginId, final String userPw, final String email, final University university, final Authority authority) {
         this.username = username;
         this.loginId = loginId;
         this.userPw = userPw;
         this.email = email;
         this.university = university;
+        this.authority = authority;
     }
 
     public boolean changeUsername(final String username) {      //반환을 어떻게 해아할지?
