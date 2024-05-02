@@ -17,6 +17,9 @@ import io.jsonwebtoken.Jwts;
 @Component
 public class JwtUtil {
 
+    private static final String REFRESH = "refresh";
+    private static final String ACCESS = "access";
+
     private final SecretKey secretKey;
     private final long expiredMs;
 
@@ -60,9 +63,13 @@ public class JwtUtil {
     }
 
     public void validateAccessToken(final String accessToken) {
-        if (!"access".equals(getCategory(accessToken))) {
+        if (!ACCESS.equals(getCategory(accessToken))) {
             throw new IllegalArgumentException("Invalid access token");
         }
+    }
+
+    public boolean isEqualToRefreshTokenCategory(final String refreshToken) {
+        return REFRESH.equals(getCategory(refreshToken));
     }
 
     private Claims getPayload(final String token) {
