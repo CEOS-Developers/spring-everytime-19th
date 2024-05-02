@@ -1,9 +1,9 @@
 package com.ceos19.everytime.auth.service;
 
 import com.ceos19.everytime.auth.dto.response.ReissueResponse;
-import com.ceos19.everytime.security.JwtUtil;
-import com.ceos19.everytime.security.RefreshToken;
-import com.ceos19.everytime.security.RefreshTokenRepository;
+import com.ceos19.everytime.jwt.JwtUtil;
+import com.ceos19.everytime.jwt.RefreshToken;
+import com.ceos19.everytime.jwt.RefreshTokenRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;

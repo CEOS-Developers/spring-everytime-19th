@@ -1,4 +1,4 @@
-package com.ceos19.everytime.security;
+package com.ceos19.everytime.jwt;
 
 import static io.jsonwebtoken.Jwts.SIG.HS256;
 import static java.nio.charset.StandardCharsets.UTF_8;

@@ -1,4 +1,4 @@
-package com.ceos19.everytime.security;
+package com.ceos19.everytime.jwt;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

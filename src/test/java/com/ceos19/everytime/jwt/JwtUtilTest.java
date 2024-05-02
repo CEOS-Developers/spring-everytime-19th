@@ -1,4 +1,4 @@
-package com.ceos19.everytime.security;
+package com.ceos19.everytime.jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

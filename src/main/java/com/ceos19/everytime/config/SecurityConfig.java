@@ -14,10 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.ceos19.everytime.security.JwtUtil;
-import com.ceos19.everytime.security.RefreshTokenRepository;
-import com.ceos19.everytime.security.filter.JwtAuthenticationFilter;
-import com.ceos19.everytime.security.filter.JwtValidationFilter;
+import com.ceos19.everytime.jwt.JwtUtil;
+import com.ceos19.everytime.jwt.RefreshTokenRepository;
+import com.ceos19.everytime.jwt.filter.JwtAuthenticationFilter;
+import com.ceos19.everytime.jwt.filter.JwtValidationFilter;
 
 import lombok.RequiredArgsConstructor;
 

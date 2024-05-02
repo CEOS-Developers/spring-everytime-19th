@@ -1,4 +1,4 @@
-package com.ceos19.everytime.security.filter;
+package com.ceos19.everytime.jwt.filter;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.ceos19.everytime.security.JwtUtil;
+import com.ceos19.everytime.jwt.JwtUtil;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;

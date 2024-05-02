@@ -1,4 +1,4 @@
-package com.ceos19.everytime.security.filter;
+package com.ceos19.everytime.jwt.filter;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.http.HttpStatus.OK;
@@ -21,10 +21,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StreamUtils;
 
-import com.ceos19.everytime.security.JwtUtil;
-import com.ceos19.everytime.security.LoginDto;
-import com.ceos19.everytime.security.RefreshToken;
-import com.ceos19.everytime.security.RefreshTokenRepository;
+import com.ceos19.everytime.jwt.JwtUtil;
+import com.ceos19.everytime.jwt.LoginDto;
+import com.ceos19.everytime.jwt.RefreshToken;
+import com.ceos19.everytime.jwt.RefreshTokenRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;

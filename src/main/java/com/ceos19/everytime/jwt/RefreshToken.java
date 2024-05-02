@@ -1,4 +1,4 @@
-package com.ceos19.everytime.security;
+package com.ceos19.everytime.jwt;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
