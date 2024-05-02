@@ -684,6 +684,33 @@ HTTP 쿠키와 같은 특정 쿠키는 쿠키 기반 인증을 수행하여 각 
 - 사용자가 로그인하기 전에 공격자가 사용자의 세션 ID를 설정하여 사용자가 로그인한 후 공격자가 사용자 세션에 대한 제어권을 부여할 때 문제가 발생합니다.
 - 서버는 모든 활성 세션을 추적해야 하기 때문에 세션 기반 인증은 리소스를 매우 많이 소모할 수 있습니다.
 
+### JWT를 이용한 방식
+
+사용자가 인증해 로그인하면 서버는 사용자에게 JWT를 반환합니다. 토큰은 자격 증명이므로 보안 문제를 방지하기 위해 세심한 주의를 기울여야 합니다. 그렇기 때문에 토큰을 오래 보관하면 안 됩니다.사용자가 보호된 경로나 리소스에 액세스하려고 할 때마다 사용자는 일반적으로 Bearer 스키마를 사용해 Authorization 헤더에 JWT를 보내야 합니다.```*text*Authorization: Bearer <token>```이는 어떤 경우에는 stateless 인증 메커니즘일 수 있습니다. 서버의 보호된 경로는 헤더에서 유효한 JWT를 확인하고 Authorization, JWT가 있으면 사용자는 보호된 리소스에 액세스할 수 있습니다. HTTP 헤더를 통해 JWT 토큰을 보내는 경우 토큰이 너무 커지지 않도록 해야 합니다. 일부 서버는 헤더에 8KB 이상을 허용하지 않습니다. 모든 사용자 권한을 포함하는 등 JWT 토큰에 너무 많은 정보를 포함하려는 경우 `Auth0 Fine-Grained Authorization`과 같은 대체 솔루션이 필요할 수 있습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/ecec9d3a-c40f-4555-b380-19626b0f7aab)
+
+1. 애플리케이션 또는 클라이언트는 인가 서버에 인가를 요청합니다. 이는 서로 다른 인가 흐름 중 하나를 통해 수행됩니다. 예를 들어, 일반적인 OpenID Connect 호환 웹 응용 프로그램은 인가 코드 흐름을 사용하여 `/oauth/authorization` 엔드포인트를 거칩니다.
+2. 권한이 부여되면 권한 서버는 애플리케이션에 액세스 토큰을 반환합니다.
+3. 애플리케이션은 액세스 토큰을 사용하여 리소스 서버에 액세스합니다.
+
+서명된 토큰을 사용하면 토큰을 변경할 수 없음에도 불구하고 토큰에 포함된 모든 정보가 사용자나 다른 당사자에게 노출됩니다. 이는 토큰 내에 비밀 정보를 넣으면 안 된다는 것을 의미합니다.
+
+#### 리프레시 토큰이 필요한 이유
+
+액세스 토큰만 사용할 경우에 제 3자에게 토큰이 탈취될 경우 보안에 취하다는 문제가 발생할 수 있습니다. 토큰의 유효시간을 짧게 하여 문제를 해결할 수 있지만 이 경우에는 사용자가 자주 로그인을 해야하는 문제가 발생합니다. 이러한 문제를 해결하기 위해 리프레시 토큰을 사용합니다. 
+액세스 토큰은 접근과 관련된 토큰이고, 리프레시 토큰 재발급과 관련된 토큰이라고 이해하면 됩니다.
+
+기본적으로 처음 로그인을 할 때 액세스 토큰과 리프레시 토큰이 발급됩니다. 서버는 리프레시 토큰을 저장하고, 클라이언트는 Access Token과 Refresh Token을 쿠키, 세션 혹은 웹스토리지에 저장하고 요청이 있을때마다 이 둘을 헤더에 담아서 보냅니다.
+액세스 토큰이 만료되면 리프레시 토큰을 사용해서 액세스 토큰을 재발급해줍니다.
+
+#### 장점
+
+- Stateless: JWT는 필요한 모든 정보를 자체적으로 전달하기 때문에 서버는 세션 정보를 유지할 필요가 없습니다. 이것은 JWT를 stateless으로 만들어 서버 부하를 줄이고 확장성을 단순화합니다.
+- Compact and Efficient: JWT는 크기가 작기 때문에 네트워크를 통한 전송에 적합하며 클라이언트에 의해 쉽게 구문 분석됩니다.
+- Secure: 디지털 방식으로 서명되어 데이터 무결성을 보장하고 변조를 방지합니다. 암호화 알고리즘을 사용하면 보안이 더욱 강화됩니다.
+- Cross-Domain Communication: JWT는 쿠키나 서버 측 세션에 의존하지 않기 때문에 다양한 도메인이나 마이크로서비스에서 사용할 수 있습니다.
+
 ### OAuth를 이용한 방식
 
 OAuth는 `Open Authorization`을 의미하며 웹사이트나 애플리케이션이 사용자를 대신하여 다른 웹 앱에 의해 호스팅되는 리소스에 액세스할 수 있도록 설계된 표준입니다.
@@ -694,5 +721,8 @@ OAuth 인증의 핵심은 액세스 토큰을 사용한다는 점입니다. 사�
 OAuth 인증 프로세스의 이해는 개발자가 보안성 높은 애플리케이션을 구축하는 데 있어 중요한 기초 지식을 제공합니다. 이를 통해 사용자 데이터의 보안을 유지하면서도 편리한 사용자 경험을 제공할 수 있습니다.
 
 ## References
+
 - [Cookies-Based Authentication Vs Session-Based Authentication](https://dev.to/emmykolic/cookies-based-authentication-vs-session-based-authentication-1f6)
-- []()
+- [Introduction to JSON Web Tokens](https://jwt.io/introduction)
+- [Understanding JSON Web Tokens (JWT): A Secure Approach to Web Authentication](https://medium.com/@extio/understanding-json-web-tokens-jwt-a-secure-approach-to-web-authentication-f551e8d66deb)
+- [Understand JWT: Access token vs Refresh token](https://jackywxd.medium.com/understand-jwt-access-token-vs-refresh-token-2951e5e45193)
