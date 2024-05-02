@@ -31,6 +31,7 @@ public class MemberController {
     @PostMapping("/signup")
     public ResponseEntity<MemberDto> signUp(@RequestBody SignUpRequest signUpRequest) {
 
+        log.info("signUp - getUsername  = {} ", signUpRequest.getUsername());
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
                 .body(memberService.signUp(signUpRequest));
     }

@@ -15,7 +15,7 @@ public class SignUpRequest {
     private String userPw;
     private String username;
     private String email;
-    private University university;
+    //private University university;
 
     public Member toEntity(String encodedPassword, Authority authority) {
 
@@ -24,7 +24,7 @@ public class SignUpRequest {
                 .userPw(encodedPassword)
                 .username(username)
                 .email(email)
-                .university(university)
+                //.university(university)
                 .authority(authority)
                 .build();
     }
