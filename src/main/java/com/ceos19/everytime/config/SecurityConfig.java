@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.ceos19.everytime.jwt.JwtUtil;
 import com.ceos19.everytime.jwt.RefreshTokenRepository;
+import com.ceos19.everytime.jwt.TokenValidator;
 import com.ceos19.everytime.jwt.filter.JwtAuthenticationFilter;
 import com.ceos19.everytime.jwt.filter.JwtValidationFilter;
 
@@ -29,6 +30,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenValidator tokenValidator;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,7 +47,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
 
         http
-                .addFilterBefore(new JwtValidationFilter(jwtUtil), JwtAuthenticationFilter.class);
+                .addFilterBefore(
+                        new JwtValidationFilter(jwtUtil, tokenValidator), JwtAuthenticationFilter.class);
 
         http
                 .addFilterAt(new JwtAuthenticationFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);

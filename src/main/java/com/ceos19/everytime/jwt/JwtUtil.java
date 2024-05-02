@@ -9,16 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class JwtUtil {
-
-    private static final String REFRESH = "refresh";
-    private static final String ACCESS = "access";
 
     private final SecretKey secretKey;
     private final long expiredMs;
@@ -62,22 +58,12 @@ public class JwtUtil {
                 .before(new Date());
     }
 
-    public void validateAccessToken(final String accessToken) {
-        if (!ACCESS.equals(getCategory(accessToken))) {
-            throw new IllegalArgumentException("Invalid access token");
-        }
-    }
-
     public boolean isEqualToRefreshTokenCategory(final String refreshToken) {
-        return REFRESH.equals(getCategory(refreshToken));
+        return "refresh".equals(getCategory(refreshToken));
     }
 
-    public void validateTokenExpired(final String token) {
-        try {
-            isExpired(token);
-        } catch (ExpiredJwtException e) {
-            throw new IllegalArgumentException(getCategory(token) + " token expired");
-        }
+    public boolean isEqualToAccessTokenCategory(String accessToken) {
+        return "access".equals(getCategory(accessToken));
     }
 
     private Claims getPayload(final String token) {
