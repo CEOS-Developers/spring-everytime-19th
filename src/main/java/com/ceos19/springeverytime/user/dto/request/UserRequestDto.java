@@ -10,12 +10,14 @@ public class UserRequestDto {
     private String id;
     private String password;
     private String name;
+    private String role;
 
     public User toEntity(){
         return User.builder()
                 .loginId(id)
                 .password(password)
                 .name(name)
+                .role("ROLE_USER")
                 .build();
     }
 }
