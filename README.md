@@ -752,7 +752,9 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 }
+```
 
+```java
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -766,11 +768,11 @@ public class AuthService {
 }
 ```
 
-하지만 이렇게 HttpServletRequest와 HttpServletResponse를 서비스로 넘겨주는 것은 서비스 계층이 Servlet API에 의존하게 되는데 이게 옳은 방법인지에 대해서 고민이 되었습니다.
+하지만 이렇게 `HttpServletRequest`와 `HttpServletResponse`를 서비스로 넘겨주는 것은 서비스 계층이 Servlet API에 의존하게 되는데 이게 옳은 방법인지에 대해서 고민이 되었습니다.
 서비스에서 컨트롤러에 의존하기 때문에 레이어드 아키텍처 관점에서 봤을 때 올바르지 않다고 생각했습니다.
 레이어드 아키텍처에서는 하위 계층은 상위 계층을 몰라야 되기 때문입니다. 즉 서비스 계층은 컨트롤러 계층을 알면 안 됩니다.
 
-또한 `도메인 주도 개발 시작하기-최범균` 책에서도 다음과 같이 언급하고 있습니다.
+또한 `도메인 주도 개발 시작하기` 책에서도 다음과 같이 언급하고 있습니다.
 
 > 표현 영역에 해당하는 HttpServletRequest나 HttpSession을 응용 서비스에 파라미터로 전달하면 안된다. 응용 서비스에서 표현 영역에 대한 의존이 발생하면 응용 서비스만 단독으로 테스트하기가 어려워진다. 게다가 표현 영역의 구현이 변경되면 응용 서비스의 구현도 함께 변경해야 하는 문제도 발생한다.
 
