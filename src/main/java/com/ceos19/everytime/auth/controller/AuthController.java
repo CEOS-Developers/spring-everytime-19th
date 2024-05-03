@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,6 +36,16 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/auth/logout")
+    public ResponseEntity<Void> logout(@CookieValue(value = "refresh", required = false) final String refreshToken,
+            final HttpServletResponse response) {
+        authService.logout(refreshToken);
+
+        // Refresh 토큰 Cookie 값 0
+        deleteCookie(response);
+        return ResponseEntity.ok().build();
+    }
+
     private String getRefreshToken(HttpServletRequest request) {
         return Arrays.stream(request.getCookies())
             .filter(cookie -> REFRESH.equals(cookie.getName()))
@@ -51,5 +62,12 @@ public class AuthController {
         cookie.setHttpOnly(true);
 
         return cookie;
+    }
+
+    private void deleteCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refresh", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 }
