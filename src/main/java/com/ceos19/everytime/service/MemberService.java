@@ -51,21 +51,21 @@ public class MemberService {
 
     @Transactional
     public MemberDto signUp(SignUpRequest signUpRequest) {
-        if (memberRepository.existsByLoginIdAndUserPw(signUpRequest.getLoginId(), signUpRequest.getUserPw())) {
+        if (memberRepository.existsByUsernameAndPassword(signUpRequest.getUsername(), signUpRequest.getPassword())) {
             throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
         }
 
         // Password 암호화
-        String encodedPassword = passwordEncoder.encode(signUpRequest.getUserPw());
+        String encodedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
-        log.info("password original = {}, encoded = {}", signUpRequest.getUserPw(), encodedPassword);
+        log.info("password original = {}, encoded = {}", signUpRequest.getPassword(), encodedPassword);
 
         return MemberDto.toDto(memberRepository.save(signUpRequest.toEntity(encodedPassword, Authority.ROLE_USER)));
     }
 
     @Transactional(readOnly = true)
-    public Long findByLoginId(String loginId) {
-        final Member member = memberRepository.findByLoginId(loginId)
+    public Long findByLoginId(String username) {
+        final Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
         return member.getId();

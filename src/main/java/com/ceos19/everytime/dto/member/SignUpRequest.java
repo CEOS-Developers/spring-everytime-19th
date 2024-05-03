@@ -2,7 +2,6 @@ package com.ceos19.everytime.dto.member;
 
 import com.ceos19.everytime.domain.Authority;
 import com.ceos19.everytime.domain.Member;
-import com.ceos19.everytime.domain.University;
 import lombok.*;
 
 @Getter
@@ -11,18 +10,18 @@ import lombok.*;
 @Builder
 public class SignUpRequest {
 
-    private String loginId;
-    private String userPw;
     private String username;
+    private String password;
+    private String nickname;
     private String email;
     //private University university;
 
     public Member toEntity(String encodedPassword, Authority authority) {
 
         return Member.builder()
-                .loginId(loginId)
-                .userPw(encodedPassword)
-                .username(username)
+                .username(nickname)
+                .password(encodedPassword)
+                .nickname(nickname)
                 .email(email)
                 //.university(university)
                 .authority(authority)

@@ -20,13 +20,13 @@ public class Member extends BaseTimeEntity{
     private Long id;
 
     @Column(nullable = false, unique = true, length = 20)
-    private String loginId;
+    private String username;
 
     @Column(nullable = false)
-    private String userPw;
+    private String password;
 
     @Column(nullable = false, unique = true, length = 10)
-    private String username;
+    private String nickname;
 
     @Column(nullable = false)
     private String email;
@@ -40,10 +40,11 @@ public class Member extends BaseTimeEntity{
     private Authority authority;
 
     @Builder
-    public Member(final String username, final String loginId, final String userPw, final String email, final University university, final Authority authority) {
+    public Member(final String nickname, final String username, final String password, final String email, final University university, final Authority authority) {
+        this.nickname = nickname;
         this.username = username;
-        this.loginId = loginId;
-        this.userPw = userPw;
+        this.password = password
+        ;
         this.email = email;
         this.university = university;
         this.authority = authority;
@@ -51,7 +52,7 @@ public class Member extends BaseTimeEntity{
 
     public void changeUsername(final String username) {      //반환을 어떻게 해아할지?
         if(validateUsername(username) != null){
-            this.username = username;
+            this.nickname = username;
         }
     }
 

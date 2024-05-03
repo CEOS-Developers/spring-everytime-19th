@@ -12,18 +12,18 @@ import lombok.*;
 public class MemberDto {
 
     private Long id;
-    private String loginId;
-    private String userPw;
     private String username;
+    private String password;
+    private String nickname;
     private String email;
     private University university;
 
     static public MemberDto toDto(Member member) {
         return MemberDto.builder()
                 .id(member.getId())
-                .loginId(member.getLoginId())
-                .userPw(member.getUserPw())
                 .username(member.getUsername())
+                .password(member.getPassword())
+                .nickname(member.getNickname())
                 .email(member.getEmail())
                 .university(member.getUniversity())
                 .build();
@@ -31,9 +31,9 @@ public class MemberDto {
 
     public Member toEntity() {
         return Member.builder()
-                .loginId(loginId)
-                .userPw(userPw)
                 .username(username)
+                .password(password)
+                .nickname(nickname)
                 .email(email)
                 .university(university)
                 .build();

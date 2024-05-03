@@ -106,7 +106,7 @@ public class TokenProvider implements InitializingBean {
         // UserDetails 객체를 만들어서 Authentication 리턴
         UserDetails userDetails = new User(claims.getSubject(), "", authorities);
 
-        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+        return new UsernamePasswordAuthenticationToken(userDetails, accessToken, authorities);
     }
 
     /**
