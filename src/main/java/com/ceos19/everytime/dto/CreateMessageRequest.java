@@ -10,8 +10,8 @@ import lombok.*;
 @ToString
 public class CreateMessageRequest {
 
-    @NotNull(message = "발신자 아이디를 적어주세요.")
-    private Long senderId;
+    //@NotNull(message = "발신자 아이디를 적어주세요.")
+    //private Long senderId;
 
     @NotNull(message = "수신자 아이디를 적어주세요.")
     private Long receiverId;
