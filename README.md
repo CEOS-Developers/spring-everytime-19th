@@ -642,9 +642,9 @@ OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
     <th>Description</th>
   </tr>
   <tr>
-    <td rowspan="3">Auth</td>
+    <td rowspan="2">Auth</td>
     <td>POST</td>
-    <td rowspan="3"><code></code></td>
+    <td rowspan="2"><code></code></td>
     <td><code>/login</code></td>
     <td>로그인</td>
   </tr>
@@ -652,11 +652,6 @@ OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
     <td>PUT</td>
     <td><code>/logout</code></td>
     <td>로그아웃</td>
-  </tr>
-  <tr>
-    <td>DELETE</td>
-    <td><code>/refresh</code></td>
-    <td>엑세스토큰 재발급</td>
   </tr>
   <tr>
     <td rowspan="4">User</td>
@@ -682,6 +677,26 @@ OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
   </tr>
 </table>
 
-## 토큰이 필요한 API 1개 이상 구현 및 테스트
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/0f1bd918-a53e-4c0c-a6e3-119f0300a08a)   
+다음과 같이 /user로 POST 요청을 보냈을 때   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/49df2e2e-463a-4624-8459-8615a688fd38)   
+요청에 대해 성공적으로 유저를 등록한다.   
 
-## 리프레시 토큰 발급 로직 구현 및 테스트
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/ef2a9ada-d9a5-4026-a9c9-ccbdb71f91e5)
+등록한 유저 계정 정보로 로그인을 시도하기 위해 /login 경로로 post 요청을 보내는 경우      
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/b0ce58ff-3c56-44d1-bfa2-f591f0e519fa)
+그림과 같이 Authorization 헤더를 통해 JWT토큰을 받는다.
+
+## 토큰이 필요한 API 1개 이상 구현 및 테스트
+로그인, 회원가입 이외에는 모든 API에 대해 인증을 요구하기 때문에
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/f926fea5-3e86-4dc5-ae14-fee25e7c2b38)   
+그림과 같이 토큰 없이 요청을 보내는 경우   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/01b88269-b467-48a2-8dc6-c7d43ae416db)   
+403 에러를 받으며 접근이 제한된다.
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/9a1afa70-5f40-43a3-ac85-44862349490e)   
+그림과 같이 토큰을 담아서 요청을 보내면   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/2cbdcd6f-e786-4ab8-94a8-0955894e20f3)   
+인증에 성공하여 서버로부터 적절한 응답을 받게 된다.
+
