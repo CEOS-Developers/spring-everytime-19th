@@ -1,6 +1,7 @@
 package com.ceos19.springeverytime.user.presentation;
 
 import com.ceos19.springeverytime.user.domain.User;
+import com.ceos19.springeverytime.user.dto.request.UserLoginDto;
 import com.ceos19.springeverytime.user.dto.request.UserRequestDto;
 import com.ceos19.springeverytime.user.dto.response.ResponseUserDto;
 import com.ceos19.springeverytime.user.service.UserService;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping()
+    @PostMapping("/join")
     @Operation(summary = "유저 회원가입", description = "새로운 유저를 DB에 등록")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원가입 성공"),
@@ -81,5 +82,17 @@ public class UserController {
         userService.updateUser(userRequestDto, userId);
         return ResponseEntity.status(HttpStatus.OK).build();
 
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "유저 로그인", description = "아이디와 비밀번호로 로그인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 비밀번호입니다."),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 회원정보")
+    })
+    public ResponseEntity<Void> userLogin(@RequestBody UserLoginDto userLoginDto){
+        userService.loginUser(userLoginDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

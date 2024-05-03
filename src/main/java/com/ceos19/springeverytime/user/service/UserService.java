@@ -1,6 +1,7 @@
 package com.ceos19.springeverytime.user.service;
 
 import com.ceos19.springeverytime.user.domain.User;
+import com.ceos19.springeverytime.user.dto.request.UserLoginDto;
 import com.ceos19.springeverytime.user.dto.request.UserRequestDto;
 import com.ceos19.springeverytime.user.dto.response.ResponseUserDto;
 import com.ceos19.springeverytime.user.exception.UserErrorCode;
@@ -34,7 +35,7 @@ public class UserService {
         return ResponseUserDto.of(user);
     }
 
-    public List<User> readAllUsers(){
+    public List<User> readAllUsers() {
         return userRepository.findAll();
     }
 
@@ -44,9 +45,20 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(UserRequestDto userRequestDto, Long userId){
+    public void updateUser(UserRequestDto userRequestDto, Long userId) {
         User user = userRepository.findUserById(userId)
-                .orElseThrow(()-> new UserException(UserErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         user.update(userRequestDto.getPassword());
+    }
+
+    public void loginUser(UserLoginDto userLoginDto) {
+        User user = userLoginDto.toEntity();
+
+        User loginUser = userRepository.findUserByLoginId(user.getLoginId())
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        if (!loginUser.getPassword().equals(user.getPassword())) {
+            throw new UserException(UserErrorCode.INVALID_PASSWORD);
+        }
     }
 }
