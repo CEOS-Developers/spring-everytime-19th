@@ -32,7 +32,7 @@ public class TokenProvider implements InitializingBean {
 
     private final String secret;
     private Key key;
-    //private final CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     /*
     public TokenProvider(@Value("${jwt.secret.key}") String secretKey) {
@@ -40,8 +40,9 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }*/
 
-    public TokenProvider(@Value("${jwt.secret.key}") String secret) {
+    public TokenProvider(@Value("${jwt.secret.key}") String secret, CustomUserDetailsService customUserDetailsService) {
         this.secret = secret;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
@@ -90,23 +91,14 @@ public class TokenProvider implements InitializingBean {
         JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
      */
     public Authentication getAuthentication(String accessToken) {
-        // 토큰 복호화
-        Claims claims = parseClaims(accessToken);
 
-        if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-        }
+        log.info("getAuthentication");
+        UserDetails customUserDetails =
+                (CustomUserDetails) customUserDetailsService.loadUserByUsername(
+                        getUsernameFromToken(accessToken));
 
-        // 클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
-        // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails userDetails = new User(claims.getSubject(), "", authorities);
-
-        return new UsernamePasswordAuthenticationToken(userDetails, accessToken, authorities);
+        return new UsernamePasswordAuthenticationToken(
+                customUserDetails, accessToken, customUserDetails.getAuthorities());
     }
 
     /**
@@ -139,4 +131,14 @@ public class TokenProvider implements InitializingBean {
             return e.getClaims();
         }
     }
+
+    public String getUsernameFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secret)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
 }
