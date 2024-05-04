@@ -57,7 +57,7 @@ public class TokenProvider implements InitializingBean {
 
 
     //Authentication 객체의 권한 정보를 이용하여 액세스 토큰을 생성
-    public String createAccessToken(Long id, Authentication authentication) {
+    public String createAccessToken(Authentication authentication) {
 
         //authorities 설정
         String authorities =
