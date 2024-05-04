@@ -48,8 +48,6 @@ public class User {
 
 # 5주차 - Spring Security & JWT
 
-## JWT(Json Web Token)
-
 ### Before JWT - Cookie
 - 클라이언트가 웹사이트에 접속할 때 그 사이트가 사용하게 되는 일련의 작은 기록 파일.
 - 서버가 클라이언트에 정보를 전달할 때 저장하고자하는 정보를 응답 헤더(Cookie)에 저장하여 전달.
@@ -78,6 +76,45 @@ public class User {
 - 세션 ID가 탈취되었을 경우 대처는 가능하지만 클라이언트인척 위장하는 보안의 약점이 있을 수 있다.
 - 사용자가 많아질수록 메모리를 많이 차지하게 된다.
 - <U>"매번" 요청 시 세션 저장소를 조회해야하는 단점이 있다.</U>
+
+## JWT(Json Web Token)
+- 사실 기본적인 인증을 진행하는 구조는 Cookie때와 크게 다르지는 않다.
+- JWT는 **서명된 토큰**이다.
+- 공개/개인 키를 쌍으로 사용하여 토큰에 서명할 경우, 서명된 토큰은 개인 키를 보유한 서버가 이 서명된 토큰이 정상적인 토큰인지 인증할 수 있다.
+
+### 구조
+- Header
+  - 토큰의 타입
+  - 서명 생성 알고리즘
+- Payload
+  - iss (Issuer) : 토큰 발급자
+  - sub (Subject) : 토큰 제목 - 토큰에서 사용자에 대한 식별값이 됨
+  - aud (Audience) : 토큰 대상자
+  - exp (Expiration Time) : 토큰 만료 시간
+  - nbf (Not Before) : 토큰 활성 날짜 (이 날짜 이전의 토큰은 활성화 되지 않음을 보장)
+  - iat (Issued At) : 토큰 발급 시간
+  - jti (JWT Id) : JWT 토큰 식별자 (issuer가 여러명일 때 이를 구분하기 위한 값)
+- Signature
+
+### 중요한 점
+**payload에 민감한 정보를 담지않는 것!**
+- 위에 header와 payload는 json이 디코딩되어있을 뿐이지 특별한 암호화가 걸려있는 것이 아니다.
+- 때문에 누구나 jwt를 가지고 디코딩을 한다면 header나 payload에 담긴 값을 알 수 있다.
+- HMAC 알고리즘을 통해 위변조 감지.
+
+<div align="center">
+  <img src="imgs/jwt_signature.png" alt="drawing" width=400"/>
+</div>
+
+<div align="center">
+  <img src="imgs/hmac.png" alt="drawing" width=400"/>
+</div>
+
+### 장점
+- 이미 토큰 자체가 인증된 정보이기 때문에 세션 저장소와 같은 별도의 인증 저장소가 "필수적"으로 필요하지 않음.
+- 세션과는 다르게 클라이언트의 상태를 서버가 저장해두지 않아도 된다.
+- signature를 공통키 개인키 암호화를 통해 막아두었기 때문에 데이터에 대한 보안성이 늘어난다.
+- 다른 서비스에 이용할 수 있는 공통적인 스펙으로써 사용할 수 있다.
 
 
 # 4주차 - CRUD API
