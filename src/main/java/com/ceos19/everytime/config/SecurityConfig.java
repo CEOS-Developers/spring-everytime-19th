@@ -30,15 +30,15 @@ SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                /*.authorizeHttpRequests((authorizeRequests) ->
+                .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
                                 // 위 필터들은 순차적으로 실행되므로 순서에 유의
                                 //.requestMatchers(PathRequest.toH2Console()).permitAll()
-                                .requestMatchers("/", "/login/**", "/signup/**").permitAll()  // 홈페이지, 로그인, 회원가입 페이지에 대해서는 인증없이 접근이 가능해야 한다.
-                                .requestMatchers("/admins/**", "/api/v1/admins/**").hasRole("ADMIN")        // 자동으로 'ROLE_'이 붙음
-                                .requestMatchers("/api/v1/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/", "/api/members/login/**", "/api/members/signup/**").permitAll()  // 홈페이지, 로그인, 회원가입 페이지에 대해서는 인증없이 접근이 가능해야 한다.
+                                //.requestMatchers("/admins/**", "/api/v1/admins/**").hasRole("ADMIN")        // 자동으로 'ROLE_'이 붙음
+                                .requestMatchers("/api/**").hasAnyRole("USER", "ADMIN")
                                 .anyRequest().authenticated()
-                )*/
+                )
                 .addFilterAfter(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
         ;
 
