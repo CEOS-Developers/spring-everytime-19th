@@ -117,6 +117,47 @@ public class User {
 - 다른 서비스에 이용할 수 있는 공통적인 스펙으로써 사용할 수 있다.
 
 
+## 실습
+
+### 이슈 - 순환참조
+<div align="center">
+  <img src="imgs/circular_error.png" alt="drawing" width=600"/>
+</div>
+
+- SecurityConfig는 UserService를 참조하고 있다.
+- UserService는 PasswordEncoder를 참조하고 있다.
+- PasswordEncoder의 Bean은 SecurityConfig 내부에서 등록된다.
+- 결국 UserService는 SecurityConfig를 참조하게 되면서 순환 참조가 발생한다.
+
+**SecurityConfig**
+```java
+@Bean
+public static PasswordEncoder passwordEncoder() {
+    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+}
+```
+- PasswordEncoder 메서드를 정적(static)으로 선언하는 방식으로 해결.
+- 정적 메서드는 표준 인스턴스화된 개체에서 벗아나 정적 메서드를 직접 호출하기 때문에 인스턴스화를 하지 않아 순환참조에서 벗어날 수 있었다.
+
+[Reference](https://zhfvkq.tistory.com/29)
+
+
+## Postman 401 에러
+SecurityConfig 에 등록하지 않은 api 는 jwt 토큰 인증을 필수적으로 거치도록 설정했기 때문에 이외의 api들은 별도로 명시해 등록해줘야 함
+-> auth 가 필요 없는 api는 SecurityConfig 에 따로 등록해주기
+
+
+**SecurityConfig**
+```java
+.and()
+.authorizeHttpRequests() // HttpServletRequest를 사용하는 요청들에 대한 접근제한을 설정하겠다.
+.requestMatchers("/api/authenticate").permitAll() // 로그인 api
+.requestMatchers("/api/signup").permitAll() // 회원가입 api
+.requestMatchers(PathRequest.toH2Console()).permitAll()// h2-console, favicon.ico 요청 인증 무시
+.requestMatchers("/favicon.ico").permitAll()
+.anyRequest().authenticated() // 그 외 인증 없이 접근X
+```
+
 # 4주차 - CRUD API
 
 ## About DTO(Data Transfer Object)?
