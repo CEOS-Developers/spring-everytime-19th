@@ -919,6 +919,45 @@ public class ApiControllerAdvice {
 
 전역 예외를 처리하기 위해서 ApiControllerAdvice라는 global exception handler를 구현했다.
 위의 두개의 handler에서 처리하지 못한 예외는 맨 아래의 exception handler에서 Exception을 처리하도록 해 전체적으로 처리하도록 구현했다.
+## JWT
+JWT는 Json Web Token의 약자로 *{Header}.{Payload}.{Signature}* 세가지 부분으로 구성된다.
+각 부분을 예시로 들면 다음과 같다.
+
+### Header
+~~~json
+base64enc({
+  "alg": "HS256",
+  "typ": "JWT"
+})
+~~~
+
+### Payload
+~~~json
+base64enc({
+  "name": "철수",
+  "age": "25",
+  "username": "chulsu@naver.com",
+  "role": "ROLE_USER"
+})
+~~~
+
+### Signature
+~~~json
+HMACSHA256(
+  base64enc(header) + "." +
+  base64enc(payload),
+  {secret key}
+)
+~~~
+Header와 Payload는 데이터를 주고 받기 편하게 base64 포맷으로 인코딩된다.
+유저의 정보는 Payload에 담기며, 이때 Header와 Payload는 별도의 암호화를 거치지 않기 때문에 민감한 정보는 담아선 안된다. 
+Signature에는 header와 payload를 더한 값을 비밀키를 통해서 암호화한다. 이렇게 암호화된 값은 유저 Payload 데이터의 변조 여부를 확인하는 무결성 체크에 사용된다.
+
+전통적인 유저 인증 방식은 client와 server 그리고 database로 구성이된다. client에서 server로 인증 요청을 보내면 server는 DB에서 데이터를 조회하여 검증을 하는 방식이다.
+전통적인 방식에서 유저의 정보는 모두 DB에서만 저장한다.
+
+JWT는 DB를 유저 개인에게 전가한 것과 유사하다. JWT를 통해 client는 본인의 정보를 가지며, 이를 읽을 수 있다. 여기서 중요한 점은 client는 본인의 정보를 읽을 수만 있고, 
+스스로 수정을 할 수는 없다는 것이다. 수정을 하기 위해서는 서버를 거쳐야한다. 
 
 ## Spring Security
 
@@ -1133,7 +1172,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
                 .permitAll()// swagger 경로 접근 허용
-                .requestMatchers("/login", "/", "/join", "**").permitAll()  // root 경로 접근 허용 (추후 "**" 제거해야 함. 개발시 편의를 위해 설정)
+                .requestMatchers("/login", "/", "/api/join").permitAll()  // root 경로 접근 허용
                 .requestMatchers("/admin").hasRole("ADMIN")  // ADMIN만 접근 허용
                 .anyRequest().authenticated() // 이외의 경로는 로그인한 사용자만 접근 허용
         );
