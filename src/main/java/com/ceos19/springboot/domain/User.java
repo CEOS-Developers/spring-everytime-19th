@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -62,7 +61,8 @@ public class User extends BaseTimeEntity {
     @Builder
     public User(String username, String password, String nickname,
                   Boolean isAdmin, String userLast, School school,
-                  String userFirst, String email, Boolean isBanned) {
+                  String userFirst, String email, Boolean isBanned,
+                  Boolean activated, Set<Authority> authorities) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
@@ -72,6 +72,8 @@ public class User extends BaseTimeEntity {
         this.email = email;
         this.isBanned = isBanned;
         this.school = school;
+        this.activated = activated;
+        this.authorities = authorities;
     }
 
     public void updateNickname(String nickname) {
