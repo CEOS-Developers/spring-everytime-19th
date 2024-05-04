@@ -2,6 +2,7 @@ package com.ceos19.everytime.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -74,9 +75,7 @@ public enum ErrorCode {
 
     ; // End
 
-    /**
-     * ******************************* Error Code Constructor ***************************************
-     */
+
     // 에러 코드의 '코드 상태'을 반환한다.
     private final int status;
 

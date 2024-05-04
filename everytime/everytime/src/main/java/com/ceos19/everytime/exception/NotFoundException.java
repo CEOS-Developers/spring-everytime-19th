@@ -1,18 +1,17 @@
 package com.ceos19.everytime.exception;
 
 
-import lombok.Getter;
+public class NotFoundException extends RuntimeException {
 
-@Getter
-public class PostNotFoundException extends RuntimeException {
-    private final String postId;
+    private final ErrorCode errorCode;
 
-    public PostNotFoundException(String postId) {
-        super(String.format("Post with ID '%s' not found", postId));
-        this.postId = postId;
+    public NotFoundException(final ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
     }
 
-    public String getPostId() {
-        return postId;
+    public ErrorCode getErrorCode() {
+        return errorCode;
     }
+
 }
