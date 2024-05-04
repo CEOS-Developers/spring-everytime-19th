@@ -24,14 +24,16 @@ public class MemberController {
     @GetMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody SignInRequest signInRequest) {
 
+        log.info("signUp - getUsername  = {} , password = {}", signInRequest.getUsername(),signInRequest.getPassword());
+
         return ResponseEntity.status(SELECT_SUCCESS.getHttpStatus())
-                .body(memberService.login(signInRequest.getLoginId(), signInRequest.getPassword()));
+                .body(memberService.login(signInRequest.getUsername(), signInRequest.getPassword()));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<MemberDto> signUp(@RequestBody SignUpRequest signUpRequest) {
 
-        log.info("signUp - getUsername  = {} , password = {}", signUpRequest.getNickname(),signUpRequest.getPassword());
+        log.info("signUp - getUsername  = {} , password = {}", signUpRequest.getUsername(),signUpRequest.getPassword());
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
                 .body(memberService.signUp(signUpRequest));
     }

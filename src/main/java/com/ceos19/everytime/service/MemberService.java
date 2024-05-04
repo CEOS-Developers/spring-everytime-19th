@@ -44,7 +44,7 @@ public class MemberService {
         TokenDto tokenDto = tokenProvider.generateToken(authentication);
 
         log.info("request loginId = {}, password = {}", loginId, password);
-        log.info("jwtToken accessToken = {}, refreshToken = {}", tokenDto.getAccessToken(), tokenDto.getRefreshToken());
+        log.info("jwtToken accessToken = {}", tokenDto.getAccessToken());
 
         return tokenDto;
     }
