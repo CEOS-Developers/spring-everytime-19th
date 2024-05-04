@@ -1,48 +1,167 @@
 package com.ceos19.everytime.exception.handler;
 
-import com.ceos19.everytime.dto.BaseResponse;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import java.io.IOException;
 
-import java.util.HashMap;
-import java.util.Map;
-
+@Slf4j
 @RestControllerAdvice
 public class ApiControllerAdvice {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)  // @Valid에서 에러가 발생한 경우 여기에서 처리
-    public ResponseEntity<BaseResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex){
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors()
-                .forEach(c -> errors.put(((FieldError) c).getField(), c.getDefaultMessage()));
-
-        return ResponseEntity.badRequest()
-                .body(new BaseResponse<>(HttpStatus.BAD_REQUEST, "invalid request parameter", errors, 0));
+    /**
+     * [Exception] API 호출 시 '객체' 혹은 '파라미터' 데이터 값이 유효하지 않은 경우
+     *
+     * @param ex MethodArgumentNotValidException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        log.error("handleMethodArgumentNotValidException", ex);
+        BindingResult bindingResult = ex.getBindingResult();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (FieldError fieldError : bindingResult.getFieldErrors()) {
+            stringBuilder.append(fieldError.getField()).append(":");
+            stringBuilder.append(fieldError.getDefaultMessage());
+            stringBuilder.append(", ");
+        }
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.NOT_VALID_ERROR, String.valueOf(stringBuilder));
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    // ConstraintViolationException 처리
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<BaseResponse<Object>> handleConstraintViolationException(ConstraintViolationException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getConstraintViolations().forEach(violation ->
-            errors.put(violation.getPropertyPath().toString(), violation.getMessage()));
-
-        BaseResponse<Object> response = new BaseResponse<>(HttpStatus.BAD_REQUEST, "validation failure", errors, 0);
+    /**
+     * [Exception] API 호출 시 'Header' 내에 데이터 값이 유효하지 않은 경우
+     *
+     * @param ex MissingRequestHeaderException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    protected ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
+        log.error("MissingRequestHeaderException", ex);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // 기타 예외 처리
+    /**
+     * [Exception] 클라이언트에서 Body로 '객체' 데이터가 넘어오지 않았을 경우
+     *
+     * @param ex HttpMessageNotReadableException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException ex) {
+        log.error("HttpMessageNotReadableException", ex);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * [Exception] 클라이언트에서 request로 '파라미터로' 데이터가 넘어오지 않았을 경우
+     *
+     * @param ex MissingServletRequestParameterException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    protected ResponseEntity<ErrorResponse> handleMissingRequestHeaderExceptionException(
+            MissingServletRequestParameterException ex) {
+        log.error("handleMissingServletRequestParameterException", ex);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.MISSING_REQUEST_PARAMETER_ERROR, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    /**
+     * [Exception] 잘못된 서버 요청일 경우 발생한 경우
+     *
+     * @param e HttpClientErrorException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(HttpClientErrorException.BadRequest.class)
+    protected ResponseEntity<ErrorResponse> handleBadRequestException(HttpClientErrorException e) {
+        log.error("HttpClientErrorException.BadRequest", e);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.BAD_REQUEST_ERROR, e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    /**
+     * [Exception] 잘못된 주소로 요청 한 경우
+     *
+     * @param e NoHandlerFoundException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    protected ResponseEntity<ErrorResponse> handleNoHandlerFoundExceptionException(NoHandlerFoundException e) {
+        log.error("handleNoHandlerFoundExceptionException", e);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.NOT_FOUND_ERROR, e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+
+    /**
+     * [Exception] NULL 값이 발생한 경우
+     *
+     * @param e NullPointerException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(NullPointerException.class)
+    protected ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
+        log.error("handleNullPointerException", e);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.NULL_POINT_ERROR, e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Input / Output 내에서 발생한 경우
+     *
+     * @param ex IOException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(IOException.class)
+    protected ResponseEntity<ErrorResponse> handleIOException(IOException ex) {
+        log.error("handleIOException", ex);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.IO_ERROR, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * com.fasterxml.jackson.core 내에 Exception 발생하는 경우
+     *
+     * @param ex JsonProcessingException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(JsonProcessingException.class)
+    protected ResponseEntity<ErrorResponse> handleJsonProcessingException(JsonProcessingException ex) {
+        log.error("handleJsonProcessingException", ex);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    // ==================================================================================================================
+
+    /**
+     * [Exception] 모든 Exception 경우 발생
+     *
+     * @param ex Exception
+     * @return ResponseEntity<ErrorResponse>
+     */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseResponse<Object>> handleException(Exception ex) {
-        BaseResponse<Object> response = new BaseResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, "server error", null, 0);
+    protected final ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
+        log.error("Exception", ex);
+        final ErrorResponse response = ErrorResponse.of(HandlerErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

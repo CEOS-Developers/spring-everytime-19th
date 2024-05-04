@@ -9,6 +9,7 @@ import static org.springframework.http.HttpStatus.*;
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {
+
     DATA_ALREADY_EXISTED(CONFLICT, ""),
     NO_DATA_EXISTED(NOT_FOUND, ""),
     NOT_NULL(NO_CONTENT,""),
