@@ -622,14 +622,125 @@ OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
 
 ## 엑세스토큰 발급 및 검증 로직
 ### 스프링 시큐리티를 이용하여 엑세스토큰을 발급하는 과정
-1. 클라이언트 요청이 스프링 시큐리티 필터를 거침
-2. 만약 로그인과 관련된 필터를 만나면, 요청에 담긴 ID, PW 데이터로 인증
-3. 인증에 성공하면 JWT 토큰을 발급하여 돌려줌
+1.  Spring Security 필터 체인에서 `login` 경로를 허용한다.
+    ```java
+    http.authorizeHttpRequests((auth) -> auth
+        .requestMatchers("/swagger-ui/**", "/login").permitAll()
+        .requestMatchers(HttpMethod.POST, "/user").permitAll()
+        .anyRequest().authenticated()
+    );
+    ```
+2.  `login` 경로로 들어온 요청은 `LoginFilter` 를 거친다.
+    ```java
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        String username = obtainUsername(request);
+        String password = obtainPassword(request);
+    
+        UsernamePasswordAuthenticationToken authToken
+                = new UsernamePasswordAuthenticationToken(username, password, null);
+    
+        return authenticationManager.authenticate(authToken);
+    }
+    ```
+    이때 요청으로 들어온 ID/PW는 AuthenticationToken으로 만든 뒤, `AuthenticationManager`에게 검증을 요청한다. 
+3. `AuthenticationManager`는 SecurityConfig.java 파일에 빈으로 등록되어 있다.
+    ```java
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+    ```
+    `AuthenticationManager`는 `AuthenticationToken`을 받은 뒤, 등록된 `AuthenticationProvider`에게 이 토큰을 활용해 인증을 요구한다.
+4. `AuthenticationProvider`는 `UserDetailsService`를 이용해 User 테이블에 저장된 유저 데이터를 `UserDetails` 객체로 전달 받고, 이 객체와 `AuthenticationToken` 정보가 일치하는지 확인한다.
+    ```java
+    public class CustomUserDetailsService implements UserDetailsService {
+    
+        private final UserRepository userRepository;
+    
+        @Override
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            User user = userRepository.findByLoginId(username).orElseThrow(
+                    () -> new BadRequestException(ExceptionCode.NOT_FOUND_LOGIN_ID)
+            );
+            return new CustomUserDetails(user);
+        }
+    }
+   ```
+   인증에 성공하면 권한 등의 사용자 정보가 담긴 `Authentication` 객체를 반환한다.
+5. 인증에 성공했을 때 호출되는 메서드를 오버라이딩하여 JWT 토큰을 발급한다.
+    ```java
+   @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
+        String username = customUserDetails.getUsername();
 
-### 스프링 시큐리티를 이용하여 엑세스토큰을 검증하는 과정
-1. 클라이언트가 발급받은 JWT 토큰을 Authorization 헤더에 담아 요청을 보냄
-2. 
+        String token = jwtUtil.createJwt(username, 60*60*10L);
 
+        response.addHeader("Authorization", "Bearer " + token);
+    }
+    
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        response.setStatus(401);
+    }
+   ```
+6. 반환한 `Authentication` 객체는 세션 영역에 있는 `SecurityContext`에 저장하여 로그인 상태를 저장하고, 로그인을 유지한다. 
+
+### JWT 토큰을 인증하는 과정
+1. 사용자의 요청을 검증할 `JWTFilter` 를 등록한다.
+    ```java
+    http.addFilterAt(
+            new JWTFilter(jwtUtil),
+            LoginFilter.class
+    );
+   ```
+2. 커스텀 `JWTFilter` 를 구현한다.
+    ```java
+    @RequiredArgsConstructor
+    public class JWTFilter extends OncePerRequestFilter {
+    
+        private final JWTUtil jwtUtil;
+    
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            String authorization = request.getHeader("Authorization");
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
+                System.out.println("token null");
+                filterChain.doFilter(request, response);
+                return;
+            }
+    
+            String token = authorization.split(" ")[1];
+            if (jwtUtil.isExpired(token)) {
+                System.out.println("token is expired");
+                filterChain.doFilter(request, response);
+                return;
+            }
+    
+            String loginId = jwtUtil.getLoginId(token);
+    
+            User user = new User(
+                    loginId,
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    ""
+            );
+    
+            CustomUserDetails customUserDetails = new CustomUserDetails(user);
+            Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+    
+            filterChain.doFilter(request, response);
+        }
+    }
+    ```
+   요청 헤더에서 토큰 값을 가져와 디코딩 한 뒤, 그 정보로 유저 객체를 만들어 `CustomUserDetails` 객체로 변환한다.   
+    이 객체를 기반으로 `Authentication`을 만들어 `SecurityContext`에 등록해둔다.
+3. `SecurityContext`에 `Authentication`이 등록된 이후에는, 해당 권한을 요구하는 API를 사용할 수 있게 된다.
 
 ## 회원가입 & 로그인 API 구현 및 테스트
 ### 회원가입 API 명세서
