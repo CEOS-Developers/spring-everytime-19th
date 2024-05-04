@@ -483,7 +483,9 @@ public class GlobalExceptionHandler {
 
 - 예시
   - 게시판이 하나도 생성되어 있지 않을 때, 게시판 GET 요청해보자
+  
     <img width="399" alt="swag-ex1" src="https://github.com/parking0/parking0/assets/67892502/cfc0df67-c447-4e8b-be1f-3c74be483168">
+    
     - ErrorResponse가 반환됐다.
 
 * * *
@@ -566,7 +568,7 @@ public class GlobalExceptionHandler {
 ### JWT Authentication
 #### 1. 전체적인 인증 방법
 
-![Screenshot 2024-03-31 at 7 16 45 PM](/Users/youngsi/Desktop/jwtAuthenticaiton.png)
+<img width="883" alt="jwtAuthenticaiton" src="https://github.com/parking0/parking0/assets/67892502/fadcae24-3e45-442b-990e-4d0a52159bc2">
 
 1. `Http` 요청이 들어온다.
 2. 해당 요청이 `AuthenticationFilter`에 걸리면, 요청의 payload로부터 ID/PW를 추출하는데, 이를 `User Credentials`라고 한다. 이를 기반으로 `Authentication`의 구현체의 일종인 `UsernamePasswordAuthenticationToken` 객체를 생성한다.
@@ -580,7 +582,7 @@ public class GlobalExceptionHandler {
 
 #### 개념
 
-![Screenshot 2024-03-31 at 7 16 45 PM](/Users/youngsi/Desktop/SecurityContext.png)
+<img width="626" alt="SecurityContext" src="https://github.com/parking0/parking0/assets/67892502/636b419a-0a49-4ae7-be57-6a381674578d">
 
 ##### 1. Authentication
 - 역할
@@ -705,11 +707,11 @@ public TokenDto login (String loginId, String password) {
 
 ### 3. 회원가입 API 테스트
 
-![Screenshot 2024-03-31 at 7 16 45 PM](/Users/youngsi/Desktop/signupTest.png)
+<img width="640" alt="signupTest" src="https://github.com/parking0/parking0/assets/67892502/5c86322b-5294-4cdf-85da-dfdf7409f064">
 
 ### 4. 로그인 API 테스트
 
-![Screenshot 2024-03-31 at 7 16 45 PM](/Users/youngsi/Desktop/loginTest.png)
+<img width="636" alt="loginTest" src="https://github.com/parking0/parking0/assets/67892502/ddd90365-b2ca-48a5-b978-bd8fe9b951f3">
 
 
 ## 토큰이 필요한 API
@@ -756,11 +758,14 @@ public ResponseEntity<CreateResponse> createMessage (
 
 ### 메시지 전송 테스트
 
-![Screenshot 2024-03-31 at 7 16 45 PM](/Users/youngsi/Desktop/MessageTest.png)
-![Screenshot 2024-03-31 at 7 16 45 PM](/Users/youngsi/Desktop/headerMessage.png)
+<img width="317" alt="MessageTest" src="https://github.com/parking0/parking0/assets/67892502/416ad667-7399-4231-8653-9ca01cc00721">
+
+<img width="614" alt="headerMessage" src="https://github.com/parking0/parking0/assets/67892502/8425f59d-fddc-40a5-a206-8c52c58c1af9">
+
 - 메시지를 보낼 때 header에 발신자의 `토큰`을 포함하면, 정상적으로 작동한다.
 
-![Screenshot 2024-03-31 at 7 16 45 PM](/Users/youngsi/Desktop/messageError.png)
+<img width="611" alt="messageError" src="https://github.com/parking0/parking0/assets/67892502/39f11044-5363-458b-a37a-0d5fbac31d79">
+
 - 만약 토큰을 포함하지 않으면, 403 forbidden이 발생한다.
 
 
