@@ -1,6 +1,7 @@
 package com.ceos19.everytime.jwt;
 
 import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -65,6 +66,18 @@ public class JwtUtil {
     }
 
     /**
+     * token에서 "category" 꺼냄
+     *
+     * @param token
+     * @return
+     */
+    public String getCategory(String token) {
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token)
+                .getPayload().get("category", String.class); // parsing한 token에서 payload를 꺼낸뒤 "category" claim의 값을 가져옴.
+    }
+
+    /**
      * 토큰 만료 여부 확인
      *
      * @param token
@@ -85,11 +98,12 @@ public class JwtUtil {
      * @param expiredMs
      * @return
      */
-    public String createToken(String username, String role, Long expiredMs) {
+    public String createToken(String category, String username, String role, Long expiredMs) {
         Date currentTime = new Date(System.currentTimeMillis());
         Date expiredTime = new Date(currentTime.getTime() + expiredMs);
 
         return Jwts.builder()
+                .claim("category", category)
                 .claim("username", username) // payload에 "username":username 담음
                 .claim("role", role) // payload에 "role":role 담음
                 .issuedAt(currentTime)  // 발행 시간

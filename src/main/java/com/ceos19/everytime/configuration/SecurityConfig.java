@@ -50,7 +50,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
                 .permitAll()// swagger 경로 접근 허용
-                .requestMatchers("/login", "/", "/api/join").permitAll()  // root 경로 접근 허용 (추후 "**" 제거해야 함. 개발시 편의를 위해 설정)
+                .requestMatchers("/login", "/", "/api/join", "/reissue").permitAll()  // root 경로 접근 허용 (추후 "**" 제거해야 함. 개발시 편의를 위해 설정)
                 .requestMatchers("/admin").hasRole("ADMIN")  // ADMIN만 접근 허용
                 .anyRequest().authenticated() // 이외의 경로는 로그인한 사용자만 접근 허용
         );

@@ -2,11 +2,13 @@ package com.ceos19.everytime.jwt;
 
 import com.ceos19.everytime.dto.CustomUserDetails;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,30 +42,31 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 성공시 실행하는 메소드 (JWT 발급)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-        // 타입 캐스팅을 통해서 UserDetails를 상속받은 CustomUserDetails로 타입 변경
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        // 유저 정보
+        String username = authentication.getName();
 
-        String username = customUserDetails.getUsername();
-
-        // 로그인 성공 알림 log
-        log.info("authentication success\n - username: {}\n - time: {}", username, LocalDateTime.now());
-
-
-        // 사용자의 Role 정보
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
-
         String role = auth.getAuthority();
 
-        log.warn(role);
+        // 토큰 생성
+        String access = jwtUtil.createToken("access", username, role, 600000L);
+        String refresh = jwtUtil.createToken("refresh", username, role, 86400000L);
 
-        // access token 만료 시간
-        long expiredMs = 60 * 60 * 1000L;
-        String token = jwtUtil.createToken(username, role, expiredMs);
+        // 응답 설정
+        response.addHeader("access", access);
+        response.addCookie(createCookie("refresh", refresh));
+        response.setStatus(HttpStatus.OK.value());
+    }
 
-        // header에 토큰 담아서 반환. RFC 7235에서 정의 돼 있듯이, 접두사 Bearer를 붙여서 Authorization 헤더를 반환한다.
-        response.addHeader("Authorization", "Bearer " + token);
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24 * 60 * 60);
+
+        cookie.setHttpOnly(true);  // HttpOnly 설정을 통해서 프론트 단에서 javascript로 cookie에 접근을 할 수 없도록 함.
+
+        return cookie;
     }
 
     //로그인 실패시 실행하는 메소드
