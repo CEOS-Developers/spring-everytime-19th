@@ -1,4 +1,4 @@
-package com.ceos19.everytime.dto;
+package com.ceos19.everytime.dto.Post;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

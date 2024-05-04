@@ -3,7 +3,7 @@ package com.ceos19.everytime.service;
 import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.University;
-import com.ceos19.everytime.dto.CreateBoardRequest;
+import com.ceos19.everytime.dto.board.CreateBoardRequest;
 import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.BoardRepository;
 import com.ceos19.everytime.repository.MemberRepository;

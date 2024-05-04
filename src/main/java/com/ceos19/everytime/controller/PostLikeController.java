@@ -1,7 +1,7 @@
 package com.ceos19.everytime.controller;
 
-import com.ceos19.everytime.dto.LikeRequest;
-import com.ceos19.everytime.dto.LikeResponse;
+import com.ceos19.everytime.dto.like.LikeRequest;
+import com.ceos19.everytime.dto.like.LikeResponse;
 import com.ceos19.everytime.service.PostLikeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -2,8 +2,8 @@ package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Message;
-import com.ceos19.everytime.dto.CreateMessageRequest;
-import com.ceos19.everytime.dto.MessageResponse;
+import com.ceos19.everytime.dto.message.CreateMessageRequest;
+import com.ceos19.everytime.dto.message.MessageResponse;
 import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.MemberRepository;
 import com.ceos19.everytime.repository.MessageRepository;

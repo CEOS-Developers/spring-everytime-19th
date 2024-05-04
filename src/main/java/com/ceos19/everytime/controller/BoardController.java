@@ -1,6 +1,9 @@
 package com.ceos19.everytime.controller;
 
 import com.ceos19.everytime.dto.*;
+import com.ceos19.everytime.dto.board.BoardResponse;
+import com.ceos19.everytime.dto.board.BoardUpdateRequest;
+import com.ceos19.everytime.dto.board.CreateBoardRequest;
 import com.ceos19.everytime.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

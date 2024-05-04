@@ -1,4 +1,4 @@
-package com.ceos19.everytime.dto;
+package com.ceos19.everytime.dto.like;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

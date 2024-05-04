@@ -682,10 +682,10 @@ public ResponseEntity<MemberDto> signUp(@RequestBody SignUpRequest signUpRequest
 
 ```java
 @GetMapping("/login")
-public ResponseEntity<TokenDto> login(@RequestBody SignInRequest signInRequest) {
+public ResponseEntity<TokenDto> login(@RequestBody SignInRequest logInRequest) {
 
     return ResponseEntity.status(SELECT_SUCCESS.getHttpStatus())
-        .body(memberService.login(signInRequest.getUsername(), signInRequest.getPassword()));
+        .body(memberService.login(logInRequest.getUsername(), logInRequest.getPassword()));
 }
 ```
 - `SignInRequest`: username과 password를 담은 dto

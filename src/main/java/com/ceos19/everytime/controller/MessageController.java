@@ -2,8 +2,8 @@ package com.ceos19.everytime.controller;
 
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.dto.CreateResponse;
-import com.ceos19.everytime.dto.CreateMessageRequest;
-import com.ceos19.everytime.dto.MessageResponse;
+import com.ceos19.everytime.dto.message.CreateMessageRequest;
+import com.ceos19.everytime.dto.message.MessageResponse;
 import com.ceos19.everytime.security.CustomUserDetails;
 import com.ceos19.everytime.security.CustomUserDetailsService;
 import com.ceos19.everytime.service.MessageService;

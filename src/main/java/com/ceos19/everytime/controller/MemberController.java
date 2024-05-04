@@ -1,7 +1,7 @@
 package com.ceos19.everytime.controller;
 
+import com.ceos19.everytime.dto.member.LogInRequest;
 import com.ceos19.everytime.dto.member.MemberDto;
-import com.ceos19.everytime.dto.member.SignInRequest;
 import com.ceos19.everytime.dto.member.SignUpRequest;
 import com.ceos19.everytime.security.TokenDto;
 import com.ceos19.everytime.service.MemberService;
@@ -22,12 +22,12 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody SignInRequest signInRequest) {
+    public ResponseEntity<TokenDto> login(@RequestBody LogInRequest logInRequest) {
 
-        log.info("signUp - getUsername  = {} , password = {}", signInRequest.getUsername(),signInRequest.getPassword());
+        log.info("signUp - getUsername  = {} , password = {}", logInRequest.getUsername(), logInRequest.getPassword());
 
         return ResponseEntity.status(SELECT_SUCCESS.getHttpStatus())
-                .body(memberService.login(signInRequest.getUsername(), signInRequest.getPassword()));
+                .body(memberService.login(logInRequest.getUsername(), logInRequest.getPassword()));
     }
 
     @PostMapping("/signup")

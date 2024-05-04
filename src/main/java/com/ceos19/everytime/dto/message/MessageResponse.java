@@ -1,4 +1,4 @@
-package com.ceos19.everytime.dto;
+package com.ceos19.everytime.dto.message;
 
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.Message;
