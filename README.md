@@ -832,4 +832,126 @@ public ResponseEntity<ApiResponse<PostResponseDto>> createPost(@LoginUser Users 
     //... 로직 구현
 }
 ```
+***
+***
+## 5주차 Spring Security & JWT  
+### 5.1 Refactoring
+일단 저번에 수행했던 과제에 대한 리팩토링을 먼저 진행했다.  
+저번 주차에서는 Controller 마다 예외처리를 직접하여 코드의 양이 많아지고 가독성이 떨어진다는 피드백이 있었기에, 이를 반영하여 Global Exception을 추가하였다.  
+```java
+public class BusinessExceptionHandler extends RuntimeException {
+
+    @Getter
+    private final ErrorCode errorCode;
+
+    @Builder
+    public BusinessExceptionHandler(String message, ErrorCode errorCode) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+
+    @Builder
+    public BusinessExceptionHandler(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+}
+```
+
+### 5.2 Spring Security & JWT
+#### 5.2.1 인증(Authentication) 방식
+사용자를 인증하는 방식에는 세션과 토큰 방식이 있다고 알고있다. 먼저 세션 방식을 보자.
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/e6b0534c-df58-4b54-a178-f02cc2f2f932)
+사용자가 로그인을 진행하면 서버에서는 Session에 저장하고 해당 세션 ID를 넘겨준다.  
+이후에 사용자가 세션ID를 담아서 데이터를 요청하면 해당 세션 ID를 검사(?) 하여 데이터를 보내준다.  
+
+**문제점**
+1. 세션 ID를 관리하는 Session store는 서버에서 관리해야 하기 때문에 사용자 수가 많아지면 서버에 부담이 된다.
+2. 사용자가 요청을 보낼 때 마다 세션 스토어에서 세션 ID를 찾아보아야 하므로 부담이 될 수 있다.
+
+반면, JWT를 사용한 방식에서는 위와같은 서버 부담이 적다. 이를 _stateless_ 하다고 부른다.  
+  
+이제 JWT 방식을 보자.  
+JWT에서는 우리가 배웠듯이 사용자의 정보를 토대로 토큰값을 만들어서 이를 사용자에게 전달하는 방식으로 사용된다.  
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/a4f10893-e978-4177-82a5-7320026d0ee7)
+1. 사용자 로그인
+2. 사용자를 DB에서 확인 (혹은 회원가입 시킴)
+3. Access token 발급 -> 이때 사용자의 정보(ex. 이메일)를 사용하여 토큰을 생성한다.
+4. 사용자는 이후에 요청을 보낼때마다 해당 토큰을 담아서 보낸다.
+5. 서버에서 이를 검증하여 요청을 처리한다.
+  
+세션 방식과 다르게, 서버에서 따로 저장소를 사용하여 무언가를 관리할 필요가 없다. 단지 사용자가 보내는 토큰이 유효한지를 검증하는 로직이 필요할 뿐이다.  
+
+다만 문제점은 있다.  
+**문제점**
+1. access token이 탈취 당하면 막을 수 없다.  
+   사용자의 access token을 누가 탈취해서 맘대로 사용하면 서버입장에서는 알 방법이 없다.  
+   > 따라서 access token의 유효기간을 매우 짧게 (1시간 정도) 로 설정해둔다. + Refresh token을 통해 Access token을 재발급하는 과정을 거친다.  
+2. JWT의 payload는 디코딩을 통해 암호화한 내용을 확인할 수 있기 때문에 중요정보는 담지 못한다.  
+
+#### 5.2.2 구현  
+```java
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
+            .csrf(CsrfConfigurer::disable)
+            .sessionManagement(configurer -> configurer.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(
+                    requests -> requests.requestMatchers("/", "/api/user/join"
+                            ,"/api/user/login"
+                            ,"/swagger-ui/index.html"
+                            ,"/swagger-ui/**"
+                            ,"/css/**"
+                            ,"/img/**"
+                            ,"/swagger-resources/**"
+                            ,"/v3/api-docs/**"
+                    ).permitAll()
+                            .anyRequest().hasRole("USER")
+            );
+    http.addFilterBefore(jwtExceptionHandlerFilter(), JwtAuthenticationFilter.class);
+    http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
+```  
+WebSecurityConfig 파일의 securityFilterChain 메서드를 위와 같이 작성했다.  
+스웨거 관련 url들을 넣어주지 않으면 스웨거가 실행되긴하는데 흰색창만 뜬다. 이것 때문에 막혀서 시간을 좀 썼다...  
+이외의 url은 USER 라는 ROLE을 가지고있어야 접근이 가능하게 설정했다.  
+```java
+public String createAccessToken(String username, Authentication authentication) {
+    String authorities = authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));
+
+    long now = (new Date()).getTime();
+    Date validity = new Date(now + ACCESS_TOKEN_VALIDITY_SECONDS * 1000);
+
+    return Jwts.builder()
+            .setSubject(username)
+            .claim(AUTHORITIES_KEY, authorities)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(validity)
+            .compact();
+}
+```  
+액세스 토큰을 만드는 부분은 위와 같다. 사용자 이름을 사용해서 만들도록 하였다.  
+#### 5.2.3 실행
+- 회원가입
+<img width="951" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/62185566-a0b6-4fbe-b429-204599aa5db5">
+  <img width="1152" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/7c25a2f9-23ce-4e3b-ae3e-007967224cc2">
+  
+
+- 로그인  
+  <img width="950" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/47ce939a-ca6c-485a-9f27-18ede8846967">
+로그인 결과로 액세스토큰이 발급되어있는 것을 볼 수 있다.    
+  
+
+- 액세스 토큰이 필요한 API
+  <img width="949" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/9f1a0c83-7038-4e9a-b7f0-fdd7694794e4">
+액세스 토큰을 넣어서 요청을 보내야 수행된다. 액세스 토큰이 없다면 에러가 발생하도록 했다.
+
+
+
+
+
 
