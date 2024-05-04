@@ -1190,3 +1190,162 @@ Hibernate:
         comment_id=?
 ```
 ..... delete쿼리가 1번 나가야하는데 왜 이렇게 나올까요.....?
+
+
+-------------------------------
+### HTTP 인증 방식
+- 비열결성과 무상태성
+- 요청에 응답하면 서버와 클라이언트 간의 연결이 끊어지기에, 서버는 클라이언트에 대한 이전 상태 정보와 현재 통신의 상태를 알 수 없다.
+- -> 자원낭비를 줄일 수 있지만, 서버는 클라이언트를 식별할 수 없다
+  - -> 별도의 인증방식을 도입
+    - 서명
+      - 토큰을 인코딩하거나 유효성 검증을 할 때 사용하는 고유한 암호화 코드
+        - 쿠키
+          - 브라우저에 저장되는 정보(4KB이하의 파일)
+            - 쿠키는 크롬이나 사파리 같은 브라우저에 저장되는 작은 텍스트 조각
+            - 클라이언트 단에서 관리
+            - 브라우저의 설정화면이나 개발자 도구에서 쿠키를 확인하고 수정, 삭제 가능
+            - 쿠키는 당사자뿐만 아니라 제 3자가 조회하는 것도 가능하기 때문에 개인 정보를 담은 내용이나 보안상 민감한 정보를 저장하는 데에는 적합하지 않음
+            - 남에게 탈취되거나 사용자에 의해 조작되어도 크게 문제 되지 않을 정보만 가능
+            - 서버는 클라이언트에 저장하고 싶은 정보를 응답 헤더의 Set-Cookie에 담아 응답 -> 매 요청마다 저장된 쿠키를 요청 헤더의 Cookie에 담아 보낸다
+            - ```java
+                서버의 응답
+                Status = 200
+                Headers = [Set-Cookie:"userName=jongmee", "password=1234"]
+              
+                클라이언트의 요청
+                HTTP Method = POST
+                Request URI = /api/post
+                Headers = [Cookie:"userName=jongmee"; "password=1234"]
+                ```
+              - 세션
+                - 서버가 나를 인지
+                  - 사용자가 사이트에 한 번 로그인하면 유효기간이 끝날 때까지 더 이상 아이디와 비밀번호를 입력하지 않아도 되도록 사용자가 이미 인증받았음을 증명해주는 세션이라는 증서 발급
+                  - 서버가 정보를 메모리에 올리기 때문에, 서버에 접속하는 사람이 많아질수록 과부하가 걸림
+                  - Key-Value 형식
+                  - ```java
+                      서버의 응답
+                      HTTP/1.1 200
+                      Set-Cookie: JSESSIONID=FDB5E30BF21234E8Q9AAFC788383680C;
+                      ```
+### JWT 토큰 인증(Authentication)
+- JWT
+  - Json Web Token
+  - Json 포맷을 이용하여 사용자에 대한 속성을 저장하는 Claim 기반의 Web Token
+  - JWT는 토큰 자체를 정보로 사용하는 안전한 Self-Contained 방식 (모든 정보를 내장)
+  - JWT -> Header / Payload / Signature
+    - 각 부분은 Base64Url로 인코딩 되어 포현
+    - 각각의 부분을 이어 주기 위해 . 구분자를 사용
+    - Header와 payload는 암호화된 문자열이 아닌 base64Url 인코딩 된 문자열, 즉 같은 문자열에 대해 항상 같은 인코딩 문자열을 반환
+
+  - Header
+    - typ : 토큰의 타입을 지정 ex) JWT
+    - alg : 알고리즘 방식을 지정, 서명 및 토큰 검증에 사용 ex) HS256 / RSA
+  - 페이로드
+    - 토큰에서 사용할 정보의 조각들인 클레임이 담김
+      - Json 형태로 여러 정보를 넣을 수 있다
+      - 클레임의 종류는 등록된 클레임, 공개 클레임, 비공개 클레임이 존재
+        - iss (Issuer) : 토큰 발급자
+        - sub (Subject) : 토큰 제목 - 토큰에서 사용자에 대한 식별 값
+        - aud (Audience) : 토큰 대상자
+        - exp (Expiration Time) : 토큰 만료 시간
+        - nbf (Not Before) : 토큰 활성 날짜 ( 이 날짜 이전의 토큰은 활성화 되지 않는다)
+        - iat (Issued At) : 토큰 발급 시간
+        - jti (JWT Id) : JWT 토큰 식별자 (issuer가 여러 명일 때 이를 구분하기 위한 값)
+  - 시그니쳐
+    - 인코딩된 Header와 Payload를 더한 뒤 비밀키로 해싱하여 생성 -> 서버에서 관리하는 비밀키가 없다면 복호화할 수 없어서 Signature로 토큰의 위조를 확인해한다.
+  - 토큰(세션 대신)
+    - 서버만이 유효한 토큰 발행가능
+    - 토큰을 받아간 클라이언트가 쿠키에 저장하고 필요할 때마다 제시하면 서버가 알아보고 허가
+    - 토큰은 탈취당할 위험이 있지만, 유효기간 존재
+  - 캐시
+    - 한 번 전송받은 데이터는 저장해 놨다가 똑같은 요청이 들어오면 꺼내 쓴다
+      - 반복적 사용가능, 데이터 사용량 줄임
+      - 클라이언트 입장에서 가장 가까이 접하는 캐시는 브라우저 캐시
+      - 같은 리소스에 대한 재요청 시 서버에 다시 요청하지 않고 캐시에서 빠르게 로드
+      - 캐시를 효율적으로 사용시 서버비를 감량가능
+  - Diff 쿠키 / 캐시
+    - 쿠키는 사용자의 상태 정보를 저장하고 유지(로그인, 장바구니), 브라우저는 동일한 서버로 요청을 보낼 때마다 쿠키를 HTTP 요청과 함께 전송
+    - 캐시는 데이터의 전송량을 줄이고 서비스 이용 속도를 높이는걸 목적으로 한다. 자주요청되는 데이터는 캐시에 저장했다가 유저 요청시 서버에서 받아오지 않고 캐시에서 로드 가능
+
+  - CDN : 콘텐츠 전송 네트워크
+    - 지리적으로 분산된 여러 개의 서버를 이용해 웹 콘텐츠를 사용자와 가까운 서버에서 전송함으로써 전송속도를 높임
+    - 서버가 데이터를 전 세계 각지에 세워진 캐시 저장 및 전달용 컴퓨터(CDN 업체)들에 보내면 사용자는 본 서버가 아닌 본인에게서 가장 가까운 캐시 서버로 요청을 보내고 데이터를 받아온다
+----------------
+### OAuth2 로그인 과정
+- OIDC (OpenID Connect)
+- ![img_5.png](img_5.png)
+  - OAuth 2.0 프로토콜을 확장한 인증 방식
+  - 클라이언트가 인증 서버에서 수행한 이증을 기반으로 사용자를 식별가능
+    - Scope
+      - OAuth 2.0
+        - 제공자가 원하는 대로 요청범위를 설정
+        - 유연한 사용 가능, But 상호 운용이 완벽히는 불가능
+      - OIDC
+        - 요청 범위를 openid, 프로필, 이메일, 주소로 표준화
+    - Claim
+      - 요청 범위에 속하는 클레임의 종류 표준화
+      - sub, email 등
+    - identity toekn
+      - scope가 특정한 정보 세트를 요청하는 데 사용 가능
+      - 써드파티 애플리케이션이 타 애플리케이션에 대한 동일한 인증 정보를 제공받을 수 있음
+    - 사용자 정보 요청 엔드포인트 통일
+      - 표준화 된 엔드포인트 제공
+- 구글
+  ![img_3.png](img_3.png)
+- 애플
+  ![img_4.png](img_4.png)
+- 1. 애플 로그인 후 (메타정보 / 유저 아이디 / 비밀번호) 애플 요청
+  - ID / Password / appleid-signin-client-id (Servies ID - Identifier 값) / appleid-signin-scope (애플에게 전달받을 유저 정보 - name email) / appleid-signin-redirect-uri (Services ID - Returen URLs 값) / appleid-signin-state (상태 값) / appleid-signin-nonce (임시 값)
+- 2. Service ID에 정의된 Return URLs로 JSON 데이터를 반환
+     ![img_6.png](img_6.png)
+- 3. `id_token` 값을 decode 하여 `RSA`, `exp`, `nonce`, `iss`, `aud` 5가지의 검증 절차를 진행
+- 4. 5가지 검증이 정상적으로 완료되었다면 client_secret 을 생성해준다 (kid, alg, iss, iat, exp, aud, sub)
+- 5. client_secret의 JWT가 생성된 후 애플에서 다운로드한 Key 파일 안에 들어있는 Private Key로 서명을 해주면 생성 완료
+
+-----------------------------------
+
+### 회원가입
+![img_5.png](img_5.png)
+- username, password, admin 유무의 정보를 받음
+- 반환값 - success 유무 / response - message / <accessToken(확인용)> <refreshToken(확인용)> / error 유무 
+
+![img_6.png](img_6.png)
+
+- 회원가입 / 로그인 / api 접속 authentication 인가 로직
+
+-----------------------
+회원가입
+1. 회원가입 request (실제 페이지에서는 role 값은 관리자 설정란 혹은 일반 유저만 가입할 수 있는 환경등을 통해 알아서 값이 조절되겠죠?)
+![img_7.png](img_7.png)
+2. `passwordEncoder`를 통해 사용자의 password를 암호화
+3. 회원 중복 확인
+4. User 객체를 만들고, userRepository에 저장.
+-----------------------
+로그인
+1. LoginRequestsDto를 통해 username과 password를 통하여 repository에 해당 user가 있는지 확인
+   TokenDto 객체를 만들어준다
+2. user의 username과 role로 `jwtUtil`을 통해 AccessToken을 생성한다
+   6-1. `createTokenBase`를 활용 (username, role, 토큰만료기간)필요
+   6-2. `BEARER_PREFIX` 와 Jwts 속성들(subject / claim / 만료기간, issue, sign)을 compat하여 Jwt를 생성
+--------------------------
+api 접속
+![img_11.png](img_11.png)
+------
+### 일반적인 Form Login 절차
+1. 요청 수신
+  - 사용자가 form을 통해 로그인 정보가 담긴 Request를 보냄
+2. 토큰 생성
+  - AuthenticationFilter가 요청을 받아 UsernamePasswordAuthenticationToken을 생성
+  - UsernamePasswordAuthenticationToken을 통해 요청을 처리하는 Provider를 찾음
+3. AuthenticationFilter로 부터 인증용 객체를 전달받는다
+  - Authentication Manager가 처리를 위임 + List 형태로 Provider를 가지고 있다
+4. Token을 처리할 수 있는 Authentication Provider 선택
+  - 실제 인증을 할 AuthenticationProvider에게 인증용 객체를 다시 전달
+5. 인증 절차
+  - AuthenticationProvider 인터페이스가 실행되고 DB에 있는 사용자의 정보와 화면에서 입력한 로그인 정보를 비교
+6. UserDetailsService의 loadUserByUsername 메소드 수행
+  - AuthenticationProvider 인터페이스의 authenticate() 메소드를 오버라이딩을 통해 인증용 객체로 화면에서 입력한 로그인 정보를 가져온다
+7. AuthenticationProvider 인터페이스에서 DB에 있는 사용자 정보를 사져오기 위해 UserDetailsService 인터페이스를 사용
+8. UserDetailsService 인터페이스는 클라이언트의 username으로 loadUserByUsername() 메소드를 호출하여 DB에 있는 사용자정보를 UserDetails 형으로 가져온다.
+9. 인증이 완료되면 사용자 정보를 가진 Authentication 객체를 SecurityContextHolder에 담은 이후 AuthenticationSuccessHandle를 실행

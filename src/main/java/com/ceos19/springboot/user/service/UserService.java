@@ -30,7 +30,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public ApiResponseDto<TokenDto> signup(SignupRequestDto requestDto) {
+    public ApiResponseDto<SuccessResponse> signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
 
@@ -41,22 +41,19 @@ public class UserService {
         }
 
         // 입력한 username, password, admin 으로 user 객체 만들어 repository 에 저장
-        UserRoleEnum role = requestDto.getAdmin() ? UserRoleEnum.ADMIN : UserRoleEnum.USER;
+        UserRoleEnum role = requestDto.getRole() ? UserRoleEnum.ADMIN : UserRoleEnum.USER;
         User user = User.of(LoginType.NORMAL, username, password, role);
 
         userRepository.save(User.of(LoginType.NORMAL,username, password, role));
-        TokenDto tokenDto = new TokenDto();
-        String accessToken = jwtUtil.createAccessToken(user.getUsername() , user.getRole());
-        String refreshToken = jwtUtil.createRefreshToken(user.getUsername(), user.getRole());
 
-        tokenDto.setMessage("로그인 성공");
-        tokenDto.setAccessToken(accessToken);
-        tokenDto.setRefreshToken(refreshToken);
 
-        return ResponseUtils.ok(tokenDto);
+
+
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "회원가입성공"));
+
     }
 
-    public ApiResponseDto<SuccessResponse> login(LoginRequestsDto requestDto, HttpServletResponse response) {
+    public ApiResponseDto<TokenDto> login(LoginRequestsDto requestDto, HttpServletResponse response) {
         String username = requestDto.getUsername();
         String password = requestDto.getPassword();
 
@@ -65,12 +62,21 @@ public class UserService {
         if (user.isEmpty() || !passwordEncoder.matches(password, user.get().getPassword())) {
             throw new RestApiException(ErrorType.NOT_FOUND);
         }
+        else {
+            User loginedUser = user.orElseThrow(
+                    () -> new RestApiException(ErrorType.NOT_FOUND_USER)
+            );
+            // header 에 들어갈 JWT 세팅
+            TokenDto tokenDto = new TokenDto();
+            String accessToken = jwtUtil.createAccessToken(loginedUser.getUsername(), loginedUser.getRole());
+            String refreshToken = jwtUtil.createRefreshToken(loginedUser.getUsername(), loginedUser.getRole());
 
-        // header 에 들어갈 JWT 세팅
-        response.setHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.get().getUsername(), user.get().getRole()));
-        String jwtToken = jwtUtil.createToken(user.get().getUsername(), user.get().getRole());
-        jwtToken.substring(7);
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "로그인 성공"));
+            response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
 
+            tokenDto.setMessage("로그인 성공");
+            tokenDto.setAccessToken(accessToken);
+            tokenDto.setRefreshToken(refreshToken);
+            return ResponseUtils.ok(tokenDto);
+        }
     }
 }

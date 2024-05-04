@@ -34,7 +34,7 @@ public class JwtUtil {
 
     // 60 더 곱했습니다
     private static final long TOKEN_TIME = 10 * 60 * 24 * 60 * 60 * 1000L; // 600 days
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 10 * 15 * 60 * 1000; // 150 minutes
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 10 * 300 * 60 * 1000; // 300 minutes
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 10 * 7 * 24 * 60 * 60 * 1000L; // 70 days
 
 

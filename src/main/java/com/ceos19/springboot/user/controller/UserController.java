@@ -30,7 +30,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ApiResponseDto<TokenDto> signup(@Valid @RequestBody SignupRequestDto requestDto) {
+    public ApiResponseDto<SuccessResponse> signup(@Valid @RequestBody SignupRequestDto requestDto) {
         return userService.signup(requestDto);
     }
     // 추후에 수정 예정
@@ -44,7 +44,7 @@ public class UserController {
     */
 
     @PostMapping("/login")
-    public ApiResponseDto<SuccessResponse> login(@RequestBody LoginRequestsDto requestDto, HttpServletResponse response) {
+    public ApiResponseDto<TokenDto> login(@RequestBody LoginRequestsDto requestDto, HttpServletResponse response) {
         return userService.login(requestDto, response);
     }
 }
