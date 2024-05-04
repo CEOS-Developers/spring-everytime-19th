@@ -119,6 +119,24 @@ public class User {
 
 ## 실습
 
+1. /authenticate rest로 해당 계정 jwt token 발급
+
+<div align="center">
+  <img src="imgs/authenticate.png" alt="drawing" width=400"/>
+</div>
+
+2. 위에 발급 받은 jwt와 함께 hasAnyRole 권한이 부여된 /user rest 요청
+<div align="center">
+  <img src="imgs/user_rest.png" alt="drawing" width=400"/>
+</div>
+
+3. 권한이 없는 karim의 경우 forbidden
+<div align="center">
+  <img src="imgs/jwt_forbidden.png" alt="drawing" width=400"/>
+</div>
+
+
+
 ### 이슈 - 순환참조
 <div align="center">
   <img src="imgs/circular_error.png" alt="drawing" width=600"/>
@@ -142,10 +160,9 @@ public static PasswordEncoder passwordEncoder() {
 [Reference](https://zhfvkq.tistory.com/29)
 
 
-## Postman 401 에러
+### 이슈 - Postman 401 에러
 SecurityConfig 에 등록하지 않은 api 는 jwt 토큰 인증을 필수적으로 거치도록 설정했기 때문에 이외의 api들은 별도로 명시해 등록해줘야 함
 -> auth 가 필요 없는 api는 SecurityConfig 에 따로 등록해주기
-
 
 **SecurityConfig**
 ```java
