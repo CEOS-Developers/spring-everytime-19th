@@ -1,5 +1,7 @@
 package com.ceos19.springeverytime.user.service;
 
+import com.ceos19.springeverytime.global.jwt.domain.RefreshEntity;
+import com.ceos19.springeverytime.global.jwt.repository.RefreshRepository;
 import com.ceos19.springeverytime.user.domain.User;
 import com.ceos19.springeverytime.user.dto.request.UserLoginDto;
 import com.ceos19.springeverytime.user.dto.request.UserRequestDto;
@@ -7,6 +9,7 @@ import com.ceos19.springeverytime.user.dto.response.ResponseUserDto;
 import com.ceos19.springeverytime.user.exception.UserErrorCode;
 import com.ceos19.springeverytime.user.exception.UserException;
 import com.ceos19.springeverytime.user.repository.UserRepository;
+import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final RefreshRepository refreshRepository;
 
     @Transactional
     public void createUser(UserRequestDto userRequestDto) {
@@ -60,5 +64,25 @@ public class UserService {
         if (!loginUser.getPassword().equals(user.getPassword())) {
             throw new UserException(UserErrorCode.INVALID_PASSWORD);
         }
+    }
+
+    public Boolean checkRefresh(String refresh) {
+        return refreshRepository.existsByRefresh(refresh);
+    }
+
+    public void makeRefreshToken(String userName, String refresh, long expiredMs) {
+            Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+            RefreshEntity refreshEntity = RefreshEntity.builder()
+                    .username(userName)
+                    .refresh(refresh)
+                    .expiration(date.toString())
+                    .build();
+
+            refreshRepository.save(refreshEntity);
+        }
+
+    public void deleteRefresh(String refresh) {
+        refreshRepository.deleteByRefresh(refresh);
     }
 }
