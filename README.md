@@ -1283,7 +1283,7 @@ Hibernate:
 ----------------
 ### OAuth2 로그인 과정
 - OIDC (OpenID Connect)
-- ![img_5.png](img_5.png)
+- 
   - OAuth 2.0 프로토콜을 확장한 인증 방식
   - 클라이언트가 인증 서버에서 수행한 이증을 기반으로 사용자를 식별가능
     - Scope
@@ -1301,13 +1301,30 @@ Hibernate:
     - 사용자 정보 요청 엔드포인트 통일
       - 표준화 된 엔드포인트 제공
 - 구글
-  ![img_3.png](img_3.png)
+  ![img_10.png](img_10.png)
+- ![img_11.png](img_11.png)
+- - OAuth 2.0 프로토콜을 확장한 인증 방식
+  - 클라이언트가 인증 서버에서 수행한 이증을 기반으로 사용자를 식별가능
+    - Scope
+      - OAuth 2.0
+        - 제공자가 원하는 대로 요청범위를 설정
+        - 유연한 사용 가능, But 상호 운용이 완벽히는 불가능
+      - OIDC
+        - 요청 범위를 openid, 프로필, 이메일, 주소로 표준화
+    - Claim
+      - 요청 범위에 속하는 클레임의 종류 표준화
+      - sub, email 등
+    - identity toekn
+      - scope가 특정한 정보 세트를 요청하는 데 사용 가능
+      - 써드파티 애플리케이션이 타 애플리케이션에 대한 동일한 인증 정보를 제공받을 수 있음
+    - 사용자 정보 요청 엔드포인트 통일
+      - 표준화 된 엔드포인트 제공
 - 애플
-  ![img_4.png](img_4.png)
+  ![img_12.png](img_12.png)
+- ![img_14.png](img_14.png)
 - 1. 애플 로그인 후 (메타정보 / 유저 아이디 / 비밀번호) 애플 요청
   - ID / Password / appleid-signin-client-id (Servies ID - Identifier 값) / appleid-signin-scope (애플에게 전달받을 유저 정보 - name email) / appleid-signin-redirect-uri (Services ID - Returen URLs 값) / appleid-signin-state (상태 값) / appleid-signin-nonce (임시 값)
 - 2. Service ID에 정의된 Return URLs로 JSON 데이터를 반환
-     ![img_6.png](img_6.png)
 - 3. `id_token` 값을 decode 하여 `RSA`, `exp`, `nonce`, `iss`, `aud` 5가지의 검증 절차를 진행
 - 4. 5가지 검증이 정상적으로 완료되었다면 client_secret 을 생성해준다 (kid, alg, iss, iat, exp, aud, sub)
 - 5. client_secret의 JWT가 생성된 후 애플에서 다운로드한 Key 파일 안에 들어있는 Private Key로 서명을 해주면 생성 완료
@@ -1315,18 +1332,16 @@ Hibernate:
 -----------------------------------
 
 ### 회원가입
-![img_5.png](img_5.png)
+
 - username, password, admin 유무의 정보를 받음
 - 반환값 - success 유무 / response - message / <accessToken(확인용)> <refreshToken(확인용)> / error 유무 
 
-![img_6.png](img_6.png)
 
 - 회원가입 / 로그인 / api 접속 authentication 인가 로직
 
 -----------------------
 회원가입
 1. 회원가입 request (실제 페이지에서는 role 값은 관리자 설정란 혹은 일반 유저만 가입할 수 있는 환경등을 통해 알아서 값이 조절되겠죠?)
-![img_7.png](img_7.png)
 2. `passwordEncoder`를 통해 사용자의 password를 암호화
 3. 회원 중복 확인
 4. User 객체를 만들고, userRepository에 저장.
@@ -1339,8 +1354,8 @@ Hibernate:
    6-2. `BEARER_PREFIX` 와 Jwts 속성들(subject / claim / 만료기간, issue, sign)을 compat하여 Jwt를 생성
 --------------------------
 api 접속
-![img_8.png](img_8.png)
 ------
+![img_9.png](img_9.png)
 ### 일반적인 Form Login 절차
 1. 요청 수신
   - 사용자가 form을 통해 로그인 정보가 담긴 Request를 보냄
@@ -1358,3 +1373,5 @@ api 접속
 7. AuthenticationProvider 인터페이스에서 DB에 있는 사용자 정보를 사져오기 위해 UserDetailsService 인터페이스를 사용
 8. UserDetailsService 인터페이스는 클라이언트의 username으로 loadUserByUsername() 메소드를 호출하여 DB에 있는 사용자정보를 UserDetails 형으로 가져온다.
 9. 인증이 완료되면 사용자 정보를 가진 Authentication 객체를 SecurityContextHolder에 담은 이후 AuthenticationSuccessHandle를 실행
+
+![img_13.png](img_13.png)
