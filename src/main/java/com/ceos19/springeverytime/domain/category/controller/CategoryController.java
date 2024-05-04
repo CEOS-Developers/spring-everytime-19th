@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -25,23 +27,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
-    private final UserService userService;
-    private final UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<Void> createCategory(@RequestBody @Valid final CategoryCreateRequest request) {
-        // test user
-        User user = userRepository.save(new User(
-            "test",
-            "1234",
-            "nickname",
-            "kim",
-            "computer",
-            "20",
-            "test@example.com"
-        ));
-
-        Category category =  categoryService.createCategory(user.getUserId(), request);
+        Authentication loginUser = SecurityContextHolder.getContext().getAuthentication();
+        Category category =  categoryService.createCategory(loginUser.getName(), request);
         return ResponseEntity.created(URI.create("/category/" + category.getCategoryId())).build();
     }
 

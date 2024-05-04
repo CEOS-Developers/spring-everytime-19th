@@ -35,9 +35,9 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category createCategory(Long userId, CategoryCreateRequest request) {
-        User manager = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException(NOT_FOUND_USER_ID));
+    public Category createCategory(String userLoginId, CategoryCreateRequest request) {
+        User manager = userRepository.findByLoginId(userLoginId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_LOGIN_ID));
 
         Category category = new Category(
                 request.getName(),
