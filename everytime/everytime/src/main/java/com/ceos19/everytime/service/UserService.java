@@ -17,10 +17,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+
     public Long save(AddUserRequest dto) {
         return userRepository.save(User.builder()
-                .email(dto.getEmail())
-                .loginPassword(bCryptPasswordEncoder.encode(dto.getPassword()))
+                .email(dto.email())
+                .loginPassword(bCryptPasswordEncoder.encode(dto.password()))
                 .build()).getUserId();
     }
 
@@ -28,5 +29,6 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ERROR));
     }
+
 
 }
