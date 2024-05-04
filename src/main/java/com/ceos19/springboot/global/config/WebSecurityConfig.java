@@ -38,7 +38,6 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        //AuthenticationManager authenticationManager = authenticationManager(authenticationConfiguration);
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(tokenProvider);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
