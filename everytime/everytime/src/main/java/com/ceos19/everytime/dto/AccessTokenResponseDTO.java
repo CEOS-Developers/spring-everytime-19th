@@ -4,6 +4,5 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-public record AddUserRequest (String email, String password){
-
+public record AccessTokenResponseDTO (String accessToken) {
 }
