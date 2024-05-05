@@ -98,7 +98,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 회원정보")
     })
     public ResponseEntity<Void> userLogin(@RequestBody UserLoginDto userLoginDto) {
-        userService.loginUser(userLoginDto);
+        userService.loadUserByUsername(userLoginDto.getLoginId());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
