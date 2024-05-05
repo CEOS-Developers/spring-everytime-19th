@@ -692,3 +692,415 @@ public class ExceptionHandler {
 약 25개의 커밋이 공중분해되었다...
 
 ✔️ 앞으로 커밋을 꼼꼼하게 확인하고 GIT에 대해 자세하게 공부하자...
+
+
+# JWT
+
+### ✅ 왜 세션과 쿠키를 사용하는가?
+
+HTTP 프로토콜의 약점을 보완하기 위해 사용한다.
+
+HTTP는 기본적으로 Connectionless, StateLess한 특성을 가진다.
+
+> 💡 Connectionless(비연결성) : 클라이언트가 요청을 보내고 서버가 그 요청에 대한 **응답을 하고나면 연결이 즉시 종료된다.**
+>
+>그러나 여러 요청에 대해 매번 연결을 하는 것은 비효율적이므로
+>header에 keep-alive라는 값을 줘서 연결을 재활용한다.
+
+>💡 Stateless(무상태성) : 서버는 클라이언트의 요청을 처리한 후 **요청에 대한 정보를 저장하지 않는다**. 자원의 효율성을 위함.
+
+즉 웹은 클라이언츠에 대한 정보를 따로 저장하지 않는다!
+이를 보완하기 위해 세션과 쿠키를 사용한다.
+
+### ✅ 세션과 쿠키의 차이점?
+
+두 개념은 클라이언트의 상태 정보를 유지하기 위한 기술이다.
+
+#### 세션
+세션은 서버에서 관리하는 클라이언트 정보이다.
+
+클라이언트를 구분하기 위해 서버는 고유 세션ID를 발급하며
+웹 브라우저가 서버에 접속하여 브라우저를 종료할 때까지 유지된다
++ 더불어 설정된 시간이 지나면 자동으로 세션이 만료된다.
+
+서버에서 저장하기 때문에 **접속자가 많을 경우 성능 저하의 원인이 된다.**
+
+로그인과 같은 중요 보안에 사용된다.
+
+#### 쿠키
+쿠키는 브라우저가 관리하는 클라이언트 정보이다.
+
+인증이 유효한 시간이 기록되어 있으며 브라우저가 종료되어도 시간이 남아있다면 삭제되지 않고 인증이 유효하다는 특징이 있다.
+
+클라이언트가 request를 보낼 때 자동으로 header에 넣어 전송된다.
+
+예시 : 쇼핑몰 장바구니, 아이디 자동 저장, 당일 팝업창 유무
+
+
+#### 세션과 쿠키의 주요 차이점
+
++ 보관되는 장소 (클라이언트 vs 서버)
++ 보안성 (쿠키는 스니핑 우려있음)
++ 속도 (세션은 서버를 통해 처리되어야 하므로 상대적 느림)
+
+### ✅ 실제 통신에서 어떻게 사용될까?
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/0d0e08c4-cae7-4108-a50e-13df1b815433)
+
+1. 클라이언트가 서버에 request를 요청한다.
+
+2. 서버는 request-header에 쿠키가 존재하는지 확인한다.
+
+3. 세션ID가 없을 경우, 서버에서 생성해 쿠키에 저장한다.
+
+4. 생성된 쿠키와 함께 response를 전송
+
+5. 클라이언트는 쿠키를 통해 세션ID를 저장한다.
+
+6. 재요청을 할 때, 세션ID와 함께 request 요청!
+
+7. 별다른 작업없이 세션ID만 확인하고 저장된 세션 정보를 사용
+
+8. 클라이언트 세션 정보를 통해 request 전송
+
+## JWT Token
+
+세션을 통해 통신하면 서버에 부하가 크다!.
+
+ex) 1억명의 유저가 접속하려면 세션 ID를 어느 세월에 다 비교할까.. ***(서버의 부하가 너무 커짐!!!)***
+
+JWT Token은 이러한 점을 보완하기 위해 사용한다.
+
+### Spring Security 동작원리
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/71b1b225-ecdc-4330-99e2-e7e1df6e48df)
+
+WAS의 필터에 Custom된 필터를 만들어 넣고 해당 필터에서 요청을 가로챈다.
+
+해당 요청은 스프링 컨테이너 내부에 구현되어 있는 Security 로직을 거친다.
+
+모든 로직이 종료되면 다시 WAS의 다음 필터로 넘어간다.
+
+우리는 가로챈 요청을 우리만의 인증, 인가 로직을 거치게 할 것이다
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/e17819ab-994e-44a2-95f2-da744f732fed)
+
+> Spring provides a FilterApplicationContext. The Servlet container allows registering Filter instances by using its own standards, but it is not aware of Spring-defined Beans. You can register DelegatingFilterProxy through the standard Servlet container mechanisms but delegate all the work to a Spring Bean that implements Filter.
+
+spring 공식 문서에 따르면 spring에서 제공하는 Servlet container에는 spring bean을 등록할 수 없다.
+
+그렇기 때문에 `DelegatingFilterProxy`를 사용해 요청을 `SecurityFilterChain`에 위임하는 과정을 거친다.
+
+`SecurityFilterChain`은 일련의 FilterChain들의 모음으로 여러 개의 chain을 순서대로 거친다.
+
+우리의 관심사는 Custom된 FilterChain을 저 사이에 추가해 인증, 인가 과정을 요청이 거치도록 하는 것이다.
+
+### JWT 동작원리
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/ea71b3ad-d944-4c85-b151-4926cd58e19c)
+
+우리는 JWT Token에 입장하기 위한 정보 (이름, 아이디 , 비밀번호, etc...)를 입력하고 로그인을 시도한다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/0ba2067d-3e69-4cc2-ab90-33c2b11be41b)
+
+각각의 Chain들은 본연의 기능만 수행하도록 분업화되어 있기 때문에 Chain을 통과할 때마다 상태를 저장하기 위한 저장소가 필요하다.
+
+예를 들어 인가 필터가 작업을 수행하려면 유저의 권한 정보가 필요하다.
+
+앞단의 필터가 부여한 권한을 인가 필터에게 공유해야 이를 확인할 수 있다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/eb29469f-d42e-4f87-ab01-f8d6fb713f41)
+
+해당 정보(아이디, 로그인 여부, Role 정보)들은 `Authentication`이라는 객체에 저장된다.
+
+이 객체들은 `SecurityContext`에 포함되어 관리되며 멀티쓰레드 환경에서는 유저 당 하나 씩 할당된다.
+
+`SecurityContextHolder`는 `SecurityContext`들을 관리하는 주체이다.
+
+---
+
+이제 Filter들의 동작원리에 대해 자세히 살펴보자
+
+`UsernamePasswordAuthenticationFilter`는 form login 방식으로 전달된 id, password를 추출하고 `UsernamePasswordAuthenticationToken`을 생성한다.
+
+이제 인증을 위해 이 토큰을 `AuthenticationManager`에게 전달한다.
+
+```java
+public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
+
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+                throws AuthenticationException {
+    
+            String username = obtainUsername(request);
+            String password = obtainPassword(request);
+            
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password,
+                    null);
+    
+            return authenticationManager.authenticate(authToken);
+        }
+```
+
+```java
+public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
+```
+로 `AbstractAuthenticationToken`를 상속하며
+
+```java
+public abstract class AbstractAuthenticationToken implements Authentication, CredentialsContainer {
+```
+결국은 `Authentication`을 상속한다는 것을 참고하자
+
+현재 `UsernamePasswordAuthenticationToken`는 아직 인증되지 않은 `Authentication`이라고 생각하면 된다.
+
+`AuthenticationManager`는 `AuthenticationProvider`의 구현체에 `UsernamePasswordAuthenticationToken`를 전달한다.
+
+`AuthenticationProvider`는 `UserDetailsService`에 다시 `UsernamePasswordAuthenticationToken`를 넘겨 DB에서 가져온 `UserDetails`과 정보를 비교한다.
+
+실질적으로 인증 로직이 진행되는 곳은 `UserDetailsService`으로 우리는 이를 Custom해 수행하면 된다.
+
+```java
+public class UserService implements UserDetailsService 
+...
+@Override
+    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+        User userData = userRepository.findUserByLoginId(loginId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        if (userData != null) {
+
+            //UserDetails에 담아서 return하면 AutneticationManager가 검증 함
+            return new CustomUserDetails(userData);
+        }
+
+        return null;
+    }
+```
+
+`UserDetails`도 Entity에 맞게 Custom했다.
+
+```java
+public class CustomUserDetails implements UserDetails {
+    private final User user;
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> collection = new ArrayList<>();
+        collection.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority(){
+                return user.getRole();
+            }
+        });
+        return collection;
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getName();
+    }
+    ...
+}
+```
+
+인증이 됐다면 인증이 된 `Authentication`을 생성해 `UsernamePasswordAuthenticationFilter`에게 다시 전달된다.
+
+두 가지 상황이 존재하는데 ***인증 성공***과 ***인증 실패***일 것이다.
+
+인증이 성공했다면 Access Token과 Refresh Token을 발급한다.
+
+```java
+@Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                            FilterChain filterChain, Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        String userName = userDetails.getUsername();
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+
+        String role = auth.getAuthority();
+
+        String access = jwtUtil.createJwt("access", userName, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", userName, role, 86400000L);
+
+        addRefreshEntity(userName, refresh,  86400000L);
+
+        response.setHeader("access", access);
+        response.addCookie(createCookie("refresh", refresh));
+        response.setStatus(HttpStatus.OK.value());
+    }
+```
+인증 실패 시에는 아무것도 발급하지 않고 에러코드를 출력한다.
+
+그럼 JWT Token을 가지고 있고 이를 통해 인가하는 과정은 어떨까?
+
+```java
+public class JwtFilter extends OncePerRequestFilter {
+    private final JwtUtil jwtUtil;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        // 헤더에서 access키에 담긴 토큰을 꺼냄
+        String accessToken = request.getHeader("access");
+
+        // 토큰이 없다면 다음 필터로 넘김
+        if (accessToken == null) {
+            
+            // 해당 필터를 종료하고 다음 필터로 넘어가라는 의미
+            filterChain.doFilter(request, response);
+
+            return;
+        }
+
+        // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음 (재발급 로직을 처음부터 새로 수행해야함)
+        try {
+            jwtUtil.isExpired(accessToken);
+        } catch (ExpiredJwtException e) {
+
+            //response body
+            PrintWriter writer = response.getWriter();
+            writer.print("access token expired");
+
+            //response status code
+            // 더이상 필터를 통과하는 게 아니라 바로 response해서 재발급 하도록 유도
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        // 토큰이 access인지 확인 (발급시 페이로드에 명시)
+        String category = jwtUtil.getCategory(accessToken);
+
+        if (!category.equals("access")) {
+
+            //response body
+            PrintWriter writer = response.getWriter();
+            writer.print("invalid access token");
+
+            //response status code
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        // username, role 값을 획득
+        String username = jwtUtil.getUserName(accessToken);
+        String role = jwtUtil.getRole(accessToken);
+
+        User user = User.builder()
+                .name(username)
+                .role(role)
+                .build();
+        
+        // dto에 담아 전달하는 방식
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        //다음 필터로 이동하자
+        filterChain.doFilter(request, response);
+    }
+}
+```
+
+## ❓ 궁금했던 내용
+
+### 대체 `AuthenticationProvider`의 구현체를 직접 상속해 구현한 기억이 없는데 어디서 자동으로 등록되는 걸까?
+
+> `AuthenticationProvider`의 구현체는 `@EnableWebSecurity`에 의해 config의 내용을 자동으로 등록한다.
+
+```java
+@EnableGlobalAuthentication
+public @interface EnableWebSecurity {
+
+	/**
+	 * Controls debugging support for Spring Security. Default is false.
+	 * @return if true, enables debug support with Spring Security
+	 */
+	boolean debug() default false;
+
+}
+```
+`@EnableGlobalAuthentication`을 어노테이션으로 포함하고 있으며
+
+```java
+@Import(AuthenticationConfiguration.class)
+public @interface EnableGlobalAuthentication {
+
+}
+```
+다시 `AuthenticationConfiguration`를 import하고 있는데
+
+```java
+public class AuthenticationConfiguration {
+
+    ...
+
+	private AuthenticationManager authenticationManager;
+
+    ...
+
+	@Bean
+	public AuthenticationManagerBuilder authenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor,
+```
+
+`AuthenticationManager`를 생성하는 Builder가 포함되어 있다.
+
+이러한 관계때문에 우리는 `@EnableWebSecurity`를 선언하면 설정파일의 코드를 자동으로 빌드할 수있다.
+
+### Access 토큰과 Refresh 토큰의 차이점?
+
+Access 토큰은 쉽게 이야기하면 인증된 입장권이다.
+
+토큰이 만약 탈취당하면 어떻게 될까?
+
+이러한 보안적 위험을 줄이기 위해 Access 토큰에 아주 짧은 만료기간을 부여한다.
+
+Access 토큰이 만료되면 재발급을 위해 Refresh 토큰이 함께 발급된다.
+
+Refresh 토큰은 Access 토큰에 비해 만료기간이 매우 길며, 재발급 요청시에 필요하다.
+
+---
+
+또한 탈취에 저항하기 위해 저장소의 위치도 다르다.
+
+* Access 토큰은 주로 로컬 스토리지에 저장된다. 권한이 필요한 모든 경로에 사용되기 때문에 CSRF 공격의 위험보다는 XSS 공격을 받는 게 더 나은 선택일 수 있다.
+* Refresh 토큰은 주로 쿠키에 저장된다. CSRF는 Access 토큰이 접근하는 회원 정보 수정, 게시글 CRUD에 취약하지만 토큰 재발급 경로에서는 크게 피해를 입힐 만한 로직이 없기 때문이다.
+
+### Refresh Rotate가 뭐고 왜 사용하는걸까?
+
+위에서 Refresh 토큰은 Access 토큰의 재발급을 위해 필요한 요소라고 설명했다.
+
+그런데 여전히 Refresh 토큰도 탈취당할 위험이 있다.
+
+이러한 점도 보완하기 위해 Rotate 방식을 사용한다.
+
+Refresh 토큰을 일회용으로 사용하는 것이다.
+
+Refresh 토큰으로 재발급 로직을 수행하게 될 때 Access 토큰과 Refresh 토큰 둘 다 새로 발급해 전달한다.
+
+---
+💡 추가로 알면 좋을 내용
+> 로그아웃을 구현하면 프론트측에 존재하는 Access/Refresh 토큰을 제거합니다. 그럼 프론트측에서 요청을 보낼 JWT가 없기 때문에 로그아웃이 되었다고 생각하지만 이미 해커가 JWT를 복제 했다면 요청이 수행됩니다.
+>
+> 위와 같은 문제가 존재하는 이유는 단순하게 JWT를 발급해준 순간 서버측의 주도권은 없기 때문입니다. (세션 방식은 상태를 STATE하게 관리하기 때문에 주도권이 서버측에 있음)
+>
+>
+> 위 문제의 해결법은 생명주기가 긴 Refresh 토큰은 발급과 함께 서버측 저장소에도 저장하여 요청이 올때마다 저장소에 존재하는지 확인하는 방법으로 서버측에서 주도권을 가질 수 있습니다.
+>
+> 만약 로그아웃을 진행하거나 탈취에 의해 피해가 진행되는 경우 서버측 저장소에서 해당 JWT를 삭제하여 피해를 방어할 수 있습니다.
+> (Refresh 토큰 블랙리스팅이라고도 부릅니다.)
+
+
+출처 : [개발자 유미 docs 모음](https://substantial-park-a17.notion.site/Docs-002024551c294889863d0c7923590568)
