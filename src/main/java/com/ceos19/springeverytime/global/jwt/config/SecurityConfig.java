@@ -39,9 +39,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+
+        //csrf enable하려면 csrf 토큰 설정같은 추가 작업이 필요
+        // 특히 api 서버는 세션이 stateless 상태로 관리하므로 enable이 필요없음
         http.
                 csrf((auth) -> auth.disable());
 
+        // json 형태의 데이터를 받는 api에 적용 할 수 없기 때문
         http.
                 formLogin((auth) -> auth.disable());
 
