@@ -800,20 +800,96 @@ public class GlobalExceptionHandler {
 - 액세스 토큰과 리프레쉬 토큰 생성
 1. 클라이언트가 서버에게 인증을 요청
 2. 서버는 클라이언트로부터 전달받은 정보를 바탕으로 인증 정보가 유효한지 확인한 뒤, 액세스 토큰과 리프레쉬 토큰을 만들어서 클라이언트에게 전달
+```java
+//Authentication 객체의 권한 정보를 이용하여 액세스 토큰을 생성
+    public String createAccessToken(Authentication authentication) {
+
+        //authorities 설정
+        String authorities =
+                authentication.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.joining(","));
+
+        //토큰 만료 시간 설정
+        long now = (new Date()).getTime(); //현재 시각 구하기
+        Date validDate = new Date(now + this.tokenValidityInMilliseconds); //현재 시각 + 토큰 유효 기간
+
+        return Jwts.builder()
+                .setSubject(authentication.getName()) //토큰의 용도를 명시
+                .claim(AUTHORITY_KEY, authorities)
+                .signWith(SignatureAlgorithm.HS512, key) //sign시 사용할 알고리즘과 key값
+                .setExpiration(validDate) //토큰 만료시간 설정
+                .compact(); //토큰을 생성
+    }
+```
 3. 클라이언트는 서버로부터 전달받은 액세스 토큰과 리프레쉬 토큰을 저장
 4. 서버에서 생성했던 리프레쉬 토큰은 DB에도 저장해두었다가 계속 씀
 
 - 이후 API 요청과 응답 과정
 [액세스 토큰이 만료가 안된 경우]
 1. 클라이언트가 인증을 필요로 하는 API를 호출할 때마다 클라이언트는 갖고 있던 액세스 토큰과 함께 서버에게 API를 요청
-2. 서버에서 액세스 토큰이 유효한지 검사 -> 만료되지 않았다면 응답  
+2. 서버에서 액세스 토큰이 유효한지 검사 -> 만료되지 않았다면 응답
+```java
+// JWT 토큰 유효성 검증 메서드
+    public boolean validateAccessToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key) //비밀값으로 복호화
+                    .build().parseClaimsJws(token);
+            return true;
+        }
+        //복호화 과정 시도했다가 에러가 나면 아래와 같이 경우에 따라 유효하지 않은 토큰으로 처리
+        catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {log.info("잘못된 JWT 서명입니다.");}
+        catch (ExpiredJwtException e) { log.info("만료된 JWT 토큰입니다."); }
+        catch (UnsupportedJwtException e) { log.info("지원되지 않는 JWT 토큰입니다."); }
+        catch (IllegalArgumentException e) { log.info("잘못된 JWT 토큰입니다."); }
+        return false;
+    }
+```
 
 [액세스 토큰이 만료된 경우]
 1. 시간이 지나고 액세스 토큰이 만료된 이후 클라이언트에서 서버에 API 요청
 2. 서버에서 액세스 토큰이 유효한지 검사 -> 만료되었다면 토큰 만료로 인한 에러 응답을 전달
 3. 클라이언트에서는 이 응답을 받고 저장해둔 리프레쉬 토큰과 함께 새로운 액세스 토큰을 발급하는 요청을 서버에 전송
 4. 서버에서는 전달받은 리프레쉬 토큰의 유효성을 검사하고, DB에서 리프레쉬 토큰을 조회한 후 저장해두었던 리프레쉬 토큰과 같은지 확인
+```java
+//Authentication 객체의 권한 정보를 이용하여 액세스 토큰을 생성
+    public String createAccessToken(Authentication authentication) {
+
+        //authorities 설정
+        String authorities =
+                authentication.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.joining(","));
+
+        //토큰 만료 시간 설정
+        long now = (new Date()).getTime(); //현재 시각 구하기
+        Date validDate = new Date(now + this.tokenValidityInMilliseconds); //현재 시각 + 토큰 유효 기간
+
+        return Jwts.builder()
+                .setSubject(authentication.getName()) //토큰의 용도를 명시
+                .claim(AUTHORITY_KEY, authorities)
+                .signWith(SignatureAlgorithm.HS512, key) //sign시 사용할 알고리즘과 key값
+                .setExpiration(validDate) //토큰 만료시간 설정
+                .compact(); //토큰을 생성
+    }
+```
+
 5. 유효한 리프레쉬 토큰이라면 -> 서버에서는 새로운 액세스 토큰을 생성한 뒤 클라이언트에게 응답
+```java
+    public String createNewAccessToken(String refreshToken) {
+        // 토큰 유효성 검사에 실패하면 예외 발생
+        if(!tokenProvider.validateAccessToken(refreshToken)) {
+            throw new NotFoundException(ErrorCode.NOT_FOUND_ERROR);
+        }
+
+        // DB에 저장되어 있던 refresh token과 일치하는지 확인
+        Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
+        User user = userService.findById(userId);
+
+        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        return tokenProvider.createAccessToken(authentication);
+    }
+```
 
 ### 쿠키
 - 정의: 사용자가 어떠한 웹 사이트를 방문했을 때 웹사이트가 사용하는 서버에서 유저의 로컬 환경에 저장하는 작은 데이터.
