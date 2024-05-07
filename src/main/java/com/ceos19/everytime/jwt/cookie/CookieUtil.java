@@ -14,4 +14,13 @@ public class CookieUtil {
         }
         return null;
     }
+
+    public Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24 * 60 * 60);
+
+        cookie.setHttpOnly(true);  // HttpOnly 설정을 통해서 프론트 단에서 javascript로 cookie에 접근을 할 수 없도록 함.
+
+        return cookie;
+    }
 }

@@ -3,6 +3,9 @@ package com.ceos19.everytime.configuration;
 import com.ceos19.everytime.jwt.JwtFilter;
 import com.ceos19.everytime.jwt.JwtUtil;
 import com.ceos19.everytime.jwt.LoginFilter;
+import com.ceos19.everytime.jwt.cookie.CookieUtil;
+import com.ceos19.everytime.repository.RefreshTokenRepository;
+import com.ceos19.everytime.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +26,9 @@ public class SecurityConfig {
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
+    private final RefreshTokenService refreshTokenService;
+
 
     @Bean  //AuthenticationManager Bean 등록
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -62,7 +68,7 @@ public class SecurityConfig {
         // Form로그인 disable로 인해 기존에 설정 되었던 UsernamePasswordAuthenticationFilter가 사용되지 않으므로
         // 새로이 생성한 커스텀 필터(LoginFilter)를 해당 필터 자리에 대신 해서 넣어줌
         // ~/login에 대한 post 요청은 여기에서 처리
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, cookieUtil, refreshTokenService), UsernamePasswordAuthenticationFilter.class);
 
         //세션 stateless 설정
         http.sessionManagement((session) -> session

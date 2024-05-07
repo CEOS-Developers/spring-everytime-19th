@@ -1,6 +1,9 @@
 package com.ceos19.everytime.jwt;
 
 import com.ceos19.everytime.dto.CustomUserDetails;
+import com.ceos19.everytime.jwt.cookie.CookieUtil;
+import com.ceos19.everytime.repository.RefreshTokenRepository;
+import com.ceos19.everytime.service.RefreshTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +29,11 @@ import java.util.Iterator;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
+    private final RefreshTokenService refreshTokenService;
+
+    private final Long accessExpirationMs = 600000L;
+    private final Long refreshExpirationMs = 86400000L;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -51,22 +59,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         // 토큰 생성
-        String access = jwtUtil.createToken("access", username, role, 600000L);
-        String refresh = jwtUtil.createToken("refresh", username, role, 86400000L);
+        String access = jwtUtil.createToken("access", username, role, accessExpirationMs);
+        String refresh = jwtUtil.createToken("refresh", username, role, refreshExpirationMs);
+
+        // DB에 RefreshToken 정보 저장
+        refreshTokenService.addRefreshToken(username, refresh, refreshExpirationMs);
 
         // 응답 설정
         response.addHeader("access", access);
-        response.addCookie(createCookie("refresh", refresh));
+        response.addCookie(cookieUtil.createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
-    }
-
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24 * 60 * 60);
-
-        cookie.setHttpOnly(true);  // HttpOnly 설정을 통해서 프론트 단에서 javascript로 cookie에 접근을 할 수 없도록 함.
-
-        return cookie;
     }
 
     //로그인 실패시 실행하는 메소드

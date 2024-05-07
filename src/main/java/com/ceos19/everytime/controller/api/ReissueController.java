@@ -7,6 +7,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReissueController {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
+
+    private final Long accessExpirationMs = 600000L;
+    private final Long refreshExpirationMs = 86400000L;
 
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
@@ -53,10 +57,13 @@ public class ReissueController {
         String role = jwtUtil.getRole(refresh);
 
         //make new JWT
-        String newAccess = jwtUtil.createToken("access", username, role, 600000L);
+        String newAccess = jwtUtil.createToken("access", username, role, accessExpirationMs); // Refresh Token으로 새로이 생성된 Access Token
+        Cookie newRefresh = cookieUtil.createCookie("refresh",
+                jwtUtil.createToken("refresh", username, role, refreshExpirationMs)); // Refresh Rotate로 생성된 Refresh Token
 
         //response
         response.setHeader("access", newAccess);
+        response.addCookie(newRefresh);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
