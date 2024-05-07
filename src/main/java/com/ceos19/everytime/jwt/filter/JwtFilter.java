@@ -1,7 +1,8 @@
-package com.ceos19.everytime.jwt;
+package com.ceos19.everytime.jwt.filter;
 
 import com.ceos19.everytime.domain.User;
 import com.ceos19.everytime.dto.CustomUserDetails;
+import com.ceos19.everytime.jwt.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.patterns.IToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

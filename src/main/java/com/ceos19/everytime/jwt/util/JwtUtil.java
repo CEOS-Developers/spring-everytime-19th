@@ -1,8 +1,6 @@
-package com.ceos19.everytime.jwt;
+package com.ceos19.everytime.jwt.util;
 
 import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.Cookie;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

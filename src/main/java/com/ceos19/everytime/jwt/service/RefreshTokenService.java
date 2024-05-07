@@ -1,9 +1,8 @@
-package com.ceos19.everytime.service;
+package com.ceos19.everytime.jwt.service;
 
 import com.ceos19.everytime.domain.RefreshToken;
 import com.ceos19.everytime.exception.AppException;
-import com.ceos19.everytime.exception.ErrorCode;
-import com.ceos19.everytime.repository.RefreshTokenRepository;
+import com.ceos19.everytime.jwt.repository.RefreshTokenRepository;
 import com.ceos19.everytime.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -1,16 +1,13 @@
-package com.ceos19.everytime.jwt;
+package com.ceos19.everytime.jwt.filter;
 
-import com.ceos19.everytime.dto.CustomUserDetails;
+import com.ceos19.everytime.jwt.util.JwtUtil;
 import com.ceos19.everytime.jwt.cookie.CookieUtil;
-import com.ceos19.everytime.repository.RefreshTokenRepository;
-import com.ceos19.everytime.service.RefreshTokenService;
+import com.ceos19.everytime.jwt.service.RefreshTokenService;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +16,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
