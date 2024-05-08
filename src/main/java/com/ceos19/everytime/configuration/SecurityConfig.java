@@ -1,11 +1,10 @@
 package com.ceos19.everytime.configuration;
 
-import com.ceos19.everytime.jwt.JwtFilter;
-import com.ceos19.everytime.jwt.JwtUtil;
-import com.ceos19.everytime.jwt.LoginFilter;
 import com.ceos19.everytime.jwt.cookie.CookieUtil;
-import com.ceos19.everytime.repository.RefreshTokenRepository;
-import com.ceos19.everytime.service.RefreshTokenService;
+import com.ceos19.everytime.jwt.filter.JwtFilter;
+import com.ceos19.everytime.jwt.filter.LoginFilter;
+import com.ceos19.everytime.jwt.service.RefreshTokenService;
+import com.ceos19.everytime.jwt.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

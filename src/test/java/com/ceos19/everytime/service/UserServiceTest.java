@@ -79,7 +79,7 @@ class UserServiceTest {
 
         // 유저 가입
         User user1 = new User("myUsername", "myPassword", "김상덕", "A000011", "um@naver.com", school,"ROLE_ADMIN");
-        userId = userService.addUser(user1);
+        userService.addUser(user1);
         User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "um1@naver.com", school,"ROLE_ADMIN");
         userService.addUser(user2);
 

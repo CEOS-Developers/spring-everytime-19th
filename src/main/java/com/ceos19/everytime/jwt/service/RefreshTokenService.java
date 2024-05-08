@@ -2,6 +2,7 @@ package com.ceos19.everytime.jwt.service;
 
 import com.ceos19.everytime.domain.RefreshToken;
 import com.ceos19.everytime.exception.AppException;
+import com.ceos19.everytime.exception.ErrorCode;
 import com.ceos19.everytime.jwt.repository.RefreshTokenRepository;
 import com.ceos19.everytime.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -45,5 +46,23 @@ public class RefreshTokenService {
 
         refreshTokenRepository.save(refreshToken);
         return refreshToken.getId();
+    }
+
+    public void checkRefreshTokenIsSavedByRefresh(String refresh) {
+        if (!refreshTokenRepository.existsByRefresh(refresh)) {
+            log.error("에러 내용: Refresh Token DB 등록 실패 " +
+                    "발생 원인: 존재하지 않는 refresh token의 refresh로 등록 시도");
+            throw new AppException(ErrorCode.REFRESH_NOT_EXIST, "해당 refresh 정보로 등록된 refresh token이 존재하지 않습니다");
+        }
+    }
+
+    public void deleteRefreshToken(String refresh) {
+        refreshTokenRepository.findByRefresh(refresh).orElseThrow(() -> {
+            log.error("에러 내용: Refresh Token 제거 실패 " +
+                    "발생 원인: 존재하지 않는 refresh token의 refresh로 조회");
+            throw new AppException(ErrorCode.REFRESH_NOT_EXIST, "해당 refresh 정보로 등록된 refresh token이 존재하지 않습니다");
+        });
+
+        refreshTokenRepository.deleteByRefresh(refresh);
     }
 }
