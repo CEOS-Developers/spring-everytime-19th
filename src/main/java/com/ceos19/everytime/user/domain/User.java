@@ -2,6 +2,8 @@ package com.ceos19.everytime.user.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,6 +44,9 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     @Column(nullable = false, columnDefinition = "tinyint(1)")
     private boolean isDeleted = false;
 
@@ -52,11 +57,12 @@ public class User extends BaseEntity {
     @Builder
 
     public User(final Long id, final String username, final String password, final String nickname,
-                final School school) {
+                final School school, final UserRole role) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
         this.school = school;
+        this.role = role;
     }
 }

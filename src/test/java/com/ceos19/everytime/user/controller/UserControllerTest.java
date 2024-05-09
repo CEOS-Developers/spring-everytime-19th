@@ -9,9 +9,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.ceos19.everytime.global.exception.BadRequestException;
@@ -20,7 +22,8 @@ import com.ceos19.everytime.user.dto.request.UserSaveRequestDto;
 import com.ceos19.everytime.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest(UserController.class)
+@WebMvcTest(value = UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
     private static final String USER_DEFAULT_URL = "/api/users";
@@ -65,6 +68,8 @@ class UserControllerTest {
     }
 
     @Test
+    @AutoConfigureMockMvc
+    @WithMockUser
     void 회원_탈퇴에_성공한다() throws Exception {
         // given
         doNothing().when(userService).deleteUser(anyLong());

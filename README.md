@@ -635,3 +635,272 @@ Swagger를 사용해서 회원 가입 테스트를 진행했습니다.
 만약 존재하지 않은 회원이 회원 탈퇴를 요청하면 다음과 같이 에러가 발생합니다.
 
 ![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/dae820ef-d379-49c2-b02d-ee361d6962e1)
+
+# Week 5
+## 인증(Authentication) 방법에 대해서 알아보기
+### 쿠키를 이용한 방식
+
+쿠키는 사용자와 사용자의 선호 사항을 식별하는 데 사용되는 데이터 조각입니다. 브라우저는 페이지가 요청될 때마다 서버에 쿠키를 반환합니다.
+HTTP 쿠키와 같은 특정 쿠키는 쿠키 기반 인증을 수행하여 각 사용자의 세션을 유지하는 데 사용됩니다.
+쿠키 기반 인증 방식은 다음과 같이 동작합니다.
+
+사용자 계정에 연결된 특수 식별자가 있는 쿠키는 사용자가 로그인할 때 웹사이트에 의해 생성됩니다. 
+그런 다음 사용자의 장치는 이 쿠키를 수신하여 브라우저에 저장합니다. 
+웹사이트는 사용자를 인식하고 후속 방문 시 웹사이트에 쿠키를 다시 전송함으로써 사용자가 다시 로그인할 필요 없이 사용자를 인증할 수 있습니다.
+사용자는 자신의 계정에 액세스하기 위해 반복적으로 로그인할 필요가 없으므로 쿠키 인증을 사용하여 간단하고 원활한 사용자 경험을 제공할 수 있습니다. 
+사용자 계정의 보안을 위협하지 않으려면 인증에 사용되는 쿠키가 안전하고 조작하기 어려운지 확인하는 것이 중요합니다. 
+또한 항상 충분한 보안을 제공할 수 없기 때문에 쿠키 인증이 모든 웹사이트나 애플리케이션에 적합하지 않을 수도 있습니다.
+
+#### 장점
+
+- 편의성: 쿠키 기반 인증을 사용하면 사용자가 브라우저를 닫거나 장치 전원을 끈 후에도 로그인 정보를 계속 입력할 필요가 없기 때문에 사용자가 웹사이트나 애플리케이션에 더 쉽게 액세스할 수 있습니다.
+- 확장성: 서버는 각 사용자의 활성 세션만 추적하면 되므로 쿠키 기반 인증을 확장하여 엄청난 수의 사용자를 처리할 수 있습니다.
+- 개인화: 쿠키 기반 인증을 통해 웹사이트나 앱에서 사용자의 선호도와 행동을 수집함으로써 웹사이트나 애플리케이션이 사용자 경험을 맞춤화할 수 있습니다.
+
+#### 단점
+
+- 보안 위험: XSS 공격과 세션 하이재킹
+- 개인 정보 보호 문제: 웹사이트나 애플리케이션이 사용자에 대한 개인 정보를 수집하고 저장하기 때문에 개인 정보 보호 문제가 발생할 수 있습니다.
+- 공용 컴퓨터를 사용하는 경우 장치에 로그인 정보가 저장되어 있다면 사용자가 로그인 정보에 접근할 수 있습니다.
+
+### 세션을 이용한 방식
+
+사용자가 애플리케이션이나 웹 사이트에 로그인하면 일종의 토큰 기반 인증인 세션 인증이 해당 사용자를 위한 특수 세션 ID를 생성합니다. 
+이 세션 ID의 서버측 저장소는 해당 시점 이후에 이루어진 사용자 요청을 확인하는 데 사용됩니다.
+서버는 로그인할 때마다 새로운 세션 ID를 생성하고 이를 사용자의 계정에 연결합니다. 그러면 사용자의 브라우저는 이 세션 ID를 쿠키로 수신하여 사용자의 장치에 저장됩니다. 
+연속된 요청이 있을 때마다 사용자의 브라우저는 세션 ID를 서버로 다시 전송하여 사용자의 신원을 확인하고 보안 리소스에 대한 액세스 권한을 부여할 수 있습니다.
+웹 앱과 웹사이트는 세션 인증을 활용하여 사용자가 페이지를 변경하거나 다른 작업을 수행할 때마다 비밀번호를 다시 입력하지 않고도 계정에 액세스할 수 있도록 하는 경우가 많습니다.
+강력하고 신뢰할 수 있는 액세스 제어 솔루션을 제공하기 위해 다단계 인증 및 암호화와 같은 다른 보안 조치와 함께 작동하는 경우가 많습니다.
+
+#### 장점
+
+- 보안: 사용자에게 각 세션에 대한 로그인 정보를 입력하도록 요청함으로써 사용자 계정에 대한 원치 않는 액세스를 방지하는 데 도움이 됩니다.
+- 사용자는 한 번만 로그인하면 되고 해당 세션은 한동안 활성 상태로 유지되므로 세션 기반 인증을 통해 시스템 사용을 더 쉽게 만들 수 있습니다.
+- 확장성: 버는 각 사용자의 로그인 정보를 보관하는 대신 활성 세션만 추적하면 되므로 세션 기반 인증을 쉽게 확장하여 엄청난 수의 사용자를 처리할 수 있습니다.
+
+#### 단점
+
+- 공격자가 사용자 세션을 제어하고 사용자의 신원을 가장하는 세션 하이재킹 공격이 발생할 수 있습니다.
+- 사용자가 로그인하기 전에 공격자가 사용자의 세션 ID를 설정하여 사용자가 로그인한 후 공격자가 사용자 세션에 대한 제어권을 부여할 때 문제가 발생합니다.
+- 서버는 모든 활성 세션을 추적해야 하기 때문에 세션 기반 인증은 리소스를 매우 많이 소모할 수 있습니다.
+
+### JWT를 이용한 방식
+
+사용자가 인증해 로그인하면 서버는 사용자에게 JWT를 반환합니다. 토큰은 자격 증명이므로 보안 문제를 방지하기 위해 세심한 주의를 기울여야 합니다. 그렇기 때문에 토큰을 오래 보관하면 안 됩니다.사용자가 보호된 경로나 리소스에 액세스하려고 할 때마다 사용자는 일반적으로 Bearer 스키마를 사용해 Authorization 헤더에 JWT를 보내야 합니다.```*text*Authorization: Bearer <token>```이는 어떤 경우에는 stateless 인증 메커니즘일 수 있습니다. 서버의 보호된 경로는 헤더에서 유효한 JWT를 확인하고 Authorization, JWT가 있으면 사용자는 보호된 리소스에 액세스할 수 있습니다. HTTP 헤더를 통해 JWT 토큰을 보내는 경우 토큰이 너무 커지지 않도록 해야 합니다. 일부 서버는 헤더에 8KB 이상을 허용하지 않습니다. 모든 사용자 권한을 포함하는 등 JWT 토큰에 너무 많은 정보를 포함하려는 경우 `Auth0 Fine-Grained Authorization`과 같은 대체 솔루션이 필요할 수 있습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/ecec9d3a-c40f-4555-b380-19626b0f7aab)
+
+1. 애플리케이션 또는 클라이언트는 인가 서버에 인가를 요청합니다. 이는 서로 다른 인가 흐름 중 하나를 통해 수행됩니다. 예를 들어, 일반적인 OpenID Connect 호환 웹 응용 프로그램은 인가 코드 흐름을 사용하여 `/oauth/authorization` 엔드포인트를 거칩니다.
+2. 권한이 부여되면 권한 서버는 애플리케이션에 액세스 토큰을 반환합니다.
+3. 애플리케이션은 액세스 토큰을 사용하여 리소스 서버에 액세스합니다.
+
+서명된 토큰을 사용하면 토큰을 변경할 수 없음에도 불구하고 토큰에 포함된 모든 정보가 사용자나 다른 당사자에게 노출됩니다. 이는 토큰 내에 비밀 정보를 넣으면 안 된다는 것을 의미합니다.
+
+#### 리프레시 토큰이 필요한 이유
+
+액세스 토큰만 사용할 경우에 제 3자에게 토큰이 탈취될 경우 보안에 취하다는 문제가 발생할 수 있습니다. 토큰의 유효시간을 짧게 하여 문제를 해결할 수 있지만 이 경우에는 사용자가 자주 로그인을 해야하는 문제가 발생합니다. 이러한 문제를 해결하기 위해 리프레시 토큰을 사용합니다. 
+액세스 토큰은 접근과 관련된 토큰이고, 리프레시 토큰 재발급과 관련된 토큰이라고 이해하면 됩니다.
+
+기본적으로 처음 로그인을 할 때 액세스 토큰과 리프레시 토큰이 발급됩니다. 서버는 리프레시 토큰을 저장하고, 클라이언트는 Access Token과 Refresh Token을 쿠키, 세션 혹은 웹스토리지에 저장하고 요청이 있을때마다 이 둘을 헤더에 담아서 보냅니다.
+액세스 토큰이 만료되면 리프레시 토큰을 사용해서 액세스 토큰을 재발급해줍니다.
+
+#### 장점
+
+- Stateless: JWT는 필요한 모든 정보를 자체적으로 전달하기 때문에 서버는 세션 정보를 유지할 필요가 없습니다. 이것은 JWT를 stateless으로 만들어 서버 부하를 줄이고 확장성을 단순화합니다.
+- Compact and Efficient: JWT는 크기가 작기 때문에 네트워크를 통한 전송에 적합하며 클라이언트에 의해 쉽게 구문 분석됩니다.
+- Secure: 디지털 방식으로 서명되어 데이터 무결성을 보장하고 변조를 방지합니다. 암호화 알고리즘을 사용하면 보안이 더욱 강화됩니다.
+- Cross-Domain Communication: JWT는 쿠키나 서버 측 세션에 의존하지 않기 때문에 다양한 도메인이나 마이크로서비스에서 사용할 수 있습니다.
+
+### OAuth를 이용한 방식
+
+OAuth는 `Open Authorization`을 의미하며 웹사이트나 애플리케이션이 사용자를 대신하여 다른 웹 앱에 의해 호스팅되는 리소스에 액세스할 수 있도록 설계된 표준입니다.
+그래서 OAuth는 사용자의 비밀번호를 공유하지 않고도 서드파티 애플리케이션에 대한 접근 권한을 안전하게 부여할 수 있습니다.
+OAuth 인증의 핵심은 액세스 토큰을 사용한다는 점입니다. 사용자가 서드파티 애플리케이션에 로그인할 때, 이 애플리케이션은 사용자를 인증 서버로 리디렉션하고, 사용자가 인증 후 인증 서버는 애플리케이션에 액세스 토큰을 발급합니다. 
+왜냐하면 이 토큰을 통해 애플리케이션은 사용자의 데이터에 접근할 수 있기 때문입니다.
+
+OAuth 인증 프로세스의 이해는 개발자가 보안성 높은 애플리케이션을 구축하는 데 있어 중요한 기초 지식을 제공합니다. 이를 통해 사용자 데이터의 보안을 유지하면서도 편리한 사용자 경험을 제공할 수 있습니다.
+
+## References
+
+- [Cookies-Based Authentication Vs Session-Based Authentication](https://dev.to/emmykolic/cookies-based-authentication-vs-session-based-authentication-1f6)
+- [Introduction to JSON Web Tokens](https://jwt.io/introduction)
+- [Understanding JSON Web Tokens (JWT): A Secure Approach to Web Authentication](https://medium.com/@extio/understanding-json-web-tokens-jwt-a-secure-approach-to-web-authentication-f551e8d66deb)
+- [Understand JWT: Access token vs Refresh token](https://jackywxd.medium.com/understand-jwt-access-token-vs-refresh-token-2951e5e45193)
+
+## 3. 로그인 테스트
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/8acdc785-b89e-48a9-82ed-e8be2b54b053)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/8e6260f5-f710-456b-b3db-b4ba3ffa2194)
+
+## 고민한 부분
+### 서비스 계층이 Servlet API에 의존해도 되는가?
+
+처음에 토큰 재발급 API를 구현할 때 다음과 같이 구현했습니다.
+
+```java
+@RestController
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+
+    @Operation(summary = "액세스 토큰 재발급", description = "리프레시 토큰을 사용해서 액세스 토큰을 재발급합니다.")
+    @PostMapping("/reissue")
+    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+        authService.reissue(request, response);
+        return ResponseEntity.ok().build();
+    }
+}
+```
+
+```java
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+    private final TokenProvider tokenProvider;
+
+    @Transactional
+    public void reissue(HttpServletRequest request, HttpServletResponse response) {
+      ...
+    }
+}
+```
+
+하지만 이렇게 `HttpServletRequest`와 `HttpServletResponse`를 서비스로 넘겨주는 것은 서비스 계층이 Servlet API에 의존하게 되는데 이게 옳은 방법인지에 대해서 고민이 되었습니다.
+서비스에서 컨트롤러에 의존하기 때문에 레이어드 아키텍처 관점에서 봤을 때 올바르지 않다고 생각했습니다.
+레이어드 아키텍처에서는 하위 계층은 상위 계층을 몰라야 되기 때문입니다. 즉 서비스 계층은 컨트롤러 계층을 알면 안 됩니다.
+
+또한 `도메인 주도 개발 시작하기` 책에서도 다음과 같이 언급하고 있습니다.
+
+> 표현 영역에 해당하는 HttpServletRequest나 HttpSession을 응용 서비스에 파라미터로 전달하면 안된다. 응용 서비스에서 표현 영역에 대한 의존이 발생하면 응용 서비스만 단독으로 테스트하기가 어려워진다. 게다가 표현 영역의 구현이 변경되면 응용 서비스의 구현도 함께 변경해야 하는 문제도 발생한다.
+
+그래서 서비스 계층에서 필요한 데이터로 변환해서 전달하는 방법을 사용했습니다.
+
+```java
+@Tag(name = "Auth Controller", description = "인증/인가 관련 API")
+@RestController
+@RequiredArgsConstructor
+public class AuthController {
+
+  private static final String REFRESH = "refresh";
+
+  private final AuthService authService;
+
+  @Operation(summary = "액세스 토큰 재발급", description = "리프레시 토큰을 사용해서 액세스 토큰을 재발급합니다.")
+  @PostMapping("/reissue")
+  public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+    final ReissueResponse reissueResponse = authService.reissue(getRefreshToken(request));
+    response.setHeader("access", reissueResponse.newAccess());
+    response.addCookie(createCookie(reissueResponse.newRefresh()));
+    return ResponseEntity.ok().build();
+  }
+
+  private String getRefreshToken(HttpServletRequest request) {
+    return Arrays.stream(request.getCookies())
+            .filter(cookie -> REFRESH.equals(cookie.getName()))
+            .map(Cookie::getValue)
+            .findAny()
+            .orElse(null);
+  }
+
+  private Cookie createCookie(String value) {
+    Cookie cookie = new Cookie(REFRESH, value);
+    cookie.setMaxAge(24 * 60 * 60);
+    // cookie.setSecure(true);
+    // cookie.setPath("/");
+    cookie.setHttpOnly(true);
+
+    return cookie;
+  }
+}
+```
+
+```java
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AuthService {
+
+    private static final String REFRESH = "refresh";
+    private static final String ACCESS = "access";
+
+    private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshRepository;
+
+    @Transactional
+    public ReissueResponse reissue(String refresh) {
+        validateRefreshToken(refresh);
+
+        String username = jwtUtil.getUsername(refresh);
+        String role = jwtUtil.getRole(refresh);
+
+        // make new JWT
+        String newAccess = jwtUtil.createJwt(ACCESS, username, role);
+        String newRefresh = jwtUtil.createJwt(REFRESH, username, role);
+
+        // Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
+        refreshRepository.deleteByRefreshToken(refresh);
+        addRefreshEntity(username, newRefresh, 86400000L);
+
+        log.info("reissue success");
+
+        return new ReissueResponse(newAccess, newRefresh);
+    }
+}
+```
+
+이렇게 구현을 해서 서비스 계층이 Servlet API에 의존하지 않도록 했습니다.
+
+### 로그인을 할 때 비밀번호는 어디에서 검증을 할까?
+
+로그인을 할 때 사용자가 요청을 하면 `JwtValidationFilter`를 거쳐서 액세스 토큰이 없기 때문에 다음 필터인 `JwtAuthenticationFilter`로 넘어갑니다.
+`JwtAuthenticationFilter`에서 사용자가 입력한 아이디와 비밀번호로 `Authentication` 객체를 통해 로그인을 시도합니다.
+이떄 `UserDetailsService`를 상속받은 `CustomUserDetailsService`의 loadUserByUsername 메서를 호출합니다.
+그런데 loadUserByUsername 메서드를 보면 비밀번호 검증을 하지 않고 있습니다. 그러면 어떻게 정상적으로 로그인이 동작하는 걸까요?
+
+```java
+@Service
+@RequiredArgsConstructor
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        final User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        return new CustomUserDetails(user);
+    }
+}
+```
+
+비밀번호 검증은 `DaoAuthenticationProvider`에서 진행됩니다.
+
+```java
+public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+
+    protected void additionalAuthenticationChecks(UserDetails userDetails,
+            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        if (authentication.getCredentials() == null) {
+            this.logger.debug("Failed to authenticate since no credentials provided");
+            throw new BadCredentialsException(this.messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+        } else {
+            String presentedPassword = authentication.getCredentials().toString();
+            if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
+                this.logger.debug(
+                        "Failed to authenticate since password does not match stored value");
+                throw new BadCredentialsException(this.messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                        "Bad credentials"));
+            }
+        }
+    }
+}
+```
+
+`JwtAuthenticationFilter`에서 `AuthenticationManager.authenticate()`를 호출하면 스프링 시큐리티에 내장된 AuthenticationProvider의 authenticate() 메서드가 호출되는데
+이때 `DaoAuthenticationProvider`의 `additionalAuthenticationChecks()` 메서드에서 비밀번호 검증을 합니다.
