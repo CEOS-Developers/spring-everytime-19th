@@ -51,11 +51,11 @@ public class GlobalExceptionHandler {
 
     /**
      * CustomException: Business Logic 수행 중 발생시킬 커스텀 에러
-     * 여기서 CustomException은 'PostNotFoundException'으로 게시글이 발견되지 않을 때 발생하는 에러를 처리한다
+     * 여기서 CustomException은 'NotFoundException'으로 게시글이 발견되지 않을 때 발생하는 에러를 처리한다
      */
-    @ExceptionHandler(value = { PostNotFoundException.class })
-    protected ResponseEntity<ErrorResponse> handleCustomException(PostNotFoundException e) {
-        log.error("PostNotFoundException: ", e); // 로그 기록 추가
+    @ExceptionHandler(value = { NotFoundException.class })
+    protected ResponseEntity<ErrorResponse> handleCustomException(NotFoundException e) {
+        log.error("NotFoundException: ", e); // 로그 기록 추가
         ErrorResponse response = new ErrorResponse(ErrorCode.NOT_FOUND_ERROR); // CustomException에 ErrorCode Enum 반환
         return ResponseEntity.status(response.getStatus()).body(response);
     }
