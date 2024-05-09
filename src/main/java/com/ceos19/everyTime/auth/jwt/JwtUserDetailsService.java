@@ -1,0 +1,33 @@
+package com.ceos19.everyTime.auth.jwt;
+
+import com.ceos19.everyTime.error.ErrorCode;
+import com.ceos19.everyTime.error.exception.NotFoundException;
+import com.ceos19.everyTime.member.domain.Member;
+import com.ceos19.everyTime.member.repository.MemberRepository;
+import java.util.Collections;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class JwtUserDetailsService implements UserDetailsService {
+    private final MemberRepository memberRepository;
+
+
+
+    @Override
+    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return memberRepository.findMemberByLoginId(username)
+                .map(this::getUserDetails)
+                .orElseThrow(()->new NotFoundException(ErrorCode.MESSAGE_NOT_FOUND));
+    }
+
+    public CustomUserDetails getUserDetails(Member member) {
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(member.getAuthority().toString());
+
+        return new CustomUserDetails(member.getLoginId(), member.getPassword(), Collections.singleton(authority),member);
+    }
+}

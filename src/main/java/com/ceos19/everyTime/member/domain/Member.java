@@ -4,6 +4,8 @@ import com.ceos19.everyTime.post.domain.LikePost;
 import com.ceos19.everyTime.post.domain.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +16,7 @@ import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,12 +44,27 @@ public class Member {
     @Column(nullable = false)
     private String nickName;
 
+
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
+
     @Builder
-    public Member(String name,String loginId,String password,String nickName){
-        this.name=name;
-        this.loginId=loginId;
-        this.password=password;
-        this.nickName=nickName;
+    protected Member(String name,String loginId,String password,String nickName,Authority authority){
+        this.name = name;
+        this.loginId = loginId;
+        this.password =password;
+        this.nickName = nickName;
+        this.authority = authority;
+    }
+
+
+    public static Member createNormalMember(String name,String loginId,String password,String nickName){
+        return new Member(name,loginId,password,nickName,Authority.GENERAL);
+    }
+
+
+    public static Member createManager(String name,String loginId,String password,String nickName){
+        return new Member(name,loginId,password,nickName,Authority.ADMIN);
     }
 
 

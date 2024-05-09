@@ -1,6 +1,7 @@
 package com.ceos19.everyTime.member.dto;
 
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class MemberSignUpDto {
+
+
     private String name;
     private String loginId;
     private String password;
