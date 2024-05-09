@@ -3,7 +3,6 @@
 이번에 게시판 서비스를 만들면서 설계한 엔티티간의 연관관계 구조는 다음과 같다.
 ![img_4](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/87fd119c-859c-4c6f-9773-a4bf7e4891d3)
 
-
 # 개발 중 문제점 및 고민점
 
 1. 이번에 User와 Post 사이에 좋아요 기능을 추가하기 위해서 Like 엔티티를 설계했었다. 하지만 like 키워드는 DB에서 이미 사용중인 예약어로 테이블 명으로 사용할 수 없었다. 따라서 Heart로
@@ -507,132 +506,157 @@ url을 설계하면서 어떤식으로 프론트에서 정보를 받는 것이 �
 ### 학교(SchoolController)
 
 - 등록
-    1. 학교 등록(/schools) O
-    2. 게시판 등록(/schools/{sid}/boards) O
-    3. 수업 등록(/schools/{sid}/courses) O
+    1. 학교 등록(/school)
+    2. 게시판 등록(/school/{school_id}/board)
+    3. 수업 등록(/school/{school_id}/course)
 - 조회
     - 단건 조회
-        1. PK (/schools/{sid}) O
-        2. 학교 명 (/schools?name={학교명}) O
+        1. PK (/school/{school_id})
+        2. 학교 명 (/school?name={학교명})
     - 다중 조회
-        1. 모든 학교 조회 (/schools) O
+        1. 모든 학교 조회 (/schools)
     - 학교에 속한 게시판 조회
-        1. 해당 학교에 있는 모든 게시판 조회(/schools/{sid}/boards) O
-        2. 학교 FK + 게시판 명(/schools/{sid}/boards?name={게시판명}) O
+        1. 해당 학교에 있는 모든 게시판 조회(/school/{school_id}/boards)
+        2. 학교 FK + 게시판 명(/school/{school_id}/board?name={게시판명})
     - 학교에 속한 수업 조회
-        1. 해당 학교에 있는 모든 수업 조회 (/schools/{sid}/courses) O
-        2. 학교 FK + 수업명 (/schools/{sid}/courses?name={수업명}) O
-        3. 학교 FK + 교수명 (/schools/{sid}/courses?professorName={교수명}) O
-        4. 학교 FK + 수업명 + 교수명 (/schools/{sid}/courses?name={수업명}&professorName={교수명}) O
-- 수정 (/schools/{sid}) O
+        1. 해당 학교에 있는 모든 수업 조회 (/school/{school_id}/courses)
+        2. 학교 FK + 수업명 (/school/{school_id}/courses?name={수업명})
+        3. 학교 FK + 교수명 (/school/{school_id}/courses?professorName={교수명})
+        4. 학교 FK + 수업명 + 교수명 (/school/{school_id}/courses?name={수업명}&professorName={교수명})
+- 수정 (/school/{school_id})
     1. 학교명
 
 ### 게시판(BoardController)
 
 - 등록
-    1. 게시물 등록(POST /boards/{bid}/posts) O
+    1. 게시물 등록(POST /board/{board_id}/post)
 - 조회
     - 단건 조회
-        1. PK (/boards/{bid}) O
+        1. PK (/board/{board_id})
     - 게시판에 속한 게시물 조회
-        1. 해당 게시판의 모든 게시물 조회  (/boards/{bid}/posts) O
-        2. 게시물 등록일자로 조회 (/boards/{bid}/posts?date={xxxx-xx-xx}) O
-        3. 게시물 명으로 조회 (/boards/{bid}/posts?title={게시물명}) O
-- 수정 (/boards/{bid}) O
+        1. 해당 게시판의 모든 게시물 조회  (/board/{board_id}/posts)
+        2. 게시물 등록일자로 조회 (/board/{board_id}/posts?date={xxxx-xx-xx})
+        3. 게시물 명으로 조회 (/board/{board_id}/posts?title={게시물명})
+- 수정 (/board/{board_id})
     1. 게시판 이름
 
 ### 게시물(PostController)
 
 - 등록
-    1. 좋아요 등록 (/posts/{pid}/postLikes) O
-    2. 해당 게시물에 댓글 달기 (/posts/{pid}/comments)
+    1. 좋아요 등록 (/post/{post_id}/postLike)
+    2. 해당 게시물에 댓글 달기 (/post/{post_id}/comment)
+    3. 해당 게시물에 첨부 파일 추가(/post/{post_id}/attachment)
 - 조회
     - 단건 조회
-        1. PK (/posts/{pid}) O
+        1. PK (/post/{post_id})
     - 게시물에 속한 댓글 조회
-        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{pid}/comments?limit={}&offset={})
+        1. 해당 게시물에 속한 모든 댓글 조회 (/post/{post_id}/comments)
     - 게시물에 속한 좋아요 조회
-        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{pid}/postLike)
-- 수정 (/posts/{pid})
+        1. 해당 게시물에 속한 좋아요 개수 조회(/post/{post_id}/postLike)
+    - 게시물에 속한 첨부파일 조회
+        1. 해당 게시물에 속한 모든 첨부파일 조회(/post/{post_id}/attachments)
+- 수정 (/post/{post_id})
     1. 내용
     2. 질문 여부
     3. 익명 여부
-    4. 첨부 파일(추가 및 삭제)
 - 제거
-    1. 게시물 (/posts/{pid})
+    1. 게시물 (/post/{post_id})
+
+### 첨부파일(AttachmentController)
+
+- 제거
+    1. 첨부파일 (/attachment/{attachment_id})
 
 ### 댓글(CommentController)
 
 - 등록
-    1. 대댓글 달기 (/comments/{cid}/replies)
+    1. 대댓글 달기 (/comment/{comment_id}/reply)
 - 조회
     - 다중 조회
-        1. 대댓글 전체 조회 (/comments/{cid}/replies?limit={}&offset={})
-- 댓글 수정 (/comments/{comment_id})
-- 댓글 제거 (/comments/{comment_id})
+        1. 대댓글 전체 조회 (/comment/{comment_id}/replies)
+- 댓글 수정 (/comment/{comment_id})
+    1. 콘텐츠 수정
+- 댓글 제거 (/comment/{comment_id})
 
 ### 게시물 좋아요(PostLikeController)
 
-- 제거 (/postLikes/{plid})
+- 제거 (/postLike/{postlike_id})
 
 ### 수업(CourseController)
 
 - 조회
     - 단건 조회
-        1. PK (/courses/{cid})
-- 제거 (/courses/{cid})
+        1. PK (/course/{course_id})
+- 제거 (/course/{course_id})
 
 ### 유저(UserController)
 
 - 등록
-    1. 시간표 등록(/users/{uid}/timeTables)
+    1. 회원가입(/join)
+    2. 시간표 등록(/user/{user_id}/timeTable)
+
 - 조회
     - 단건 조회
-        - 구현 예정 ...
+        1. PK(/user/{user_id})
+        2. email(/user?email={이메일})
+        3. 학번(/user?school_id={학교PK}&studentNo={학번})
     - 다중 조회
-        - 구현 예정 ...
+        1. 이름(/users?name={이름})
     - 유저가 쓴 게시물 조회
-        1. 유저가 쓴 게시물 전체 조회(/users/{uid}/posts?limit={}&offset={})
+        1. 유저가 쓴 게시물 전체 조회(/user/{user_id}/posts)
     - 유저가 속해 있는 채팅방 조회
-        1. 유저가 속해 있는 채팅방 전체 조회 (/users/{uid}/chattingRooms?limit={}&offset={})
+        1. 유저가 속해 있는 채팅방 전체 조회 (/user/{user_id}/chattingRooms)
     - 유저가 쓴 댓글 조회
-        1. 유저가 쓴 댓글 전체 조회 (/users/{uid}/comments?limit={}&offset={})
+        1. 유저가 쓴 댓글 전체 조회 (/user/{user_id}/comments)
     - 유저의 시간표 조회
-        1. 유저의 시간표 전체 조회 (/users/{udi}/timeTables)
-        2. 연도, 학기를 조건으로 유저의 시간표 전체 조회 (/users/{udi}/timeTables?year={연도}&학기={semester})
-        3. 연도, 학기, 시간표 명을 조건으로 유저의 시간표 전체 조회 (/users/{udi}/timeTables?year={연도}&학기={semester}&name={시간표명})
+        - 단건 조회
+            1. 연도, 학기를 조건으로 유저의 시간표 전체 조회 (/user/{user_id}/timeTable?year={연도}&학기={semester})
+        - 다중 조회
+            1. 유저의 시간표 전체 조회 (/user/{user_id}/timeTables)
+            2. 연도, 학기, 시간표 명을 조건으로 유저의 시간표 전체 조회 (/user/{user_id}/timeTables?year={연도}&학기={semester}&name={시간표명})
 - 제거
+  1. 유저 제거 (/user/{user_id})
 
 ### 채팅방(ChattingRoomController)
 
 - 등록
-    1. 채팅방 등록(/chattingRooms) ({"participant1":fk1, "participant2":fk2...})
-    2. 채팅 등록(/chattingRooms/{crid}/chats) ({"author":fk, "content":"내용..."})
+    1. 채팅방 등록(/chattingRoom)
+    2. 채팅 등록(/chattingRoom/{chattingRoom_id}/chat)
 - 조회
     - 단건 조회
-        1. PK (/chattingRooms/{crid})
-    - 채팅방에 속해 있는 채팅 전체 조회(/chattingRooms/{crid}/chats)
-- 제거 (/chattingRooms/{crid})
+        1. PK (/chattingRoom/{chattingRoom_id})
+    - 다중 조회
+        1. 채팅방에 속해 있는 채팅 전체 조회(/chattingRoom/{chattingRoom_id}/chats)
+        2. 채팅방에 속해 있는 채팅 날짜로 조회(/chattingRoom/{chattingRoom_id}/chats?send_date={작성 일자})
+- 제거 (/chattingRoom/{chattingRoom_id})
 
 ### 채팅(ChatController)
 
-- 채팅 제거(chats/{cid})
+- 조회
+    1. PK(/chat/{chat_id})
+- 제거(/chat/{cid})
 
 ### 시간표(TimeTableController)
 
-- 등록
-    1. 시간표에 수업 추가(/timeTables/{tid}/courses)
 - 조회
     - 단건 조회
-        1. PK(/timeTables/{tid})
+        1. PK(/timeTable/{timeTable_id})
     - 시간표에 등록된 수업 조회
-        1. 시간표상의 모든 수업 조회(/timeTables/{tid}/courses)
+        1. 시간표 상의 모든 수업 조회(/timeTable/{timeTable_id}/courses)
 
-- 제거 (/timeTables/{tid})
-    1. 시간표의 수업 제거(/timeTables/{tid}/courses/{cid})
+- 제거 
+  1. 시간표 제거((/timeTable/{timeTable_id})
+  2. 시간표에서 수업 제거(/timeTable/{timeTable_id}/course/{course_id})
+
+- 수정
+    1. 시간표에 수업 추가(/timeTable/{timeTable_id}/course)
+
 ## 컨트롤러 구현
+
 ### 1) BaseResponse
+
 ~~~java
+
 @GetMapping("/{sid}")
 public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long schoolId) {
     try {
@@ -644,9 +668,13 @@ public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long sch
     }
 }
 ~~~
+
 readSchool() 메서드는 "/api/schools/{sid}" url로 request가 들어온 경우 해당 sid(= PK)에 맞는 학교 정보를 찾아서 반환해주는 메서드이다.
-이때 반환형을 보면 BaseResponse<ReadSchoolResponse>인 것을 확인할 수 있는데, 모든 컨트롤러 메서드에 BaseResponse 메서드를 wrapping하여서 반환 데이터가 규격화되도록 구현했다.
+이때 반환형을 보면 BaseResponse<ReadSchoolResponse>인 것을 확인할 수 있는데, 모든 컨트롤러 메서드에 BaseResponse 메서드를 wrapping하여서 반환 데이터가 규격화되도록
+구현했다.
+
 ~~~java
+
 @Getter
 public class BaseResponse<T> {
     private HttpStatus httpStatus;
@@ -662,8 +690,10 @@ public class BaseResponse<T> {
     }
 }
 ~~~
+
 BaseResponse는 기본적으로 Http 상태, 상태 메시지, 반환값, 반환 값 개수를 response 반환시에 함께 반환하도록 구현된 wrapper 클래스이다.
 따라서 어떠한 데이터를 반환할 경우, 반환 데이터의 형태는 다음과 같다.
+
 ~~~
 {
   "httpStatus": "100 CONTINUE",
@@ -672,10 +702,14 @@ BaseResponse는 기본적으로 Http 상태, 상태 메시지, 반환값, 반환
   "count": 0
 }
 ~~~
+
 ### 2) 정적 팩토리 메서드 적용
+
 그동안 Dto에 데이터를 넣을때마다 별도의 생성자를 통해서 Dto를 생성하는 방식으로 진행했다.  
 그러다 스터디를 통해서 정적팩토리 메서드를 통해서 데이터를 주입 받는 방식을 배우게 되어 적용해 보았다.
+
 ~~~java
+
 @Data
 @AllArgsConstructor
 public class ReadSchoolResponse {
@@ -688,17 +722,21 @@ public class ReadSchoolResponse {
     }
 }
 ~~~
+
 from() 정적 팩토리 메서드를 통해서 번거롭게 dto에 값을 하나하나 넣지 않고 엔티티를 넣는다면 자동으로 반환값이 들어가도록 구현할 수 있었다.  
 이를 통해서 훨씬 개발 생산성 뿐만이 아니라 반환값을 넣는 과정에서 발생할 수 있는 실수도 줄이는 장점을 볼 수 있었다.  
 정적 팩토리 메서드 패턴은 굉장히 좋은 방식이라고 생각했다!
 
 ### 3) Global Exception
+
 알고 보니 운이 좋게도 과제가 나오기 전에 이미 Global Exception을 구현해서 사용하고 있었다.  
 나는 AppException이라는 별도의 예외 클래스를 생성하여 예외 발생시 상황에 맞는 HttpStatus와 메시지를 반환 할 수 있도록 구현하였다.
+
 ~~~java
+
 @AllArgsConstructor
 @Getter
-public class AppException extends RuntimeException{  // global exception
+public class AppException extends RuntimeException {  // global exception
     private ErrorCode errorCode;
     private String message;
 }
@@ -708,7 +746,7 @@ public class AppException extends RuntimeException{  // global exception
 public enum ErrorCode {
     DATA_ALREADY_EXISTED(HttpStatus.CONFLICT, ""),
     NO_DATA_EXISTED(HttpStatus.NOT_FOUND, ""),
-    NOT_NULL(HttpStatus.NO_CONTENT,""),
+    NOT_NULL(HttpStatus.NO_CONTENT, ""),
 
     ID_DUPLICATED(HttpStatus.CONFLICT, ""),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, ""),
@@ -717,13 +755,14 @@ public enum ErrorCode {
 
     KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, ""),
     INVALID_VALUE_ASSIGNMENT(HttpStatus.BAD_REQUEST, ""),
-    INVALID_URI_ACCESS(HttpStatus.NOT_FOUND,"");
+    INVALID_URI_ACCESS(HttpStatus.NOT_FOUND, "");
 
 
     private final HttpStatus httpStatus;
     private final String message;
 }
 ~~~
+
 사용중에 잘못된 경우에 대한 예외처리를 하기 위해서 RunTimeException을 상속받도록 하였다.  
 AppException은 ErrorCode를 반환하도록 하였는데, ErrorCode는 HttpStatus와 message로 구성이되는 방식을 택했다.   
 하지만 상황에 따라서 별도의 메시지를 반환하도록 중간에 수정을 거쳐서 ErrorCode 내부의 메시지는
@@ -731,6 +770,7 @@ AppException은 ErrorCode를 반환하도록 하였는데, ErrorCode는 HttpStat
 <br/>
 <br/>
 AppException의 사용 예시는 다음과 같다. 서비스 단에서 예외가 발생되도록 구현했다.
+
 ~~~java
 public School findSchoolById(Long schoolId) {
     return schoolRepository.findById(schoolId)
@@ -741,11 +781,13 @@ public School findSchoolById(Long schoolId) {
             });
 }
 ~~~
+
 만일 잘못된 PK로 조회를 하는 경우 ErrorCode중 NO_DATA_EXISTED라는 값과 "존재하지 않는 학교입니다"라는 메시지를 담은 예외가 발생한다.
 <br/>
 <br/>
 
 ~~~java
+
 @GetMapping("/{sid}")
 public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long schoolId) {
     try {
@@ -757,13 +799,562 @@ public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("sid") Long sch
     }
 }
 ~~~
+
 예외가 발생하는 경우, 컨트롤러에서 catch되어 BaseResponse에 해당 에러의 HttpStatus와 message가 담겨 반환된다.
 <br/>
 <br/>
 ![img_6](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/23d53438-bcab-4a06-af2c-0634125623bd)  
 포스트 맨으로 테스트해본 결과 정상적으로 작동됨을 알 수 있었다.
+
 ### 4) swagger 연동
+
 이번에 처음으로 swagger를 접하였는데 굉장히 유용하였다. api에 대한 데이터 구조를 직관적으로 볼 수 있다는 점에서 굉장히 앞으로도 애용할 것 같다!
 ![img_7](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/99772109-cd3f-430b-8bb8-b3a69b895fdb)
 ![img_8](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/95f71023-671e-41de-9456-33f642935b0b)
 json 데이터 구조 뿐만 아니라 쿼리 파라미터등도 쉽게 볼 수 있어 굉장히 유용하였다!
+
+# 5주차
+
+## 리팩토링 진행
+
+1) **ResponseEntity 추가**</br>
+    - 기존에는 와일드 카드를 이용한 BaseResponse 객체를 만들어 반환을 진행했다. 이 과정에서 HttpStatus가 클라이언트에게 반환되지 않는다는 문제를 발견하여
+      ResponseEntity를 통해서 HttpStatus를 명시해줬다.
+
+#### ***- 수정전***
+
+~~~java
+
+@GetMapping("/school/{school_id}")
+public BaseResponse<ReadSchoolResponse> readSchool(@PathVariable("school_id") Long schoolId) {
+    try {
+        School school = schoolService.findSchoolById(schoolId);
+        ReadSchoolResponse value = ReadSchoolResponse.from(school);
+
+        return new BaseResponse<>(HttpStatus.OK, null, value, 1);
+    } catch (AppException e) {
+        return BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+    }
+}
+~~~
+
+![수정전](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ef19026b-38da-4fab-b0df-b2bf5bb85a8f)
+</br></br>
+
+#### ***- 수정후***
+
+~~~java
+
+@GetMapping("/school/{school_id}")
+public ResponseEntity<BaseResponse<ReadSchoolResponse>> readSchool(@PathVariable("school_id") Long schoolId) {
+    try {
+        School school = schoolService.findSchoolById(schoolId);
+        ReadSchoolResponse value = ReadSchoolResponse.from(school);
+
+        return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, 1));
+    } catch (AppException e) {
+        BaseResponse response =
+                new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+        return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+    }
+}
+~~~
+
+![수정후](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/47045cb9-ebe0-4071-a614-77f1a5b09520)
+<br></br>
+
+2) **Controller 리팩토링**</br>
+    - 코드 리뷰를 통해 받은 피드백 중에서 Service단과 Controller 단의 분리가 부족하다는 리뷰가 있었다. 이번에 리팩토링을 하면서 로직들은 서비스 단에 모두 몰아놓도록 다시 구현했다.
+      추가적으로 나중에는 Service에서 바로 DTO를 반환하도록 구현하는 것도 고민해봐야겠다.</br>
+      이렇게 구현하면 예외 발생에 따른 dto 생성도 모두 서비스 내부에서 처리하고 컨트롤러는 정말 메서드 호출만 하면 되어서 더욱 분리가 확실해질 것 같다. </br>
+    - rest api도 재설계하였다. 피드백을 보니 기존의 url에서 단건/다중 조회시에 구분이 명확하지 않다는 피드백이 있었다. 예를들어, 기존에 PK로 학교를 조회하는 url은
+      /schools/{school_id}이었고, 모든 학교를 조회하는 api는 /schools이었다.
+      처음 생각하기에는 여러개의 학교들 중에서 하나의 학교를 school_id를 통해서 조회하는 것이니 /schools/{school_id}로 url을 설계하면 되겠다라고 생각했었다. 그러다 피드백을 받고 다시
+      생각을 해보니, 하나의 학교만을 조회하는 것이니 s를 빼는게 맞겠다는 생각이 들어
+      /school/{school_id}로 다시 리팩토링을 진행했다. 유사한 방식으로 설계했었던 다른 url들도 이와 같은 방식으로 수정했다.<br></br>
+3) **Service 리팩토링**</br>
+    - lambda 메서드를 사용하여 코드를 좀 더 보기 좋도록 리팩토링 했다.<br></br>
+4) **global exception handler 구현**</br>
+
+~~~java
+
+@RestControllerAdvice
+public class ApiControllerAdvice {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)  // @Valid에서 에러가 발생한 경우 여기에서 처리
+    public ResponseEntity<BaseResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors()
+                .forEach(c -> errors.put(((FieldError) c).getField(), c.getDefaultMessage()));
+
+        return ResponseEntity.badRequest()
+                .body(new BaseResponse<>(HttpStatus.BAD_REQUEST, "invalid request parameter", errors, 0));
+    }
+
+
+    // ConstraintViolationException 처리
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<BaseResponse<Object>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation ->
+                errors.put(violation.getPropertyPath().toString(), violation.getMessage()));
+
+        for (ConstraintViolation set : ex.getConstraintViolations()) {
+            System.out.println("set.getMessage() = " + set.getMessage());
+            System.out.println("set.getInvalidValue() = " + set.getInvalidValue());
+        }
+
+        BaseResponse<Object> response = new BaseResponse<>(HttpStatus.BAD_REQUEST, "validation failure", errors, 0);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // 기타 예외 처리
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponse<Object>> handleException(Exception ex) {
+        BaseResponse<Object> response = new BaseResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, "server error", null, 0);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+~~~
+
+전역 예외를 처리하기 위해서 ApiControllerAdvice라는 global exception handler를 구현했다.
+위의 두개의 handler에서 처리하지 못한 예외는 맨 아래의 exception handler에서 Exception을 처리하도록 해 전체적으로 처리하도록 구현했다.
+## JWT
+JWT는 Json Web Token의 약자로 *{Header}.{Payload}.{Signature}* 세가지 부분으로 구성된다.
+각 부분을 예시로 들면 다음과 같다.
+
+### Header
+~~~json
+base64enc({
+  "alg": "HS256",
+  "typ": "JWT"
+})
+~~~
+
+### Payload
+~~~json
+base64enc({
+  "name": "철수",
+  "age": "25",
+  "username": "chulsu@naver.com",
+  "role": "ROLE_USER"
+})
+~~~
+
+### Signature
+~~~json
+HMACSHA256(
+  base64enc(header) + "." +
+  base64enc(payload),
+  {secret key}
+)
+~~~
+Header와 Payload는 데이터를 주고 받기 편하게 base64 포맷으로 인코딩된다.
+유저의 정보는 Payload에 담기며, 이때 Header와 Payload는 별도의 암호화를 거치지 않기 때문에 민감한 정보는 담아선 안된다. 
+Signature에는 header와 payload를 더한 값을 비밀키를 통해서 암호화한다. 이렇게 암호화된 값은 유저 Payload 데이터의 변조 여부를 확인하는 무결성 체크에 사용된다.
+
+전통적인 유저 인증 방식은 client와 server 그리고 database로 구성이된다. client에서 server로 인증 요청을 보내면 server는 DB에서 데이터를 조회하여 검증을 하는 방식이다.
+전통적인 방식에서 유저의 정보는 모두 DB에서만 저장한다.
+
+JWT는 DB를 유저 개인에게 전가한 것과 유사하다. JWT를 통해 client는 본인의 정보를 가지며, 이를 읽을 수 있다. 여기서 중요한 점은 client는 본인의 정보를 읽을 수만 있고, 
+스스로 수정을 할 수는 없다는 것이다. 수정을 하기 위해서는 서버를 거쳐야한다. 
+
+## Spring Security
+
+### 필터 구조
+
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/72225923-1496-484b-8398-d257b3f61907)
+
+**- HttpSecurity**</br>
+SeurityFilterChain을 등록하는 과정에서 사용.
+spring security의 각종 설정은 HttpSecurity로 한다.
+
+- 리소스(URL) 접근 권한 설정
+- 인증 전체 흐름에 필요한 Login, Logout 페이지 인증완료 후 페이지 인증 실패시 이동페이지 설정
+- 인증 로직을 커스텀하기 위한 필터 설정
+- 기타 csrf, 강제 https 호출 등등 거의 모든 스프링시큐리티 설정
+- 리소스(URL)의 권한 설정
+- 특정 리소스의 접근 허용 또는 특정 권한을 가진 사용자만 접근을 가능하게 할 수 있음
+
+**- filter 추가 메서드**
+
+- HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter): beforeFilter 앞에 filter를 추가
+- HttpSecurity addFilterAt(Filter filter, Class<? extends Filter> atFilter): atFilter 자리에 filter를 추가
+- HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter): afterFilter 뒤에 filter를 추가
+
+### 회원가입
+
+~~~java
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+@Slf4j
+public class UserService implements UserDetailsService {
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder encoder;
+
+    // 회원가입 로직
+    public User join(JoinUserRequest request) {
+        // 중복 검사
+        userRepository.findByUsername(request.getUsername())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 아이디로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 존재하는 아이디입니다");
+                });
+        userRepository.findByEmail(request.getEmail())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 이메일로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 이메일입니다");
+                });
+        userRepository.findBySchoolIdAndStudentNo(request.getSchoolId(), request.getStudentNo())
+                .ifPresent(f -> {
+                    log.error("에러 내용: 유저 가입 실패 " +
+                            "발생 원인: 이미 존재하는 학번으로 가입 시도");
+                    throw new AppException(DATA_ALREADY_EXISTED, "이미 사용중인 학번입니다");
+                });
+
+
+        School school = schoolRepository.findById(request.getSchoolId()).orElseThrow(() -> {
+            log.error("에러 내용: 유저 가입 실패 " +
+                    "발생 원인: 존재하지 않는 School PK로 조회");
+            return new AppException(DATA_ALREADY_EXISTED, "존재하지 않은 학교입니다");
+        });
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(encoder.encode(request.getPassword()))
+                .name(request.getName())
+                .studentNo(request.getStudentNo())
+                .email(request.getEmail())
+                .role(request.getRole())
+                .school(school)
+                .build();
+        userRepository.save(user);
+
+        return user;
+    }
+}
+~~~
+
+회원가입을 위한 join 메서드를 userService에 구현하였다. 먼저 중복 검사 및 학교 정보를 검사해서 잘못된 경우 exception을 발생시키고, 정상적인 경우 유저 정보를 DB에 저장한다.</br>
+이때 중요한 것이 유저의 비밀번호를 암호화 한 후 DB에 저장하는 것이다. 만일 암호화가 되지 않은 상태로 DB에 저장하면
+혹시라도 DB가 털렸을 때 유저의 비밀번호가 모두 그대로 유출되기 때문에 반드시 암호화를 한 후 DB에 저장해야한다.</br>
+암호화를 하기 위해서 BCryptPasswordEncoder를 먼저 스프링 빈으로 등록한 후 사용하였다. 이때 spring security 관련 빈들은 Configuration을 위한 SecurityConfig
+클래스에 선언하여 관리하도록 하였다.
+
+~~~java
+
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+    @Bean  // passwordEncoder 빈 등록
+    public BCryptPasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+    ...
+}
+~~~
+
+</br>SecurityConfig에 @EnableWebSecurity 어노테이션을 적용하여 web security 관련 기능을 활성화 시킬 수 있다.
+
+~~~java
+/**
+ * Add this annotation to an {@code @Configuration} class to have the Spring Security
+ * configuration defined in any {@link WebSecurityConfigurer} or more likely by exposing a
+ * {@link SecurityFilterChain} bean:
+ *
+ * <pre class="code">
+ * &#064;Configuration
+ * &#064;EnableWebSecurity
+ * public class MyWebSecurityConfiguration {
+ *
+ * 	&#064;Bean
+ * 	public WebSecurityCustomizer webSecurityCustomizer() {
+ * 		return (web) -> web.ignoring()
+ * 		// Spring Security should completely ignore URLs starting with /resources/
+ * 				.requestMatchers(&quot;/resources/**&quot;);
+ *    }
+ *
+ * 	&#064;Bean
+ * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+ * 		http.authorizeHttpRequests().requestMatchers(&quot;/public/**&quot;).permitAll().anyRequest()
+ * 				.hasRole(&quot;USER&quot;).and()
+ * 				// Possibly more configuration ...
+ * 				.formLogin() // enable form based log in
+ * 				// set permitAll for all URLs associated with Form Login
+ * 				.permitAll();
+ * 		return http.build();
+ *    }
+ *
+ * 	&#064;Bean
+ * 	public UserDetailsService userDetailsService() {
+ * 		UserDetails user = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;user&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;USER&quot;)
+ * 			.build();
+ * 		UserDetails admin = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;admin&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+ * 			.build();
+ * 		return new InMemoryUserDetailsManager(user, admin);
+ *    }
+ *
+ * 	// Possibly more bean methods ...
+ * }
+ * </pre>
+ *
+ * @see WebSecurityConfigurer
+ * @author Rob Winch
+ * @since 3.2
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+@Import({WebSecurityConfiguration.class, SpringWebMvcImportSelector.class, OAuth2ImportSelector.class,
+        HttpSecurityConfiguration.class})
+@EnableGlobalAuthentication
+public @interface EnableWebSecurity {
+
+    /**
+     * Controls debugging support for Spring Security. Default is false.
+     * @return if true, enables debug support with Spring Security
+     */
+    boolean debug() default false;
+
+}
+~~~
+
+@EnableWebSecurity는 환경 설정에 많이 사용되므로 보통 @Configuration과 함께 사용되며 WebSecurityConfiguration.class,
+SpringWebMvcImportSelector.class, OAuth2ImportSelector.class,
+HttpSecurityConfiguration.class등을 import 해주어 security 관련 기능을 제공한다.
+
+### 로그인(액세스 토큰 발급 및 검증 로직)
+
+~~~java
+
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+    //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtUtil jwtUtil;
+
+    @Bean  //AuthenticationManager Bean 등록
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean  // passwordEncoder 빈 등록
+    public BCryptPasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean  // 필터 등록
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        //csrf disable
+        http.csrf(AbstractHttpConfigurer::disable);  // jwt는 session을 stateless하게 유지하므로 csrf에 대한 방어가 필요하지 않다
+
+        //From 로그인 방식 disable -> UsernamePasswordAuthenticationFilter 커스텀 구현 필요
+        http.formLogin(AbstractHttpConfigurer::disable);
+
+        //http basic 인증 방식 disable
+        http.httpBasic(AbstractHttpConfigurer::disable);
+
+        //경로별 인가 작업
+        http.authorizeHttpRequests((auth) -> auth
+                .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
+                .permitAll()// swagger 경로 접근 허용
+                .requestMatchers("/login", "/", "/api/join").permitAll()  // root 경로 접근 허용
+                .requestMatchers("/admin").hasRole("ADMIN")  // ADMIN만 접근 허용
+                .anyRequest().authenticated() // 이외의 경로는 로그인한 사용자만 접근 허용
+        );
+
+        // Form로그인 disable로 인해 기존에 설정 되었던 UsernamePasswordAuthenticationFilter가 사용되지 않으므로
+        // 새로이 생성한 커스텀 필터(LoginFilter)를 해당 필터 자리에 대신 해서 넣어줌
+        // ~/login에 대한 post 요청은 여기에서 처리
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
+        //세션 stateless 설정
+        http.sessionManagement((session) -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+    }
+}
+~~~
+
+session 로그인 방식에서는 UsernamePasswordAuthenticationFilter에서 로그인 처리를 진행하지만, 이번에는 jwt 방식을 사용하기 위해서 form 로그인 방식을 disable 시켰기
+때문에 더 이상 UsernamePasswordAuthenticationFilter는 동작하지 않는다.
+그렇기에 jwt를 이용한 로그인 기능을 위해 별도의 LoginFilter를 선언한 후 addFilterAt() 메서드를 이용해 UsernamePasswordAuthenticationFilter 자리에 넣어주었다.
+
+이제 로그인 기능은 LoginFilter가 담당하게 되었다. 따라서 **컨트롤러에서 별도로 로그인 api를 만들지 않고 필터를 통해서 로그인을 진행할 수 있게된다 (/login에 post요청으로 로그인 가능)**.
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/96ded288-45f0-4aa1-9735-0ad40219b7c2)
+
+### 로그인 과정
+
+![img](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/08205881-a265-4634-b29e-adde08f5a874) </br>
+
+~~~java
+package com.ceos19.everytime.jwt;
+
+import com.ceos19.everytime.dto.CustomUserDetails;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Iterator;
+
+@Slf4j
+@RequiredArgsConstructor
+public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        // request로 부터 username, password 가져오기
+        String username = obtainUsername(request);
+        String password = obtainPassword(request);
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+
+        // DB에서 user 정보를 가져와서 authToken에 대한 검증 진행
+        return authenticationManager.authenticate(authToken);
+    }
+
+    //로그인 성공시 실행하는 메소드 (JWT 발급)
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
+        // 타입 캐스팅을 통해서 UserDetails를 상속받은 CustomUserDetails로 타입 변경
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        String username = customUserDetails.getUsername();
+
+        // 로그인 성공 알림 log
+        log.info("authentication success\n - username: {}\n - time: {}", username, LocalDateTime.now());
+
+
+        // 사용자의 Role 정보
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+
+        String role = auth.getAuthority();
+
+        // access token 만료 시간
+        long expiredMs = 60 * 60 * 10L;
+        String token = jwtUtil.createToken(username, role, expiredMs);
+
+        // header에 토큰 담아서 반환. RFC 7235에서 정의 돼 있듯이, 접두사 Bearer를 붙여서 Authorization 헤더를 반환한다.
+        response.addHeader("Authorization", "Bearer " + token);
+    }
+
+    //로그인 실패시 실행하는 메소드
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+        String username = obtainUsername(request);
+        // 로그인 실패 알림 log
+        log.info("authentication fail\n - username: {}\n - time: {}", username, LocalDateTime.now());
+
+        // header에 인증 실패 정보 담아서 반환
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+}
+~~~
+
+LoginFilter에서 로그인 검증을 진행한다.</br>
+requestMatchers의 <strong>/login</strong> url로 username, password를 담은 request가 들어오면 이를 Authentication 객체로 만든다.
+Authentication 객체는 LoginFilter의 <strong>Authentication attemptAuthentication(HttpServletRequest request,
+HttpServletResponse response){}</strong>로 전해지고, 해당 메서드에서 메서드에서는 로그인 정보에 대한 검증을 진행한다.
+AuthenticationManager는 UsernamePasswordAuthenticationToken에 대한 검증을 진행한 후 검증이 성공적이라면 Authentication 객체를 발급한다.</br>
+인증이 성공적인 경우 발급된 객체는 LoginFilter의 <strong>void successfulAuthentication(HttpServletRequest request, HttpServletResponse
+response, FilterChain chain, Authentication authentication){}</strong>로 들어가고 해당 메서드에서는 인증이 성공했을 경우의 로직을 정의해서 실행하면 된다. 보통
+jwt 토큰을 발급한다.</br>
+인증이 실패한 경우에는 <strong>void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+AuthenticationException failed) {}</strong>에서 실패한 경우에 대한 로직을 정의해서 실행한다.
+
+### Jwt 검증
+
+~~~java
+
+@Slf4j
+@RequiredArgsConstructor
+public class JwtFilter extends OncePerRequestFilter {  // JWT 검증 필터
+    private final JwtUtil jwtUtil;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // request에서 Authorization Header를 찾음.
+        String authorization = request.getHeader("Authorization");
+
+        // 인증이 실패하는 경우
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            System.out.println("authorization header not present");
+
+            // 연결된 다음 필터에 request, response를 넘겨줌
+            filterChain.doFilter(request, response);
+
+            // 메서드 종료
+            return;
+        }
+
+        // 인증 시작
+        System.out.println("authorization now");
+        String token = authorization.substring("Bearer ".length());  // "Bearer " 제거
+
+        // token이 만료된 경우
+        if (jwtUtil.isExpired(token)) {
+            System.out.println("token is expired");
+            filterChain.doFilter(request, response);
+
+            return;
+        }
+
+        // token에서 username과 role을 가져옴
+        String username = jwtUtil.getUsername(token);
+        String role = jwtUtil.getRole(token);
+
+        User user = User.createTempUser(username, "tempPassword", role);
+
+        // UserDetails에 유저 정보 담기
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
+        //스프링 시큐리티 인증 토큰 생성
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        //세션에 사용자 등록
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        filterChain.doFilter(request, response);
+
+    }
+}
+~~~
+
+### token secret key 생성
+
+jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요하다. 나는 openssl을 사용해서 랜덤 키를 생성하여 사용하였다.
+랜덤키를 생성하는 방법은 여러가지가 있지만 shell에서 다음 명령어를 이용한다면 쉽게 생성할 수 있다. (128바이트 문자열 생성)
+
+~~~shell
+openssl rand -hex 64
+~~~

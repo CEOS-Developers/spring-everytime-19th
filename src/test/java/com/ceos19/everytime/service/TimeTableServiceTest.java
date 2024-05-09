@@ -41,7 +41,7 @@ public class TimeTableServiceTest {
         School school = new School("schoolA");
         schoolRepository.save(school);
 
-        User userA = new User("userA@asdf.com", "password", "userA", "aaabbbc", "userA@asdf.com", school);
+        User userA = new User("userA@asdf.com", "password", "userA", "aaabbbc", "userA@asdf.com", school,"ROLE_ADMIN");
         userRepository.save(userA);
 
         Course course1 = new Course("1234-567", "컴퓨터개론", 1, "김교수", 3, "t123",school);

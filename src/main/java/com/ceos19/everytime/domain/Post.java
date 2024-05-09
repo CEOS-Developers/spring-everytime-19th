@@ -48,6 +48,9 @@ public class Post extends BaseTimeEntity {
     @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
+    /**
+     * 비즈니스 로직
+     */
     public void addAttachment(Attachment attachment) {
         if (attachment.getId() != null) {
             return;  // 등록불가
@@ -59,5 +62,18 @@ public class Post extends BaseTimeEntity {
     public void removeRelation() {
         this.author = null;
         this.board = null;
+    }
+
+    /**
+     * 업데이트 로직
+     */
+    public void updateContent(String content) {
+        this.content = content;
+    }
+    public void updateIsQuestion(boolean isQuestion) {
+        this.isQuestion = isQuestion;
+    }
+    public void updateIsAnonymous(boolean isAnonymous) {
+        this.isAnonymous = isAnonymous;
     }
 }

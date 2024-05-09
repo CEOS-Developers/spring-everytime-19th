@@ -65,7 +65,7 @@ class PostServiceTest {
         board = new Board("컴공게시판", school);
         boardRepository.save(board);
 
-        // 과목 저장
+        // 수업 저장
         Course course1 = new Course("1234-123", "갈비탕개론", 2, "미스터갈비탕교수", 3, "t123", school);
         course1.addClassTime(FRI, 5);
         course1.addClassTime(FRI, 6);
@@ -79,9 +79,9 @@ class PostServiceTest {
         courseRepository.save(course2);
 
         // 유저 가입
-        user1 = new User("myUsername", "myPassword", "엄준식", "A000011", "um@naver.com", school);
+        user1 = new User("myUsername", "myPassword", "엄준식", "A000011", "um@naver.com", school,"ROLE_ADMIN");
         userService.addUser(user1);
-        User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "kim@naver.com", school);
+        User user2 = new User("yourUsername", "myPassword", "김상덕", "A000012", "kim@naver.com", school,"ROLE_ADMIN");
         userService.addUser(user2);
 
         Post post = new Post("포스트1", "내용1", false, false, board, user1);

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -24,75 +25,54 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/boards")
+@RequestMapping("/api/board")
 @RequiredArgsConstructor
 public class BoardController {
-    private final SchoolService schoolService;
     private final BoardService boardService;
-    private final UserService userService;
     private final PostService postService;
 
-    @GetMapping("/{bid}")
-    public BaseResponse<ReadBoardResponse> readBoard(@PathVariable("bid") Long boardId) {
+    @PostMapping("/{board_id}/post")
+    public ResponseEntity<BaseResponse> addPost(@PathVariable("board_id") Long boardId, @Valid @RequestBody AddPostRequest request) {
+        try {
+            Long id = postService.addPost(request, boardId);
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, id, 1));
+        } catch (AppException e) {
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
+        }
+    }
+
+    @GetMapping("/{board_id}")
+    public ResponseEntity<BaseResponse<ReadBoardResponse>> readBoard(@PathVariable("board_id") Long boardId) {
         try {
             Board board = boardService.findBoardById(boardId);
             ReadBoardResponse value = ReadBoardResponse.from(board);
-            return new BaseResponse<>(HttpStatus.OK, null, value, 1);
+            return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK, null, value, 1));
         } catch (AppException e) {
-            return new BaseResponse<>(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
         }
     }
 
-    @PatchMapping("/{bid}")
-    public BaseResponse modifyBoard(@PathVariable("bid") Long boardId, @Valid @RequestBody ModifyBoardRequest request) {
+    @PatchMapping("/{board_id}")
+    public ResponseEntity<BaseResponse> modifyBoard(@PathVariable("board_id") Long boardId, @Valid @RequestBody ModifyBoardRequest request) {
         try {
             boardService.modifyBoard(boardId, request.getName());
-            return new BaseResponse(HttpStatus.OK, null, null, 0);
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, null, 0));
         } catch (AppException e) {
-            return new BaseResponse<>(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
-        }
-
-    }
-
-    @PostMapping("/{bid}/posts")
-    public BaseResponse addPost(@PathVariable("bid") Long boardId, @Valid @RequestBody AddPostRequest request) {
-        try {
-            Board board = boardService.findBoardById(boardId);
-            User user = userService.findUserById(request.getUserId());
-
-            // Post 생성
-            Post post = Post.builder().
-                    title(request.getTitle())
-                    .content(request.getContent())
-                    .isQuestion(request.isQuestion())
-                    .isAnonymous(request.isAnonymous())
-                    .board(board)
-                    .author(user)
-                    .build();
-
-            // Post에 첨부파일 추가
-            for (AttachmentDto dto : request.getAttachments()) {
-                Attachment attachment
-                        = new Attachment(dto.getOriginalFileName(), dto.getStoredPath(), dto.getAttachmentType());
-
-                post.addAttachment(attachment);
-            }
-
-            // Post 등록
-            Long id = postService.addPost(post);
-            return new BaseResponse(HttpStatus.OK, null, id, 1);
-        } catch (AppException e) {
-            return new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
         }
     }
 
-    @GetMapping("/{bid}/posts")
-    public BaseResponse<List<ReadPostResponse>> readPost(@PathVariable("bid") Long boardId,
-                                                         @RequestParam(value = "title", required = false) String title,
-                                                         @RequestParam(value = "createdDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate createdDate) {
+    @GetMapping("/{board_id}/posts")
+    public ResponseEntity<BaseResponse<List<ReadPostResponse>>> readPost(@PathVariable("board_id") Long boardId,
+                                                                         @RequestParam(value = "title", required = false) String title,
+                                                                         @RequestParam(value = "createdDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate createdDate) {
         try {
-            System.out.println("title = " + title);
-            System.out.println("createdDate = " + createdDate);
             List<ReadPostResponse> value = new ArrayList<>();
             if (title == null && createdDate == null) {
                 postService.findPostByBoardId(boardId)
@@ -112,9 +92,11 @@ public class BoardController {
                 throw new AppException(ErrorCode.INVALID_URI_ACCESS, "잘못된 접근입니다.");
             }
 
-            return new BaseResponse(HttpStatus.OK, null, value, value.size());
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK, null, value, value.size()));
         } catch (AppException e) {
-            return new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            BaseResponse response =
+                    new BaseResponse(e.getErrorCode().getHttpStatus(), e.getMessage(), null, 0);
+            return new ResponseEntity<>(response, e.getErrorCode().getHttpStatus());
         }
     }
 }

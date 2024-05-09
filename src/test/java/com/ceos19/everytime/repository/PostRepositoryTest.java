@@ -52,7 +52,7 @@ class PostRepositoryTest {
         Board board = new Board("컴공게시판", school);
         boardRepository.save(board);
 
-        user1 = new User("myUsername", "myPassword", "김상덕", "A000011", "um@naver.com", school);
+        user1 = new User("myUsername", "myPassword", "김상덕", "A000011", "um@naver.com", school,"ROLE_ADMIN");
         userRepository.save(user1);
 
         Post post = new Post("새로운 포스팅", "ㅈㄱㄴ", false, false, board, user1);

@@ -20,6 +20,10 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     @EntityGraph(attributePaths = {"author"})
     List<Chat> findBySentAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 
+    @EntityGraph(attributePaths = {"author"})
+    List<Chat> findByChattingRoomIdAndSentAtBetween(Long chattingRoomId, LocalDateTime startDateTime, LocalDateTime endDateTime);
+
     void deleteAllByAuthorId(Long authorId);
+
     void deleteAllByChattingRoomId(Long chattingRoomId);
 }

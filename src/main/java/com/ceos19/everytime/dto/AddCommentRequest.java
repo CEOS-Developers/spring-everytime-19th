@@ -11,5 +11,4 @@ public class AddCommentRequest {
     @NotBlank
     private String content;
     private Long commenterId;
-    private Long parentCommentId;
 }

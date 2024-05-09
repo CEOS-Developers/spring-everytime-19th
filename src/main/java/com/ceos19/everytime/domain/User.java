@@ -17,7 +17,7 @@ import static lombok.AccessLevel.*;
 @NoArgsConstructor(access = PROTECTED)
 @Getter
 @ToString
-public class User {
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "user_id")
@@ -25,31 +25,45 @@ public class User {
 
     @Column(unique = true, nullable = false, updatable = false, length = 50)
     private String username;
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, length = 20)
     private String name;
 
-    @Column(nullable = false,length = 20)
+    @Column(nullable = false, length = 20)
     private String studentNo;
 
     @Email
     @Column(nullable = false, length = 50)
     private String email;
 
+    @Column(nullable = false, length = 20, columnDefinition = "ENUM('ROLE_USER','ROLE_ADMIN') default 'ROLE_USER'")
+    private String role;  // (ROLE_USER, ROLE_ADMIN)
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "school_id")
     private School school;
 
     @Builder
-    public User(String username, String password, String name, String studentNo, String email, School school) {
+    public User(String username, String password, String name, String studentNo, String email, School school,
+                String role) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.studentNo = studentNo;
         this.email = email;
         this.school = school;
+        this.role = role;
+    }
+
+    // 임시 유저 생성 (jwt 임시 세션 유지용)
+    public static User createTempUser(String username, String password, String role) {
+        return User.builder()
+                .username(username)
+                .password(password)
+                .role(role)
+                .build();
     }
 
     /**
