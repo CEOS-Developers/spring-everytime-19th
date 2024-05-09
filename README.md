@@ -44,8 +44,137 @@ public class User {
         this.school = school;
     }
 }
-
 ```
+
+# 5주차 - Spring Security & JWT
+
+### Before JWT - Cookie
+- 클라이언트가 웹사이트에 접속할 때 그 사이트가 사용하게 되는 일련의 작은 기록 파일.
+- 서버가 클라이언트에 정보를 전달할 때 저장하고자하는 정보를 응답 헤더(Cookie)에 저장하여 전달.
+- Key Value 형식의 문자열 형태로 저장.
+
+**단점**
+- <U>쿠키는 노출이 되었을 때 id, pw에 대한 민감 정보까지 다 노출이 되어 보안이 좋지 않다.</U>
+- 조작당해서 들어올 가능성이 있다.
+- 웹 브라우저마다 쿠키에 대한 지원 형태가 다르기 때문에 다른 브라우저간의 공유가 불가능하다.
+- 쿠키의 사이즈가 제한(4KB)되어있어 원하는만큼의 충분한 데이터를 담을 수 없을 경우가 있다.
+- 서버는 매번 id pw를 받아서 인증을 해야하는 불편함이 있으며 조작된 데이터가 넘어오는 경우를 방지할 수 없다.
+
+### Before JWT - Session
+<div align="center">
+  <img src="imgs/session.png" alt="drawing" width=400"/>
+</div>
+
+- 무언가에 대한 특정 인증 정보를 서버가 가지고 있고 그 값을 클라이언트에게 전달하여 마치 키를 주고 자물쇠를 여는 방식으로 인증.
+- 세션 ID를 특정 저장소에 저장하여 사용.
+
+**단점**
+- 세션 저장소의 문제가 발생하면 인증 체계가 무너져 이전에 다른 인증된 유저 또한 인증이 불가해진다.
+- <U>stateful하기 때문에 http의 장점(stateless)을 발휘하지 못하고 scale out에 걸림돌이 생긴다.</U>
+  - 로그인 정보를 저장해야하는 세션 저장소가 scale out하기 이전의 서버에 있기 때문에. 따로 또 세션 ID를 저장해야 하는 번거로움.
+- 세션 저장소가 필수적으로 존재하기 때문에 이를 사용하기위한 비용이 든다.
+- 세션 ID가 탈취되었을 경우 대처는 가능하지만 클라이언트인척 위장하는 보안의 약점이 있을 수 있다.
+- 사용자가 많아질수록 메모리를 많이 차지하게 된다.
+- <U>"매번" 요청 시 세션 저장소를 조회해야하는 단점이 있다.</U>
+
+## JWT(Json Web Token)
+- 사실 기본적인 인증을 진행하는 구조는 Cookie때와 크게 다르지는 않다.
+- JWT는 **서명된 토큰**이다.
+- 공개/개인 키를 쌍으로 사용하여 토큰에 서명할 경우, 서명된 토큰은 개인 키를 보유한 서버가 이 서명된 토큰이 정상적인 토큰인지 인증할 수 있다.
+
+### 구조
+- Header
+  - 토큰의 타입
+  - 서명 생성 알고리즘
+- Payload
+  - iss (Issuer) : 토큰 발급자
+  - sub (Subject) : 토큰 제목 - 토큰에서 사용자에 대한 식별값이 됨
+  - aud (Audience) : 토큰 대상자
+  - exp (Expiration Time) : 토큰 만료 시간
+  - nbf (Not Before) : 토큰 활성 날짜 (이 날짜 이전의 토큰은 활성화 되지 않음을 보장)
+  - iat (Issued At) : 토큰 발급 시간
+  - jti (JWT Id) : JWT 토큰 식별자 (issuer가 여러명일 때 이를 구분하기 위한 값)
+- Signature
+
+### 중요한 점
+**payload에 민감한 정보를 담지않는 것!**
+- 위에 header와 payload는 json이 디코딩되어있을 뿐이지 특별한 암호화가 걸려있는 것이 아니다.
+- 때문에 누구나 jwt를 가지고 디코딩을 한다면 header나 payload에 담긴 값을 알 수 있다.
+- HMAC 알고리즘을 통해 위변조 감지.
+
+<div align="center">
+  <img src="imgs/jwt_signature.png" alt="drawing" width=400"/>
+</div>
+
+<div align="center">
+  <img src="imgs/hmac.png" alt="drawing" width=400"/>
+</div>
+
+### 장점
+- 이미 토큰 자체가 인증된 정보이기 때문에 세션 저장소와 같은 별도의 인증 저장소가 "필수적"으로 필요하지 않음.
+- 세션과는 다르게 클라이언트의 상태를 서버가 저장해두지 않아도 된다.
+- signature를 공통키 개인키 암호화를 통해 막아두었기 때문에 데이터에 대한 보안성이 늘어난다.
+- 다른 서비스에 이용할 수 있는 공통적인 스펙으로써 사용할 수 있다.
+
+
+## 실습
+
+1. /authenticate rest로 해당 계정 jwt token 발급
+
+<div align="center">
+  <img src="imgs/authenticate.png" alt="drawing" width=400"/>
+</div>
+
+2. 위에 발급 받은 jwt와 함께 hasAnyRole 권한이 부여된 /user rest 요청
+<div align="center">
+  <img src="imgs/user_rest.png" alt="drawing" width=400"/>
+</div>
+
+3. 권한이 없는 karim의 경우 forbidden
+<div align="center">
+  <img src="imgs/jwt_forbidden.png" alt="drawing" width=400"/>
+</div>
+
+
+
+### 이슈 - 순환참조
+<div align="center">
+  <img src="imgs/circular_error.png" alt="drawing" width=600"/>
+</div>
+
+- SecurityConfig는 UserService를 참조하고 있다.
+- UserService는 PasswordEncoder를 참조하고 있다.
+- PasswordEncoder의 Bean은 SecurityConfig 내부에서 등록된다.
+- 결국 UserService는 SecurityConfig를 참조하게 되면서 순환 참조가 발생한다.
+
+**SecurityConfig**
+```java
+@Bean
+public static PasswordEncoder passwordEncoder() {
+    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+}
+```
+- PasswordEncoder 메서드를 정적(static)으로 선언하는 방식으로 해결.
+- 정적 메서드는 표준 인스턴스화된 개체에서 벗아나 정적 메서드를 직접 호출하기 때문에 인스턴스화를 하지 않아 순환참조에서 벗어날 수 있었다.
+
+[Reference](https://zhfvkq.tistory.com/29)
+
+
+### 이슈 - Postman 401 에러
+SecurityConfig 에 등록하지 않은 api 는 jwt 토큰 인증을 필수적으로 거치도록 설정했기 때문에 이외의 api들은 별도로 명시해 등록해줘야 함
+-> auth 가 필요 없는 api는 SecurityConfig 에 따로 등록해주기
+
+**SecurityConfig**
+```java
+.and()
+.authorizeHttpRequests() // HttpServletRequest를 사용하는 요청들에 대한 접근제한을 설정하겠다.
+.requestMatchers("/api/authenticate").permitAll() // 로그인 api
+.requestMatchers("/api/signup").permitAll() // 회원가입 api
+.requestMatchers(PathRequest.toH2Console()).permitAll()// h2-console, favicon.ico 요청 인증 무시
+.requestMatchers("/favicon.ico").permitAll()
+.anyRequest().authenticated() // 그 외 인증 없이 접근X
+```
+
 # 4주차 - CRUD API
 
 ## About DTO(Data Transfer Object)?
