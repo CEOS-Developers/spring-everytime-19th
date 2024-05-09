@@ -49,9 +49,9 @@ class MemberRepositoryTest {
         Optional<Member> test3;
 
         //when
-        test1 = memberRepository.findByUsername("amy");
-        test2 = memberRepository.findByUsername("sarah");
-        test3 = memberRepository.findByUsername("siyoung");
+        test1 = memberRepository.findByNickname("amy");
+        test2 = memberRepository.findByNickname("sarah");
+        test3 = memberRepository.findByNickname("siyoung");
 
         //then
         assertEquals(member1.getId(), test1.get().getId());
@@ -65,8 +65,8 @@ class MemberRepositoryTest {
         //given
 
         //when
-        Optional<Member> test1 = memberRepository.findByUsername("amy");
-        boolean actual = memberRepository.findByUsername("John").isPresent();
+        Optional<Member> test1 = memberRepository.findByNickname("amy");
+        boolean actual = memberRepository.findByNickname("John").isPresent();
 
         //then
         test1.ifPresent(member -> assertEquals(member1.getId(), member.getId()));

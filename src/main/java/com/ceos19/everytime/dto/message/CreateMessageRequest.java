@@ -1,4 +1,4 @@
-package com.ceos19.everytime.dto;
+package com.ceos19.everytime.dto.message;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,8 +10,8 @@ import lombok.*;
 @ToString
 public class CreateMessageRequest {
 
-    @NotNull(message = "발신자 아이디를 적어주세요.")
-    private Long senderId;
+    //@NotNull(message = "발신자 아이디를 적어주세요.")
+    //private Long senderId;
 
     @NotNull(message = "수신자 아이디를 적어주세요.")
     private Long receiverId;

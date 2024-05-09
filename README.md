@@ -483,8 +483,290 @@ public class GlobalExceptionHandler {
 
 - 예시
   - 게시판이 하나도 생성되어 있지 않을 때, 게시판 GET 요청해보자
+  
     <img width="399" alt="swag-ex1" src="https://github.com/parking0/parking0/assets/67892502/cfc0df67-c447-4e8b-be1f-3c74be483168">
+    
     - ErrorResponse가 반환됐다.
+
+* * *
+# 4️⃣️ Everytime - Security
+
+## 로그인 인증 방법
+
+### 인증의 필요성
+- HTTP 프로토콜의 특징
+  - 비연결성 : 클라이언트가 서버에 요청하고, 서버가 응답을 보낸 후, 서버와 클라이언트의 연결을 끊는 방식
+  - 무상태 : 연결이 끊기면, 이후 어떠한 상태 정보도 유지하지 않음.
+  
+    ⇒ 서버는 클라이언트를 기억하지 못함
+  
+    ⇒ 서버에게 클라이언트가 누구인지 계속 기억시켜줘야 함
+  
+    => 인증이 필요하다 !
+
+### 인증 방식
+
+#### 1. 세션과 쿠키
+##### (1) Cookie
+- Key/Value 쌍으로 이루어진 문자열 - 이름, 값, 만료일, 경로 정보
+- 사용자 브라우저에 저장 - 브라우저마다 쿠키 지원 형태가 달라, 브라우저 간 공유 불가능
+- 보안 취약 - 요청시 쿠키의 값을 그대로 보내기 때문
+
+##### (2) Session
+- 일정 시간 동안 같은 사용자(브라우저)로부터 들어오는 일련의 요구를 하나의 상태로 보고, 그 상태를 일정하게 유지시키는 기술
+    - ex) 화면이 이동해도 로그인이 풀리지 않고 로그아웃되기 전까지 유지됨
+- Key/Value 쌍으로 이루어짐
+- 쿠키가 보안에 취약하기에 비밀번호 같은 민감한 인증 정보를 브라우저가 아닌 서버 측에 저장하고 관리
+- 서버 메모리나 서버 로컬 파일 또는 데이터 베이스에 저장
+- 쿠키에 session id를 저장
+    - 쿠키가 노출되더라도 session id에 개인 정보가 없기 때문에, 1번째 쿠키 인증보다 안전
+    - 하지만 해커가 세션 ID 자체를 탈취하고 위장하여 접근할 수 있다는 한계 있음 - 하이재킹 공격
+
+#### 2. Access Token
+##### Token
+- 세션과 달리 클라이언트에 저장 ⇒ 서버 부담 감소
+- 세션과 달리 DB 조회 필요 x
+- stateless
+- 데이터 길이가 길어, 인증 요청이 많을수록 네트워크 부하가 심해질 수 있음
+
+##### JWT
+
+- 인증에 필요한 정보들을 암호화시킨 JSON토큰
+  - JSON 데이터를 URL로 이용할 수 있는 문자(Base64 URL-safe Encode)로 인코딩하여 직렬화한 것
+  - 전자 서명도 있어 JSON의 변조를 체크할 수 있음
+- 쿠키를 통해 클라이언트에 저장
+  - '.'을 기준으로 Header, Payload, Signature로 나뉨
+      - `Header` : JWT에서 사용할 타입과 해시 알고리즘의 종류
+      - `Payload` : 서버에서 첨부된 사용자 권한 정보와 데이터
+      - `Signature` : Payload를 Base 64 URL-safe Encode를 한 후, Header에 명시된 해시함수를 적용. 개인 키로 서명한 전자 서명이 담겨 있음
+
+    ⇒ Header 와 Payload로 Signature를 생성하여, 데이터 위변조를 막을 수 O
+
+- 쿠키/세션과 다르게 JWT는 토큰의 길이가 길어, 인증 요청이 많을수록 네트워크 부하가 심함
+- Payload 자체는 암호화되지 않기 때문에 유저의 중요한 정보는 담을 수 X
+
+#### 3. Access Token + Refresh Token
+##### JWT의 문제점
+- JWT는 한 번 발급되면 유효기간이 될 때까지는 계속 사용이 가능하고, 중간에 삭제 불가능
+
+  ⇒  해커에 의해 정보가 털린다면 대처할 방법 X
+
+  ⇒  해결책 -  Refresh Token을 추가적으로 발급
+
+##### Refresh Token
+- Access Token보다 긴 유효 기간을 가지고 Access Token이 만료됐을 때 새로 발급해주는 열쇠
+
+#### 4. OAuth 2.0
+- 별도의 회원가입 없이 외부 서비스에서도 인증을 가능하게 하고, 해당 서비스의 API를 이용하게 해주는 프로토콜
+- 인터넷 사용자들이 비밀번호를 제공하지 않고 다른 웹사이트 상의 자신들의 정보에 대해 웹사이트나 애플리케이션의 접근 권한을 부여할 수 있는 공통적인 수단으로서 사용되는, 접근 위임을 위한 개방형 표준
+- Authorization Server
+    - 클라이언트가 자원 서버의 서비스를 이용할 수 있게 인증하고 토큰을 발생하는 서버(인증 서버) - ex) 페이스북, 구글
+
+* * *
+## 액세스 토큰 발급 및 검증 로직 구현
+
+### JWT Authentication
+#### 1. 전체적인 인증 방법
+
+<img width="883" alt="jwtAuthenticaiton" src="https://github.com/parking0/parking0/assets/67892502/fadcae24-3e45-442b-990e-4d0a52159bc2">
+
+1. `Http` 요청이 들어온다.
+2. 해당 요청이 `AuthenticationFilter`에 걸리면, 요청의 payload로부터 ID/PW를 추출하는데, 이를 `User Credentials`라고 한다. 이를 기반으로 `Authentication`의 구현체의 일종인 `UsernamePasswordAuthenticationToken` 객체를 생성한다.
+3. `AuthenticationManager`는 각 필터들의 인증 절차를 정의한다. 이는 Interface이기 때문에 그 구현체인 `ProviderManager`가 실질적인 일을 한다.
+4. `ProviderManager`의 관리 대상이 `AuthenticationProvider`다. 실질적인 인증 과정의 구현은 `AuthenticationProvider`이 한다. (UsernamepasswordProvider 등 각 인증 종류별로 provider가 있다.)
+5. `AuthenticationProvider`는 인증을 수행하기 위해 ID/PW 등의 자격 증명 정보를 DB 같은 지정된 저장소로부터 받아온다. 이 때 `UserDetailsService`를 통해 `UserDetails` 객체 형태로 받아온다.
+6. `UserDetailsService`는 DB 내에 문자열 형태로 저장되어 있는 username, password 등의 정보를 `UserDetails` 형태의 객체로 변환한다.
+7. `UserDetails` 객체를 받은 `AuthenticationProvider`가 이를 사용자의 입력 정보와 비교한다.
+8. 인증이 성공적으로 되었다면, `Authentication` 객체를 `SecurityContextHolder` 내의 `SecurityContext`에 저장한다. 이후 `AuthenticationSuccessHandler`가 실행된다.
+9. 인증에 실패했다면, `AuthenticationException`이 던져지고 `AuthenticationFailureHandler`가 실행된다.
+
+#### 개념
+
+<img width="626" alt="SecurityContext" src="https://github.com/parking0/parking0/assets/67892502/636b419a-0a49-4ae7-be57-6a381674578d">
+
+##### 1. Authentication
+- 역할
+  - `AuthenticationManager`에 credentials을 제공한다.
+  - 현재 인증된 사용자임을 나타낸다.
+- 요소
+  - `Principal` : 사용자를 나타낸다. 사용자 ID라고 보면 된다. 대부분의 경우 `UserDetails`의 객체이다.
+  - `Credentials` : 비밀번호와 같은 인증용 키이다. 대부분의 경우, 인증 후에는 유출을 막기 위해 사라진다.
+  - `Authorities`: 역할이나 권한이다. (e.g. 관리자, 무료 사용자, 유료 사용자).
+
+##### 2. GrantedAuthority
+- 사용자에게 부여된 높은 수준의 권한
+- `Authentication.getAuthorities()`를 통해 확인이 가능하며, Collection형의 객체를 반환
+
+##### 3. ProviderManager
+- `AuthenticationManager`의 가장 보편적인 구현체
+- `AuthenticationProvider` 체인에 일을 맡긴다
+- `ProviderManager`에 의해 `AuthenticationProvider`는 주어진 정보로 인증을 시도.
+
+##### 4. AuthenticationProvider
+- 특정 타입의 인증 방식을 지원하는 Provider
+
+##### 5. UserDetailsService
+- ID/PW/그 외 인증에 필요한 다른 속성들을 얻기 위해, `DaoAuthenticationProvider`에 의해 사용된다.
+  - `DaoAuthenticationProvider` : `AuthenticationProvider`의 구현체 중 하나. UserDetailsService와 PasswordEncoder를 활용하여 ID/PW를 인증
+- 커스텀 UserDetailsService을 빈으로 등록하여, 커스텀 인증을 정의할 수도 있다
+
+##### 6. SecurityContext
+- `Authentication` 객체가 저장되는 보관소
+- SecurityContextHolder 전략에 따라 SecurityContext의 저장 방식이 다름
+  - 하지만 일반적으로는 ThreadLocal(쓰레드마다 갖는 고유한 저장공간)에 저장
+  - 코드 어디서나 Authentication을 꺼내서 사용 가능
+- 인증이 완료되면 HttpSession에 저장되어, 어플리케이션 전반에 걸쳐 전역적인 참조가 가능
+
+##### 7. SecurityContextHolder
+- `SecurityContext`를 저장하는 객체
+- 일반적으로 SecurityContext 저장을 위한 ThreadLocal 를 갖고 있는 객체
+- SecurityContext 객체의 저장 방식(전략)을 지정
+
+
+### 구현한 내용
+#### 1. CustomUserDetails
+- `UserDetails`를 상속받아 사용한다.
+- 회원정보를 나타내는 도메인 `Member`를 가진다.
+
+#### 2. CustomUserDetailsService
+- `UserDetailsService`를 상속받아 사용한다.
+```java
+ @Override
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        final Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        return new CustomUserDetails(member);
+    }
+```
+- `CustomUserDetails`를 반환하도록 `loadUserByUsername`를 만들었다.
+
+#### 3. TokenDto
+- `grantType` : JWT 대한 인증 타입. Bearer 사용
+- `accessToken`
+- `accessTokenExpiresIn` : accessToken 만료일
+
+#### 4. TokenProvider
+- 1) `generateToken`
+   - 유저 정보로 AccessToken을 생성하고, TokenDto를 반환하는 메서드
+- 2) `getAuthentication`
+  - JWT 토큰을 복호화하여 토큰에 들어 있는 정보를 꺼내는 메서드
+  - 주어진 Access Token에서 username을 꺼내서, customUserDetailsService를 이용하여 customUserDetails를 구한다. 
+  - 이후 Authentication를 상속 받은 UsernamePasswordAuthenticationToken을 만들어 반환한다. 
+- 3) `validateToken`
+    - 토근이 유효한지 검증하는 메서드
+
+#### 5. JwtAuthenticationFilter
+- `OncePerRequestFilter`를 상속 받음
+  - 하나의 HTTP 요청에 대해 한번만 실행하는 Filter
+- 1) `doFilterInternal`
+    - JWT 토큰의 인증 정보를 현재 쓰레드의 `SecurityContext`에 저장
+    - Request Header에서 토큰을 꺼낸 뒤, 토큰 유효성을 검사하여, 정상 토큰이면 Authentication을 가져와서 SecurityContext에 저장
+
+* * *
+## 회원가입 및 로그인 API
+### 1. 회원가입 API
+
+```java
+@PostMapping("/signup")
+public ResponseEntity<MemberDto> signUp(@RequestBody SignUpRequest signUpRequest) {
+
+        return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
+                .body(memberService.signUp(signUpRequest));
+    }
+```
+- `SignUpRequest`: username과 password를 담은 dto
+- `MemberService`에서 `passwordEncoder`를 이용하여 password를 암호화 함.
+
+### 2. 로그인 API
+
+```java
+@GetMapping("/login")
+public ResponseEntity<TokenDto> login(@RequestBody SignInRequest logInRequest) {
+
+    return ResponseEntity.status(SELECT_SUCCESS.getHttpStatus())
+        .body(memberService.login(logInRequest.getUsername(), logInRequest.getPassword()));
+}
+```
+- `SignInRequest`: username과 password를 담은 dto
+
+```java
+public TokenDto login (String loginId, String password) {
+    
+    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginId, password);
+    Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+    TokenDto tokenDto = tokenProvider.generateToken(authentication);
+    return tokenDto;
+    }
+```
+- 아래와 같은 순서로 진행된다.
+- 1) username과 password를 기반으로 `Authentication` 객체 생성
+- 2) authenticate() 메서드를 통해 요청된 Member에 대한 실제 검증 진행
+- 3) 인증 정보를 기반으로 JWT 토큰 생성
+
+### 3. 회원가입 API 테스트
+
+<img width="640" alt="signupTest" src="https://github.com/parking0/parking0/assets/67892502/5c86322b-5294-4cdf-85da-dfdf7409f064">
+
+### 4. 로그인 API 테스트
+
+<img width="636" alt="loginTest" src="https://github.com/parking0/parking0/assets/67892502/ddd90365-b2ca-48a5-b978-bd8fe9b951f3">
+
+
+## 토큰이 필요한 API
+
+### 로그인 중인 사용자 가져오는 방법
+#### 1. SecurityContextHolder
+```java
+Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+UserDetails userDetails = (UserDetails)principal;
+String username = principal.getUsername();
+String password = principal.getPassword();
+```
+- 위와 같은 방법으로 `SecurityContextHolder`에 접근하여 현재 로그인 중인 객체를 가져올 수도 있다.
+- 하지만 로그인중인 사용자가 필요할 때마다 위 코드를 작성하는 건 비효율적이다.
+
+#### 2. @AuthenticationPrincipal
+- Spring Security 3.2부터 `@AuthenticationPrincipal`을 통해 로그인 객체를 가져올 수 있다.
+- 1번 방법과 달리, 반복되는 코드가 줄어들고 custom 로그인 객체를 가져올 수 있기 때문에 편리하다.
+
+
+### MessageController
+
+```java
+@PostMapping
+public ResponseEntity<CreateResponse> createMessage (
+    @AuthenticationPrincipal CustomUserDetails userDetails,
+    @RequestBody@Valid final CreateMessageRequest createMessageRequest){
+
+        final Member member = userDetails.getMember();
+        final Long messageId = messageService.createMessage(createMessageRequest, member.getId());
+
+        return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
+                .body(CreateResponse.from(messageId));
+    }
+```
+- 기존 방법
+  - 클라이언트로부터 메시지 발신 요청 받을 때,`CreateMessageRequest`에 발신자의 id를 포함해서 받았음.
+
+- 변경된 방법
+  - `@AuthenticationPrincipal`을 통해 `CustomUserDetails`을 받아서, 현재 로그인 중인 사용자를 알아낼 수 있음 
+      - `userDetails.getMember()`
+  - `CreateMessageRequest`에는 수신자의 id와 메시지 내용만 넣도록 변경했다.
+
+
+### 메시지 전송 테스트
+
+<img width="317" alt="MessageTest" src="https://github.com/parking0/parking0/assets/67892502/416ad667-7399-4231-8653-9ca01cc00721">
+
+<img width="614" alt="headerMessage" src="https://github.com/parking0/parking0/assets/67892502/8425f59d-fddc-40a5-a206-8c52c58c1af9">
+
+- 메시지를 보낼 때 header에 발신자의 `토큰`을 포함하면, 정상적으로 작동한다.
+
+<img width="611" alt="messageError" src="https://github.com/parking0/parking0/assets/67892502/39f11044-5363-458b-a37a-0d5fbac31d79">
+
+- 만약 토큰을 포함하지 않으면, 403 forbidden이 발생한다.
 
 
 

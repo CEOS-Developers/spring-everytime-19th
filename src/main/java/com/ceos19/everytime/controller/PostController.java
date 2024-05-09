@@ -1,6 +1,9 @@
 package com.ceos19.everytime.controller;
 
 import com.ceos19.everytime.dto.*;
+import com.ceos19.everytime.dto.Post.CreatePostRequest;
+import com.ceos19.everytime.dto.Post.PostResponse;
+import com.ceos19.everytime.dto.Post.PostUpdateRequest;
 import com.ceos19.everytime.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

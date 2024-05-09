@@ -20,13 +20,13 @@ public class Member extends BaseTimeEntity{
     private Long id;
 
     @Column(nullable = false, unique = true, length = 20)
-    private String loginId;
+    private String username;
 
-    @Column(nullable = false, length = 30)
-    private String userPw;
+    @Column(nullable = false)
+    private String password;
 
     @Column(nullable = false, unique = true, length = 10)
-    private String username;
+    private String nickname;
 
     @Column(nullable = false)
     private String email;
@@ -35,21 +35,25 @@ public class Member extends BaseTimeEntity{
     @JoinColumn(name = "university_id")
     private University university;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
+
     @Builder
-    public Member(final String username, final String loginId, final String userPw, final String email, final University university) {
+    public Member(final String nickname, final String username, final String password, final String email, final University university, final Authority authority) {
+        this.nickname = nickname;
         this.username = username;
-        this.loginId = loginId;
-        this.userPw = userPw;
+        this.password = password
+        ;
         this.email = email;
         this.university = university;
+        this.authority = authority;
     }
 
-    public boolean changeUsername(final String username) {      //반환을 어떻게 해아할지?
+    public void changeUsername(final String username) {      //반환을 어떻게 해아할지?
         if(validateUsername(username) != null){
-            this.username = username;
-            return true;
+            this.nickname = username;
         }
-        return false;
     }
 
     private String validateUsername(final String username) {

@@ -1,4 +1,4 @@
-package com.ceos19.everytime.dto;
+package com.ceos19.everytime.dto.board;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

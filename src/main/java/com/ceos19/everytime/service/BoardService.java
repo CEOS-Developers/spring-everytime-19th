@@ -3,9 +3,9 @@ package com.ceos19.everytime.service;
 import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.domain.University;
-import com.ceos19.everytime.dto.BoardResponse;
-import com.ceos19.everytime.dto.BoardUpdateRequest;
-import com.ceos19.everytime.dto.CreateBoardRequest;
+import com.ceos19.everytime.dto.board.BoardResponse;
+import com.ceos19.everytime.dto.board.BoardUpdateRequest;
+import com.ceos19.everytime.dto.board.CreateBoardRequest;
 import com.ceos19.everytime.dto.DeleteRequest;
 import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.BoardRepository;
@@ -25,8 +25,6 @@ import static com.ceos19.everytime.exception.ErrorCode.*;
 @Transactional
 @Slf4j
 public class BoardService {
-    public static final int MAX_NAME_LENGTH = 20;
-    public static final int MAX_DESCRIPTION_LENGTH = 50;
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
@@ -39,7 +37,12 @@ public class BoardService {
         final University university = universityRepository.findById(createBoardRequest.getBoardManagerId())
                 .orElseThrow(() -> new CustomException(UNIVERSITY_NOT_FOUND));
 
-        Board board = new Board(createBoardRequest.getBoardName(),createBoardRequest.getDescription(),member,university);
+        Board board = Board.builder()
+                .boardName(createBoardRequest.getBoardName())
+                .description(createBoardRequest.getDescription())
+                .boardManager(member)
+                .university(university)
+                .build();
 
         return boardRepository.save(board)
                 .getId();

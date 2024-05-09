@@ -1,4 +1,4 @@
-package com.ceos19.everytime.dto;
+package com.ceos19.everytime.dto.Post;
 
 import com.ceos19.everytime.domain.Board;
 import com.ceos19.everytime.domain.Member;
