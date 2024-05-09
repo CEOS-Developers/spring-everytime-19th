@@ -4,6 +4,7 @@ import com.ceos19.springeverytime.domain.category.domain.Category;
 import com.ceos19.springeverytime.domain.category.dto.response.CategoryPostResponse;
 import com.ceos19.springeverytime.domain.post.domain.Post;
 import com.ceos19.springeverytime.domain.user.domain.User;
+import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import com.ceos19.springeverytime.domain.user.service.UserService;
 import com.ceos19.springeverytime.domain.category.dto.request.CategoryCreateRequest;
 import com.ceos19.springeverytime.domain.category.dto.request.CategoryUpdateRequest;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -24,22 +27,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
-    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<Void> createCategory(@RequestBody @Valid final CategoryCreateRequest request) {
-        // test user
-        User user = userService.register(new User(
-            "test",
-            "1234",
-            "nickname",
-            "kim",
-            "computer",
-            "20",
-            "test@example.com"
-        ));
-
-        Category category =  categoryService.createCategory(user.getUserId(), request);
+        Authentication loginUser = SecurityContextHolder.getContext().getAuthentication();
+        Category category =  categoryService.createCategory(loginUser.getName(), request);
         return ResponseEntity.created(URI.create("/category/" + category.getCategoryId())).build();
     }
 

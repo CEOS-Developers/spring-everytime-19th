@@ -526,3 +526,288 @@ Mocking한 레포지토리의 동작을 정상적으로 작동하는 것처럼 �
                 .body(new ExceptionResponse(INVALID_REQUEST.getCode(), errMsg));
     }
    ```
+
+<hr>
+
+# 5주차
+## 로그인 인증 방식
+클라이언트가 서버에게 요청을 보낼 때, 자신이 요청을 실제로 보내려는 사용자가 맞다는 것을 인증하는 것   
+일반적으로 아이디와 패스워드를 이용해 인증을 하게 되는데, 매번 요청을 보낼 때마다 로그인을 해서 사용자를 인증하는 것은 번거롭다.   
+따라서 한번 인증을 한 이후에는 내가 이전에 인증했던 사용자가 맞다는 것을 서버에게 계속 알려주어야 한다. (http는 stateless 이기 때문이다.)   
+이때 이를 서버에게 알려주는 방식에는 크게 아래와 같이 4가지가 있다.
+
+### 쿠키
+로그인에 성공하면 쿠키 자체에 사용자의 정보를 담아두고, 클라이언트가 요청을 보낼 때마다 쿠키 정보로부터 사용자를 식별하는 방법   
+클라이언트가 자신의 인증을 책임지기 때문에, 클라이언트가 해킹당할 경우 자신의 정보를 모두 탈취당할 수 있다.   
+일반적으로 클라이언트보다 서버를 해킹하는 것이 더 어려우므로 서버에 인증 책임을 넘기는 세션을 이용한다.
+
+### 쿠키와 세션
+로그인에 성공하면, 서버는 사용자 정보를 담은 '세션'을 세션 저장소에 저장한다.   
+그리고 클라이언트에게는 해당 세션 데이터를 가리키는 '세션 ID' 를 Set-Cookie 헤더에 담아 보내준다.    
+사용자는 세션 ID를 쿠키로 설정한 뒤, 이후 요청을 보낼 때는 쿠키에 세션 ID를 담아 같이 보낸다.   
+서버는 요청을 받았을 때, 쿠키에 담긴 세션 ID로부터 해당하는 사용자 정보를 가져오는 방식으로 사용자를 인증한다.
+
+#### 장점
+- 쿠키에 담긴 세션ID는 그 자체로 유의미한 값을 갖고 있지 않으므로, http 요청이 노출되더라도 안전하다.   
+- 각 사용자는 고유의 세션ID를 발급받으므로, 서버 입장에서도 사용자를 바로 식별할 수 있어서 서버 자원에 접근하기 용이하다.   
+- 중복 로그인을 방지하고자 할 때 구현이 용이하다.   
+  중복 로그인 여부를 확인하려면 서버에 사용자의 로그인 정보(상태)가 남아있을 수 밖에 없는데, 세션을 사용하면 이미 사용자의 정보를 서버에 저장하고 있기 때문이다.
+
+#### 단점
+- 쿠키를 탈취당했을 때, 그 자체의 값에는 의미가 없지만, 그 값을 이용해 서버에게 마치 자신이 그 쿠키의 원래 주인인 것처럼 속여서 요청을 보낼 수 있다. (이를 `세션 하이재킹 공격`이라고 한다.)   
+  따라서 이 문제를 방지하기 위해, HTTP 요청 자체를 암호화하는 HTTPS 방식을 사용하고, 세션에 유효기간을 설정해둔다.
+- 서버 입장에서는 세션을 저장할 별도의 저장 공간이 필요하므로, 서버의 부하가 높아진다.
+
+### JWT
+Json Web Token의 약자로, 사용자를 인증하는데 필요한 정보를 암호화시킨 토큰(Access Token)을 만들고, 이 토큰을 클라이언트에게 쿠키로 설정하게 한다.   
+사용자는 요청을 보낼 때마다 암호화된 토큰을 서버로 같이 보내고, 서버는 자신이 가진 비밀키로 토큰을 디코딩하여 암호화된 내용을 해독해 사용자를 식별한다.   
+
+토큰을 만들 때는 아래 3가지가 들어간다.
+1. Header : 토큰을 암호화 할 때 어떤 암호화 알고리즘을 사용하는지, 토큰 타입 
+2. Payload : 실제로 서버에 보낼 사용자 인증 데이터, 일반적으로 유저 ID값, 토큰 유효기간이 들어간다.
+3. Verify Signature : 1, 2를 각각 Base64 방식으로 인코딩(암호화x)한 뒤, 여기에 SECRET KEY를 더해 서명한다.  
+
+헤더와 페이로드는 인코딩만 될 뿐 암호화되지 않아 누구나 디코딩할 수 있으므로 비밀번호와 같은 민감한 정보는 담지 않는 것이 좋다.   
+하지만 verify signature는 secret key를 모르면 복호화할 수 없다.   
+따라서 시크릿 키를 모르는 이상, JWT를 조작하는 것도 할 수 없다.
+
+JWT를 통한 요청 인증 과정은 아래와 같다.
+1. 사용자가 로그인을 하면 서버는 JWT 토큰을 발급하여 응답한다.
+2. 클라이언트가 JWT와 함께 요청을 보내면 서버는 JWT의 verify signature를 자신의 비밀키로 복호화하여 유효기간과 조작 여부를 확인한다.   
+3. 토큰에 대한 검증이 끝나면 Payload를 디코딩하여 사용자 ID에 해당하는 데이터를 가져와 응답한다.
+
+JWT는 세션과 함께 가장 많이 쓰이는 방식이다.   
+세션과의 차이점은 사용자를 인증하는 정보를 서버가 아닌 토큰 안에 넣는다는 점이다.   
+서버는 세션을 저장할 별도 DB를 가질 필요가 없지만, 토큰을 복호화할 로직을 가져야 한다.
+
+#### 장점
+- 세션/쿠키는 별도의 저장소를 관리해야 하지만, JWT를 저장소를 관리하지 않아도 되므로 간단하다.   
+이는 특히 stateless 서버를 만드는데 있어서 큰 장점을 갖기에 서버 확장, 유지보수에 용이하다.   
+- 토큰 기반의 다른 인증 시스템(구글 로그인, 페이스북 로그인)에 접근하기 쉬워 확장성이 용이하다.
+
+#### 단점
+- 한번 발급한 JWT에 대해서는 서버의 손을 떠났으므로 돌이킬 수 없다. 세션 방식이라면, 쿠키가 악의적으로 이용될 경우, 서버에서 세션을 지워버리면 문제에 대처할 수 있지만,
+  JWT는 한번 발급한 토큰의 유효기간이 지날 때까지 계속 사용이 가능하므로, 악의적인 사용자가 지속적으로 정보를 탈취할 수 있다.
+
+    → 따라서 이를 해결하기 위해 access token을 짧게 하고, 비교적 유효기간이 긴 refresh token을 만들어, 이 토큰을 사용하면 새로운 access token 을 만들도록 하는 방식을 사용하기도 한다.   
+      하지만 refresh token도 결국 탈취당할 위험이 없는 것은 아니다. 그래서 이를 막으려고 redis에 refresh toekn을 저장해서, 탈취당하거나 로그아웃된 상태의 refresh toekn을 redis에서 제거하는 방법을 사용하기도 한다.   
+      이렇게 구현하면 결국 서버가 refresh 토큰의 state를 저장해야 하는데, 이는 stateless 서버를 만드는 jwt의 장점을 퇴색시킨다.   
+      이에 대해 JWT가 자주 사용되는 이유가 stateless가 아니라 모바일 앱 환경 특성상 jwt를 사용하는 것이 유리하다는 점, 장기간 로그인 상태를 유지하고자 할 때 서버에게 가해지는 부하가 세션보다 적다는 점을 JWT의 주 사용 이유로 보고
+      stateless는 부수적인 효과로 받아들이면 될 것 같다는 의견도 있다. (https://substantial-park-a17.notion.site/14-JWT-3721466022d24a2fad0e7272e5b15c76)
+
+- 페이로드에 담을 수 있는 정보가 제한적이다. 페이로드는 암호화되지 않기 때문이다.
+  반면 세션에서는 유저의 모든 정보를 서버가 갖고 있으므로, 민감한 정보를 안전하게 저장할 수 있다.
+
+- JWT의 길이는 세션 ID에 비해 길다. 따라서 인증이 필요한 요청이 많을수록, 서버의 자원낭비가 발생한다.
+  
+### OAuth
+OAuth는 외부 서비스의 인증 및 권한 부여까지 관리하는 범용 `프로토콜`이다.   
+현재는 OAuth 2.0을 많이 사용하는데, OAuth 1.0보다 사용성, 보안이 강화된 버전의 프로토콜이다.   
+
+OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
+1. Authorization Code Grant
+2. Implicit Grant
+3. Resource Owner Password Credentials Grant
+4. Client Credentials Grant
+
+이 중 첫번째 방식 Authorization Code Grant 방식의 과정을 정리하면 아래와 같다.
+1. 사용자(Resource Owner)가 우리 서버(Client, 제 3의 인증서버 입장에서 클라이언트)에게 인증 요청을 보낸다.
+2. 우리 서버(Client)는 Authorization Request를 통해, 사용자(Resource Ownder)에게 구글/페이스북 로그인 링크를 보낸다.
+3. 사용자는 해당 request를 통해 인증을 완료하고, 인증 완료 신호로 `Authorization Grant`를 url에 실어 우리 서버로 보낸다.
+4. 우리 서버는 `Authorization Grant'를 실제 제3 인증서버(Authorization Server) 에게 보낸다.
+5. Authorization Server는 `권한 증서`를 확인하고, 권한이 맞다면 access token, refresh token, 유저의 프로필 정보 등을 발급한다.
+6. client는 발급받은 access token을 사용자에게 넘기거나, DB에 저장한다.
+7. 사용자가 제3 서버의 resource를 원하는 경우, client가 대신 access token으로 `Authorization Server`에 요청을 보낸다.
+8. 제 3서버는 access token을 확인하고 client에게 리소스를 반환하면, 클라이언트가 사용자에게 리소스를 반환한다.
+
+## 엑세스토큰 발급 및 검증 로직
+### 스프링 시큐리티를 이용하여 엑세스토큰을 발급하는 과정
+1.  Spring Security 필터 체인에서 `login` 경로를 허용한다.
+    ```java
+    http.authorizeHttpRequests((auth) -> auth
+        .requestMatchers("/swagger-ui/**", "/login").permitAll()
+        .requestMatchers(HttpMethod.POST, "/user").permitAll()
+        .anyRequest().authenticated()
+    );
+    ```
+2.  `login` 경로로 들어온 요청은 `LoginFilter` 를 거친다.
+    ```java
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        String username = obtainUsername(request);
+        String password = obtainPassword(request);
+    
+        UsernamePasswordAuthenticationToken authToken
+                = new UsernamePasswordAuthenticationToken(username, password, null);
+    
+        return authenticationManager.authenticate(authToken);
+    }
+    ```
+    이때 요청으로 들어온 ID/PW는 AuthenticationToken으로 만든 뒤, `AuthenticationManager`에게 검증을 요청한다. 
+3. `AuthenticationManager`는 SecurityConfig.java 파일에 빈으로 등록되어 있다.
+    ```java
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+    ```
+    `AuthenticationManager`는 `AuthenticationToken`을 받은 뒤, 등록된 `AuthenticationProvider`에게 이 토큰을 활용해 인증을 요구한다.
+4. `AuthenticationProvider`는 `UserDetailsService`를 이용해 User 테이블에 저장된 유저 데이터를 `UserDetails` 객체로 전달 받고, 이 객체와 `AuthenticationToken` 정보가 일치하는지 확인한다.
+    ```java
+    public class CustomUserDetailsService implements UserDetailsService {
+    
+        private final UserRepository userRepository;
+    
+        @Override
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            User user = userRepository.findByLoginId(username).orElseThrow(
+                    () -> new BadRequestException(ExceptionCode.NOT_FOUND_LOGIN_ID)
+            );
+            return new CustomUserDetails(user);
+        }
+    }
+   ```
+   인증에 성공하면 권한 등의 사용자 정보가 담긴 `Authentication` 객체를 반환한다.
+5. 인증에 성공했을 때 호출되는 메서드를 오버라이딩하여 JWT 토큰을 발급한다.
+    ```java
+   @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
+        String username = customUserDetails.getUsername();
+
+        String token = jwtUtil.createJwt(username, 60*60*10L);
+
+        response.addHeader("Authorization", "Bearer " + token);
+    }
+    
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        response.setStatus(401);
+    }
+   ```
+6. 반환한 `Authentication` 객체는 세션 영역에 있는 `SecurityContext`에 저장하여 로그인 상태를 저장하고, 로그인을 유지한다. 
+
+### JWT 토큰을 인증하는 과정
+1. 사용자의 요청을 검증할 `JWTFilter` 를 등록한다.
+    ```java
+    http.addFilterAt(
+            new JWTFilter(jwtUtil),
+            LoginFilter.class
+    );
+   ```
+2. 커스텀 `JWTFilter` 를 구현한다.
+    ```java
+    @RequiredArgsConstructor
+    public class JWTFilter extends OncePerRequestFilter {
+    
+        private final JWTUtil jwtUtil;
+    
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            String authorization = request.getHeader("Authorization");
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
+                System.out.println("token null");
+                filterChain.doFilter(request, response);
+                return;
+            }
+    
+            String token = authorization.split(" ")[1];
+            if (jwtUtil.isExpired(token)) {
+                System.out.println("token is expired");
+                filterChain.doFilter(request, response);
+                return;
+            }
+    
+            String loginId = jwtUtil.getLoginId(token);
+    
+            User user = new User(
+                    loginId,
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    ""
+            );
+    
+            CustomUserDetails customUserDetails = new CustomUserDetails(user);
+            Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+    
+            filterChain.doFilter(request, response);
+        }
+    }
+    ```
+   요청 헤더에서 토큰 값을 가져와 디코딩 한 뒤, 그 정보로 유저 객체를 만들어 `CustomUserDetails` 객체로 변환한다.   
+    이 객체를 기반으로 `Authentication`을 만들어 `SecurityContext`에 등록해둔다.
+3. `SecurityContext`에 `Authentication`이 등록된 이후에는, 해당 권한을 요구하는 API를 사용할 수 있게 된다.
+
+## 회원가입 & 로그인 API 구현 및 테스트
+### 회원가입 API 명세서
+<table style="text-align: center">
+  <tr>
+    <th>Domain</th>
+    <th>Method</th>
+    <th>Base URL</th>
+    <th>URL</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td rowspan="2">Auth</td>
+    <td>POST</td>
+    <td rowspan="2"><code></code></td>
+    <td><code>/login</code></td>
+    <td>로그인</td>
+  </tr>
+  <tr>
+    <td>PUT</td>
+    <td><code>/logout</code></td>
+    <td>로그아웃</td>
+  </tr>
+  <tr>
+    <td rowspan="4">User</td>
+    <td>GET</td>
+    <td rowspan="4"><code>/user</code></td>
+    <td><code>/{user_id}</code></td>
+    <td>유저 마이페이지 조회</td>
+  </tr>
+  <tr>
+    <td>POST</td>
+    <td><code>/</code></td>
+    <td>유저 생성</td>
+  </tr>
+  <tr>
+    <td>PUT</td>
+    <td><code>/{user_id}</code></td>
+    <td>유저 정보 수정</td>
+  </tr>
+  <tr>
+    <td>DELETE</td>
+    <td><code>/{user_id}</code></td>
+    <td>유저 삭제</td>
+  </tr>
+</table>
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/0f1bd918-a53e-4c0c-a6e3-119f0300a08a)   
+다음과 같이 /user로 POST 요청을 보냈을 때   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/49df2e2e-463a-4624-8459-8615a688fd38)   
+요청에 대해 성공적으로 유저를 등록한다.   
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/ef2a9ada-d9a5-4026-a9c9-ccbdb71f91e5)
+등록한 유저 계정 정보로 로그인을 시도하기 위해 /login 경로로 post 요청을 보내는 경우      
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/b0ce58ff-3c56-44d1-bfa2-f591f0e519fa)
+그림과 같이 Authorization 헤더를 통해 JWT토큰을 받는다.
+
+## 토큰이 필요한 API 1개 이상 구현 및 테스트
+로그인, 회원가입 이외에는 모든 API에 대해 인증을 요구하기 때문에
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/f926fea5-3e86-4dc5-ae14-fee25e7c2b38)   
+그림과 같이 토큰 없이 요청을 보내는 경우   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/01b88269-b467-48a2-8dc6-c7d43ae416db)   
+403 에러를 받으며 접근이 제한된다.
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/9a1afa70-5f40-43a3-ac85-44862349490e)   
+그림과 같이 토큰을 담아서 요청을 보내면   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/2cbdcd6f-e786-4ab8-94a8-0955894e20f3)   
+인증에 성공하여 서버로부터 적절한 응답을 받게 된다.
+

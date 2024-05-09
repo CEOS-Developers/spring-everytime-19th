@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    @Query("select u from User u where u.loginId = :loginId")
-    Optional<User> findByLoginId(@Param("loginId") String loginId);
+    boolean existsByLoginId(String loginId);
+
+    Optional<User> findByLoginId(String loginId);
 }

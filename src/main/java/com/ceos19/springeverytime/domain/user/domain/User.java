@@ -21,7 +21,7 @@ public class User extends BaseEntity {
     private String loginId;
 
     @NonNull
-    @Column(length = 30, nullable = false)
+    @Column(nullable = false)
     private String pw;
 
     @NonNull

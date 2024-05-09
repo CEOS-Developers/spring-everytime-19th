@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,10 +52,10 @@ public class CategoryServiceTest {
         Category category = EntityGenerator.generateCategory(user1);
         CategoryCreateRequest request = CategoryCreateRequest.of(category.getName(), category.getDescription());
         given(categoryRepository.save(any(Category.class))).willReturn(category);
-        given(userRepository.findById(any())).willReturn(Optional.of(user1));
+        given(userRepository.findByLoginId(anyString())).willReturn(Optional.of(user1));
 
         // when
-        Category newCategory = categoryService.createCategory(1L, request);
+        Category newCategory = categoryService.createCategory("testuser", request);
 
         // then
         assertThat(newCategory).isEqualTo(category);
