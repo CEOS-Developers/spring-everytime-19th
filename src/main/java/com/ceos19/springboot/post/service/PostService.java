@@ -1,8 +1,12 @@
 package com.ceos19.springboot.post.service;
 
+import com.ceos19.springboot.common.code.ErrorCode;
+import com.ceos19.springboot.global.exception.BusinessExceptionHandler;
 import com.ceos19.springboot.post.domain.Post;
 import com.ceos19.springboot.comment.repository.CommentRepository;
+import com.ceos19.springboot.post.dto.CombinedDto;
 import com.ceos19.springboot.post.dto.PostModifyRequestDto;
+import com.ceos19.springboot.post.dto.PostRequestDto;
 import com.ceos19.springboot.postlike.repository.PostLikeRepository;
 import com.ceos19.springboot.post.repository.PostRepository;
 import com.ceos19.springboot.users.domain.Users;
@@ -14,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,9 +31,16 @@ public class PostService {
 
     // 게시글 저장
     @Transactional
-    public Long savePost(Post post) {
-        Post savePost = postRepository.save(post);
-        return savePost.getPostId();
+    public Post createPost(PostRequestDto post,Users user) {
+        Post createdPost = Post.builder()
+                .createdAt(LocalDateTime.now())
+                .content(post.getContent())
+                .title(post.getTitle())
+                .imageUrl(post.getImageUrl())
+                .user(user)
+                .likes(0)
+                .build();
+        return postRepository.save(createdPost);
     }
 
     // 게시글 전체 조회
@@ -43,14 +55,14 @@ public class PostService {
     }
 
     public Post retreiveOnePost(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
+        return postRepository.findById(postId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     //게시글에 좋아요 누르기
     @Transactional
     public Post pressLike(Long postId) {
         Post findPost = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
         findPost.plusLike();
         return findPost;
     }
@@ -58,14 +70,14 @@ public class PostService {
     @Transactional
     public void unLike(Post post) {
         Post findPost = postRepository.findById(post.getPostId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
         findPost.minusLike();
     }
 
     //게시글 삭제
     @Transactional
     public void deletePost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
         commentRepository.deleteByPost(post);
         postLikeRepository.deleteByPost(post);
 
@@ -73,8 +85,13 @@ public class PostService {
     }
 
     public boolean isOwner(Long postId, Users user) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
-        return user.equals(post.getUser());
+        Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+        if(user.equals(post.getUser())){ // 글의 주인이라면
+            return true;
+        } else {
+            return false;
+            //throw new BusinessExceptionHandler(ErrorCode.BAD_REQUEST_ERROR);
+        }
     }
 
     @Transactional
@@ -85,6 +102,6 @@ public class PostService {
     }
 
     public Post findPost(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("해당 ID의 Post를 찾을 수 없습니다"));
+        return postRepository.findById(postId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 }

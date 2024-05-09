@@ -1,4 +1,4 @@
-package com.ceos19.springboot.global;
+package com.ceos19.springboot.common.response;
 
 import lombok.Getter;
 import lombok.Builder;

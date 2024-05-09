@@ -1,6 +1,6 @@
 package com.ceos19.springboot.users.controller;
 
-import com.ceos19.springboot.global.ApiResponse;
+import com.ceos19.springboot.common.response.ApiResponse;
 import com.ceos19.springboot.users.domain.Users;
 import com.ceos19.springboot.users.dto.UserRequestDto;
 import com.ceos19.springboot.users.dto.UserResponseDto;
@@ -17,23 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
 
+    //회원 가입
+    @PostMapping("api/user/join")
+    public ResponseEntity<ApiResponse<UserResponseDto>> userJoin(@RequestBody UserRequestDto userRequestDto) {
+        Users savedUser = userService.createUser(userRequestDto);
+        UserResponseDto userResponseDto = UserResponseDto.createFromPost(savedUser);
+        ApiResponse<UserResponseDto> response = ApiResponse.of(200, "사용자 회원가입 성공", userResponseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @PostMapping("api/user/login")
-    public ResponseEntity<ApiResponse<UserResponseDto>> userLogin(@RequestBody UserRequestDto userRequestDto) {
-        try {
-            Users user = Users.builder()
-                    .nickname(userRequestDto.getNickname())
-                    .username("")
-                    .loginId(userRequestDto.getLoginId())
-                    .password(userRequestDto.getPassword())
-                    .email("")
-                    .build();
-            Long userId = userService.saveUser(user);
-            UserResponseDto userResponseDto = UserResponseDto.createFromPost(user);
-            ApiResponse<UserResponseDto> response = ApiResponse.of(200, "사용자 로그인 성공", userResponseDto);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            ApiResponse<UserResponseDto> response = ApiResponse.of(500, "사용자 로그인 성공", null);
-            return ResponseEntity.internalServerError().body(response);
-        }
+    public void userLogin(@RequestBody UserRequestDto userRequestDto) {
+        //userService.userLogin(userRequestDto.getLoginId(), userRequestDto.getPassword());
     }
 }
