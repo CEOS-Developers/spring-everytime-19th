@@ -2,6 +2,7 @@ package com.ceos19.springboot.users.service;
 
 import com.ceos19.springboot.common.code.ErrorCode;
 import com.ceos19.springboot.global.exception.BusinessExceptionHandler;
+import com.ceos19.springboot.jwt.TokenProvider;
 import com.ceos19.springboot.users.domain.UserRoleEnum;
 import com.ceos19.springboot.users.domain.Users;
 import com.ceos19.springboot.comment.repository.CommentRepository;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,5 +56,13 @@ public class UserService {
 
     public Users findUserByLoginId(String loginId) {
         return userRepository.findByLoginId(loginId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+    }
+
+    public boolean validateDuplicateUser(UserRequestDto userRequestDto) {
+        Optional<Users> findUser = userRepository.findByLoginId(userRequestDto.getLoginId());
+        if (findUser.isPresent()) {
+            throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_ERROR);
+        } else
+            return true;
     }
 }
