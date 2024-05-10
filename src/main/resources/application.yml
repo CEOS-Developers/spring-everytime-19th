@@ -1,10 +1,10 @@
 jwt:
-  secret: ${JWT_SECRET_KEY}
+  secret: ${JWT_SECRET_KEY} #qoiwjeo1u029eu0dioen0ffnskndk9h9we93h3djb319u31hdjwnsn1i09348u5bnuy5b381hsbdskjdoiw2iwn01wen91imxksdrufh38oqu01cj1923uejc910c84cu14bcurjdds10ol1z10i138curnjdnoei2j0o1lmpas
 
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/everytime_clone
+    url: jdbc:mysql://127.0.0.1:3306/everytime_clone #host.docker.internal
     username: root
     password:
   jpa:
