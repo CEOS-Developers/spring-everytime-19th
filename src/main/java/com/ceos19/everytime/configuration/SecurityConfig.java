@@ -1,6 +1,7 @@
 package com.ceos19.everytime.configuration;
 
 import com.ceos19.everytime.jwt.cookie.CookieUtil;
+import com.ceos19.everytime.jwt.filter.CustomLogoutFilter;
 import com.ceos19.everytime.jwt.filter.JwtFilter;
 import com.ceos19.everytime.jwt.filter.LoginFilter;
 import com.ceos19.everytime.jwt.service.RefreshTokenService;
@@ -17,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -69,6 +71,7 @@ public class SecurityConfig {
         // ~/login에 대한 post 요청은 여기에서 처리
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, cookieUtil, refreshTokenService), UsernamePasswordAuthenticationFilter.class);
 
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenService, cookieUtil), LogoutFilter.class);
         //세션 stateless 설정
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
