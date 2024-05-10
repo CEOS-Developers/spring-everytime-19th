@@ -83,6 +83,7 @@ public class WebSecurityConfig {
                                 ,"/img/**"
                                 ,"/swagger-resources/**"
                                 ,"/v3/api-docs/**"
+                                ,"/**" // 개발 편의를 위해
                         ).permitAll()
                                 .anyRequest().hasRole("USER")
                 );
