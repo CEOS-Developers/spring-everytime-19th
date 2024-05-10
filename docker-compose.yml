@@ -1,0 +1,36 @@
+version: '3'
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789
+      MYSQL_DATABASE: everytime
+    ports:
+      - "3306:3306"
+    networks:
+      - app-tier
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+
+  web:
+    image: everytime
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: root
+    networks:
+      - app-tier
+
+networks:
+  app-tier:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
