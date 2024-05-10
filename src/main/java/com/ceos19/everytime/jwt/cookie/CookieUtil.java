@@ -10,14 +10,24 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CookieUtil {
     public String getRefreshToken(Cookie[] cookies) {
+        if(cookies == null || cookies.length == 0) {
+             log.error("에러 내용: Refresh Token에서 'refresh' 헤더 조회 실패 " +
+                "발생 원인: 쿠키에 'refresh'라는 이름의 정보가 등록 되어 있지 않음");
+        throw new AppException(ErrorCode.REFRESH_NOT_EXIST, "refresh token 정보가 존재하지 않습니다");
+        }
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("refresh")) {
-
-                return cookie.getValue();
+                String refresh = cookie.getValue();
+                if (refresh == null) {
+                    log.error("에러 내용: Refresh Token에서 'refresh' 헤더 조회 실패 " +
+                            "발생 원인: 쿠키에 'refresh'라는 헤더가 null");
+                    throw new AppException(ErrorCode.REFRESH_NOT_EXIST, "refresh token 정보가 존재하지 않습니다");
+                }
+                return refresh;
             }
         }
         log.error("에러 내용: Refresh Token에서 'refresh' 헤더 조회 실패 " +
-                        "발생 원인: 쿠키에 'refresh'라는 이름의 정보가 등록되어 있지 않음");
+                "발생 원인: 쿠키에 'refresh'라는 이름의 정보가 등록되어 있지 않음");
         throw new AppException(ErrorCode.REFRESH_NOT_EXIST, "refresh token 정보가 존재하지 않습니다");
     }
 
