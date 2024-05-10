@@ -1358,3 +1358,5 @@ jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요�
 ~~~shell
 openssl rand -hex 64
 ~~~
+
+docker logs [container id]: log 확인
