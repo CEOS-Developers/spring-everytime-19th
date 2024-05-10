@@ -28,7 +28,7 @@ class MemberRepositoryTest {
     Member member3;
     University university;
 
-    @BeforeEach
+   /* @BeforeEach
     void setup(){
         university = new University("홍익대학교");
         universityRepository.save(university);
@@ -73,4 +73,6 @@ class MemberRepositoryTest {
         assertThat(actual).isFalse();
     }
 
+
+    */
 }

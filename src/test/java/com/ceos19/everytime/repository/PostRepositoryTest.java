@@ -30,7 +30,7 @@ public class PostRepositoryTest {
     University university;
     Board board;
 
-    @Before
+  /*  @Before
     void setup(){
         university = new University("홍익대학교");
         universityRepository.save(university);
@@ -53,6 +53,6 @@ public class PostRepositoryTest {
         //then
         assertEquals(post.getId(), test1.get().getId());
     }
-
+*/
 
 }

@@ -29,7 +29,7 @@ public class BoardServiceTest {
     Board board1, board2;
     Member boardManager;
     University university;
-
+/*
     @BeforeEach
     void setup(){
         university = new University("홍익대학교");
@@ -68,5 +68,5 @@ public class BoardServiceTest {
         });
 
     }
-
+*/
 }

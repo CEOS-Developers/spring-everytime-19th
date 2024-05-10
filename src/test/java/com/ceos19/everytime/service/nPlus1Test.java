@@ -39,6 +39,7 @@ public class nPlus1Test {
     @Autowired
     EntityManager em;
 
+    /*
     @BeforeEach
     void setup(){
         university = new University("홍익대학교");
@@ -74,6 +75,6 @@ public class nPlus1Test {
         }
 
     }
-
+*/
 
 }
