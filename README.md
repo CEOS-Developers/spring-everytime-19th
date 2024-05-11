@@ -1415,7 +1415,7 @@ Bind mount volume과는 달리 로컬 경로를 명시하지 않은 경우 익�
 ## 도커 파일
 Dockerfile은 기존 일일히 CLI 명령어를 통해서 도커를 이미지를 빌드시켜야 하던 것을 하나의 파일에 정의해두어 편리하게 실행토록 하는 기능이다. 
 
-~~~text
+~~~dockerfile
 # Dockerfile
 FROM openjdk:17
 ARG JAR_FILE=build/libs/*.jar
@@ -1424,7 +1424,8 @@ ENTRYPOINT ["java","-jar","/app.jar"]
 ~~~
 에브리타임 서버 이미지를 만들기 위해서 jar 파일을 빌드한 후 위의 도커 파일로 이미지를 생성하였다. 
 또한 내가 만든 에브리타임 서버는 mysql 데이터 베이스와 연동이 필요하기 때문에, mysql 이미지도 docker file을 통해서 정의하였다.
-~~~text
+~~~dockerfile
+# Dockerfile
 FROM mysql:8.0
 
 COPY init.sql /docker-entrypoint-initdb.d
@@ -1443,4 +1444,44 @@ CMD ["--character-set-server=utf8mb4","--collation-server=utf8mb4_unicode_ci"]
 나의 경우 compose.yml을 사용하였기 때문에 별도로 docker build를 실행하진 않았다.
 
 ## Docker Compose
-도커 컴포즈를 이용하여 동시에 여러 이미지를 run 하여 컨테이너로 실행할 수 있다.
+도커 컴포즈를 이용하여 동시에 여러 이미지를 run 하여 컨테이너로 실행할 수 있다. 
+~~~yml
+version: '3'
+services: 
+  db:  # db 컨테이너
+    build:
+      context: ./docker-test-db
+      dockerfile: Dockerfile  # ./docker-test-db 폴더의 Dockerfile로 이미지 빌드
+    ports:
+      - 3306:3306  # 포트포워딩 3306:3306
+    volumes:
+      - ./docker-test-db/store:/var/lib/mysql  # volume 마운트로 db 컨테이너가 삭제되어도 로컬에 데이터가 존재하도록 설정
+    networks:
+      - network
+  
+  server: # server 컨테이너
+    build:
+      context: ./spring-everytime-19th
+      dockerfile: Dockerfile   # ./spring-everytime-19th 폴더의 Dockerfile로 이미지 빌드
+    restart: always  # 서버는 꺼지면 다시 재시작
+    ports:
+      - 8080:8080  # 호스트의 8080 포트와 컨테이너의 8080 포트 포워딩
+    depends_on: # db 컨테이너가 실행된 이후에 실행됨
+      - db
+    environment:  # 환경변수 설정
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ceos_everytime_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET}
+    networks:
+      - network
+
+networks:  # 도커 네트워크 생성. db와 server를 동일한 네트워크로 묶어 통신 가능케 함
+  network:
+~~~
+
+compose 파일을 통해서 db 컨테이너가 먼저 build된 이후에 server 컨테이너가 실행되도록 설정하였다(depends_on)
+
+모든 설정 파일 (dockerfile, compose.yml)들이 준비 되었으니 docker-compose 명령어로 이미지를 빌드 후 컨테이너를 실행한다.
+- docker-compose up -d --build: 컴포즈 yml 파일로 이미지 빌드 및 컨테이너 실행
+
