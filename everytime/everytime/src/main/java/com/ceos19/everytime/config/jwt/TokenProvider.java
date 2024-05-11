@@ -77,6 +77,17 @@ public class TokenProvider implements InitializingBean {
                 .compact(); //토큰을 생성
     }
 
+    public String createToken(String userId) {
+        Claims claims = Jwts.claims().setSubject(userId);
+        Date now = new Date();
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + tokenValidityInMilliseconds))
+                .signWith(SignatureAlgorithm.HS256, secret).compact();
+        return token;
+    }
+
     // 토큰 기반으로 User Id 가져오는 메서도
     public Long getTokenUserId(String token) {
         Claims claims = Jwts.parser()
