@@ -1485,3 +1485,17 @@ compose 파일을 통해서 db 컨테이너가 먼저 build된 이후에 server 
 모든 설정 파일 (dockerfile, compose.yml)들이 준비 되었으니 docker-compose 명령어로 이미지를 빌드 후 컨테이너를 실행한다.
 - docker-compose up -d --build: 컴포즈 yml 파일로 이미지 빌드 및 컨테이너 실행
 
+*컴포즈 파일을 통해서 컨테이너가 정상적으로 실행되는 모습*
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/794cea15-93da-485f-8507-2ffd78fff305)
+
+포스트 맨을 통해서 서버가 제대로 동작하는지 확인해 보았다.
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/90e46431-042c-4d92-a43c-efcd461e8899)
+localhost:8080/login 경로로 로그인 post 요청을 날렸더니 정상적으로 로그인이 되는 모습이다.
+
+### 실습 과정에서 생겼던 문제
+![port 문제 해결후 정상실행](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/c7b10ef1-73d0-4e2b-aaaf-ddb69109b66b)
+![mysql stop](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/7b695344-f652-4c25-a4c4-caa56ceb788a)
+![3306 포트 문제](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ea847ce6-284f-4b03-bd54-5a90b302610c)
+
+
+
