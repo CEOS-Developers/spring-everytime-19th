@@ -1358,7 +1358,7 @@ jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요�
 ~~~shell
 openssl rand -hex 64
 ~~~
-# 5주차
+# 6주차
 1. 리프레시 토큰 구현
 2. 로그아웃 기능 구현
 3. 도커파일로 이미지 생성후 docker compose를 사용하여 컨테이너 빌드
