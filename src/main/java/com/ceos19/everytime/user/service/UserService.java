@@ -1,5 +1,6 @@
 package com.ceos19.everytime.user.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +22,16 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final SchoolRepository schoolRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void saveUser(final UserSaveRequestDto request) {
+        System.out.println("request = " + request);
         final School school = schoolRepository.findByNameAndDepartment(request.schoolName(), request.department())
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_SCHOOL));
         if (userRepository.existsByUsername(request.username())) {
             throw new BadRequestException(ExceptionCode.ALREADY_EXIST_USERNAME);
         }
-        final User user = request.toEntity(school);
+        final User user = request.toEntity(school, passwordEncoder);
         userRepository.save(user);
     }
 
