@@ -904,3 +904,82 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 `JwtAuthenticationFilter`에서 `AuthenticationManager.authenticate()`를 호출하면 스프링 시큐리티에 내장된 AuthenticationProvider의 authenticate() 메서드가 호출되는데
 이때 `DaoAuthenticationProvider`의 `additionalAuthenticationChecks()` 메서드에서 비밀번호 검증을 합니다.
+
+# Week 6
+## 로컬에서 도커 기본 명령어 실행해보기 & 도커 기반 스프링 부트 빌드 해보기
+### 이미지 생성
+
+스프링 프로젝트를 빌드한 후 도커 이미지를 `docker build` 명령어롤 사용해 이미지를 생성했습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/8d27d6f3-1f40-45e8-a40a-85f33f0afff1)
+
+### 이미지 조회
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/7bcf83b6-99ce-41a8-b448-7d62495bcdc0)
+
+### MySQL 이미지 PULL
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/a80a505c-9dbb-4ddd-9976-a817d16b7266)
+
+### MySQL 컨테이너 실행 및 조회
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/cc9b5bd7-9eaf-4519-9070-e05b8d1c13ae)
+
+### MySQL 컨테이너에 접속
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/aa283ba4-dfb8-497c-a7ed-8e369b101cd2)
+
+### docker-compose를 이용한 MySQL 컨테이너 및 스프링 부트 컨테이너 실행
+
+```yaml
+version: '3'
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789
+      MYSQL_DATABASE: everytime
+    ports:
+      - "3306:3306"
+    networks:
+      - app-tier
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+
+  web:
+    image: everytime
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: root
+    networks:
+      - app-tier
+
+networks:
+  app-tier:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+```
+
+### docker-compose 실행
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/81128137-e9d7-42db-9e7d-e03ce2b1d08c)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/ee2013ad-ecdc-4530-aa5f-a68fbca6d126)
+
+### docker-compose 중지
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/f209097a-da47-4c7e-962e-ab110f258b73)
+
+### 도커 이미지 삭제
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/138adb91-de7c-44f2-b0a1-bffa5a2ac863)
