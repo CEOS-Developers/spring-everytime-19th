@@ -87,7 +87,7 @@ public class CategoryService {
     private void validateCategoryCreatedBefore14Days(Category category) {
         LocalDateTime today = LocalDateTime.now();
 
-        if (today.compareTo(category.getCreateDate()) < 14) {
+        if (today.minusDays(14).isBefore(category.getCreateDate())) {
             System.out.println(today);
             System.out.println(category.getCreateDate());
             System.out.println(today.compareTo(category.getCreateDate()));

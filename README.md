@@ -889,8 +889,167 @@ OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
     COPY ${JAR_FILE} app.jar
     ENTRYPOINT ["java","-jar", "/app.jar"]
     ```
+   
 2. 어플리케이션을 빌드한다. 빌드된 jar 파일까지 포함하여 하나의 이미지로 만들기 위함이다.
-```shell
-
-```
-3. 
+    ```shell
+    .\gradlew build
+    ```
+   `build/libs` 경로에 가면 아래와 같이 `.jar` 파일이 2개 생성되었음을 알 수 있다.
+    ```shell
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    -a----      2024-05-11   오후 9:35          93943 spring-everytime-0.0.1-SNAPSHOT-plain.jar
+    -a----      2024-05-11   오후 9:35       57863436 spring-everytime-0.0.1-SNAPSHOT.jar
+    ```
+   뒤에 `-plain`이 붙은 파일은 아카이빙 파일이다. ([공식문서](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/#packaging-executable.and-plain-archives))   
+   `dockerfile`에서 jar 파일을 구분하는 것이 불편하기에 이를 생성하고 싶지 않다면, `build.gradle`에 아래와 같은 코드를 추가한다.   
+    ```groovy
+    tasks.named('jar') {
+      enabled = false
+    }
+    ```
+   
+    기존 빌드 파일을 지우고 다시 빌드하면 아래와 같이 하나의 `jar`파일만 나오는 것을 볼 수 있다.   
+    ```shell
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    -a----      2024-05-11  오후 10:33       57863436 spring-everytime-0.0.1-SNAPSHOT.jar
+    ```
+   
+3. `dockerfile`과 위에서 빌드한 파일을 이용해 도커 이미지 만들기
+    도커 엔진이 실행되는 상태에서 아래 명령어를 실행한다.   
+    로컬 컴퓨터에 도커를 설치한 뒤, 이미지를 빌드하고, 서버에서는 빌드한 이미지를 가져와 자바가 설치된 컨테이너에서 바로 실행한다.   
+    (따라서 서버 컴퓨터에는 자바를 별도로 설치할 필요가 없다!)
+    ```shell
+    docker image build -t spring:v1 .
+    ```
+    현재 위치(`.`)에서 `dockerfile`을 찾아 `spring`이라는 이름과 `v1`이라는 태그로 이미지를 만든다.
+    ```shell
+    [+] Building 10.2s (7/7) FINISHED
+     => [internal] load build definition from Dockerfile                                                                                                                                                                                             0.0s
+     => => transferring dockerfile: 150B                                                                                                                                                                                                             0.0s 
+     => [internal] load .dockerignore                                                                                                                                                                                                                0.0s 
+     => => transferring context: 2B                                                                                                                                                                                                                  0.0s 
+     => [internal] load metadata for docker.io/library/openjdk:17                                                                                                                                                                                    2.5s 
+     => [internal] load build context                                                                                                                                                                                                                0.3s
+     => => transferring context: 57.88MB                                                                                                                                                                                                             0.3s 
+     => [1/2] FROM docker.io/library/openjdk:17@sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8                                                                                                                              7.1s 
+     => => resolve docker.io/library/openjdk:17@sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8                                                                                                                              0.0s 
+     => => sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8 1.04kB / 1.04kB                                                                                                                                                   0.0s 
+     => => sha256:98f0304b3a3b7c12ce641177a99d1f3be56f532473a528fda38d53d519cafb13 954B / 954B                                                                                                                                                       0.0s 
+     => => sha256:5e28ba2b4cdb3a7c3bd0ee2e635a5f6481682b77eabf8b51a17ea8bfe1c05697 4.45kB / 4.45kB                                                                                                                                                   0.0s 
+     => => sha256:38a980f2cc8accf69c23deae6743d42a87eb34a54f02396f3fcfd7c2d06e2c5b 42.11MB / 42.11MB                                                                                                                                                 1.9s 
+     => => sha256:de849f1cfbe60b1c06a1db83a3129ab0ea397c4852b98e3e4300b12ee57ba111 13.53MB / 13.53MB                                                                                                                                                 1.0s
+     => => sha256:a7203ca35e75e068651c9907d659adc721dba823441b78639fde66fc988f042f 187.53MB / 187.53MB                                                                                                                                               5.8s 
+     => => extracting sha256:38a980f2cc8accf69c23deae6743d42a87eb34a54f02396f3fcfd7c2d06e2c5b                                                                                                                                                        0.7s 
+     => => extracting sha256:de849f1cfbe60b1c06a1db83a3129ab0ea397c4852b98e3e4300b12ee57ba111                                                                                                                                                        0.2s 
+     => => extracting sha256:a7203ca35e75e068651c9907d659adc721dba823441b78639fde66fc988f042f                                                                                                                                                        1.2s 
+     => [2/2] COPY /build/libs/*.jar app.jar                                                                                                                                                                                                         0.4s 
+     => exporting to image                                                                                                                                                                                                                           0.2s 
+     => => exporting layers                                                                                                                                                                                                                          0.2s 
+     => => writing image sha256:6d62b0cee38d5cacbb4ee62cae7138cf0ff9a185bbe269a023557005e61c1c43                                                                                                                                                     0.0s 
+     => => naming to docker.io/library/spring:v1
+    ```
+    생성된 이미지는 아래 명령어로 확인할 수 있다.
+    ```shell
+    docker images
+    ```
+    ```shell
+    REPOSITORY       TAG                   IMAGE ID       CREATED          SIZE
+    spring           v1                    6d62b0cee38d   11 minutes ago   529MB
+    ```
+4. 이미지를 도커 허브에 push하기   
+    도커 이미지는 깃허브와 유사한 `도커 허브`라는 곳에 업로드 수 있다.
+    우선 업로드하기 전에 도커 허브에 로그인한다.
+    ```shell
+    docker login
+    ```
+    ```shell
+    Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+    Username: kckc0608@naver.com
+    Password:
+    Login Succeeded
+    
+    Logging in with your password grants your terminal complete access to your account.
+    For better security, log in with a limited-privilege personal access token. Learn more at https://docs.docker.com/go/access-tokens/
+    ```
+    도커 이미지를 허브에 올릴 때는 깃허브와 비슷하게 `push`를 사용한다.
+    ```shell
+    docker push spring:v1
+    ```
+    push할 이미지읭 이름과 태그를 명시한다. 태그는 명시하지 않으면 기본값으로 `latest`를 사용한다. 
+    ```shell
+    The push refers to repository [docker.io/library/spring]
+    79e34dc2859b: Preparing                                                                                                                                                                                                                               
+    dc9fa3d8b576: Preparing                                                                                                                                                                                                                               
+    27ee19dc88f2: Preparing                                                                                                                                                                                                                               
+    c8dd97366670: Preparing                                                                                                                                                                                                                               
+    denied: requested access to the resource is denied
+    ```
+    `denied: requestsd access to the resource is denied` 에러는 현재 로그인한 사용자와 이미지에 명시된 사용자가 일치하지 않아서 발생하는 오류이다.   
+    이미지에 사용자를 명시하려면 `로그인 사용자명`/`이미지 이름` 형식으로 이미지 이름을 만들면 된다.
+    ```shell
+    PS D:\Hongik\CEOS\spring-everytime-19th> docker images
+    REPOSITORY        TAG                   IMAGE ID       CREATED          SIZE
+    kckc0608/spring   v1                    6d62b0cee38d   27 minutes ago   529MB
+    spring            v1                    6d62b0cee38d   27 minutes ago   529MB
+    ```
+    다시 이미지를 만들어주었다. 이제 다시 만든 이미지를 push 한다.
+    ```shell
+    PS D:\Hongik\CEOS\spring-everytime-19th> docker push kckc0608/spring:v1
+    The push refers to repository [docker.io/kckc0608/spring]
+    79e34dc2859b: Pushed
+    dc9fa3d8b576: Pushed
+    27ee19dc88f2: Pushed
+    c8dd97366670: Pushed
+    v1: digest: sha256:bcaffbf056d4cd03f6610dc9f7e9cf3afd3c7f17a58106d31bbcf71bbc8b5f5e size: 1166
+    ```
+5. 서버의 도커 엔진에서 도커에 로그인한다.
+    ```shell
+    ubuntu@everdu-sub:~$ docker login
+    Log in with your Docker ID or email address to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com/ to create one.
+    You can log in with your password or a Personal Access Token (PAT). Using a limited-scope PAT grants better security and is required for organizations using SSO. Learn more at https://docs.docker.com/go/access-tokens/
+    
+    Username: kckc0608@naver.com
+    Password:
+    WARNING! Your password will be stored unencrypted in /home/ubuntu/.docker/config.json.
+    Configure a credential helper to remove this warning. See
+    https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+    
+    Login Succeeded
+    ```
+6. 도커 이미지를 다운 받는다. 깃허브와 유사하게 `pull` 명령어를 사용한다.
+    ```shell
+    ubuntu@everdu-sub:~$ sudo docker pull kckc0608/spring:v1
+    v1: Pulling from kckc0608/spring
+    38a980f2cc8a: Pull complete
+    de849f1cfbe6: Pull complete
+    a7203ca35e75: Pull complete
+    8356870fb9b5: Pull complete
+    Digest: sha256:bcaffbf056d4cd03f6610dc9f7e9cf3afd3c7f17a58106d31bbcf71bbc8b5f5e
+    Status: Downloaded newer image for kckc0608/spring:v1
+    docker.io/kckc0608/spring:v1
+    ```
+7. 다운받은 이미지로 컨테이너를 실행한다.
+    ```shell
+    sudo docker run -p 8080:8080 kckc0608/spring:v1
+    ```
+    이때 서버 포트와 컨테이너가 사용할 포트를 설정해준다.
+    ```shell
+      .   ____          _            __ _ _
+     /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+    ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+     \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+      '  |____| .__|_| |_|_| |_\__, | / / / /
+     =========|_|==============|___/=/_/_/_/
+     :: Spring Boot ::                (v3.1.9)
+    
+    2024-05-11T14:20:00.881Z  INFO 1 --- [           main] c.c.s.SpringEverytimeApplication         : Starting SpringEverytimeApplication v0.0.1-SNAPSHOT using Java 17.0.2 with PID 1 (/app.jar started by root in /)
+    
+    ```
+    스프링 어플리케이션이 실행된다.
+8. Postman 테스트   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/6faf481d-4a6f-4a20-b08b-eafa06e1d124)   
+    login 요청은 허용을 해뒀으므로 별도 reqeust body 없이 요청을 보내보았다.   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/e9c8c3b7-e973-4c9d-84ac-ae07dd2c515c)   
+    401 에러가 발생하였으며, 이는 의도한 에러코드가 맞다.
