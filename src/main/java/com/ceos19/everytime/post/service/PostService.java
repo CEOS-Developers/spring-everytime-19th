@@ -33,8 +33,8 @@ public class PostService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public void createPost(final PostCreateRequestDto request) {
-        final User writer = userRepository.findById(request.userId())
+    public void createPost(final PostCreateRequestDto request, final String username) {
+        final User writer = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
         final Board board = getBoard(request.boardId());
         final Post post = Post.builder()
