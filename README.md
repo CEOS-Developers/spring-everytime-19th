@@ -1358,5 +1358,89 @@ jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요�
 ~~~shell
 openssl rand -hex 64
 ~~~
+# 5주차
+1. 리프레시 토큰 구현
+2. 로그아웃 기능 구현
+3. 도커파일로 이미지 생성후 docker compose를 사용하여 컨테이너 빌드
 
-docker logs [container id]: log 확인
+## 도커 명령어 정리
+ *내가 생각하기에 필수적인 명령어들을 정리해보았다.*
+- docker run [옵션] [이미지명]: local repository(없다면 docker hub)에서 이미지를 불러와 컨테이너를 실행
+  - 옵션	설명	예시
+~~~shell
+    옵션       설명                                                예시 
+    -i	      상호입출력                                            -it
+    -t	      tty를 활성화해서 shell을 사용하도록 컨테이너를 설정	 
+    -d	      detached mode. 컨테이너를 백그라운드에서 실행	 
+    -p	      호스트와 컨테이너의 포트를 포트포워딩.                      -p8000:80
+    -v	      볼륨과 컨테이너 디렉토리를 마운트                          -v volume
+    --name    컨테이너 이름을 명시                                    --name my_container
+    -rm	      프로세스 종료시 컨테이너 자동 제거	 
+    -link     컨테이너 연결. ip가 아닌 컨테이너 이름 기반 통신 가능	 
+    --network 브릿지 네트워크에 연결                                  --network my_network
+~~~
+- docker images: local repository에 저장된 이미지 목록을 보여준다.
+- docker ps: 현재 실행 중인 컨테이너를 보여줌
+- docker ps -a: 존재하는 모든 컨테이너를 보여줌
+- docker exec -it [컨테이너 id] [CMD]: CMD를 실행하여 컨테이너 내부로 진입 
+- docker logs [컨테이너 id]: log 확인
+- docker rm [컨테이너 id]: 컨테이너 제거
+- docker rmi [이미지 id]: 이미지 제거
+- docker commit [컨테이너 ID] dockerhub계정명/이미지 이름: commit하여 컨테이너를 이미지로 만듦
+- docker push [커밋한 이미지 이름] [docker hub 계정명]/[이미지 이름](:[tag]): 도커 허브에 내가 만든 이미지를 push함. tag는 생략가능
+- docker inspect [이미지|컨테이너|볼륨|네트워크]: 정보 확인 가능
+
+## 도커 볼륨
+볼륨을 사용하여 컨테이너의 특정 디렉토리를 호스트의 특정 디렉토리와 마운트 할 수 있다. 이로인해 컨테이저가 삭제되거나 재 실행되어도 데이터를 잃어버리지 않고 유지할 수 있다.
+- docker volume create [볼륨명]: 볼륨을 생성함. 이를 named volume이라고 함.
+- docker volume rm [볼륨명]: 볼륨 제거
+
+### 컨테이너에 볼륨 마운트 하기
+
+#### Bind mount volume
+- docker run -v [로컬 디렉토리 경로]:[마운트할 컨테이너 디렉토리 경로] [옵션] [이미지]
+
+내가 지정한 로컬 디렉토리의 경로에 컨테이너의 폴더가 마운트된다. 이 경우 컨테이너가 제거 되어도 볼륨은 제거되지 않는다.
+
+#### Anonymous Volume
+- docker run -v [마운트할 컨테이너 디렉토리 경로] [옵션] [이미지]
+
+Bind mount volume과는 달리 로컬 경로를 명시하지 않은 경우 익명 볼륨으로 지정된다. 익명 볼륨으로 지정된 경우 사용자는 컨테이너 데이터가 호스트의 어느 경로에 저장되는지 알 수 없고, 컨테이너가 삭제되는 경우 익명볼륨도 함께 제거된다.
+
+#### Named Volume
+- docker -v [볼륨명]:[마운트할 컨테이너 디렉토리 경로] [옵션] [이미지]
+
+ 미리 생성해둔 볼륨에 컨테이너를 마운트하는 경우 named volume을 사용한다. 이 경우도 bind mount volume과 마찬가지로 컨테이너가 제거되더라도 볼륨은 제거되지 않아 컨테이너와 상관없이 데이터를 유지할 수 있다.
+
+## 도커 파일
+Dockerfile은 기존 일일히 CLI 명령어를 통해서 도커를 이미지를 빌드시켜야 하던 것을 하나의 파일에 정의해두어 편리하게 실행토록 하는 기능이다. 
+
+~~~text
+# Dockerfile
+FROM openjdk:17
+ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+~~~
+에브리타임 서버 이미지를 만들기 위해서 jar 파일을 빌드한 후 위의 도커 파일로 이미지를 생성하였다. 
+또한 내가 만든 에브리타임 서버는 mysql 데이터 베이스와 연동이 필요하기 때문에, mysql 이미지도 docker file을 통해서 정의하였다.
+~~~text
+FROM mysql:8.0
+
+COPY init.sql /docker-entrypoint-initdb.d
+
+ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+ENV MYSQL_DATABASE=ceos_everytime_db
+ENV MYSQL_HOST=%
+
+CMD ["--character-set-server=utf8mb4","--collation-server=utf8mb4_unicode_ci"]
+~~~
+
+두개의 이미지를 모두 dockerfile로 정의해두었기 때문에 docker build 명령어로 이미지를 빌드할 수 있다.
+
+- docker build -t [생성할 이미지 이름:tag] [도커 파일 경로]: 도커 파일로 이미지 빌드
+
+나의 경우 compose.yml을 사용하였기 때문에 별도로 docker build를 실행하진 않았다.
+
+## Docker Compose
+도커 컴포즈를 이용하여 동시에 여러 이미지를 run 하여 컨테이너로 실행할 수 있다.
