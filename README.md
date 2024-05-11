@@ -941,8 +941,6 @@ services:
       MYSQL_DATABASE: everytime
     ports:
       - "3306:3306"
-    networks:
-      - app-tier
     restart: always
     volumes:
       - db_data:/var/lib/mysql
@@ -958,16 +956,6 @@ services:
       - db
     environment:
       mysql_host: root
-    networks:
-      - app-tier
-
-networks:
-  app-tier:
-    driver: bridge
-
-volumes:
-  db_data:
-    driver: local
 ```
 
 ### docker-compose 실행
@@ -983,3 +971,20 @@ volumes:
 ### 도커 이미지 삭제
 
 ![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/138adb91-de7c-44f2-b0a1-bffa5a2ac863)
+
+## 스프링 컨테이너와 MySQL 컨테이너 연결 오류
+
+도커 컴포즈를 이용해서 MySQL 컨테이너와 스프링 부트 컨테이너를 실행했는데 스프링 부트 컨테이너에서 MySQL 컨테이너에 연결이 실패했습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/139a1fb6-b54e-46c0-bd26-bf7714bfee10)
+
+이유는 `application.yml` 파일에서 데이터베이스의 url을 `localhost`로 설정했기 때문이었습니다. `localhost`를 `host.docker.internal`로 변경하니 정상적으로 연결이 되었습니다.
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://host.docker.internal:13306/everytime
+...
+```
+
+정상적으로 연결이 되고 나서 회원가입부터 로그인까지 Swagger를 통해서 테스트했을 때 정상적으로 동작하는 것을 확인했습니다.
