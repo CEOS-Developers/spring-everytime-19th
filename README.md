@@ -811,3 +811,86 @@ OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
 ![image](https://github.com/kckc0608/kckc0608/assets/64959010/2cbdcd6f-e786-4ab8-94a8-0955894e20f3)   
 인증에 성공하여 서버로부터 적절한 응답을 받게 된다.
 
+<hr>
+
+# 6주차
+## 어플리케이션 배포
+어플리케이션을 배포하는 것은 나만 사용하는 내 컴퓨터(로컬 환경)가 아니라, 인터넷 환경에 연결된 공공 컴퓨터(서버)에서 어플리케이션을 24시간 실행시켜 누구나 언제든 어플리케이션에 요청을 보내고, 응답을 받을 수 있도록 하는 것을 말한다.   
+
+서버에서 자바 어플리케이션을 실행하려면 당연히 서버 컴퓨터에 자바를 설치해야 한다.
+그런데 이 과정은 서버 컴퓨터가 1대일 때는 어느 정도 시행착오를 하면서 할 수 있지만, 똑같은 개발 환경을 여러 컴퓨터에 설정해야 한다면, 게다가 각각의 컴퓨터마다 사용하는 OS가 다르다면 그에 맞춰서 일일히 환경을 준비하는 것은 매우 번거로울 것이다.   
+
+도커는 이 문제를 컨테이너 기술을 이용해 해결해준다.   
+서로 다른 하드웨어 구조를 가진 컴퓨터 위에 `도커` 라는 JVM 같은 중간 매개 플랫폼을 두고 이 `도커`라는 공통의 플랫폼 위에 하나의 개발 환경을 `컨테이너`로 만들어 실행함으로써 서로 다른 하드웨어가 모두 같은 환경을 공유할 수 있다.
+
+
+
+## 도커 설치
+[공식문서](https://docs.docker.com/engine/install/ubuntu/)를 참고하여 우분투 서버에 도커를 설치한다.
+1. docker `apt` repository 설정
+    ```shell
+    # Add Docker's official GPG key:
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    
+    # Add the repository to Apt sources:
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    ```
+2. 최신 버전 도커 설치
+    ```shell
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    ```
+3. 도커 설치 확인
+    ```shell
+    sudo docker run hello-world
+    ```
+   실행 결과
+    ```shell
+    Unable to find image 'hello-world:latest' locally
+    latest: Pulling from library/hello-world
+    c1ec31eb5944: Pull complete
+    Digest: sha256:a26bff933ddc26d5cdf7faa98b4ae1e3ec20c4985e6f87ac0973052224d24302
+    Status: Downloaded newer image for hello-world:latest
+    
+    Hello from Docker!
+    This message shows that your installation appears to be working correctly.
+    
+    To generate this message, Docker took the following steps:
+    1. The Docker client contacted the Docker daemon.
+    2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+       (amd64)
+    3. The Docker daemon created a new container from that image which runs the
+       executable that produces the output you are currently reading.
+    4. The Docker daemon streamed that output to the Docker client, which sent it
+       to your terminal.
+    
+    To try something more ambitious, you can run an Ubuntu container with:
+    $ docker run -it ubuntu bash
+    
+    Share images, automate workflows, and more with a free Docker ID:
+    https://hub.docker.com/
+    
+    For more examples and ideas, visit:
+    https://docs.docker.com/get-started/
+    ```
+
+## 도커 위에서 스프링 어플리케이션 실행하기
+1. 도커의 컨테이너에서 스프링 어플리케이션을 실행하려면, 스프링 어플리케이션이 실행될 컨테이너 환경과 컨테이너에서 실행할 명령어를 `dockerfile`에 기술해야 한다.
+    ```dockerfile
+    FROM openjdk:17
+    ARG JAR_FILE=/build/libs/*.jar
+    COPY ${JAR_FILE} app.jar
+    ENTRYPOINT ["java","-jar", "/app.jar"]
+    ```
+2. 어플리케이션을 빌드한다. 빌드된 jar 파일까지 포함하여 하나의 이미지로 만들기 위함이다.
+```shell
+
+```
+3. 

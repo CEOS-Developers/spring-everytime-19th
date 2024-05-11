@@ -88,6 +88,9 @@ public class CategoryService {
         LocalDateTime today = LocalDateTime.now();
 
         if (today.compareTo(category.getCreateDate()) < 14) {
+            System.out.println(today);
+            System.out.println(category.getCreateDate());
+            System.out.println(today.compareTo(category.getCreateDate()));
             throw new BadRequestException(SHOULD_EXCEED_14_DAYS_TO_DELETE);
         }
     }
