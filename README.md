@@ -1362,6 +1362,10 @@ openssl rand -hex 64
 1. 리프레시 토큰 구현
 2. 로그아웃 기능 구현
 3. 도커파일로 이미지 생성후 docker compose를 사용하여 컨테이너 빌드
+4. 도커 네트워크(정리 못함)
+
+## 로그아웃
+로그아웃을 도입함으로써 Access token의 유효시간을 줄이는 효과를 가져와 토큰 탈취로 인한 해킹의 위험성을 줄일 수 있다.
 
 ## 도커 명령어 정리
  *내가 생각하기에 필수적인 명령어들을 정리해보았다.*
@@ -1487,15 +1491,15 @@ compose 파일을 통해서 db 컨테이너가 먼저 build된 이후에 server 
 
 *컴포즈 파일을 통해서 컨테이너가 정상적으로 실행되는 모습*
 ![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/794cea15-93da-485f-8507-2ffd78fff305)
-
 포스트 맨을 통해서 서버가 제대로 동작하는지 확인해 보았다.
+
 ![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/90e46431-042c-4d92-a43c-efcd461e8899)
 localhost:8080/login 경로로 로그인 post 요청을 날렸더니 정상적으로 로그인이 되는 모습이다.
 
 ### 실습 과정에서 생겼던 문제
-![port 문제 해결후 정상실행](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/c7b10ef1-73d0-4e2b-aaaf-ddb69109b66b)
-![mysql stop](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/7b695344-f652-4c25-a4c4-caa56ceb788a)
 ![3306 포트 문제](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ea847ce6-284f-4b03-bd54-5a90b302610c)
+도커 컴포즈를 실행하는 과정에서 생겼던 문제로 컴포즈 빌드를 하는 중에 이미 3306 포트가 사용중이라는 문제가 발생했다. 
 
-
+![mysql stop](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/7b695344-f652-4c25-a4c4-caa56ceb788a)
+이는 로컬 컴퓨터에서 mysql db를 돌리고 있던 와중에 컴포즈로 빌드되는 mysql 컨테이너도 3306 포트를 사용하기 때문에 충돌이 일어난 것인데, 로컬 머신의 mysql을 종료함으로써 문제를 해결했다.
 
