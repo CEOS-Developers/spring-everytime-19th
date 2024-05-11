@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.ceos19.everytime.user.domain.School;
 import com.ceos19.everytime.user.domain.User;
@@ -28,6 +29,9 @@ class UserServiceTest {
 
     @Mock
     private SchoolRepository schoolRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;

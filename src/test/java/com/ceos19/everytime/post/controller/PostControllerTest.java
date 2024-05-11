@@ -2,6 +2,7 @@ package com.ceos19.everytime.post.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -56,9 +57,14 @@ class PostControllerTest {
     @Test
     void 게시글_작성에_성공한다() throws Exception {
         // given
-        final PostCreateRequestDto request = new PostCreateRequestDto("title", "content", true, 1L, 1L);
+        final PostCreateRequestDto request = PostCreateRequestDto.builder()
+                .title("title")
+                .content("content")
+                .isAnonymous(true)
+                .boardId(1L)
+                .build();
 
-        doNothing().when(postService).createPost(any());
+        doNothing().when(postService).createPost(any(), anyString());
 
         // when & then
         mockMvc.perform(post(DEFAULT_POST_URL)

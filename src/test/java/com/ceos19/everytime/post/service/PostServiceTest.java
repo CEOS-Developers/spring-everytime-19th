@@ -2,6 +2,7 @@ package com.ceos19.everytime.post.service;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -54,6 +55,7 @@ class PostServiceTest {
     @BeforeEach
     void setUp() {
         user = User.builder()
+                .username("username")
                 .nickname("nickname")
                 .build();
         board = Board.builder()
@@ -76,16 +78,15 @@ class PostServiceTest {
                 .title("title")
                 .content("안녕하세요~")
                 .isAnonymous(true)
-                .userId(1L)
                 .build();
 
-        given(userRepository.findById(anyLong()))
+        given(userRepository.findByUsername(anyString()))
                 .willReturn(Optional.of(user));
         given(boardRepository.findById(anyLong()))
                 .willReturn(Optional.of(board));
 
         // when
-        postService.createPost(request);
+        postService.createPost(request, user.getUsername());
 
         // then
         verify(postRepository).save(post);
