@@ -996,3 +996,51 @@ spring:
 ![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/6bc0a2ac-bcca-4cfe-9ece-a101081b96d1)
 
 ![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/584fc4ed-0eb8-413a-8d90-9eb8aeeac930)
+
+## @AuthenticationPrincipal 적용
+
+지난 주 과제에서 `@AuthenticationPrincipal` 애노테이션을 사용해서 로그인한 사용자 정보를 가져오려고 했습니다. 하지만 다음과 같이 구현했을 때 null이 반환되었습니다.
+
+```java
+@Operation(summary = "게시글 작성", description = "게시글을 작성합니다.")
+@PostMapping
+public ResponseEntity<Void> createPost(@RequestBody final PostCreateRequestDto request, 
+        @AuthenticationPrincipal final CustomeUserDetails userDetails) {
+    postService.createPost(request, userDetails);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+}
+```
+
+`@AuthenticationPrincipal` 애노테이션은 `AuthenticationPrincipalArgumentResolver`를 사용해서 사용자 정보를 가져오고 있었습니다.
+그래서 디버깅을 통해 AuthenticationPrincipalArgumentResolver#resolveArgument에서 null을 반환하는 것을 확인했습니다.
+그 이유는 위의 코드에서는 `CustomUserDetails` 타입으로 받았는데 AuthenticationPrincipalArgumentResolver#resolveArgument의 principal에는 String인 username이 들어있어 타입이 맞지 않았기 때문입니다.
+
+```java
+UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+        new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password());
+
+
+public UsernamePasswordAuthenticationToken(Object principal, Object credentials) {
+	super(null);
+	this.principal = principal;
+	this.credentials = credentials;
+	setAuthenticated(false);
+}
+```
+
+로그인을 할 때 UsernamePasswordAuthenticationToken에는 principal에 username을 넣었기 때문에 `@AuthenticationPrincipal` 애노테이션을 사용하면 username이 반환되는 것이었습니다.
+그래서 `@AuthenticationPrincipal` 애노테이션을 사용할 때 String을 사용해서 username을 받아오도록 변경했습니다.
+
+```java
+@Operation(summary = "게시글 작성", description = "게시글을 작성합니다.")
+@PostMapping
+public ResponseEntity<Void> createPost(@RequestBody final PostCreateRequestDto request,
+        @AuthenticationPrincipal final String username) {
+    postService.createPost(request, username);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+}
+```
+
+게시글 생성을 통해서 테스트를 진행했을 때 정상적으로 동작하는 것을 확인했습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/23991d5b-d086-4448-8976-89141ff92299)
