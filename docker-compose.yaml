@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: Ab016018!@
+      MYSQL_DATABASE: ceos
+    ports:
+      - "3307:3306"
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+
+  web:
+    image: ceos
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ceos
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Ab016018!@
+
+volumes:
+  db_data:
