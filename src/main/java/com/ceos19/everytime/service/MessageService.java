@@ -50,7 +50,7 @@ public class MessageService {
 
         final Member member = userDetails.getMember();;
 
-        return messageRepository.findBySenderId(sender.getId())
+        return messageRepository.findBySenderId(member.getId())
                 .stream().map(MessageResponse::from).toList();
     }
 

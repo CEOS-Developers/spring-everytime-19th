@@ -43,7 +43,7 @@ public class MemberService {
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto tokenDto = tokenProvider.generateToken(authentication);
 
-        log.info("request loginId = {}, password = {}", loginId, password);
+        //log.info("request loginId = {}, password = {}", loginId, password);
         log.info("jwtToken accessToken = {}", tokenDto.getAccessToken());
 
         return tokenDto;
@@ -58,7 +58,7 @@ public class MemberService {
         // Password 암호화
         String encodedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
-        log.info("password original = {}, encoded = {}", signUpRequest.getPassword(), encodedPassword);
+        //log.info("password original = {}, encoded = {}", signUpRequest.getPassword(), encodedPassword);
 
         return MemberDto.toDto(memberRepository.save(signUpRequest.toEntity(encodedPassword, Authority.ROLE_USER)));
     }
