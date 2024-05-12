@@ -1881,10 +1881,136 @@ public ResponseEntity<Void> savePost(@PathVariable("communityId") final Long com
 더 좋은 측면이 있어보인다. 
 
 
+# Docker  및 DockerCompose 
 
 
+## Docker , DockerCompose 정상 작동 
+
+아래와 같은 docker 및 dockerfile 을 이용하여 정상작동하는지 실험했다. 
 
 
+```java
+FROM openjdk:17
+ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+```
+
+```java
+version: '3.4'
+
+services:
+  db:
+    container_name: everytime_db
+    image: mysql:5.7 #windows
+    environment:
+      MYSQL_DATABASE: users_db
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: root
+      TZ: 'Asia/Seoul'
+    ports:
+      - 3306:3306
+    volumes:
+      - dbdata:/var/lib/mysql
+    restart: always
+
+  redis:
+    image: redis
+    container_name: everytimeredis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
 
 
+  everytime:
+    image: dionisos1998/everytime
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://everytime_db:3306/users_db?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: everytime
+    ports:
+      - 8080:8080
+    depends_on:
+      - redis
+      - db
+
+volumes:
+  dbdata:
+```
+
+
+추가적으로 ```application.yml``` 은 컨테이너에 맞추어서 그 값을 작성했다. 
+
+![img_12.png](img_12.png)
+
+위와 같은 명령어로 docker 컨테이너가 실행 되는 것을 확인했고 
+
+```localhost:8080``` 에서 잘 실행되는 것을 확인했다. 
+
+![img_13.png](img_13.png)
+
+### volume 정상 작동 확인 
+
+![img_14.png](img_14.png)
+
+직접 mysql 안에서 
+
+![img_15.png](img_15.png)
+
+기존에 저장헀었던 내용이 그대로 유지 되는 것을 확인할 수 있었다. hi 라는 데이터 베이스와
+기존에 저장했었던 member
+
+redis 도 마찬가지로 
+
+![img_16.png](img_16.png)
+
+아래와 같이 직접 들어가서 저장되는 값이 유지되는지 확인할 수 있었다. 
+
+# 궁금했던 거 및 의문점
+
+1) app.jar 구경하기 
+
+jar 파일이 app.jar 에 복사된다 하였는데 이 값을 구경하고 싶었다. 
+
+![img_17.png](img_17.png)
+
+![img_18.png](img_18.png)
+
+이렇게 뜨는 구나~ 계속 위와 같은 문자가 올라왔는데 그대로 냅두니 컴퓨터에서 삐삐 소리가 마구마구 발생해서 
+껐다...
+
+
+2) 의문점 -1
+
+```docker compose ``` 맨 밑에 ```volumes:
+dbdata:``` 를 지정하지 않았는데 
+
+```java
+service "db" refers to undefined volume dbdata: invalid compose project
+```
+
+라는 에러가 발생했다. 
+
+왜 redis 도 volumes 를 사용하고 있고 mysql 도 volumes 를 지정하고 있었는데 
+왜 mysql 만 에러가 나는지 이해할 수 없었다. 
+
+```java
+    volumes:
+      - dbdata:/var/lib/mysql
+```
+
+대신 
+
+```java
+    volumes:
+      - /dbdata:/var/lib/mysql
+```
+를 하니 밑에 volumes 가 없어도 실행이 되었지만 
+자세한 건 다음에 알아봐야 겠다...
 
