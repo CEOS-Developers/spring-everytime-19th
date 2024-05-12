@@ -906,3 +906,93 @@ public class GlobalExceptionHandler {
   	3. 리소스 소유자 암호 자격증명 승인 타입: 클라이언트의 패스워드를 사용해서 액세스 토큰에 대한 사용자의 자격 증명을 교환하는 방식
   	4. 클라이언트 자격증명 승인 타입: 클라이언트가 컨텍스트 외부에서 액세스 토큰을 얻어서 특정 리소스에 접근을 요청할 때 사용하는 방식
 
+---
+# CEOS 19th 6th Assignment - Docker
+## 도커 컨테이너와 이미지
+### 도커를 사용하는 이유
+- 기존의 클라우드 환경 이주 방법
+	- 1) Iaas(서비스로서의 인프라): 어플리케이션의 각 컴포넌트가 모두 가상 머신에서 독립적으로 동작. 특정 클라우드에 종속되지는 않기 때문에 이주 과정을 쉽지만, 가상 머신의 성능을 완전히 활용하지 못하며 운영비가 비싸다는 단점이 있다. 
+   	- 2) PaaS(서비스로서의 플랫폼): 어플리케이션의 각 컴포넌트를 하나씩 클라우드의 Managed Service로 옮기는 복잡한 과정이 필요. 운영비가 저렴하고 관리가 쉽다는 장점도 있다.
+- 도커가 각광받는 이유: 위에서 언급된 단점들이 없는 선택지를 제공. 어플리케이션의 각 컴포넌트를 컨테이너로 이주한 다음 동작되기 때문에 이들 컴포넌트는 가상 머신처럼 독립적이지만 경량이며 Paas의 Managed Service만큼 효율적이다. 컨테이너로 이주된 각 컴포넌트들은 Azure Kubernetes Service나 Amazon Elastic Container Service 혹은 직접 구축한 docker cluster에서 전체 어플리케이션을 수행할 수 있는데, 이렇게 도커화된 어플리케이션은 이식성이 뛰어나다는 장점도 있다. 
+
+### 도커의 기본적인 사용법
+- 도커 엔진 동작 확인
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/76492184-d311-451f-8c2c-e8dace601e0d)
+
+-도커 컴포즈 확인
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/49647da0-2b51-4a9a-82bf-a8ae4f25465f)
+
+- (예제) 도커 이미지 다운받고 컨테이너로 어플리케이션을 실행
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/c8a1bf82-4893-4090-9baa-29b3c3569eb2)
+`container run diamol/ch02-hello-diamol`이라는 명령어를 입력하면 위의 사진과 같이 결과가 나온다.
+```console
+latest: Pulling from diamol/ch02-hello-diamol
+31603596830f: Pull complete
+93931504196e: Pull complete
+d7b1f3678981: Pull complete
+Digest: sha256:c4f45e04025d10d14d7a96df2242753b925e5c175c3bea9112f93bf9c55d4474
+Status: Downloaded newer image for diamol/ch02-hello-diamol:latest
+```
+이 컴퓨터에는 현재 diamol/ch02-hello-diamol 이미지가 없으므로 내려받는다는 의미이다.
+```console
+---------------------
+Hello from Chapter 2!
+---------------------
+My name is:
+a48e29387b83
+---------------------
+Im running on:
+Linux 5.15.146.1-microsoft-standard-WSL2 x86_64
+---------------------
+My address is:
+inet addr:172.17.0.2 Bcast:172.17.255.255 Mask:255.255.0.0 inet6 addr: fe80::42:acff:fe11:2/64 Scope:Link
+---------------------
+```
+이미지를 이용해 컨테이너를 실행하여, 그 결과를 출력한 부분에 해당하는 로그이다. 컴퓨터의 이름, 운영체제 종류, 네트워크 주소를 출력하고 있다.  
+이처럼 아주 간단한 어플리케이션이지만 이 과정에서 도커를 사용하는 플로우를 확인할 수 있다.  
+1. 빌드: 어플리케이션을 컨테이너에서 수행할 수 있도록 패키징하기 
+2. 공유: 타인이 패키지를 사용할 수 있도록 공유
+3. 실행: 해당 패키지를 내려받은 사람이 컨테이너를 통해 어플리케이션을 실행
+
+- 같은 예제를 같은 명령어로 다시 실행해보면?
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/cf2c272a-9f77-48bd-8511-889eeab71782)
+조금 전 이미지를 이미 내려받았기 때문에 이미지를 내려받는 과정에 대한 부분이 사라지고, 바로 컨테이너를 실행하는 메시지가 출력된다.
+같은 컴퓨터를 사용하므로 컨테이너가 출력하는 내용 중 운영체제 종류는 같고 컴퓨터 이름과 네트워크 주소에 대한 내용은 달라진 상태이다.
+
+- 컨테이너란?
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/2d191a62-7279-4ee7-b6e0-c788218c06ee)
+도커 컨테이너는 어플리케이션과 어플리케이션을 실행할 컴퓨터(IP 주소, 컴퓨터 이름, 디스크 드라이브)가 들어있다고 생각하면 된다.
+IP 주소, 호스트명, 디스크 드라이브, 파일 시스템까지 이들은 모두 도커가 만들어낸 가상 리소스이다. 이들이 엮여서 어플리케이션이 동작하는 방식이다.
+도커는 양립이 불가능해 보이는 장점을 모두 갖는다.  
+1. 밀집: 컴퓨터에 CPU와 메모리가 허용하는 한 되도록 많은 수의 어플리케이션을 실행하도록 하는 것
+2. 격리: 서로 다른 어플리케이션은 독립된 환경에서 실행되어야 하는 것
+
+가상머신도 '격리'된 환경에서 어플리케이션을 작동하게는 할 수 있지만, 컨테이너와 달리 호스트 컴퓨터의 운영체제를 공유하지 않고 각자 별도의 운영체제를 필요로 하기 때문에 '밀집'이라는 목표는 달성하지 못한다는 단점이 있다.  
+
+- 컨테이너를 원격 컴퓨터처럼 이용
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/a6a9fa5a-e1fd-450c-a557-e07c3adc1955)
+docker container run --interactive --tty diamol/base`라는 명령어를 입력하면 위의 사진과 같이 사용할 수 있다.
+1. `--interactive`: 컨테이너에 접속
+2. `--tty`: 터미널 세션을 통해 컨테이너를 조작
+
+즉, 위의 명령어를 입력하면 diamol/base라는 이미지로부터 대화식 컨테이너를 실행하게 되는 것이다.  
+사진에서도 확인할 수 있듯이, hostname과 date를 입력했더니 해당 정보를 바로 출력한다. 
+
+- 실행 중인 컨테이너 정보 확인
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/4ddd3439-e26a-47be-be7e-85dbea1b07bc)
+새로운 터미널 세션을 열고 `docker container ls`를 입력했더니 위의 사진과 같이 현재 실행 중인 컨테이너 정보를 확인할 수 있다. 
+이때 container ID가 좀 전에 컨테이너 내부에서 hostname으로 확인한 호스트명과 동일한 것도 확인할 수 있다.
+
+
+### 도커 이미지 만들기
+
+### 어플리케이션 소스코드 -> 도커 이미지
+
+### 도커 허브 등 레지스토리에 이미지 공유하기
+
+### 도커 볼륨을 이용한 persistent stroage
+
+
+## 컨테이너로 분산 어플리케이션 실행하기
+### Docker compose
+
