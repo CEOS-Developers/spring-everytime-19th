@@ -1,6 +1,5 @@
 package com.ceos19.everytime.controller;
 
-import com.ceos19.everytime.domain.Member;
 import com.ceos19.everytime.dto.CreateResponse;
 import com.ceos19.everytime.dto.message.CreateMessageRequest;
 import com.ceos19.everytime.dto.message.MessageResponse;
@@ -30,8 +29,7 @@ public class MessageController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody@Valid final CreateMessageRequest createMessageRequest){
 
-        final Member member = userDetails.getMember();
-        final Long messageId = messageService.createMessage(createMessageRequest, member.getId());
+        final Long messageId = messageService.createMessage(createMessageRequest, userDetails);
 
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
                 .body(CreateResponse.from(messageId));
@@ -40,8 +38,7 @@ public class MessageController {
     @GetMapping
     public ResponseEntity<List<MessageResponse>> findEveryMessage (@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        final Member member = userDetails.getMember();
-        final List<MessageResponse> messageResponseList = messageService.findEveryMessage(member.getId());
+        final List<MessageResponse> messageResponseList = messageService.findEveryMessage(userDetails);
 
         return ResponseEntity.status(SELECT_SUCCESS.getHttpStatus())
                 .body(messageResponseList);
@@ -52,8 +49,7 @@ public class MessageController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable final Long messageId) {
 
-        final Member member = userDetails.getMember();
-        messageService.deleteMessage(member.getId(), messageId);
+        messageService.deleteMessage(userDetails, messageId);
 
         return ResponseEntity.status(DELETE_SUCCESS.getHttpStatus()).build();
     }

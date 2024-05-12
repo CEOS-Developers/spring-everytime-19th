@@ -7,6 +7,7 @@ import com.ceos19.everytime.dto.message.MessageResponse;
 import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.MemberRepository;
 import com.ceos19.everytime.repository.MessageRepository;
+import com.ceos19.everytime.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,10 @@ public class MessageService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Long createMessage (CreateMessageRequest createMessageRequest, Long senderId){
+    public Long createMessage (CreateMessageRequest createMessageRequest, CustomUserDetails userDetails){
 
-        final Member sender = memberRepository.findById(senderId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        //final Member sender = memberRepository.findById(senderId)
+        final Member sender = userDetails.getMember();
         final Member receiver = memberRepository.findById(createMessageRequest.getReceiverId())
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
@@ -45,29 +46,30 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
-    public List<MessageResponse> findEveryMessage(Long memberId){
-        final Member sender = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+    public List<MessageResponse> findEveryMessage(CustomUserDetails userDetails){
+
+        final Member member = userDetails.getMember();;
 
         return messageRepository.findBySenderId(sender.getId())
                 .stream().map(MessageResponse::from).toList();
     }
 
     @Transactional
-    public void deleteMessage (Long memberId, Long messageId){
+    public void deleteMessage (CustomUserDetails userDetails, Long messageId){
 
-        final Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        final Member member = userDetails.getMember();;
         final Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new CustomException(MESSAGE_NOT_FOUND));
 
-        if(messageRepository.existsByIdAndSenderId(message.getId(), member.getId()) || messageRepository.existsByIdAndReceiverId(message.getId(), member.getId())){
+        if(messageRepository.existsByIdAndSenderId(message.getId(), member.getId()) ||
+                messageRepository.existsByIdAndReceiverId(message.getId(), member.getId())){
             messageRepository.deleteById(messageId);
         }
     }
 
     @Transactional
     public void updateReadStatus(Long receiverId, Long messageId){
+
         Optional<Message> message = messageRepository.findById(messageId);
         Optional<Member> receiver = memberRepository.findById(receiverId);
         if(message.isEmpty() || receiver.isEmpty()){
