@@ -910,7 +910,7 @@ public class GlobalExceptionHandler {
 # CEOS 19th 6th Assignment - Docker
 ## 도커 컨테이너와 이미지
 ### 도커를 사용하는 이유
-- 기존의 클라우드 환경 이주 방법
+- 기존의 클라우드 환경 이주 방법  
 	- 1) Iaas(서비스로서의 인프라): 어플리케이션의 각 컴포넌트가 모두 가상 머신에서 독립적으로 동작. 특정 클라우드에 종속되지는 않기 때문에 이주 과정을 쉽지만, 가상 머신의 성능을 완전히 활용하지 못하며 운영비가 비싸다는 단점이 있다. 
    	- 2) PaaS(서비스로서의 플랫폼): 어플리케이션의 각 컴포넌트를 하나씩 클라우드의 Managed Service로 옮기는 복잡한 과정이 필요. 운영비가 저렴하고 관리가 쉽다는 장점도 있다.
 - 도커가 각광받는 이유: 위에서 언급된 단점들이 없는 선택지를 제공. 어플리케이션의 각 컴포넌트를 컨테이너로 이주한 다음 동작되기 때문에 이들 컴포넌트는 가상 머신처럼 독립적이지만 경량이며 Paas의 Managed Service만큼 효율적이다. 컨테이너로 이주된 각 컴포넌트들은 Azure Kubernetes Service나 Amazon Elastic Container Service 혹은 직접 구축한 docker cluster에서 전체 어플리케이션을 수행할 수 있는데, 이렇게 도커화된 어플리케이션은 이식성이 뛰어나다는 장점도 있다. 
@@ -924,7 +924,7 @@ public class GlobalExceptionHandler {
 
 - (예제) 도커 이미지 다운받고 컨테이너로 어플리케이션을 실행  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/c8a1bf82-4893-4090-9baa-29b3c3569eb2)
-`container run diamol/ch02-hello-diamol`이라는 명령어를 입력하면 위의 사진과 같이 결과가 나온다.
+`container run diamol/ch02-hello-diamol`이라는 명령어를 입력하면 위의 사진과 같이 결과가 나온다.  
 ```console
 latest: Pulling from diamol/ch02-hello-diamol
 31603596830f: Pull complete
@@ -933,7 +933,7 @@ d7b1f3678981: Pull complete
 Digest: sha256:c4f45e04025d10d14d7a96df2242753b925e5c175c3bea9112f93bf9c55d4474
 Status: Downloaded newer image for diamol/ch02-hello-diamol:latest
 ```
-이 컴퓨터에는 현재 diamol/ch02-hello-diamol 이미지가 없으므로 내려받는다는 의미이다.
+이 컴퓨터에는 현재 diamol/ch02-hello-diamol 이미지가 없으므로 내려받는다는 의미이다.  
 ```console
 ---------------------
 Hello from Chapter 2!
@@ -954,54 +954,54 @@ inet addr:172.17.0.2 Bcast:172.17.255.255 Mask:255.255.0.0 inet6 addr: fe80::42:
 2. 공유: 타인이 패키지를 사용할 수 있도록 공유
 3. 실행: 해당 패키지를 내려받은 사람이 컨테이너를 통해 어플리케이션을 실행
 
-- 같은 예제를 같은 명령어로 다시 실행해보면?
+- 같은 예제를 같은 명령어로 다시 실행해보면?  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/cf2c272a-9f77-48bd-8511-889eeab71782)
-조금 전 이미지를 이미 내려받았기 때문에 이미지를 내려받는 과정에 대한 부분이 사라지고, 바로 컨테이너를 실행하는 메시지가 출력된다.
+조금 전 이미지를 이미 내려받았기 때문에 이미지를 내려받는 과정에 대한 부분이 사라지고, 바로 컨테이너를 실행하는 메시지가 출력된다.  
 같은 컴퓨터를 사용하므로 컨테이너가 출력하는 내용 중 운영체제 종류는 같고 컴퓨터 이름과 네트워크 주소에 대한 내용은 달라진 상태이다.
 
-- 컨테이너란?
+- 컨테이너란?  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/2d191a62-7279-4ee7-b6e0-c788218c06ee)
-도커 컨테이너는 어플리케이션과 어플리케이션을 실행할 컴퓨터(IP 주소, 컴퓨터 이름, 디스크 드라이브)가 들어있다고 생각하면 된다.
-IP 주소, 호스트명, 디스크 드라이브, 파일 시스템까지 이들은 모두 도커가 만들어낸 가상 리소스이다. 이들이 엮여서 어플리케이션이 동작하는 방식이다.
+도커 컨테이너는 어플리케이션과 어플리케이션을 실행할 컴퓨터(IP 주소, 컴퓨터 이름, 디스크 드라이브)가 들어있다고 생각하면 된다.  
+IP 주소, 호스트명, 디스크 드라이브, 파일 시스템까지 이들은 모두 도커가 만들어낸 가상 리소스이다. 이들이 엮여서 어플리케이션이 동작하는 방식이다.  
 도커는 양립이 불가능해 보이는 장점을 모두 갖는다.  
 1. 밀집: 컴퓨터에 CPU와 메모리가 허용하는 한 되도록 많은 수의 어플리케이션을 실행하도록 하는 것
 2. 격리: 서로 다른 어플리케이션은 독립된 환경에서 실행되어야 하는 것
 
 가상머신도 '격리'된 환경에서 어플리케이션을 작동하게는 할 수 있지만, 컨테이너와 달리 호스트 컴퓨터의 운영체제를 공유하지 않고 각자 별도의 운영체제를 필요로 하기 때문에 '밀집'이라는 목표는 달성하지 못한다는 단점이 있다.  
 
-- 컨테이너를 원격 컴퓨터처럼 이용
+- 컨테이너를 원격 컴퓨터처럼 이용  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/a6a9fa5a-e1fd-450c-a557-e07c3adc1955)
-docker container run --interactive --tty diamol/base`라는 명령어를 입력하면 위의 사진과 같이 사용할 수 있다.
+docker container run --interactive --tty diamol/base`라는 명령어를 입력하면 위의 사진과 같이 사용할 수 있다.  
 1. `--interactive`: 컨테이너에 접속
 2. `--tty`: 터미널 세션을 통해 컨테이너를 조작
 
 즉, 위의 명령어를 입력하면 diamol/base라는 이미지로부터 대화식 컨테이너를 실행하게 되는 것이다.  
-사진에서도 확인할 수 있듯이, hostname과 date를 입력했더니 해당 정보를 바로 출력한다. 
+사진에서도 확인할 수 있듯이, hostname과 date를 입력했더니 해당 정보를 바로 출력한다.  
 
-- 실행 중인 컨테이너 정보 확인
+- 실행 중인 컨테이너 정보 확인  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/4ddd3439-e26a-47be-be7e-85dbea1b07bc)
-새로운 터미널 세션을 열고 `docker container ls`를 입력했더니 위의 사진과 같이 현재 실행 중인 컨테이너 정보를 확인할 수 있다. 
-이때 container ID가 좀 전에 컨테이너 내부에서 hostname으로 확인한 호스트명과 동일한 것도 확인할 수 있다.
+새로운 터미널 세션을 열고 `docker container ls`를 입력했더니 위의 사진과 같이 현재 실행 중인 컨테이너 정보를 확인할 수 있다.  
+이때 container ID가 좀 전에 컨테이너 내부에서 hostname으로 확인한 호스트명과 동일한 것도 확인할 수 있다.  
 
-- 컨테이너를 사용해 웹 사이트 호스팅
+- 컨테이너를 사용해 웹 사이트 호스팅  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/11c0a5fb-79f1-4b22-9adf-7641ccbadf64)  
-위의 사진과 같이 `docker container run --detach --publish 8088:80 diamol/ch02-hello-diamol-web`라는 명령어를 입력하면 컨테이너는 종료되지 않은 채로 백그라운드에서 계속 동작하게 된다.
+위의 사진과 같이 `docker container run --detach --publish 8088:80 diamol/ch02-hello-diamol-web`라는 명령어를 입력하면 컨테이너는 종료되지 않은 채로 백그라운드에서 계속 동작하게 된다.  
 정말 종료되지 않은 채로 동작하고 있는지 확인하려면 아래 사진과 같이 `docker container ls`를 입력해보면 된다.  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/fae4ef99-0e3f-4590-a7e0-aa11d424c813)  
-이 컨테이너를 만드는 데 사용된 diamol/ch02-hello-diamol-web이라는 이미지는 apache 서버와 간단한 HTML 페이지를 담고 있다.
-이 이미지로 컨테이너를 실행하면 실제 웹 서버를 통해 웹 페이지가 작동한다. 이처럼 컨테이너가 백그라운드에서 동작하면서 네트워크를 주시(listen)하게 하려면 다음과 같은 플래그를 추가하면 된다.
+이 컨테이너를 만드는 데 사용된 diamol/ch02-hello-diamol-web이라는 이미지는 apache 서버와 간단한 HTML 페이지를 담고 있다.  
+이 이미지로 컨테이너를 실행하면 실제 웹 서버를 통해 웹 페이지가 작동한다. 이처럼 컨테이너가 백그라운드에서 동작하면서 네트워크를 주시(listen)하게 하려면 다음과 같은 플래그를 추가하면 된다.  
 1. `--detach`: 컨테이너를 백그라운드에서 실행하며 컨테이너 ID를 출력
 2. `--publish`: 컨테이너의 포트를 호스트 컴퓨터에 공개
 
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/e93d35ef-38ab-4db1-bec9-690125b5a6bb)  
-위의 명령어를 정리하자면 다음과 같다.
-도커는 호스트 컴퓨터의 8088포트로 들어오는 네트워크 트래픽을 주시하다가 필요한 트래픽을 컨테이너의 80 포트로 전달한다.
-`--publish`라는 플래그 덕분에 호스트 컴퓨터의 물리 네트워크 주소가 컨테이너의 가상 네트워크 주소에 접근할 수 있는 것이다. 왜냐하면 이 가상 주소는 도커 내부에만 존재하는 주소이기 때문이다. 하지만, `--publish`라는 플래그를 통해 컨테이너의 포트가 공개되었으므로 컨테이너로 트래픽을 전달할 수는 있는 것이다.
+위의 명령어를 정리하자면 다음과 같다.  
+도커는 호스트 컴퓨터의 8088포트로 들어오는 네트워크 트래픽을 주시하다가 필요한 트래픽을 컨테이너의 80 포트로 전달한다.  
+`--publish`라는 플래그 덕분에 호스트 컴퓨터의 물리 네트워크 주소가 컨테이너의 가상 네트워크 주소에 접근할 수 있는 것이다. 왜냐하면 이 가상 주소는 도커 내부에만 존재하는 주소이기 때문이다. 하지만, `--publish`라는 플래그를 통해 컨테이너의 포트가 공개되었으므로 컨테이너로 트래픽을 전달할 수는 있는 것이다.  
 
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/d42d7bb7-1cda-443e-9a4a-8151c204b8e5)  
-호스트 컴퓨터에서 http://localhost:8088 페이지에 접근하면 위의 사진과 같이 컨테이너로부터 응답을 받을 수 있는 것을 확인할 수 있다.
+호스트 컴퓨터에서 http://localhost:8088 페이지에 접근하면 위의 사진과 같이 컨테이너로부터 응답을 받을 수 있는 것을 확인할 수 있다.  
 
-- 도커가 컨테이너를 실행하는 원리
+- 도커가 컨테이너를 실행하는 원리  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/270ed89a-d606-4974-8ad0-6155fec648e4)  
 1. 도커 명령행 인터페이스(Docker CLI)는 도커 API의 클라이언트로서, 우리가 docker 명령어를 사용하면 실제로 도커 API를 호출하는 역할을 한다.
 2. 도커 API를 통해 도커 엔진의 기능에 접근할 수 있다.
@@ -1022,18 +1022,18 @@ Dockerfile은 어플리케이션을 패키징하여 이미지를 만들기 위�
 3. `COPY`: 도커 빌드가 실행 중인 디렉토리에 포함된 모든 파일과 서브 디렉토리를 현재 이미지 내 작업 디렉토리로 복사한다. 이 명령은 빌드된 JAR 파일을 도커 이미지의 `/app.jar` 경로로 복사한다는 뜻이다.
 4. `ENTRYPOINT`: 컨테이너가 실행될 때 실행되는 명령을 정의한다. 여기서는 Java 실행 명령을 통해 `/app.jar` 경로에 있는 JAR 파일을 실행하도록 지정한다.
 
-- 컨테이너 이미지 빌드하기
-![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/c9655c69-779c-4b8b-8652-bc5f76d0fc73)
-`docker image build -t`라는 명령어를 통해 앞서 작성한 Dockerfile 스크립트로 이미지를 빌드할 수 있다.
-플래그 `-t`는 `--tag`의 약어로 이미지의 이름을 지정해주는 역할을 한다.
-위의 사진에서는 Dockerfile의 경로로 가서 `everytime0512`라는 이름의 이미지를 빌드하라는 뜻이다.
+- 컨테이너 이미지 빌드하기  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/c9655c69-779c-4b8b-8652-bc5f76d0fc73)  
+`docker image build -t`라는 명령어를 통해 앞서 작성한 Dockerfile 스크립트로 이미지를 빌드할 수 있다.  
+플래그 `-t`는 `--tag`의 약어로 이미지의 이름을 지정해주는 역할을 한다.  
+위의 사진에서는 Dockerfile의 경로로 가서 `everytime0512`라는 이름의 이미지를 빌드하라는 뜻이다.  
 
-![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/847f3b7a-a88a-4547-8562-ecb6d251759f)
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/847f3b7a-a88a-4547-8562-ecb6d251759f)  
 `docker image ls 'everytime0512'`라는 명령어를 통해, `everytime0512`이미지가 성공적으로 빌드된 것을 확인할 수 있었다.  
 
-- 빌드된 이미지로 컨테이너 실행하기
-![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/4567d46a-43be-405e-8f08-c926831aba9f)
-`docker container run -p 8080:8080 everytime0512`라는 명령어를 통해 앞서 빌드한 이미지를 컨테이너로 실행하였다.
+- 빌드된 이미지로 컨테이너 실행하기  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/4567d46a-43be-405e-8f08-c926831aba9f)  
+`docker container run -p 8080:8080 everytime0512`라는 명령어를 통해 앞서 빌드한 이미지를 컨테이너로 실행하였다.  
 
 근데... `Caused by: com.mysql.cj.exceptions.CJCommunicationsException: Communications link failure`라는 오류가 뜨면서 8080 포트에 연결이 안된다...  
 뭐가 문제인지 계속 뒤져봤지만... 결국 해결 fail... 계속 고민해보겠습니다...ㅠㅠ  
