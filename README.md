@@ -769,6 +769,146 @@ public ResponseEntity<CreateResponse> createMessage (
 - 만약 토큰을 포함하지 않으면, 403 forbidden이 발생한다.
 
 
+* * *
+# 5️⃣ Everytime - Docker
 
+## 도커란?
+
+### 도커
+- 정의
+  - 컨테이너 환경에서 독립적으로 앱을 실행할 수 있도록 컨테이너를 만들고 관리하는 것을 도와주는 도구
+
+- 도커 이미지와 도커 컨테이너
+  - 1:N 관계
+  - `Docker File`
+    - 컨테이너를 어떻게 만들어야하는지 알려주는 레시피
+  - `Docker Image`
+    - 컨테이너를 생성할 때 필요한 요소
+    - 컨테이너를 생성하고 실행할 때 읽기 전용으로 사용됨
+    - 형태
+      - [저장소 이름]/[이미지 이름]:[태그]
+    - Docker File로 만들어서 사용 - docker build
+  - `Docker Container`
+    - 컨테이너를 생상하면 해당 이미지의 목적에 맞는 파일이 들어있는 공간(프로세스)이 생성됨. 
+      - 호스트와 다른 컨테이너로부터 격리된 시스템 자원과 네트워크를 사용할 수 있음
+    - docker image로 만들어서 사용 - docker run
+
+### 도커와 가상머신
+<img width="614" alt="Screenshot 2024-05-12 at 10 38 39 PM" src="https://github.com/parking0/parking0/assets/67892502/f7ab4681-743e-4688-9121-4c627472091d">
+
+- `Virtual Machine`
+    - 하이퍼바이저를 이용해 여러 개의 운영체제를 하나의 호스트에서 생성하여 사용
+    - 여러 운영체제는 가상머신이라는 단위로 구별되고, 각 가상머신에 각각의 OS가 설치되어 사용됨
+    - Guest OS: 하이퍼바이저에 의해 생성되고 관리되는 운영체제
+      - 각 Guest OS는 다른 guest os와 완전히 독립된 공긴, 시스템 자원을 할당받아 사용
+    - 단점
+      - 시스템 자원, 독립된 공간을 생성할 때 하이퍼바이저를 반드시 거침 => 일반 호스트에 비해 성능이 안 좋아짐
+      - guest os를 사용하기 위한 라이브러리, 커널 등을 전부 포함하기 때문에, 가상 머신을 배포하기 위한 이미지의 크기가 큼
+
+- `Docker Container`
+  - 가상화된 공간을 생성하기 위해 리눅스 자체 기능을 사용하여 프로세스 단위의 격리 환경을 만듦 => 성능 손실 거의 x
+  - 커널을 공유해서 사용하고, 컨테이너 안에는 앱을 구동하는 데 필요한 라이브러리와 실행 파일만 존재함 => 컨테이너를 이미지로 만들었을 때 크기가 작음
+  - 가상머신보다 좋은 점
+    - 컨테이너를 이미지로 만들어 배포하는 시간이 더 빠름
+    - 가상화 공간을 사용할 때 성능 손실이 거의 없음
+    - OS를 포함하지 않는다는 것이 가장 큰 차이
+
+### 도커 컴포즈
+- 정의
+  - Docker Compose는 단일 서버에서 여러 개의 컨테이너를 하나의 서비스로 정의해 컨테이너의 묶음으로 관리할 수 있는 작업 환경을 제공하는 관리 도구
+- 사용하는 이유
+  - Docker Compose가 없다면, 여러 개의 컨테이너가 하나의 어플리케이션으로 동작하려면, 각 컨테이너를 하나씩 생성해야 함. 
+
+### 도커 기본 명령어
+##### 컨테이너
+- `docker ps`
+  - 현재 가동되고 있는 컨테이너의 정보 출력
+- `docker start [컨테이너 id 또는 name]`
+  - 중지되어 있던 컨테이너 실행
+- `docker stop [컨테이너 id 또는 name]`
+  - 실행되고 있는 컨테이너를 중지
+- `docker rm [컨테이너 id 또는 name]`
+  - 실행이 중지된 컨테이너를 삭제
+- `docker attach [컨테이너 id 또는 name]`
+  - 컨테이너 접속
+
+##### 이미지
+- `docker images`
+  - 도커 이미지 리스트 출력
+- `docker rmi 이미지id`
+  - 이미지 삭제
+- `docker pull [이미지 이름]:[버전]`
+  - 해당 버전의 이미지를 다운받음
+
+##### 도커 컴포즈
+- `docker-compose up`
+  - 서비스를 띄울 네트워크 생성 -> 필요한 볼륨 생성 -> 필요한 이미지 pull -> 이미지 build -> 서비스 실행
+- `docker-compose down`
+  - 서비스를 멈추고 삭제 - 컨테이너와 네트워크 삭제
+- `docker-compose start`
+- `docker-compose stop`
+
+* * *
+## Docker 구현
+
+### Docker File
+
+```
+FROM openjdk:17
+ARG JAR_FILE=/build/libs/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar", "/app.jar"]
+```
+- `FROM`: 베이스 이미지 지정
+- `ARG`: docker file 내 변수 설정
+- `COPY`: [복사할 경로] [이미지에서 파일이 위치할 경로]
+- `ENTRYPOINT`: 컨테이너 시작시 컨테이너가 수행하게 될 실행 명령을 정의
+
+### docker-compose.yml
+```
+version: "3"
+
+services:
+    db:
+        container_name: db
+        image: mariadb:latest     #mac
+        environment:
+            MYSQL_ROOT_PASSWORD: 111111
+            MYSQL_DATABASE: everytime_db      # 이 이름의 데이터베이스 생성
+        volumes:
+            - ./db/data:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        restart: always                     # 컨테이너가 죽게되면 도커가 자동으로 띄어줌
+
+    web:
+        container_name: everytime-server
+        build: .
+        ports:
+            - "8080:8080"
+        depends_on:
+            - db
+        environment:
+        mysql_host: db
+        restart: always
+        volumes:
+            - app:/app
+```
+
+* * *
+## 도커 기반 스프링부트 빌드
+
+`docker-compose up -d --build`
+- `build`: 이미 빌드됐어도 강제로 빌드를 진행
+- `-d`: 백그라운드로 실행
+![Screenshot 2024-05-12 at 6 10 07 PM](https://github.com/parking0/parking0/assets/67892502/05d63df0-ad1c-4fbb-b210-307dcd4e2f9a)
+
+`docker ps`
+- 현재 가동되고 있는 컨테이너가 출력됨
+![Screenshot 2024-05-12 at 6 10 22 PM](https://github.com/parking0/parking0/assets/67892502/03fe23ff-fde6-4bd8-adac-9c772f3eb425)
+
+#### 테스트
+docker-compose 실행후, 회원가입이 올바르게 진행됨
+![Screenshot 2024-05-12 at 6 14 15 PM](https://github.com/parking0/parking0/assets/67892502/a03150aa-f436-423d-aa89-6683c521edda)
 
 
