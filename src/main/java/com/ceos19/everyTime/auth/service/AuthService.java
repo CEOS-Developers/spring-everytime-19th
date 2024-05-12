@@ -10,10 +10,12 @@ import com.ceos19.everyTime.auth.dto.TokenResponseDto;
 import com.ceos19.everyTime.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.savedrequest.CookieRequestCache;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +49,9 @@ public class AuthService {
         TokenDto tokenDto=tokenProvider.createToken(authentication);
 
         redisTemplate.opsForValue().set(authentication.getName(),tokenDto.getRefreshToken(),tokenDto.getRefreshTokenValidationTime(), TimeUnit.MILLISECONDS);
-        return new TokenResponseDto(tokenDto.getType(),tokenDto.getAccessToken(),tokenDto.getRefreshToken(),tokenDto.getAccessTokenValidationTime());
+
+        return new TokenResponseDto(tokenDto.getType(),tokenDto.getAccessToken(),
+                makeResponseCookie(tokenDto.getRefreshToken()),tokenDto.getAccessTokenValidationTime());
 
     }
 
@@ -63,7 +67,9 @@ public class AuthService {
         TokenDto tokenDto=tokenProvider.createToken(authentication);
         redisTemplate.opsForValue().set(authentication.getName(),tokenDto.getRefreshToken(),tokenDto.getRefreshTokenValidationTime(), TimeUnit.MILLISECONDS);
 
-        return new TokenResponseDto(tokenDto.getType(),tokenDto.getAccessToken(),tokenDto.getRefreshToken(),tokenDto.getAccessTokenValidationTime());
+
+        return new TokenResponseDto(tokenDto.getType(),tokenDto.getAccessToken(),
+                makeResponseCookie(tokenDto.getRefreshToken()),tokenDto.getAccessTokenValidationTime());
     }
 
     @Transactional
@@ -82,6 +88,16 @@ public class AuthService {
 
         Long expiration = tokenProvider.getExpiration(accessToken);
         redisTemplate.opsForValue().set(accessToken,"logout",expiration,TimeUnit.MILLISECONDS);
+    }
+
+    private ResponseCookie makeResponseCookie(String refreshToken){
+        return  ResponseCookie.from("refreshToken",refreshToken)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(60)
+                .domain("localhost")
+                .build();
     }
 
 }

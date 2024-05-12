@@ -1,11 +1,13 @@
 package com.ceos19.everyTime.auth.controller;
 
+import com.ceos19.everyTime.auth.dto.AccessTokenResponseDto;
 import com.ceos19.everyTime.common.ApiBaseResponse;
 import com.ceos19.everyTime.auth.dto.SignInRequestDto;
 import com.ceos19.everyTime.auth.dto.TokenResponseDto;
 import com.ceos19.everyTime.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,9 +25,13 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<ApiBaseResponse<TokenResponseDto>> login(@RequestBody @Valid final SignInRequestDto memberSignInRequestDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiBaseResponse.createSuccess(authService.login(
-                memberSignInRequestDto)));
+    public ResponseEntity<ApiBaseResponse<AccessTokenResponseDto>> login(@RequestBody @Valid final SignInRequestDto memberSignInRequestDto){
+
+        TokenResponseDto tokenResponseDto = authService.login(memberSignInRequestDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, tokenResponseDto.getResponseCookie().toString())
+                .body(ApiBaseResponse.createSuccess(AccessTokenResponseDto.builder().accessToken(tokenResponseDto.getAccessToken()).build()));
     }
 
 
@@ -36,9 +42,15 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
     @PostMapping("/reissue")
-    public ResponseEntity<ApiBaseResponse<TokenResponseDto>> reIssue(@RequestHeader("accessToken") final String accessToken,
+    public ResponseEntity<ApiBaseResponse<AccessTokenResponseDto>> reIssue(@RequestHeader("accessToken") final String accessToken,
                                                                       @RequestHeader("refreshToken") final String refreshToken){
-        return ResponseEntity.status(HttpStatus.OK).body(ApiBaseResponse.createSuccess(authService.reIssue(accessToken, refreshToken)));
+
+        TokenResponseDto tokenResponseDto = authService.reIssue(accessToken,refreshToken);
+
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE,tokenResponseDto.getResponseCookie().toString())
+                .body(ApiBaseResponse.createSuccess(AccessTokenResponseDto.builder().accessToken(tokenResponseDto.getAccessToken()).build()));
     }
 
 
