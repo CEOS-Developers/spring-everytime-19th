@@ -988,3 +988,11 @@ spring:
 ```
 
 정상적으로 연결이 되고 나서 회원가입부터 로그인까지 Swagger를 통해서 테스트했을 때 정상적으로 동작하는 것을 확인했습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/bbfc5a10-8f90-49ad-8ce0-7330db3e943e)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/24f021ae-9e29-474b-96ff-bcd918425c0c)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/6bc0a2ac-bcca-4cfe-9ece-a101081b96d1)
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/584fc4ed-0eb8-413a-8d90-9eb8aeeac930)
