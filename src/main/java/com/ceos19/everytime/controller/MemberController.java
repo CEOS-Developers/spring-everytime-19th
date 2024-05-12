@@ -10,8 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.ceos19.everytime.exception.SuccessCode.INSERT_SUCCESS;
-import static com.ceos19.everytime.exception.SuccessCode.SELECT_SUCCESS;
+import static com.ceos19.everytime.exception.SuccessCode.*;
 
 @Slf4j
 @RestController
@@ -21,10 +20,9 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LogInRequest logInRequest) {
-
-        log.info("signUp - getUsername  = {} , password = {}", logInRequest.getUsername(), logInRequest.getPassword());
+        //log.info("signUp - getUsername  = {} , password = {}", logInRequest.getUsername(), logInRequest.getPassword());
 
         return ResponseEntity.status(SELECT_SUCCESS.getHttpStatus())
                 .body(memberService.login(logInRequest.getUsername(), logInRequest.getPassword()));
@@ -33,7 +31,7 @@ public class MemberController {
     @PostMapping("/signup")
     public ResponseEntity<MemberDto> signUp(@RequestBody SignUpRequest signUpRequest) {
 
-        log.info("signUp - getUsername  = {} , password = {}", signUpRequest.getUsername(),signUpRequest.getPassword());
+        //log.info("signUp - getUsername  = {} , password = {}", signUpRequest.getUsername(),signUpRequest.getPassword());
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
                 .body(memberService.signUp(signUpRequest));
     }
