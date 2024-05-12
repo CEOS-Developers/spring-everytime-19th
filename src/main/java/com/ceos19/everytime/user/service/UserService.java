@@ -25,7 +25,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public void saveUser(final UserSaveRequestDto request) {
-        System.out.println("request = " + request);
         final School school = schoolRepository.findByNameAndDepartment(request.schoolName(), request.department())
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_SCHOOL));
         if (userRepository.existsByUsername(request.username())) {
