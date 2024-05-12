@@ -7,6 +7,7 @@ import com.ceos19.springeverytime.domain.user.dto.response.CustomUserDetails;
 import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import com.ceos19.springeverytime.domain.user.service.UserService;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,14 @@ public class UserServiceTest {
     @InjectMocks
     UserService userService;
 
+    @BeforeEach
+    void setup() {
+        CustomUserDetails userDetails = new CustomUserDetails(EntityGenerator.generateUser("test"));
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+
     @Test
     @DisplayName("회원 가입 테스트")
     void 회원가입_테스트() {
@@ -70,14 +79,10 @@ public class UserServiceTest {
     void 회원탈퇴_테스트() {
         // given
         User user = EntityGenerator.generateUser("test");
-        UserDetails userDetails = new CustomUserDetails(user);
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
         when(userRepository.findByLoginId(anyString())).thenReturn(Optional.of(user));
 
         // when
-        userService.delete(auth);
+        userService.delete();
 
         // then
         verify(userRepository, times(1)).delete(user);
