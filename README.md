@@ -1153,4 +1153,94 @@ CONTAINER ID   IMAGE                       COMMAND                   CREATED    
 다음과 같이 401로 응답하는 것을 볼 수 있다.
 
 ## 추가 API 개발
-수정
+회원 탈퇴 API를 추가로 개발하였다.   
+```java
+@DeleteMapping
+public ResponseEntity<Void> deleteUser() {
+    userService.delete();
+    return ResponseEntity.noContent().build();
+}
+```
+현재 로그인한 사용자 정보는 `SecurityContextHolder`에서 가져오면 되는데, `ContextHolder`에는 어떤 서비스 레이어에서도 접근할 수 있기 때문에 컨트롤러에서 접근한 뒤, 서비스로 데이터를 굳이 넘길 필요가 없다고 생각해서 컨트롤러는 간소하게 작성하였다.
+
+```java
+public void delete() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+    String loginId = userDetails.getUsername();
+    User user = userRepository.findByLoginId(loginId).orElseThrow(
+            () -> new BadRequestException(ExceptionCode.NOT_FOUND_LOGIN_ID)
+    );
+    userRepository.delete(user);
+}
+```
+`UserService`에서는 ContextHolder에서 현재 요청을 보낸 사용자의 auth 정보를 통해 사용자의 `loginId`를 얻고, 이를 이용해 사용자를 삭제한다.
+
+회원 탈퇴 기능을 postman에서 테스트 해보았다.
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/5984700f-48a7-42c9-b78a-d765f6026a4a)   
+다음과 같은 정보로 회원가입을 진행한다. (User 데이터 생성)   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/0200e4f5-1342-45f0-9d06-fd5ed9349cbb)    
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/931381b0-f2ad-4ddd-a64d-4974cb443bf9)   
+로그인에 성공해서 access 토큰을 받았다.
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/2ca1c420-eee7-46a9-822d-59cad83d40d4)   
+access token을 이용해 회원 탈퇴 API 요청을 보낸다.   
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/e8a729ed-9bd2-4d4c-ada0-3c8761e9f9c4)   
+다시 같은 정보로 로그인을 시도하면 로그인에 실패한다.   
+
+### 회원 탈퇴 단위 테스트
+회원 탈퇴에 대해서 단위 테스트도 작성하였다.   
+```groovy
+testImplementation 'org.springframework.security:spring-security-test'
+```
+Spring Security 테스트를 위해 의존성을 추가한다.   
+```java
+@BeforeEach
+void setup() {
+    CustomUserDetails userDetails = new CustomUserDetails(EntityGenerator.generateUser("test"));
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    SecurityContextHolder.getContext().setAuthentication(auth);
+}
+```
+단위 테스트를 진행할 때는 JWTFilter를 거치지 않아 `SecurityContext`에 아무런 auth가 존재하지 않는다.   
+따라서 테스트를 진행하기 전에 미리 Context에 Auth Token을 넣어준다.
+
+```java
+@Test
+@DisplayName("유저 회원 탈퇴 테스트")
+void 회원탈퇴_테스트() {
+    // given
+    User user = EntityGenerator.generateUser("test");
+    when(userRepository.findByLoginId(anyString())).thenReturn(Optional.of(user));
+
+    // when
+    userService.delete();
+
+    // then
+    verify(userRepository, times(1)).delete(user);
+}
+```
+테스트 코드는 다른 메소드를 테스트할 때와 동일하게 작성한다.
+
+### API를 작성하면서 느꼈던 점
+회원 탈퇴를 하면 그 회원이 갖고 있는 토큰으로는 더 이상 인증이 필요한 api에 접근할 수 없어야 한다.   
+
+처음에는 `Security Context Holder` 라는 개념을 보면서 나도 모르게 사용자의 인증 정보를 계속 `Security Context`에 저장하고 있다고 생각해서 `Security Context`만 비워주면 로그아웃이 된다고 생각했었다.   
+
+```java
+SecurityContextHolder.clearContext();
+```
+그래서 `clearContext()` 만 해주면 알아서 사용자의 인증 정보가 사라지니 로그아웃이 될 거라고 생각했었다.   
+그런데 postman에서 테스트해보니 회원 탈퇴한 이후에도 여전히 기존에 발급받은 토큰으로 다른 api에 접근할 수 있다는 것을 확인했다.   
+
+이유는 사실 금방 이해할 수 있었다.   
+jwt는 사용자의 인증 정보를 서버가 저장하지 않는 stateless 특성을 갖는 방식이고, 사용자가 jwt를 매 요청마다 보내면, 서버가 토큰을 매번 인증해서 인증이 완료된 요청에 대해서 임시로 `Security Context` 에 인증 정보를 저장하는 방식이었던 것이다.   
+그리고 이렇게 구현하는 이유는 스프링 어플리케이션에서 인증 정보(상태)를 전역적으로 접근하기 위해서라고 이해했다. (redux가 해주는 상태 관리와 유사하다고 이해했다.)   
+
+그래서 로그아웃을 어떻게 구현할 수 있을지 찾아봤는데, access token만 이용하는 방식으로는 로그아웃을 구현할 수 없다.   
+한번 발급한 토큰은 서버가 더 이상 제어할 수 없기 때문이다. 따라서 로그아웃한 access token을 일종의 black list에 등록해두어 로그아웃 처리를 시키거나, 클라이언트가 직접 토큰을 삭제하도록 구현해야 한다.   
+access token을 black list에 등록해둔다면, 그때부터는 jwt의 상태를 서버가 관리하는 것과 같다고 생각해서 이렇게 하는 것이 옳은지 궁금했는데, 이에 대한 고민이 지난 주 정리한 JWT에 정리되어 있다.   
+
+그래서 어차피 서버가 토큰의 상태를 관리한다면, 보안상으로도 더 유리한 refresh token을 사용해서 로그아웃을 구현한다.    
+지난 주에 정리할 때는 단순히 보안 문제로만 refresh token을 사용한다고 생각했었는데, 로그아웃, 로그인 유지와 같이 서버가 로그인 정보에 대한 상태를 관리해야 할 때도 사용할 수 있음을 새로 깨닫게 되었다.   

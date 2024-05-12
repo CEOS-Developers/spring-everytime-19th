@@ -74,7 +74,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "test")
     @DisplayName("유저 회원 탈퇴 테스트")
     void 회원탈퇴_테스트() {
         // given
