@@ -1035,7 +1035,160 @@ Dockerfile은 어플리케이션을 패키징하여 이미지를 만들기 위�
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/4567d46a-43be-405e-8f08-c926831aba9f)
 `docker container run -p 8080:8080 everytime0512`라는 명령어를 통해 앞서 빌드한 이미지를 컨테이너로 실행하였다.
 
+근데... `Caused by: com.mysql.cj.exceptions.CJCommunicationsException: Communications link failure`라는 오류가 뜨면서 8080 포트에 연결이 안된다...  
+뭐가 문제인지 계속 뒤져봤지만... 결국 해결 fail... 계속 고민해보겠습니다...ㅠㅠ  
 
-## 컨테이너로 분산 어플리케이션 실행하기
-### Docker compose
+### 도커 컴포즈로 분산 어플리케이션 실행하기
+- 도커 컴포즈 파일이란?  어플리케이션의 '원하는 상태', 즉 모든 컴포넌트가 실행 중일 때 어떤 상태여야 하는지를 기술하는 파일이다. 또한, `docker container run` 명령으로 컨테이너를 실행할 때 지정하는 모든 옵션을 한데 모아 놓은 단순한 형식의 파일이기도 하다. 
+- 도커 컴포즈 파일 실행 과정: 도커 컴포즈 파일 작성 -> 도커 컴포즈 도구를 사용해 어플리케이션 실행 -> 도커 컴포즈가 컨테이너, 네트워크, 볼륨 등 모든 도커 객체를 만들도록 도터 API에 요청
+- 도커 컴포즈 파일 구조
+```console
+version: "3"
 
+services:
+  db:
+    image: mysql:5.7 #windows
+    image: mariadb:latest #mac
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - 3306:3306
+    restart: always
+
+  web:
+    container_name: web
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: db
+    restart: always
+    volumes:
+      - app:/app
+
+volumes:
+  dbdata:
+  app:
+```
+
+1. `version`: 이 파일에서 사용된 도커 컴포즈 파일 형식의 버전을 말한다.
+2. `services`: 어플리케이션을 구성하는 모든 컴포넌트를 열거하는 부분이다. 도커 컴포즈에서는 실제 컨테이너 대신 서비스 개념을 단위로 삼는다. 하나의 서비스를 같은 이미지로 여러 컨테이너에서 실행할 수 있기 때문이다.
+
+- 도커 컴포즈 파일이 필요한 이유  
+도커 컴포즈 파일을 통해 우리는 도커 이미지를 여러 개 띄워서 서로 네트워크도 만들어주고 컨테이너의 밖의 호스트와 연결하는 방식, 파일 시스템 공유(volumes) 방식 등을 조정할 수 있다.  
+웹 백엔드, 프론트엔드, 데이터베이스를 모두 갖고 있는 어플리케이션을 패키징하려면 각 컴포넌트에 하나씩 3개의 Dockerfile 스크립트가 필요하다.  
+이처럼 분산된 컴포넌트를 실행하는 데 이상적인 환경을 제공하기 위해서 도커 컴포즈 파일이 필요한 것이다. 
+
+## API 추가 구현
+### 로그인 api
+- UserController
+```java
+@RequiredArgsConstructor
+@RestController
+@RequestMapping(value = "/api/user")
+public class UserController {
+
+    private final UserService userService;
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> userSignUp(AddUserRequest request) {
+        userService.save(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> userLogin(@RequestBody LoginDTO loginDTO) {
+
+        LoginResponseDTO loginResponseDTO = userService.loginUser(loginDTO.userId(), loginDTO.password());
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    
+}
+```
+
+- UserService
+```java
+   public LoginResponseDTO loginUser(Long userId, String password) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ERROR));
+
+       //패스워드 비교하여 일치여부 판단
+        if(!bCryptPasswordEncoder.matches(password, user.getLoginPassword())) throw new RuntimeException();
+
+        //LoginResponseDTO 객체 생성
+        LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder()
+                .token(tokenProvider.createToken(String.valueOf(user.getUserId()))).build();
+
+        return loginResponseDTO;
+    }
+```
+
+### 댓글 조회, 작성 api
+- CommentController
+```java
+@RequestMapping("/post")
+@RestController
+@RequiredArgsConstructor
+public class CommentController {
+    private final CommentService commentService;
+
+    //1. comment 작성
+    @PostMapping("/{postId}/comment")
+    public ResponseEntity<?> postComment(@Valid @PathVariable long postId, @RequestBody CommentDTO commentDTO) {
+
+        Comment comment  = commentService.addNewComment(commentDTO, postId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    //2.comment 리스트 조회
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<List<CommentDTO>> getComments(@Valid @PathVariable long postId) {
+        List<CommentDTO> commentList = commentService.getComments(postId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+}
+```
+
+- CommentService
+```java
+@Service
+@RequiredArgsConstructor
+public class CommentService {
+
+    private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
+    public Comment getCommentById(long commentId) {
+        return commentRepository.findByCommentId(commentId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ERROR));
+    }
+
+
+    public Comment addNewComment(CommentDTO commentDTO, long postId) {
+
+        //게시글 조회하여 존재 여부 확인
+        Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ERROR));
+
+        //댓글 엔티티 생성
+        Comment comment = Comment.builder().contents(commentDTO.contents()).build();
+
+        //댓글 엔티티를 DB에 저장
+        Comment savedComment = commentRepository.save(comment);
+
+        return savedComment;
+    }
+
+    public List<CommentDTO> getComments(Long postId) {
+        return commentRepository.findByPost_postId(postId)
+                .stream()
+                .map(CommentDTO::fromComment)
+                .collect(Collectors.toList());
+    }
+
+}
+```
