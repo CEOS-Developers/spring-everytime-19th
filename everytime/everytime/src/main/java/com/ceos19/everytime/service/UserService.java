@@ -36,7 +36,7 @@ public class UserService {
     }
 
 
-    public LoginResponseDTO loginUser(String userId, String password) {
+    public LoginResponseDTO loginUser(Long userId, String password) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ERROR));
 

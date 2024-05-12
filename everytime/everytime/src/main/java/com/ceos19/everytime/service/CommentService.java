@@ -40,7 +40,7 @@ public class CommentService {
     }
 
     public List<CommentDTO> getComments(Long postId) {
-        return commentRepository.findByPostId(postId)
+        return commentRepository.findByPost_postId(postId)
                 .stream()
                 .map(CommentDTO::fromComment)
                 .collect(Collectors.toList());

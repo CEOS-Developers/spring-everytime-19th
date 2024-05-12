@@ -120,16 +120,25 @@ public class TokenProvider implements InitializingBean {
 
     // JWT 토큰 유효성 검증 메서드
     public boolean validateAccessToken(String token) {
+        // 토큰이 비어있거나 null인 경우를 체크하여 즉시 false 반환
+        if (token == null || token.trim().isEmpty()) {
+            log.info("빈 토큰이 제공되었습니다.");
+            return false;
+        }
+
         try {
             Jwts.parserBuilder().setSigningKey(key) //비밀값으로 복호화
                     .build().parseClaimsJws(token);
             return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("잘못된 JWT 서명입니다.");
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 JWT 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.info("지원되지 않는 JWT 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.info("잘못된 JWT 토큰입니다. (" + e.getMessage() + ")");
         }
-        //복호화 과정 시도했다가 에러가 나면 아래와 같이 경우에 따라 유효하지 않은 토큰으로 처리
-        catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {log.info("잘못된 JWT 서명입니다.");}
-        catch (ExpiredJwtException e) { log.info("만료된 JWT 토큰입니다."); }
-        catch (UnsupportedJwtException e) { log.info("지원되지 않는 JWT 토큰입니다."); }
-        catch (IllegalArgumentException e) { log.info("잘못된 JWT 토큰입니다."); }
         return false;
     }
 
