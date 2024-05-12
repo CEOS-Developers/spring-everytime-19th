@@ -1053,3 +1053,104 @@ OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
     login 요청은 허용을 해뒀으므로 별도 reqeust body 없이 요청을 보내보았다.   
    ![image](https://github.com/kckc0608/kckc0608/assets/64959010/e9c8c3b7-e973-4c9d-84ac-ae07dd2c515c)   
     401 에러가 발생하였으며, 이는 의도한 에러코드가 맞다.
+
+### docker-compose 사용하기
+`dockerfile`은 하나의 컨테이너를 위한 파일이다.   
+만약 여러 컨테이너를 띄우고 이들 사이에 데이터를 주고 받아야 한다면 `docker-compose`를 사용하여 하나의 파일로 여러 컨테이너의 환경(이미지)을 정의할 수 있다.   
+
+#### docker-compose의 장점
+1. 간단한 컨테이너 제어 : yaml 파일 하나로 여러 컨테이너 어플리케이션을 제어할 수 있다.
+2. 효율적인 협업 : `docker-compose`파일은 공유하기 쉽고, 개발팀-운영팀 사이에 협업을 더 간단하게 해준다.
+3. 빠른 개발 : `docker-compose`는 컨테이너를 만들 때 캐시를 활용한다. 따라서 변경사항이 없는 컨테이너는 기존 컨테이너를 그대로 재사용하기 때문에 빠르게 실행할 수 있다.
+4. 이식성 : `compose`파일에 변수를 쓸 수 있기 때문에, 각각의 환경과 사용자에 맞는 변수를 사용하여 다른 환경에서도 쉽게 compose를 이식하여 사용할 수 있다.
+5. 광범위한 커뮤니티 지원
+
+### docker-compose.yml 작성
+```yaml
+services:
+  web:
+    container_name: spring
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: db
+    restart: always
+    volumes:
+      - app:/app
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: spring_everytime
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - 3307:3306
+    restart: always
+
+volumes:
+  dbdata:
+  app:
+```
+yaml 파일을 이용해 `docker-compose up` 명령어 실행
+```shell
+docker-compose -f docker-compose.yml up --build
+```
+실행결과
+```shell
+[+] Building 0.7s (7/7) FINISHED
+ => [internal] load .dockerignore                                                                                                              0.0s
+ => => transferring context: 2B                                                                                                                0.0s 
+ => [internal] load build definition from Dockerfile                                                                                           0.0s 
+ => => transferring dockerfile: 150B                                                                                                           0.0s 
+ => [internal] load metadata for docker.io/library/openjdk:17                                                                                  0.7s 
+ => [internal] load build context                                                                                                              0.0s
+ => => transferring context: 125B                                                                                                              0.0s 
+ => [1/2] FROM docker.io/library/openjdk:17@sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8                            0.0s 
+ => CACHED [2/2] COPY /build/libs/*.jar app.jar                                                                                                0.0s 
+ => exporting to image                                                                                                                         0.0s 
+ => => exporting layers                                                                                                                        0.0s 
+ => => writing image sha256:da0ae0ad28cca7159a32989ef473e32e740b5e4d9c97ab808a4a354f6b9d5e78                                                   0.0s 
+ => => naming to docker.io/library/spring-everytime-19th-web                                                                                   0.0s 
+[+] Running 2/2
+ ✔ Container spring-everytime-19th-db-1  Recreated                                                                                             0.1s 
+ ✔ Container spring                      Recreated                                                                                             0.1s 
+Attaching to spring, spring-everytime-19th-db-1
+spring-everytime-19th-db-1  | 2024-05-12 01:30:35+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.37-1.el9 started.
+spring-everytime-19th-db-1  | 2024-05-12 01:30:35+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+spring-everytime-19th-db-1  | 2024-05-12 01:30:35+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.37-1.el9 started.
+spring-everytime-19th-db-1  | 2024-05-12 01:30:35+00:00 [Note] [Entrypoint]: Initializing database files
+spring-everytime-19th-db-1  | 2024-05-12T01:30:35.330023Z 0 [Warning] [MY-011068] [Server] The syntax '--skip-host-cache' is deprecated and will be removed in a future release. Please use SET GLOBAL host_cache_size=0 instead.
+spring-everytime-19th-db-1  | 2024-05-12T01:30:35.330084Z 0 [System] [MY-013169] [Server] /usr/sbin/mysqld (mysqld 8.0.37) initializing of server in progress as process 83
+spring-everytime-19th-db-1  | 2024-05-12T01:30:35.367326Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+spring-everytime-19th-db-1  | 2024-05-12T01:30:35.595921Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+spring                      | 
+spring                      |   .   ____          _            __ _ _
+spring                      |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+spring                      | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+spring                      |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+spring                      |   '  |____| .__|_| |_|_| |_\__, | / / / /
+spring                      |  =========|_|==============|___/=/_/_/_/
+spring                      |  :: Spring Boot ::                (v3.1.9)
+
+```
+
+`docker ps` 명령어 실행 결과
+```shell
+CONTAINER ID   IMAGE                       COMMAND                   CREATED         STATUS          PORTS                               NAMES
+4c960f1161fe   spring-everytime-19th-web   "java -jar /app.jar"      8 minutes ago   Up 8 minutes    0.0.0.0:8080->8080/tcp              spring
+47e90aafa7cd   mysql:8.0                   "docker-entrypoint.s…"   8 minutes ago   Up 8 minutes    33060/tcp, 0.0.0.0:3307->3306/tcp   spring-everytime-19th-db-1
+```
+
+### postman 테스트
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/9744898e-a1b8-4e24-8b22-dab2a434e0fa)   
+`http://localhost:8080/login` 으로 POST요청을 보냈을 때   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/0411b246-6c02-4549-b6b9-1d9565106489)   
+다음과 같이 401로 응답하는 것을 볼 수 있다.
+
+## 추가 API 개발
+수정
