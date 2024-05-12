@@ -1104,3 +1104,154 @@ Refresh 토큰으로 재발급 로직을 수행하게 될 때 Access 토큰과 R
 
 
 출처 : [개발자 유미 docs 모음](https://substantial-park-a17.notion.site/Docs-002024551c294889863d0c7923590568)
+
+### Docker
+
+이번 과제는 도커 이미지를 빌드하고 컨테이너를 생성해 배포하는 것이다.
+
+```java
+FROM openjdk:18 // openjdk 18버전을 기본 이미지로 사용한다.
+ARG JAR_FILE=/build/libs/*.jar // 변수를 정의한다. 여기서는 이미지로 생성할 파일의 경로이다.
+COPY ${JAR_FILE} app.jar // 정의한 변수를 통해 도커 이미지의 app.jar로 복사한다.
+LABEL authors="imhyeongun" // 이런 메타데이터도 선언할 수 있다.
+EXPOSE 8080 // 포트 넘버는 8080이다.
+ENTRYPOINT ["java","-jar","/app.jar"] // app.jar의 jar파일을 실행한다.
+```
+
+위와 같이 `Dockerfile`을 생성했다.
+
+터미널에 다음과 같은 명령어를 입력하자.
+
+`docker build -t spring-everytime:0.0 ./`
+
+0.0 버전으로 이미지를 생성했다.
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/852aabca-7de0-41df-a1b0-b68282642785)
+
+생성된 이미지들을 확인하고 싶다면
+
+`docker images` 명령어를 사용할 수 있다.
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/73e0c628-bf21-4e7e-a4c8-97f43c997903)
+
+현재 생성된 이미지들을 전부 확인할 수 있다.
+
+이제 이미지를 통해 컨테이너를 실행해보자
+
+```text
+2024-05-12 21:12:44 com.mysql.cj.jdbc.exceptions.CommunicationsException: Communications link failure
+2024-05-12 21:12:44
+2024-05-12 21:12:44 The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
+```
+
+위와 같은 에러가 발생한다.
+
+서버가 패킷을 받지 못한다고 나오는데 검색해보니 sql 설정 문제가 가장 많았다.
+
+`application.yml`에서 다음과 같이 수정했다.
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/ceos
+
+
+// 수정
+
+spring:
+  datasource:
+    url: jdbc:mysql://ceos:3306/ceos
+```
+
+그 후 실행해도 여전히 똑같은 에러가 발생한다.
+
+에러창을 내려보니 다음과 같은 내용도 있다
+
+```text
+2024-05-12 21:12:44 Caused by: org.hibernate.HibernateException: Unable to determine Dialect without JDBC metadata (please set 'jakarta.persistence.jdbc.url' for common cases or 'hibernate.dialect' when a custom Dialect implementation must be provided)
+```
+
+구글링을 통해 다음 설정을 추가했다.
+
+```yaml
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.format_sql: true
+      hibernate.dialect : org.hibernate.dialect.MySQLDialect // 추가
+```
+
+그래도 같은 에러가 발생한다. 즉 위의 내용은 에러의 원인이 아니였다.
+
+아마 docker-compose를 통해 db의 이미지도 컨테이너로 같이 띄워야 하는 것으로 추측된다.
+
+그래서 까짓거 하나 새로 만들기로 결심했다
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/18fcb258-5f90-44fb-9e9c-22ab368753c2
+
+최신 mysql 이미지를 다운받았다. 이를 통해 컨테이너만 run하면 될 것이다.
+
+`docker run -d -p 8080:8080 -e MYSQL_ROOT_PASSWORD=root --name mysql_container mysql`
+
+이렇게 포트 포워딩도 설정하고 실행했지만 이미 점유된 포트라고 에러가 발생했다.
+
+우리의 로컬 mysql workbench가 실행되고 있으니 당연한 말이다.
+
+그러므로 비어있는 포트를 아무거나 찾아서 연결에 사용해보자
+
+`sudo ss -tuln | grep :3308` 명령어는 3308 포트에 연결되어 있는 프로세스를 출력해준다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/cc7dc480-675f-499e-9b8a-b25ebd120805)
+
+결과가 없는 것을 보니 비어있는 포트임을 알 수 있다.
+
+`docker run -d -p 3308:3308 -e MYSQL_ROOT_PASSWORD=root --name mysql_container mysql` 
+
+이제 포트넘버를 수정하고 ps를 실행해보면
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/2d7c0d0b-3157-4de2-84e9-a5e4bb74ae69)
+
+위와 같이 실행이 됨을 확인할 수 있다 (3308이 뭔가 맘에 안 들어서 3307로 연결했다)
+
+이제 docker-compose 파일을 작성해 여러 이미지들 한꺼번에 각각의 컨테이너로 띄울 수 있다.
+
+```yaml
+version: "3"
+services: # 이 항목 밑에 실행하려는 컨테이너 들을 정의 ( 컴포즈에서 컨테이너 : 서비스 )
+  db: # 서비스 명
+    image: mysql:latest # 사용할 이미지
+    restart: always
+    container_name: ceos # 컨테이너 이름 설정
+    ports:
+      - "3307:3306" # 접근 포트 설정
+    environment: # -e 옵션
+      - MYSQL_DATABASE=ceos
+      - MYSQL_ROOT_PASSWORD= "root"  # MYSQL 패스워드 설정 옵션
+      - TZ=Asia/Seoul
+    volumes:
+      - app:/app
+  web:
+    container_name: spring-everytime
+    build: src/main/java
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: db
+    restart: always
+
+volumes:
+  dbdata:
+  app:
+```
+
+다음과 같이 작성하고 실행하자
+`failed to solve: failed to read dockerfile: open Dockerfile: no such file or directory`
+
+이런 에러가 발생하는데 분명 같은 폴더에 있는데 왜 못 찾는 지 모르겠다..
+
+여기서부터는 구글링해도 정확한 내 상황을 모르겠어서 제출 후 추가로 작성하겠다......
+
+### 추가 리팩토링 
+(추가 예정)
