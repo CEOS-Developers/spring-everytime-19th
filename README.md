@@ -916,13 +916,13 @@ public class GlobalExceptionHandler {
 - 도커가 각광받는 이유: 위에서 언급된 단점들이 없는 선택지를 제공. 어플리케이션의 각 컴포넌트를 컨테이너로 이주한 다음 동작되기 때문에 이들 컴포넌트는 가상 머신처럼 독립적이지만 경량이며 Paas의 Managed Service만큼 효율적이다. 컨테이너로 이주된 각 컴포넌트들은 Azure Kubernetes Service나 Amazon Elastic Container Service 혹은 직접 구축한 docker cluster에서 전체 어플리케이션을 수행할 수 있는데, 이렇게 도커화된 어플리케이션은 이식성이 뛰어나다는 장점도 있다. 
 
 ### 도커의 기본적인 사용법
-- 도커 엔진 동작 확인
+- 도커 엔진 동작 확인  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/76492184-d311-451f-8c2c-e8dace601e0d)
-
--도커 컴포즈 확인
+  
+-도커 컴포즈 확인  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/49647da0-2b51-4a9a-82bf-a8ae4f25465f)
 
-- (예제) 도커 이미지 다운받고 컨테이너로 어플리케이션을 실행
+- (예제) 도커 이미지 다운받고 컨테이너로 어플리케이션을 실행  
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/c8a1bf82-4893-4090-9baa-29b3c3569eb2)
 `container run diamol/ch02-hello-diamol`이라는 명령어를 입력하면 위의 사진과 같이 결과가 나온다.
 ```console
@@ -983,14 +983,34 @@ docker container run --interactive --tty diamol/base`라는 명령어를 입력�
 새로운 터미널 세션을 열고 `docker container ls`를 입력했더니 위의 사진과 같이 현재 실행 중인 컨테이너 정보를 확인할 수 있다. 
 이때 container ID가 좀 전에 컨테이너 내부에서 hostname으로 확인한 호스트명과 동일한 것도 확인할 수 있다.
 
+- 컨테이너를 사용해 웹 사이트 호스팅
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/11c0a5fb-79f1-4b22-9adf-7641ccbadf64)  
+위의 사진과 같이 `docker container run --detach --publish 8088:80 diamol/ch02-hello-diamol-web`라는 명령어를 입력하면 컨테이너는 종료되지 않은 채로 백그라운드에서 계속 동작하게 된다.
+정말 종료되지 않은 채로 동작하고 있는지 확인하려면 아래 사진과 같이 `docker container ls`를 입력해보면 된다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/fae4ef99-0e3f-4590-a7e0-aa11d424c813)  
+이 컨테이너를 만드는 데 사용된 diamol/ch02-hello-diamol-web이라는 이미지는 apache 서버와 간단한 HTML 페이지를 담고 있다.
+이 이미지로 컨테이너를 실행하면 실제 웹 서버를 통해 웹 페이지가 작동한다. 이처럼 컨테이너가 백그라운드에서 동작하면서 네트워크를 주시(listen)하게 하려면 다음과 같은 플래그를 추가하면 된다.
+1. `--detach`: 컨테이너를 백그라운드에서 실행하며 컨테이너 ID를 출력
+2. `--publish`: 컨테이너의 포트를 호스트 컴퓨터에 공개
+
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/e93d35ef-38ab-4db1-bec9-690125b5a6bb)  
+위의 명령어를 정리하자면 다음과 같다.
+도커는 호스트 컴퓨터의 8088포트로 들어오는 네트워크 트래픽을 주시하다가 필요한 트래픽을 컨테이너의 80 포트로 전달한다.
+`--publish`라는 플래그 덕분에 호스트 컴퓨터의 물리 네트워크 주소가 컨테이너의 가상 네트워크 주소에 접근할 수 있는 것이다. 왜냐하면 이 가상 주소는 도커 내부에만 존재하는 주소이기 때문이다. 하지만, `--publish`라는 플래그를 통해 컨테이너의 포트가 공개되었으므로 컨테이너로 트래픽을 전달할 수는 있는 것이다.
+
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/d42d7bb7-1cda-443e-9a4a-8151c204b8e5)  
+호스트 컴퓨터에서 http://localhost:8088 페이지에 접근하면 위의 사진과 같이 컨테이너로부터 응답을 받을 수 있는 것을 확인할 수 있다.
+
+- 도커가 컨테이너를 실행하는 원리
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/270ed89a-d606-4974-8ad0-6155fec648e4)  
+1. 도커 명령행 인터페이스(Docker CLI)는 도커 API의 클라이언트로서, 우리가 docker 명령어를 사용하면 실제로 도커 API를 호출하는 역할을 한다.
+2. 도커 API를 통해 도커 엔진의 기능에 접근할 수 있다.
+3. 도커 엔진은 백그라운드로 항시 동작하면서 컨테이너와 이미지를 관리한다.
 
 ### 도커 이미지 만들기
 
 ### 어플리케이션 소스코드 -> 도커 이미지
 
-### 도커 허브 등 레지스토리에 이미지 공유하기
-
-### 도커 볼륨을 이용한 persistent stroage
 
 
 ## 컨테이너로 분산 어플리케이션 실행하기
