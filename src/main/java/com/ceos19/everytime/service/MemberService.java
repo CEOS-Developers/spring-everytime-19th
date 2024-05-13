@@ -2,6 +2,7 @@ package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.Authority;
 import com.ceos19.everytime.domain.Member;
+import com.ceos19.everytime.dto.CreateResponse;
 import com.ceos19.everytime.dto.member.InfoUpdateRequest;
 import com.ceos19.everytime.dto.member.MemberDto;
 import com.ceos19.everytime.dto.member.SignUpRequest;
@@ -53,18 +54,19 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDto signUp(SignUpRequest signUpRequest) {
+    public CreateResponse signUp(SignUpRequest signUpRequest) {
 
-        if (memberRepository.existsByUsernameAndPassword(signUpRequest.getUsername(), signUpRequest.getPassword())) {
+        if (memberRepository.existsByUsername(signUpRequest.getUsername())) {
             throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
         }
 
         // Password 암호화
         String encodedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
-        //log.info("password original = {}, encoded = {}", signUpRequest.getPassword(), encodedPassword);
+        Member member = signUpRequest.toEntity(encodedPassword, Authority.ROLE_USER);
+        memberRepository.save(member);
 
-        return MemberDto.toDto(memberRepository.save(signUpRequest.toEntity(encodedPassword, Authority.ROLE_USER)));
+        return new CreateResponse(member.getId());
     }
 
     @Transactional(readOnly = true)

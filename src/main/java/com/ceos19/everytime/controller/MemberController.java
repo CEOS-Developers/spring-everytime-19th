@@ -1,5 +1,6 @@
 package com.ceos19.everytime.controller;
 
+import com.ceos19.everytime.dto.CreateResponse;
 import com.ceos19.everytime.dto.member.InfoUpdateRequest;
 import com.ceos19.everytime.dto.member.LogInRequest;
 import com.ceos19.everytime.dto.member.MemberDto;
@@ -26,14 +27,14 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LogInRequest logInRequest) {
-        //log.info("signUp - getUsername  = {} , password = {}", logInRequest.getUsername(), logInRequest.getPassword());
 
+        //log.info("signUp - getUsername  = {} , password = {}", logInRequest.getUsername(), logInRequest.getPassword());
         return ResponseEntity.status(SELECT_SUCCESS.getHttpStatus())
                 .body(memberService.login(logInRequest.getUsername(), logInRequest.getPassword()));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<MemberDto> signUp(@RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<CreateResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
 
         //log.info("signUp - getUsername  = {} , password = {}", signUpRequest.getUsername(),signUpRequest.getPassword());
         return ResponseEntity.status(INSERT_SUCCESS.getHttpStatus())
