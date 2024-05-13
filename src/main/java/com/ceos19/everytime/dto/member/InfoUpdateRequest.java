@@ -1,2 +1,15 @@
-package com.ceos19.everytime.dto.member;public class InfoUpdateRequest {
+package com.ceos19.everytime.dto.member;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+public class InfoUpdateRequest {
+
+    private String nickname;
 }
