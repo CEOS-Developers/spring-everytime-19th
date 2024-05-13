@@ -69,15 +69,21 @@ guest OS : hypervisor에 의해 생성되고 관리되는 운영체제.
  
 컨테이너는 컨테이너에 담긴 것들의 Life Cycle을 관리한다!
 - 프로세스의 생성, 운영, 제거까지 생명주기 관리.
+
 ### Container != Docker
 도커는 컨테이너에 여러 기능을 더한 오픈소스 프로젝트.
-
-
-
-
+- 컨테이너 관리
+- 이미지 관리
+- 네트워크 관리
+- 볼륨 관리
 
 <div align="center">
   <img src="imgs/hypervisor_container.png" alt="drawing" width=500"/>
+</div>
+
+## Docker-build
+<div align="center">
+  <img src="imgs/docker_build.png" alt="drawing" width=500"/>
 </div>
 
 # 5주차 - Spring Security & JWT
