@@ -86,6 +86,11 @@ guest OS : hypervisor에 의해 생성되고 관리되는 운영체제.
   <img src="imgs/docker_build.png" alt="drawing" width=500"/>
 </div>
 
+## Docker-compose Error
+<div align="center">
+  <img src="imgs/ddl_exception.png" alt="drawing" width=500"/>
+</div>
+
 # 5주차 - Spring Security & JWT
  
 ### Before JWT - Cookie
