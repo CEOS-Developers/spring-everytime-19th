@@ -1,0 +1,28 @@
+version: "3"
+services: # 이 항목 밑에 실행하려는 컨테이너 들을 정의 ( 컴포즈에서 컨테이너 : 서비스 )
+  db: # 서비스 명
+    image: mysql:latest # 사용할 이미지
+    restart: always
+    container_name: ceos # 컨테이너 이름 설정
+    ports:
+      - "3307:3306" # 접근 포트 설정
+    environment: # -e 옵션
+      - MYSQL_DATABASE=ceos
+      - MYSQL_ROOT_PASSWORD= "root"  # MYSQL 패스워드 설정 옵션
+      - TZ=Asia/Seoul
+    volumes:
+      - /Users/Shared/data/mysql-dev:/var/lib/mysql # -v 옵션 (다렉토리 마운트 설정)
+  web:
+    container_name: spring-everytime
+    build: src/main/java
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: db
+    restart: always
+
+volumes:
+  dbdata:
+  app:
