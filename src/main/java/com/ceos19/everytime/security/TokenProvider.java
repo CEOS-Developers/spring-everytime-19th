@@ -3,24 +3,19 @@ package com.ceos19.everytime.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.security.core.GrantedAuthority;
 
-
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 
 @Slf4j
 @Component
@@ -40,6 +35,8 @@ public class TokenProvider implements InitializingBean {
     }*/
 
     public TokenProvider(@Value("${jwt.secret.key}") String secret, CustomUserDetailsService customUserDetailsService) {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
         this.secret = secret;
         this.customUserDetailsService = customUserDetailsService;
     }
@@ -126,7 +123,7 @@ public class TokenProvider implements InitializingBean {
 
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(secret)
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()

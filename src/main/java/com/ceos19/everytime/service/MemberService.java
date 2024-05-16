@@ -2,10 +2,13 @@ package com.ceos19.everytime.service;
 
 import com.ceos19.everytime.domain.Authority;
 import com.ceos19.everytime.domain.Member;
+import com.ceos19.everytime.dto.CreateResponse;
+import com.ceos19.everytime.dto.member.InfoUpdateRequest;
 import com.ceos19.everytime.dto.member.MemberDto;
 import com.ceos19.everytime.dto.member.SignUpRequest;
 import com.ceos19.everytime.exception.CustomException;
 import com.ceos19.everytime.repository.MemberRepository;
+import com.ceos19.everytime.security.CustomUserDetails;
 import com.ceos19.everytime.security.TokenDto;
 import com.ceos19.everytime.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,7 @@ public class MemberService {
 
     @Transactional
     public TokenDto login (String loginId, String password) {
+
         // 1. username + password 를 기반으로 Authentication 객체 생성
         // 이때 authentication 은 인증 여부를 확인하는 authenticated 값이 false
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginId, password);
@@ -43,24 +47,26 @@ public class MemberService {
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto tokenDto = tokenProvider.generateToken(authentication);
 
-        log.info("request loginId = {}, password = {}", loginId, password);
+        //log.info("request loginId = {}, password = {}", loginId, password);
         log.info("jwtToken accessToken = {}", tokenDto.getAccessToken());
 
         return tokenDto;
     }
 
     @Transactional
-    public MemberDto signUp(SignUpRequest signUpRequest) {
-        if (memberRepository.existsByUsernameAndPassword(signUpRequest.getUsername(), signUpRequest.getPassword())) {
+    public CreateResponse signUp(SignUpRequest signUpRequest) {
+
+        if (memberRepository.existsByUsername(signUpRequest.getUsername())) {
             throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
         }
 
         // Password 암호화
         String encodedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
-        log.info("password original = {}, encoded = {}", signUpRequest.getPassword(), encodedPassword);
+        Member member = signUpRequest.toEntity(encodedPassword, Authority.ROLE_USER);
+        memberRepository.save(member);
 
-        return MemberDto.toDto(memberRepository.save(signUpRequest.toEntity(encodedPassword, Authority.ROLE_USER)));
+        return new CreateResponse(member.getId());
     }
 
     @Transactional(readOnly = true)
@@ -72,10 +78,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateUsername(final Long memberId, final String userName) {
-        final Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
-        member.changeUsername(userName);
+    public void updateNickname(final CustomUserDetails customUserDetails, final InfoUpdateRequest infoUpdateRequest) {
+
+        final Member member = customUserDetails.getMember();
+        member.changeNickname(infoUpdateRequest.getNickname());
     }
 
     @Transactional

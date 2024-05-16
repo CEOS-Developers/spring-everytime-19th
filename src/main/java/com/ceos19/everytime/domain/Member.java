@@ -19,13 +19,13 @@ public class Member extends BaseTimeEntity{
     @Column(name = "member_id")
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, unique = true, length = 20)       // 로그인 id
     private String username;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(nullable = false, unique = true, length = 10)       // 회원 별명
     private String nickname;
 
     @Column(nullable = false)
@@ -43,24 +43,23 @@ public class Member extends BaseTimeEntity{
     public Member(final String nickname, final String username, final String password, final String email, final University university, final Authority authority) {
         this.nickname = nickname;
         this.username = username;
-        this.password = password
-        ;
+        this.password = password;
         this.email = email;
         this.university = university;
         this.authority = authority;
     }
 
-    public void changeUsername(final String username) {      //반환을 어떻게 해아할지?
-        if(validateUsername(username) != null){
-            this.nickname = username;
+    public void changeNickname(final String nickname) {
+        if(validateNickname(nickname) != null){
+            this.nickname = nickname;
         }
     }
 
-    private String validateUsername(final String username) {
-        if (username.isEmpty() ||  username.length() > MAX_USERNAME_LENGTH) {
+    private String validateNickname(final String nickname) {
+        if (nickname.isEmpty() ||  nickname.length() > MAX_USERNAME_LENGTH) {
             return null;
         }
-        return username;
+        return nickname;
     }
 
 }
