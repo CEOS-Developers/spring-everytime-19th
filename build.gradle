@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'application'
 }
 
 group = 'com.ceos19'
@@ -60,4 +61,8 @@ repositories {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jar {
+    enabled = false  // build시 jar가 한개만 생성
 }

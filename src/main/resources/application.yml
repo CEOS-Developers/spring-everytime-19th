@@ -20,8 +20,6 @@ logging:
     org.hibernate.SQL: debug
   #  org.hibernate.type: trace
 
-file:
-  dir: E:\CEOS FILE\spring-everytime-19th\attachment_file\
 
 jwt:
   token:

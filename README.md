@@ -1358,3 +1358,227 @@ jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요�
 ~~~shell
 openssl rand -hex 64
 ~~~
+# 6주차
+1. 리프레시 토큰 구현
+2. 로그아웃 기능 구현
+3. 도커파일로 이미지 생성후 docker compose를 사용하여 컨테이너 빌드
+4. 도커 네트워크(정리 못함)
+
+## 로그아웃
+로그아웃을 도입함으로써 Access token의 유효시간을 줄이는 효과를 가져와 토큰 탈취로 인한 해킹의 위험성을 줄일 수 있다. 또한 더 이상 로그인을 유지하지 않으므로 /logout으로 리퀘스트가 들어올 때 refresh token도 DB에서 삭제되도록 구현하였다.
+
+~~~java
+@RequiredArgsConstructor
+public class CustomLogoutFilter extends GenericFilterBean {
+    private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
+    private final CookieUtil cookieUtil;
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+    }
+
+    private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        //path and method verify
+        String requestUri = request.getRequestURI();
+        if (!requestUri.matches("^\\/logout$")) {
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+        String requestMethod = request.getMethod();
+        if (!requestMethod.equals("POST")) {
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        //get refresh token
+        //refresh null check
+        String refresh = null;
+        try {
+            refresh = cookieUtil.getRefreshToken(request.getCookies());
+        } catch (AppException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        //expired check
+        try {
+            jwtUtil.isExpired(refresh);
+        } catch (ExpiredJwtException e) {
+
+            // 이미 로그아웃된 상태
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
+        String category = jwtUtil.getCategory(refresh);
+        if (!category.equals("refresh")) {
+
+            //response status code
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        // DB에 저장되어 있는지 확인
+        try{
+            refreshTokenService.checkRefreshTokenIsSavedByRefresh(refresh);
+            // 로그아웃 진행
+            // Refresh 토큰 DB에서 제거
+            refreshTokenService.deleteRefreshToken(refresh);
+        } catch (AppException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+
+        // Refresh 토큰 Cookie 값 0
+        Cookie cookie = new Cookie("refresh", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+}
+~~~
+
+## 도커 명령어 정리
+ *내가 생각하기에 필수적인 명령어들을 정리해보았다.*
+- docker run [옵션] [이미지명]: local repository(없다면 docker hub)에서 이미지를 불러와 컨테이너를 실행
+  - 옵션	설명	예시
+~~~shell
+    옵션       설명                                                예시 
+    -i	      상호입출력                                            -it
+    -t	      tty를 활성화해서 shell을 사용하도록 컨테이너를 설정	 
+    -d	      detached mode. 컨테이너를 백그라운드에서 실행	 
+    -p	      호스트와 컨테이너의 포트를 포트포워딩.                      -p8000:80
+    -v	      볼륨과 컨테이너 디렉토리를 마운트                          -v volume
+    --name    컨테이너 이름을 명시                                    --name my_container
+    -rm	      프로세스 종료시 컨테이너 자동 제거	 
+    -link     컨테이너 연결. ip가 아닌 컨테이너 이름 기반 통신 가능	 
+    --network 브릿지 네트워크에 연결                                  --network my_network
+~~~
+- docker images: local repository에 저장된 이미지 목록을 보여준다.
+- docker ps: 현재 실행 중인 컨테이너를 보여줌
+- docker ps -a: 존재하는 모든 컨테이너를 보여줌
+- docker exec -it [컨테이너 id] [CMD]: CMD를 실행하여 컨테이너 내부로 진입 
+- docker logs [컨테이너 id]: log 확인
+- docker rm [컨테이너 id]: 컨테이너 제거
+- docker rmi [이미지 id]: 이미지 제거
+- docker commit [컨테이너 ID] dockerhub계정명/이미지 이름: commit하여 컨테이너를 이미지로 만듦
+- docker push [커밋한 이미지 이름] [docker hub 계정명]/[이미지 이름](:[tag]): 도커 허브에 내가 만든 이미지를 push함. tag는 생략가능
+- docker inspect [이미지|컨테이너|볼륨|네트워크]: 정보 확인 가능
+
+## 도커 볼륨
+볼륨을 사용하여 컨테이너의 특정 디렉토리를 호스트의 특정 디렉토리와 마운트 할 수 있다. 이로인해 컨테이저가 삭제되거나 재 실행되어도 데이터를 잃어버리지 않고 유지할 수 있다.
+- docker volume create [볼륨명]: 볼륨을 생성함. 이를 named volume이라고 함.
+- docker volume rm [볼륨명]: 볼륨 제거
+
+### 컨테이너에 볼륨 마운트 하기
+
+#### Bind mount volume
+- docker run -v [로컬 디렉토리 경로]:[마운트할 컨테이너 디렉토리 경로] [옵션] [이미지]
+
+내가 지정한 로컬 디렉토리의 경로에 컨테이너의 폴더가 마운트된다. 이 경우 컨테이너가 제거 되어도 볼륨은 제거되지 않는다.
+
+#### Anonymous Volume
+- docker run -v [마운트할 컨테이너 디렉토리 경로] [옵션] [이미지]
+
+Bind mount volume과는 달리 로컬 경로를 명시하지 않은 경우 익명 볼륨으로 지정된다. 익명 볼륨으로 지정된 경우 사용자는 컨테이너 데이터가 호스트의 어느 경로에 저장되는지 알 수 없고, 컨테이너가 삭제되는 경우 익명볼륨도 함께 제거된다.
+
+#### Named Volume
+- docker -v [볼륨명]:[마운트할 컨테이너 디렉토리 경로] [옵션] [이미지]
+
+ 미리 생성해둔 볼륨에 컨테이너를 마운트하는 경우 named volume을 사용한다. 이 경우도 bind mount volume과 마찬가지로 컨테이너가 제거되더라도 볼륨은 제거되지 않아 컨테이너와 상관없이 데이터를 유지할 수 있다.
+
+## 도커 파일
+Dockerfile은 기존 일일히 CLI 명령어를 통해서 도커를 이미지를 빌드시켜야 하던 것을 하나의 파일에 정의해두어 편리하게 실행토록 하는 기능이다. 
+
+~~~dockerfile
+# Dockerfile
+FROM openjdk:17
+ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+~~~
+에브리타임 서버 이미지를 만들기 위해서 jar 파일을 빌드한 후 위의 도커 파일로 이미지를 생성하였다. 
+또한 내가 만든 에브리타임 서버는 mysql 데이터 베이스와 연동이 필요하기 때문에, mysql 이미지도 docker file을 통해서 정의하였다.
+~~~dockerfile
+# Dockerfile
+FROM mysql:8.0
+
+COPY init.sql /docker-entrypoint-initdb.d
+
+ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+ENV MYSQL_DATABASE=ceos_everytime_db
+ENV MYSQL_HOST=%
+
+CMD ["--character-set-server=utf8mb4","--collation-server=utf8mb4_unicode_ci"]
+~~~
+
+두개의 이미지를 모두 dockerfile로 정의해두었기 때문에 docker build 명령어로 이미지를 빌드할 수 있다.
+
+- docker build -t [생성할 이미지 이름:tag] [도커 파일 경로]: 도커 파일로 이미지 빌드
+
+나의 경우 compose.yml을 사용하였기 때문에 별도로 docker build를 실행하진 않았다.
+
+## Docker Compose
+도커 컴포즈를 이용하여 동시에 여러 이미지를 run 하여 컨테이너로 실행할 수 있다. 
+~~~yml
+version: '3'
+services: 
+  db:  # db 컨테이너
+    build:
+      context: ./docker-test-db
+      dockerfile: Dockerfile  # ./docker-test-db 폴더의 Dockerfile로 이미지 빌드
+    ports:
+      - 3306:3306  # 포트포워딩 3306:3306
+    volumes:
+      - ./docker-test-db/store:/var/lib/mysql  # volume 마운트로 db 컨테이너가 삭제되어도 로컬에 데이터가 존재하도록 설정
+    networks:
+      - network
+  
+  server: # server 컨테이너
+    build:
+      context: ./spring-everytime-19th
+      dockerfile: Dockerfile   # ./spring-everytime-19th 폴더의 Dockerfile로 이미지 빌드
+    restart: always  # 서버는 꺼지면 다시 재시작
+    ports:
+      - 8080:8080  # 호스트의 8080 포트와 컨테이너의 8080 포트 포워딩
+    depends_on: # db 컨테이너가 실행된 이후에 실행됨
+      - db
+    environment:  # 환경변수 설정
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ceos_everytime_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET}
+    networks:
+      - network
+
+networks:  # 도커 네트워크 생성. db와 server를 동일한 네트워크로 묶어 통신 가능케 함
+  network:
+~~~
+
+compose 파일을 통해서 db 컨테이너가 먼저 build된 이후에 server 컨테이너가 실행되도록 설정하였다(depends_on)
+
+모든 설정 파일 (dockerfile, compose.yml)들이 준비 되었으니 docker-compose 명령어로 이미지를 빌드 후 컨테이너를 실행한다.
+- docker-compose up -d --build: 컴포즈 yml 파일로 이미지 빌드 및 컨테이너 실행
+
+*컴포즈 파일을 통해서 컨테이너가 정상적으로 실행되는 모습*
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/794cea15-93da-485f-8507-2ffd78fff305)
+포스트 맨을 통해서 서버가 제대로 동작하는지 확인해 보았다.
+
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/90e46431-042c-4d92-a43c-efcd461e8899)
+localhost:8080/login 경로로 로그인 post 요청을 날렸더니 정상적으로 로그인이 되는 모습이다.
+
+### 실습 과정에서 생겼던 문제
+![3306 포트 문제](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ea847ce6-284f-4b03-bd54-5a90b302610c)
+도커 컴포즈를 실행하는 과정에서 생겼던 문제로 컴포즈 빌드를 하는 중에 이미 3306 포트가 사용중이라는 문제가 발생했다. 
+
+![mysql stop](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/7b695344-f652-4c25-a4c4-caa56ceb788a)
+이는 로컬 컴퓨터에서 mysql db를 돌리고 있던 와중에 컴포즈로 빌드되는 mysql 컨테이너도 3306 포트를 사용하기 때문에 충돌이 일어난 것인데, 로컬 머신의 mysql을 종료함으로써 문제를 해결했다.
+
