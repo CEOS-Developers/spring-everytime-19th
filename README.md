@@ -46,8 +46,57 @@ public class User {
 }
 ```
 
-# 5주차 - Spring Security & JWT
+# 6주차 - Docker
+Docker : 컨테이너 기반의 가상화 도구
+- 가상화 : 서버의 성능을 나눠서 사용하자.
+  분산된 서버가 각기 다른 서비스 수행.
 
+### 서버 가상화 - Hypervisor
+**완벽한 OS**
+하나의 host OS에서 여러 개의 guest OS를 생성하여 사용 가능.
+guest OS : hypervisor에 의해 생성되고 관리되는 운영체제.
+- Virtual Box, VMware 등이 있다.
+- 시스템 자원 가상화, 독립 공간 생성은 Hypervisor를 반드시 거침
+  -> 성능 손실 크다
+- Guest OS 위한 라이브러리, 커널 등 포함하기 때문에, 성능 느리고 용량 부담.
+
+### 컨테이너 기반 가상화
+**프로세스 단위의 격리 환경**
+컨테이너 : 가상화된 공간을 생성하기 위해 리눅스 자체 기능만 담은 격리 환경
+- 라이브러리 및 실행파일만 있음.
+- 이미지로 만들었을 때, 가상머신에 비해 용량이 작고 빠르다.
+  -> 배포에 유리하다
+ 
+컨테이너는 컨테이너에 담긴 것들의 Life Cycle을 관리한다!
+- 프로세스의 생성, 운영, 제거까지 생명주기 관리.
+
+### Container != Docker
+도커는 컨테이너에 여러 기능을 더한 오픈소스 프로젝트.
+- 컨테이너 관리
+- 이미지 관리  
+  -> 어플리케이션 실행에 필요한 독립적인 환경을 포함한 파일(런타임 환경을 위한 일종의 템플릿)
+- 네트워크 관리  
+  -> 컨테이너 간의 통신을 관리하고 격리하기 위한 기능
+- 볼륨 관리  
+  -> 컨테이너 내부의 데이터를 외부로 링크를 걸어주는 기능  
+  -> 컨테이너 내부에서 수정되는 즉시 볼륨이 걸려있는 외부의 데이터도 같이 수정됨
+
+<div align="center">
+  <img src="imgs/hypervisor_container.png" alt="drawing" width=500"/>
+</div>
+
+## Docker-build
+<div align="center">
+  <img src="imgs/docker_build.png" alt="drawing" width=500"/>
+</div>
+
+## Docker-compose Error
+<div align="center">
+  <img src="imgs/ddl_exception.png" alt="drawing" width=500"/>
+</div>
+
+# 5주차 - Spring Security & JWT
+ 
 ### Before JWT - Cookie
 - 클라이언트가 웹사이트에 접속할 때 그 사이트가 사용하게 되는 일련의 작은 기록 파일.
 - 서버가 클라이언트에 정보를 전달할 때 저장하고자하는 정보를 응답 헤더(Cookie)에 저장하여 전달.
