@@ -948,8 +948,58 @@ public String createAccessToken(String username, Authentication authentication) 
 
 - 액세스 토큰이 필요한 API
   <img width="949" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/9f1a0c83-7038-4e9a-b7f0-fdd7694794e4">
-액세스 토큰을 넣어서 요청을 보내야 수행된다. 액세스 토큰이 없다면 에러가 발생하도록 했다.
+액세스 토큰을 넣어서 요청을 보내야 수행된다. 액세스 토큰이 없다면 에러가 발생하도록 했다.  
 
+
+## 6주차 Docker  
+### 6.1 Docker 명령어 써보기  
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/8b81d596-d606-4587-8615-409ef8502eed">
+위의 이미지처럼 terminal 에서 여러 명령어들을 수행하면서 도커와 친해져보았다.  
+
+### 6.2 겪었던 어려움  
+도커를 통해서 배포를 진행해보면서 크게 두번의 막힘과정이 있었다.  
+첫번째는 DB관련 이슈이다.  
+  
+  
+
+1. DB 에 연결이 안됨.  
+Dockerfile을 만들고, 생성한 파일을 토대 docker 이미지를 만든 뒤 도커 이미지를 실행하여 컨테이너를 생성했다.  
+   <img width="905" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/ffc2752b-5e40-4f81-84aa-cc28aaeffd80">  
+이 이미지에서 build 명령어로 도커 이미지를 생성함.  
+   <img width="1087" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/8c6eba7f-bfdc-4040-b177-f0bc89939a77">
+이 이미지에서는 생성한 이미지를 실행시켜 컨테이너를 만듦.  
+    근데 에러가 발생했다. 에러 내용은 mysql과 연결이 안된다는 것.  
+도커를 통해 이미지를 만들고 해당 이미지로 실행하면, localhost:3306으로 설정했던 DB에 대한 정보를 도커가 읽을 수 없다는 것이 문제였다.  
+   <img width="591" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/8574a05b-f759-42ea-895d-f98cff7b2c29">
+따라서 application.yml 에서 127.0.0.1 의 부분을 **host.docker.internal** 로 설정해주어 해결했다.  
+  
+  
+2. Error creating bean 에러  
+해당 에러는 보통 특정 클래스가 빈으로 등록되지 않은 상태에서 사용되거나 할때 생기는 문제이다. 근데 로컬에서는 잘 돌아가는 코드가 도커 컨테이너를 통해서 실행하면 계속 에러가 발생했다.  
+나의 경우에는 TokenProvider 가 빈으로 등록되지 않았다는 에러가 발생해서 해당 코드를 다시 봤다. 근데 코드상에는 문제가 없었다.  
+<img width="872" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/b69aeb52-b673-45ac-b990-79d827408388">  
+에러를 자세히 보니 jwt.secret.key 부분에서 뭔가 안된다는 것을 알았고 이때 깨달았다.  
+  
+    지금까지 JWT_SECRET_KEY 는 유출되면 안되는 키 라고 생각하여 다음과 같이 저장했다.  
+<img width="230" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/7550d370-fad2-4c2e-850c-efe3e9e0c466">  
+인텔리제이 내부에서 환경변수를 설정하여 사용하고 있었다. 하지만 이렇게 되면 도커는 해당 변수를 이해하지 못하기 때문에 발생하는 문제였던 것이다.  
+  
+    해결하는 방법은 여러개가 있지만 다음의 방법이 좋은 듯 하다.  
+    ```yaml
+   version: '3'
+   services:
+     spring-app:
+       image: everytime-ceos
+       environment:
+         - JWT_SECRET_KEY=your_secret_key
+       ports:
+         - "8080:8080"
+    ```
+    docker-compse.yml 에 위와 같이 설정할 수 있고, 루트 디렉토리에 .env 파일을 생성하여 거기에서 키 값을 입력해두면 된다.  
+
+### 6.3 실행  
+위의 에러들을 해결하고 나니 제대로 실행이 됐다.
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/db008b34-6fc9-49de-bb9c-fcf599c999fd">
 
 
 

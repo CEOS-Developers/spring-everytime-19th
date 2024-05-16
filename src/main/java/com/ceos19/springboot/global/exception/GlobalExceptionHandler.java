@@ -1,6 +1,7 @@
 package com.ceos19.springboot.global.exception;
 
 import com.ceos19.springboot.common.code.ErrorCode;
+import com.ceos19.springboot.common.response.ApiResponse;
 import com.ceos19.springboot.common.response.ErrorResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -171,10 +172,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HTTP_STATUS_OK);
     }
 
+//    @ExceptionHandler(BusinessExceptionHandler.class)
+//    protected final ResponseEntity<ErrorResponse> handleBusinessException(BusinessExceptionHandler ex){
+//        log.error("BusinessExceptionHandler", ex);
+//        final ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), ex.getMessage());
+//        return ResponseEntity.status(ex.getErrorCode().getStatus()).body(response);
+//    }
+
     @ExceptionHandler(BusinessExceptionHandler.class)
-    protected final ResponseEntity<ErrorResponse> handleBusinessException(BusinessExceptionHandler ex){
-        log.error("BusinessExceptionHandler", ex);
-        final ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), ex.getMessage());
-        return ResponseEntity.status(ex.getErrorCode().getStatus()).body(response);
+    public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessExceptionHandler ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        ApiResponse<Object> response = ApiResponse.of(errorCode.getStatus(), errorCode.getMessage(), null);
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 }

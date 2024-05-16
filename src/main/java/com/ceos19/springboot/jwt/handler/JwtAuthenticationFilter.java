@@ -3,19 +3,12 @@ package com.ceos19.springboot.jwt.handler;
 import com.ceos19.springboot.jwt.TokenProvider;
 import com.ceos19.springboot.users.UserDetailsImpl;
 import com.ceos19.springboot.users.domain.UserRoleEnum;
-import com.ceos19.springboot.users.domain.Users;
 import com.ceos19.springboot.users.dto.UserRequestDto;
-import com.ceos19.springboot.users.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -55,6 +48,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();      // role
 
         String token = tokenProvider.createAccessToken(username, authResult);     // 5.
+        String refreshToken = tokenProvider.createRefreshToken(username);
+
         response.addHeader("Authorization", token);        // 6.
     }
 

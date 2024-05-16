@@ -1,5 +1,7 @@
 package com.ceos19.springboot.jwt;
 
+import com.ceos19.springboot.refreshtoken.domain.RefreshToken;
+import com.ceos19.springboot.refreshtoken.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -25,11 +27,13 @@ import java.util.stream.Collectors;
 public class TokenProvider implements InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
-    private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
+    private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 60 * 60; // access token은 24시간
+    private static final long REFRESH_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60 * 7; // refresh token은 1주일
     private static final String AUTHORITIES_KEY = "auth";
 
     private Key key;
     private final UserDetailsService userDetailsService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -40,9 +44,9 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String getUserName(String token, String secretKey) {
+    public String getUserName(String token) {
         try {
-            key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+            key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
@@ -85,6 +89,23 @@ public class TokenProvider implements InitializingBean {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
+    }
+
+    public String createRefreshToken(String username) {
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + REFRESH_TOKEN_VALIDITY_SECONDS * 1000);
+
+        String token = Jwts.builder()
+                .setSubject(username)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(validity)
+                .compact();
+
+        // Refresh Token 저장 또는 업데이트
+        RefreshToken refreshToken = new RefreshToken(username,token);
+        refreshTokenRepository.save(refreshToken);
+
+        return token;
     }
 
     public String getTokenUserId(String token) {
