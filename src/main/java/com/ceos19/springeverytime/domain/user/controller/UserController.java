@@ -5,6 +5,9 @@ import com.ceos19.springeverytime.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,5 +23,11 @@ public class UserController {
     public ResponseEntity<Void> registerUser(@RequestBody @Valid final UserCreateRequest request) {
         userService.register(request);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUser() {
+        userService.delete();
+        return ResponseEntity.noContent().build();
     }
 }

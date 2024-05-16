@@ -7,7 +7,6 @@ import lombok.*;
 import java.util.Date;
 
 @Entity
-@RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class User extends BaseEntity {
@@ -49,5 +48,16 @@ public class User extends BaseEntity {
 
     public void authenticateUniversity() {
         this.isEnrolled = true;
+    }
+
+    @Builder
+    public User(String loginId, String pw, String nickname, String name, String major, String admissionYear, String email) {
+        this.loginId = loginId;
+        this.pw = pw;
+        this.nickname = nickname;
+        this.name = name;
+        this.major = major;
+        this.admissionYear = admissionYear;
+        this.email = email;
     }
 }

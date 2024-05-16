@@ -811,3 +811,436 @@ OAuth 2.0의 인증 방식은 크게 4가지로 나뉜다.
 ![image](https://github.com/kckc0608/kckc0608/assets/64959010/2cbdcd6f-e786-4ab8-94a8-0955894e20f3)   
 인증에 성공하여 서버로부터 적절한 응답을 받게 된다.
 
+<hr>
+
+# 6주차
+## 어플리케이션 배포
+어플리케이션을 배포하는 것은 나만 사용하는 내 컴퓨터(로컬 환경)가 아니라, 인터넷 환경에 연결된 공공 컴퓨터(서버)에서 어플리케이션을 24시간 실행시켜 누구나 언제든 어플리케이션에 요청을 보내고, 응답을 받을 수 있도록 하는 것을 말한다.   
+
+서버에서 자바 어플리케이션을 실행하려면 당연히 서버 컴퓨터에 자바를 설치해야 한다.
+그런데 이 과정은 서버 컴퓨터가 1대일 때는 어느 정도 시행착오를 하면서 할 수 있지만, 똑같은 개발 환경을 여러 컴퓨터에 설정해야 한다면, 게다가 각각의 컴퓨터마다 사용하는 OS가 다르다면 그에 맞춰서 일일히 환경을 준비하는 것은 매우 번거로울 것이다.   
+
+도커는 이 문제를 컨테이너 기술을 이용해 해결해준다.   
+서로 다른 하드웨어 구조를 가진 컴퓨터 위에 `도커` 라는 JVM 같은 중간 매개 플랫폼을 두고 이 `도커`라는 공통의 플랫폼 위에 하나의 개발 환경을 `컨테이너`로 만들어 실행함으로써 서로 다른 하드웨어가 모두 같은 환경을 공유할 수 있다.
+
+
+
+## 도커 설치
+[공식문서](https://docs.docker.com/engine/install/ubuntu/)를 참고하여 우분투 서버에 도커를 설치한다.
+1. docker `apt` repository 설정
+    ```shell
+    # Add Docker's official GPG key:
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    
+    # Add the repository to Apt sources:
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    ```
+2. 최신 버전 도커 설치
+    ```shell
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    ```
+3. 도커 설치 확인
+    ```shell
+    sudo docker run hello-world
+    ```
+   실행 결과
+    ```shell
+    Unable to find image 'hello-world:latest' locally
+    latest: Pulling from library/hello-world
+    c1ec31eb5944: Pull complete
+    Digest: sha256:a26bff933ddc26d5cdf7faa98b4ae1e3ec20c4985e6f87ac0973052224d24302
+    Status: Downloaded newer image for hello-world:latest
+    
+    Hello from Docker!
+    This message shows that your installation appears to be working correctly.
+    
+    To generate this message, Docker took the following steps:
+    1. The Docker client contacted the Docker daemon.
+    2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+       (amd64)
+    3. The Docker daemon created a new container from that image which runs the
+       executable that produces the output you are currently reading.
+    4. The Docker daemon streamed that output to the Docker client, which sent it
+       to your terminal.
+    
+    To try something more ambitious, you can run an Ubuntu container with:
+    $ docker run -it ubuntu bash
+    
+    Share images, automate workflows, and more with a free Docker ID:
+    https://hub.docker.com/
+    
+    For more examples and ideas, visit:
+    https://docs.docker.com/get-started/
+    ```
+
+## 도커 위에서 스프링 어플리케이션 실행하기
+1. 도커의 컨테이너에서 스프링 어플리케이션을 실행하려면, 스프링 어플리케이션이 실행될 컨테이너 환경과 컨테이너에서 실행할 명령어를 `dockerfile`에 기술해야 한다.
+    ```dockerfile
+    FROM openjdk:17
+    ARG JAR_FILE=/build/libs/*.jar
+    COPY ${JAR_FILE} app.jar
+    ENTRYPOINT ["java","-jar", "/app.jar"]
+    ```
+   
+2. 어플리케이션을 빌드한다. 빌드된 jar 파일까지 포함하여 하나의 이미지로 만들기 위함이다.
+    ```shell
+    .\gradlew build
+    ```
+   `build/libs` 경로에 가면 아래와 같이 `.jar` 파일이 2개 생성되었음을 알 수 있다.
+    ```shell
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    -a----      2024-05-11   오후 9:35          93943 spring-everytime-0.0.1-SNAPSHOT-plain.jar
+    -a----      2024-05-11   오후 9:35       57863436 spring-everytime-0.0.1-SNAPSHOT.jar
+    ```
+   뒤에 `-plain`이 붙은 파일은 아카이빙 파일이다. ([공식문서](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/#packaging-executable.and-plain-archives))   
+   `dockerfile`에서 jar 파일을 구분하는 것이 불편하기에 이를 생성하고 싶지 않다면, `build.gradle`에 아래와 같은 코드를 추가한다.   
+    ```groovy
+    tasks.named('jar') {
+      enabled = false
+    }
+    ```
+   
+    기존 빌드 파일을 지우고 다시 빌드하면 아래와 같이 하나의 `jar`파일만 나오는 것을 볼 수 있다.   
+    ```shell
+    Mode                 LastWriteTime         Length Name
+    ----                 -------------         ------ ----
+    -a----      2024-05-11  오후 10:33       57863436 spring-everytime-0.0.1-SNAPSHOT.jar
+    ```
+   
+3. `dockerfile`과 위에서 빌드한 파일을 이용해 도커 이미지 만들기
+    도커 엔진이 실행되는 상태에서 아래 명령어를 실행한다.   
+    로컬 컴퓨터에 도커를 설치한 뒤, 이미지를 빌드하고, 서버에서는 빌드한 이미지를 가져와 자바가 설치된 컨테이너에서 바로 실행한다.   
+    (따라서 서버 컴퓨터에는 자바를 별도로 설치할 필요가 없다!)
+    ```shell
+    docker image build -t spring:v1 .
+    ```
+    현재 위치(`.`)에서 `dockerfile`을 찾아 `spring`이라는 이름과 `v1`이라는 태그로 이미지를 만든다.
+    ```shell
+    [+] Building 10.2s (7/7) FINISHED
+     => [internal] load build definition from Dockerfile                                                                                                                                                                                             0.0s
+     => => transferring dockerfile: 150B                                                                                                                                                                                                             0.0s 
+     => [internal] load .dockerignore                                                                                                                                                                                                                0.0s 
+     => => transferring context: 2B                                                                                                                                                                                                                  0.0s 
+     => [internal] load metadata for docker.io/library/openjdk:17                                                                                                                                                                                    2.5s 
+     => [internal] load build context                                                                                                                                                                                                                0.3s
+     => => transferring context: 57.88MB                                                                                                                                                                                                             0.3s 
+     => [1/2] FROM docker.io/library/openjdk:17@sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8                                                                                                                              7.1s 
+     => => resolve docker.io/library/openjdk:17@sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8                                                                                                                              0.0s 
+     => => sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8 1.04kB / 1.04kB                                                                                                                                                   0.0s 
+     => => sha256:98f0304b3a3b7c12ce641177a99d1f3be56f532473a528fda38d53d519cafb13 954B / 954B                                                                                                                                                       0.0s 
+     => => sha256:5e28ba2b4cdb3a7c3bd0ee2e635a5f6481682b77eabf8b51a17ea8bfe1c05697 4.45kB / 4.45kB                                                                                                                                                   0.0s 
+     => => sha256:38a980f2cc8accf69c23deae6743d42a87eb34a54f02396f3fcfd7c2d06e2c5b 42.11MB / 42.11MB                                                                                                                                                 1.9s 
+     => => sha256:de849f1cfbe60b1c06a1db83a3129ab0ea397c4852b98e3e4300b12ee57ba111 13.53MB / 13.53MB                                                                                                                                                 1.0s
+     => => sha256:a7203ca35e75e068651c9907d659adc721dba823441b78639fde66fc988f042f 187.53MB / 187.53MB                                                                                                                                               5.8s 
+     => => extracting sha256:38a980f2cc8accf69c23deae6743d42a87eb34a54f02396f3fcfd7c2d06e2c5b                                                                                                                                                        0.7s 
+     => => extracting sha256:de849f1cfbe60b1c06a1db83a3129ab0ea397c4852b98e3e4300b12ee57ba111                                                                                                                                                        0.2s 
+     => => extracting sha256:a7203ca35e75e068651c9907d659adc721dba823441b78639fde66fc988f042f                                                                                                                                                        1.2s 
+     => [2/2] COPY /build/libs/*.jar app.jar                                                                                                                                                                                                         0.4s 
+     => exporting to image                                                                                                                                                                                                                           0.2s 
+     => => exporting layers                                                                                                                                                                                                                          0.2s 
+     => => writing image sha256:6d62b0cee38d5cacbb4ee62cae7138cf0ff9a185bbe269a023557005e61c1c43                                                                                                                                                     0.0s 
+     => => naming to docker.io/library/spring:v1
+    ```
+    생성된 이미지는 아래 명령어로 확인할 수 있다.
+    ```shell
+    docker images
+    ```
+    ```shell
+    REPOSITORY       TAG                   IMAGE ID       CREATED          SIZE
+    spring           v1                    6d62b0cee38d   11 minutes ago   529MB
+    ```
+4. 이미지를 도커 허브에 push하기   
+    도커 이미지는 깃허브와 유사한 `도커 허브`라는 곳에 업로드 수 있다.
+    우선 업로드하기 전에 도커 허브에 로그인한다.
+    ```shell
+    docker login
+    ```
+    ```shell
+    Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+    Username: kckc0608@naver.com
+    Password:
+    Login Succeeded
+    
+    Logging in with your password grants your terminal complete access to your account.
+    For better security, log in with a limited-privilege personal access token. Learn more at https://docs.docker.com/go/access-tokens/
+    ```
+    도커 이미지를 허브에 올릴 때는 깃허브와 비슷하게 `push`를 사용한다.
+    ```shell
+    docker push spring:v1
+    ```
+    push할 이미지읭 이름과 태그를 명시한다. 태그는 명시하지 않으면 기본값으로 `latest`를 사용한다. 
+    ```shell
+    The push refers to repository [docker.io/library/spring]
+    79e34dc2859b: Preparing                                                                                                                                                                                                                               
+    dc9fa3d8b576: Preparing                                                                                                                                                                                                                               
+    27ee19dc88f2: Preparing                                                                                                                                                                                                                               
+    c8dd97366670: Preparing                                                                                                                                                                                                                               
+    denied: requested access to the resource is denied
+    ```
+    `denied: requestsd access to the resource is denied` 에러는 현재 로그인한 사용자와 이미지에 명시된 사용자가 일치하지 않아서 발생하는 오류이다.   
+    이미지에 사용자를 명시하려면 `로그인 사용자명`/`이미지 이름` 형식으로 이미지 이름을 만들면 된다.
+    ```shell
+    PS D:\Hongik\CEOS\spring-everytime-19th> docker images
+    REPOSITORY        TAG                   IMAGE ID       CREATED          SIZE
+    kckc0608/spring   v1                    6d62b0cee38d   27 minutes ago   529MB
+    spring            v1                    6d62b0cee38d   27 minutes ago   529MB
+    ```
+    다시 이미지를 만들어주었다. 이제 다시 만든 이미지를 push 한다.
+    ```shell
+    PS D:\Hongik\CEOS\spring-everytime-19th> docker push kckc0608/spring:v1
+    The push refers to repository [docker.io/kckc0608/spring]
+    79e34dc2859b: Pushed
+    dc9fa3d8b576: Pushed
+    27ee19dc88f2: Pushed
+    c8dd97366670: Pushed
+    v1: digest: sha256:bcaffbf056d4cd03f6610dc9f7e9cf3afd3c7f17a58106d31bbcf71bbc8b5f5e size: 1166
+    ```
+5. 서버의 도커 엔진에서 도커에 로그인한다.
+    ```shell
+    ubuntu@everdu-sub:~$ docker login
+    Log in with your Docker ID or email address to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com/ to create one.
+    You can log in with your password or a Personal Access Token (PAT). Using a limited-scope PAT grants better security and is required for organizations using SSO. Learn more at https://docs.docker.com/go/access-tokens/
+    
+    Username: kckc0608@naver.com
+    Password:
+    WARNING! Your password will be stored unencrypted in /home/ubuntu/.docker/config.json.
+    Configure a credential helper to remove this warning. See
+    https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+    
+    Login Succeeded
+    ```
+6. 도커 이미지를 다운 받는다. 깃허브와 유사하게 `pull` 명령어를 사용한다.
+    ```shell
+    ubuntu@everdu-sub:~$ sudo docker pull kckc0608/spring:v1
+    v1: Pulling from kckc0608/spring
+    38a980f2cc8a: Pull complete
+    de849f1cfbe6: Pull complete
+    a7203ca35e75: Pull complete
+    8356870fb9b5: Pull complete
+    Digest: sha256:bcaffbf056d4cd03f6610dc9f7e9cf3afd3c7f17a58106d31bbcf71bbc8b5f5e
+    Status: Downloaded newer image for kckc0608/spring:v1
+    docker.io/kckc0608/spring:v1
+    ```
+7. 다운받은 이미지로 컨테이너를 실행한다.
+    ```shell
+    sudo docker run -p 8080:8080 kckc0608/spring:v1
+    ```
+    이때 서버 포트와 컨테이너가 사용할 포트를 설정해준다.
+    ```shell
+      .   ____          _            __ _ _
+     /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+    ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+     \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+      '  |____| .__|_| |_|_| |_\__, | / / / /
+     =========|_|==============|___/=/_/_/_/
+     :: Spring Boot ::                (v3.1.9)
+    
+    2024-05-11T14:20:00.881Z  INFO 1 --- [           main] c.c.s.SpringEverytimeApplication         : Starting SpringEverytimeApplication v0.0.1-SNAPSHOT using Java 17.0.2 with PID 1 (/app.jar started by root in /)
+    
+    ```
+    스프링 어플리케이션이 실행된다.
+8. Postman 테스트   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/6faf481d-4a6f-4a20-b08b-eafa06e1d124)   
+    login 요청은 허용을 해뒀으므로 별도 reqeust body 없이 요청을 보내보았다.   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/e9c8c3b7-e973-4c9d-84ac-ae07dd2c515c)   
+    401 에러가 발생하였으며, 이는 의도한 에러코드가 맞다.
+
+### docker-compose 사용하기
+`dockerfile`은 하나의 컨테이너를 위한 파일이다.   
+만약 여러 컨테이너를 띄우고 이들 사이에 데이터를 주고 받아야 한다면 `docker-compose`를 사용하여 하나의 파일로 여러 컨테이너의 환경(이미지)을 정의할 수 있다.   
+
+#### docker-compose의 장점
+1. 간단한 컨테이너 제어 : yaml 파일 하나로 여러 컨테이너 어플리케이션을 제어할 수 있다.
+2. 효율적인 협업 : `docker-compose`파일은 공유하기 쉽고, 개발팀-운영팀 사이에 협업을 더 간단하게 해준다.
+3. 빠른 개발 : `docker-compose`는 컨테이너를 만들 때 캐시를 활용한다. 따라서 변경사항이 없는 컨테이너는 기존 컨테이너를 그대로 재사용하기 때문에 빠르게 실행할 수 있다.
+4. 이식성 : `compose`파일에 변수를 쓸 수 있기 때문에, 각각의 환경과 사용자에 맞는 변수를 사용하여 다른 환경에서도 쉽게 compose를 이식하여 사용할 수 있다.
+5. 광범위한 커뮤니티 지원
+
+### docker-compose.yml 작성
+```yaml
+services:
+  web:
+    container_name: spring
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: db
+    restart: always
+    volumes:
+      - app:/app
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: spring_everytime
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - 3307:3306
+    restart: always
+
+volumes:
+  dbdata:
+  app:
+```
+yaml 파일을 이용해 `docker-compose up` 명령어 실행
+```shell
+docker-compose -f docker-compose.yml up --build
+```
+실행결과
+```shell
+[+] Building 0.7s (7/7) FINISHED
+ => [internal] load .dockerignore                                                                                                              0.0s
+ => => transferring context: 2B                                                                                                                0.0s 
+ => [internal] load build definition from Dockerfile                                                                                           0.0s 
+ => => transferring dockerfile: 150B                                                                                                           0.0s 
+ => [internal] load metadata for docker.io/library/openjdk:17                                                                                  0.7s 
+ => [internal] load build context                                                                                                              0.0s
+ => => transferring context: 125B                                                                                                              0.0s 
+ => [1/2] FROM docker.io/library/openjdk:17@sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8                            0.0s 
+ => CACHED [2/2] COPY /build/libs/*.jar app.jar                                                                                                0.0s 
+ => exporting to image                                                                                                                         0.0s 
+ => => exporting layers                                                                                                                        0.0s 
+ => => writing image sha256:da0ae0ad28cca7159a32989ef473e32e740b5e4d9c97ab808a4a354f6b9d5e78                                                   0.0s 
+ => => naming to docker.io/library/spring-everytime-19th-web                                                                                   0.0s 
+[+] Running 2/2
+ ✔ Container spring-everytime-19th-db-1  Recreated                                                                                             0.1s 
+ ✔ Container spring                      Recreated                                                                                             0.1s 
+Attaching to spring, spring-everytime-19th-db-1
+spring-everytime-19th-db-1  | 2024-05-12 01:30:35+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.37-1.el9 started.
+spring-everytime-19th-db-1  | 2024-05-12 01:30:35+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+spring-everytime-19th-db-1  | 2024-05-12 01:30:35+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.37-1.el9 started.
+spring-everytime-19th-db-1  | 2024-05-12 01:30:35+00:00 [Note] [Entrypoint]: Initializing database files
+spring-everytime-19th-db-1  | 2024-05-12T01:30:35.330023Z 0 [Warning] [MY-011068] [Server] The syntax '--skip-host-cache' is deprecated and will be removed in a future release. Please use SET GLOBAL host_cache_size=0 instead.
+spring-everytime-19th-db-1  | 2024-05-12T01:30:35.330084Z 0 [System] [MY-013169] [Server] /usr/sbin/mysqld (mysqld 8.0.37) initializing of server in progress as process 83
+spring-everytime-19th-db-1  | 2024-05-12T01:30:35.367326Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+spring-everytime-19th-db-1  | 2024-05-12T01:30:35.595921Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+spring                      | 
+spring                      |   .   ____          _            __ _ _
+spring                      |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+spring                      | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+spring                      |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+spring                      |   '  |____| .__|_| |_|_| |_\__, | / / / /
+spring                      |  =========|_|==============|___/=/_/_/_/
+spring                      |  :: Spring Boot ::                (v3.1.9)
+
+```
+
+`docker ps` 명령어 실행 결과
+```shell
+CONTAINER ID   IMAGE                       COMMAND                   CREATED         STATUS          PORTS                               NAMES
+4c960f1161fe   spring-everytime-19th-web   "java -jar /app.jar"      8 minutes ago   Up 8 minutes    0.0.0.0:8080->8080/tcp              spring
+47e90aafa7cd   mysql:8.0                   "docker-entrypoint.s…"   8 minutes ago   Up 8 minutes    33060/tcp, 0.0.0.0:3307->3306/tcp   spring-everytime-19th-db-1
+```
+
+### postman 테스트
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/9744898e-a1b8-4e24-8b22-dab2a434e0fa)   
+`http://localhost:8080/login` 으로 POST요청을 보냈을 때   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/0411b246-6c02-4549-b6b9-1d9565106489)   
+다음과 같이 401로 응답하는 것을 볼 수 있다.
+
+## 추가 API 개발
+회원 탈퇴 API를 추가로 개발하였다.   
+```java
+@DeleteMapping
+public ResponseEntity<Void> deleteUser() {
+    userService.delete();
+    return ResponseEntity.noContent().build();
+}
+```
+현재 로그인한 사용자 정보는 `SecurityContextHolder`에서 가져오면 되는데, `ContextHolder`에는 어떤 서비스 레이어에서도 접근할 수 있기 때문에 컨트롤러에서 접근한 뒤, 서비스로 데이터를 굳이 넘길 필요가 없다고 생각해서 컨트롤러는 간소하게 작성하였다.
+
+```java
+public void delete() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+    String loginId = userDetails.getUsername();
+    User user = userRepository.findByLoginId(loginId).orElseThrow(
+            () -> new BadRequestException(ExceptionCode.NOT_FOUND_LOGIN_ID)
+    );
+    userRepository.delete(user);
+}
+```
+`UserService`에서는 ContextHolder에서 현재 요청을 보낸 사용자의 auth 정보를 통해 사용자의 `loginId`를 얻고, 이를 이용해 사용자를 삭제한다.
+
+회원 탈퇴 기능을 postman에서 테스트 해보았다.
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/5984700f-48a7-42c9-b78a-d765f6026a4a)   
+다음과 같은 정보로 회원가입을 진행한다. (User 데이터 생성)   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/0200e4f5-1342-45f0-9d06-fd5ed9349cbb)    
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/931381b0-f2ad-4ddd-a64d-4974cb443bf9)   
+로그인에 성공해서 access 토큰을 받았다.
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/2ca1c420-eee7-46a9-822d-59cad83d40d4)   
+access token을 이용해 회원 탈퇴 API 요청을 보낸다.   
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/e8a729ed-9bd2-4d4c-ada0-3c8761e9f9c4)   
+다시 같은 정보로 로그인을 시도하면 로그인에 실패한다.   
+
+### 회원 탈퇴 단위 테스트
+회원 탈퇴에 대해서 단위 테스트도 작성하였다.   
+```groovy
+testImplementation 'org.springframework.security:spring-security-test'
+```
+Spring Security 테스트를 위해 의존성을 추가한다.   
+```java
+@BeforeEach
+void setup() {
+    CustomUserDetails userDetails = new CustomUserDetails(EntityGenerator.generateUser("test"));
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    SecurityContextHolder.getContext().setAuthentication(auth);
+}
+```
+단위 테스트를 진행할 때는 JWTFilter를 거치지 않아 `SecurityContext`에 아무런 auth가 존재하지 않는다.   
+따라서 테스트를 진행하기 전에 미리 Context에 Auth Token을 넣어준다.
+
+```java
+@Test
+@DisplayName("유저 회원 탈퇴 테스트")
+void 회원탈퇴_테스트() {
+    // given
+    User user = EntityGenerator.generateUser("test");
+    when(userRepository.findByLoginId(anyString())).thenReturn(Optional.of(user));
+
+    // when
+    userService.delete();
+
+    // then
+    verify(userRepository, times(1)).delete(user);
+}
+```
+테스트 코드는 다른 메소드를 테스트할 때와 동일하게 작성한다.
+
+### API를 작성하면서 느꼈던 점
+회원 탈퇴를 하면 그 회원이 갖고 있는 토큰으로는 더 이상 인증이 필요한 api에 접근할 수 없어야 한다.   
+
+처음에는 `Security Context Holder` 라는 개념을 보면서 나도 모르게 사용자의 인증 정보를 계속 `Security Context`에 저장하고 있다고 생각해서 `Security Context`만 비워주면 로그아웃이 된다고 생각했었다.   
+
+```java
+SecurityContextHolder.clearContext();
+```
+그래서 `clearContext()` 만 해주면 알아서 사용자의 인증 정보가 사라지니 로그아웃이 될 거라고 생각했었다.   
+그런데 postman에서 테스트해보니 회원 탈퇴한 이후에도 여전히 기존에 발급받은 토큰으로 다른 api에 접근할 수 있다는 것을 확인했다.   
+
+이유는 사실 금방 이해할 수 있었다.   
+jwt는 사용자의 인증 정보를 서버가 저장하지 않는 stateless 특성을 갖는 방식이고, 사용자가 jwt를 매 요청마다 보내면, 서버가 토큰을 매번 인증해서 인증이 완료된 요청에 대해서 임시로 `Security Context` 에 인증 정보를 저장하는 방식이었던 것이다.   
+그리고 이렇게 구현하는 이유는 스프링 어플리케이션에서 인증 정보(상태)를 전역적으로 접근하기 위해서라고 이해했다. (redux가 해주는 상태 관리와 유사하다고 이해했다.)   
+
+그래서 로그아웃을 어떻게 구현할 수 있을지 찾아봤는데, access token만 이용하는 방식으로는 로그아웃을 구현할 수 없다.   
+한번 발급한 토큰은 서버가 더 이상 제어할 수 없기 때문이다. 따라서 로그아웃한 access token을 일종의 black list에 등록해두어 로그아웃 처리를 시키거나, 클라이언트가 직접 토큰을 삭제하도록 구현해야 한다.   
+access token을 black list에 등록해둔다면, 그때부터는 jwt의 상태를 서버가 관리하는 것과 같다고 생각해서 이렇게 하는 것이 옳은지 궁금했는데, 이에 대한 고민이 지난 주 정리한 JWT에 정리되어 있다.   
+
+그래서 어차피 서버가 토큰의 상태를 관리한다면, 보안상으로도 더 유리한 refresh token을 사용해서 로그아웃을 구현한다.    
+지난 주에 정리할 때는 단순히 보안 문제로만 refresh token을 사용한다고 생각했었는데, 로그아웃, 로그인 유지와 같이 서버가 로그인 정보에 대한 상태를 관리해야 할 때도 사용할 수 있음을 새로 깨닫게 되었다.   

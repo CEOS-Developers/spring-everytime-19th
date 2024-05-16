@@ -2,10 +2,14 @@ package com.ceos19.springeverytime.domain.user.service;
 
 import com.ceos19.springeverytime.domain.user.domain.User;
 import com.ceos19.springeverytime.domain.user.dto.request.UserCreateRequest;
+import com.ceos19.springeverytime.domain.user.dto.response.CustomUserDetails;
 import com.ceos19.springeverytime.domain.user.repository.UserRepository;
 import com.ceos19.springeverytime.global.exception.BadRequestException;
 import com.ceos19.springeverytime.global.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +35,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void delete(User user) {
+    public void delete() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        String loginId = userDetails.getUsername();
+        User user = userRepository.findByLoginId(loginId).orElseThrow(
+                () -> new BadRequestException(ExceptionCode.NOT_FOUND_LOGIN_ID)
+        );
         userRepository.delete(user);
     }
 
