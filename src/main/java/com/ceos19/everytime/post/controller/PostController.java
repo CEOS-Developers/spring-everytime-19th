@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,8 +36,9 @@ public class PostController {
 
     @Operation(summary = "게시글 작성", description = "게시글을 작성합니다.")
     @PostMapping
-    public ResponseEntity<Void> createPost(@RequestBody final PostCreateRequestDto request) {
-        postService.createPost(request);
+    public ResponseEntity<Void> createPost(@RequestBody final PostCreateRequestDto request,
+            @AuthenticationPrincipal final String username) {
+        postService.createPost(request, username);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
