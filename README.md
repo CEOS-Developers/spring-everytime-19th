@@ -1644,6 +1644,6 @@ networks:
 
 실제로는 위에 적어둔 docker-compose.yaml 파일에 환경변수로 값을 불러오지 못했다. 이상하게 컴포즈 파일에 환경변수로 값을 등록하고 docker-compose up을 하게되면 값이 주입되지 않았었다. 이 점은 좀더 알아봐야 할 듯하다
 
-![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/ce3f5cf3-ca05-4eb4-935d-b59f60b26209)
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/092810a2-f234-42b1-af22-767a907fd964)
 ec2에 8080 포트로 정상적으로 웹서버에 접근이 가능한 모습이다. 
 
