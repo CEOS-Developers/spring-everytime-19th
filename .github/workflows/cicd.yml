@@ -29,8 +29,8 @@ jobs:
       #    docker build -t kckc0608/spring .
       #    docker push kckc0608/spring
 
-      - name: Remote SSH & Pull Image & Run Container # 3. 원격 접속 & 이미지 pull & 컨테이너 생성
-        uses: appleboy/ssh-action@master
+      - name: Remote SSH Commands
+        uses: fifsky/ssh-action@v0.0.6
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
@@ -41,3 +41,17 @@ jobs:
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull kckc0608/spring
             docker run -d -p 8080:8080 kckc0608/spring
+            
+
+      #- name: Remote SSH & Pull Image & Run Container # 3. 원격 접속 & 이미지 pull & 컨테이너 생성
+      #  uses: appleboy/ssh-action@master
+      #  with:
+      #    host: ${{ secrets.HOST }}
+      #    username: ubuntu
+      #    key: ${{ secrets.KEY }}
+      #    passphrase: ${{ secrets.PASSPHRASE }}
+      #    port: 22
+      #    script: |
+      #      sudo docker rm -f $(docker ps -qa)
+      #      sudo docker pull kckc0608/spring
+      #      docker run -d -p 8080:8080 kckc0608/spring
