@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest # Github Action의 우분투 가상환경에서 실행
     steps:
       - name: Checkout
-      - uses: actions/checkout@v4 # 레포지토리 코드를 Github Action의 우분투 가상환경에 내려받기
+        uses: actions/checkout@v4 # 레포지토리 코드를 Github Action의 우분투 가상환경에 내려받기
 
       - name: Set up JDK 17 # 가상환경에 JDK 17 세팅하기
         uses: actions/setup-java@v4
