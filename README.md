@@ -1049,7 +1049,6 @@ version: "3"
 services:
   db:
     image: mysql:5.7 #windows
-    image: mariadb:latest #mac
     environment:
       MYSQL_ROOT_PASSWORD: mysql
       MYSQL_DATABASE: mysql
@@ -1193,3 +1192,36 @@ public class CommentService {
 
 }
 ```
+---
+# CEOS 19th 7th Assignment - AWS
+## 지난주 과제 트러블슈팅
+지난주 과제에서 mysql db connection error 문제가 있었는데 아래와 같은 과정을 통해 해결할 수 있었다.  
+1/ docker에 mysql을 설치해주고 container을 만들어준다.
+```console
+docker pull mysql
+```
+위의 명령어를 입력하여 mysql을 설치해준다.  
+그 다음, 아래의 명령어를 입력하면 mysql이 도커에서 작동하게 된다.
+```console
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=<password> -d -p 3308:3306 mysql:latest
+```
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/87f39f81-fc27-4721-9917-21c29b89f75f)
+
+2/ application.yml 파일에서 DB url 중 `localhost` 부분을 `host.docker.internal`로 수정해준다.
+```yml
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://host.docker.internal:3306/everytime
+```
+
+위의 과정을 거친 후 도커에서 차례로 명령어를 입력하면 아래 사진과 같이 작동한다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/71ec6569-27cf-4388-a36e-554c23aa3a7b)
+위와 같이 빌드해준 뒤, 아래와 같이 실행(run)을 하면 
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/7a071f35-56aa-4485-9185-11252990d4d4)  
+(중간 로그 생략)  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/9341a207-0f35-49c6-a5f8-930071a6a887)  
+아래 사진과 같이 localhost:8080/swagger-ui.html로 접속했을 때 정상적으로 접속이 이루어진다.
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/8de3f36f-e853-4b4a-af8f-90f44c850acd)
+
+
