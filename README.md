@@ -1585,17 +1585,15 @@ localhost:8080/login 경로로 로그인 post 요청을 날렸더니 정상적�
 docker-compose를 이용하여 EC2에 배포를 진행하였다.
 스프링부트 이미지를 빌드하여 docker hub에 push를 진행하였다.
 
-![alt text](인바운드.jpg)
+![인바운드](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/2c98553a-9eee-4b9f-92a2-93ca77f2a828)
+[amd64빌드.jpg](..%2F..%2F..%2FDesktop%2Fceos-8%EC%A3%BC%EC%B0%A8%EA%B3%BC%EC%A0%9C%2Famd64%EB%B9%8C%EB%93%9C.jpg)
 ec2의 8080포트로 웹서버에 접속할 것이므로 8080포트의 인바운드 규칙을 지정해주었다.
 
-
-
-[amd64빌드.jpg](..%2F..%2F..%2FDesktop%2Fceos-8%EC%A3%BC%EC%B0%A8%EA%B3%BC%EC%A0%9C%2Famd64%EB%B9%8C%EB%93%9C.jpg)
-
+![amd64빌드](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/78179d72-186c-4284-bcbe-afeecb1edff8)
 위의 이미지를 보면 --platform 옵션을 통해서 아키텍처를 amd64로 지정한 것을 확인할 수 있다. 이유를 설명해보자면 이미지를 빌드한 컴퓨터가 m1 맥북인데, ec2 인스턴스의 경우 ubuntu 운영체제를 사용한다. 
 
-![img.png](img.png)
 m1 같은 경우 arm64/v8 아키텍처를 ubuntu는 amd64 아키텍처를 사용하기에 플랫폼을 정해주지 않고 이미지를 사용하게 되면 openjdk를 빌드할 때 ,오류가 발생하게 된다.
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/75e1c754-514e-4123-8699-a0936f98bcaf)
 
 이후 인스턴스에 ssh 연결을 통해서 컴포즈 파일을 전송하였다.
 
@@ -1646,6 +1644,6 @@ networks:
 
 실제로는 위에 적어둔 docker-compose.yaml 파일에 환경변수로 값을 불러오지 못했다. 이상하게 컴포즈 파일에 환경변수로 값을 등록하고 docker-compose up을 하게되면 값이 주입되지 않았었다. 이 점은 좀더 알아봐야 할 듯하다
 
-![alt text](image-1.png)
+![image](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/092810a2-f234-42b1-af22-767a907fd964)
 ec2에 8080 포트로 정상적으로 웹서버에 접근이 가능한 모습이다. 
 
