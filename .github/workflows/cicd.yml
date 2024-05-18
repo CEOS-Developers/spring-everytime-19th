@@ -37,7 +37,7 @@ jobs:
           key: ${{ secrets.KEY }}
           pass: ${{ secrets.PASSPHRASE }}
           port: 22
-          run: |
+          command: |
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull kckc0608/spring
             docker run -d -p 8080:8080 kckc0608/spring
