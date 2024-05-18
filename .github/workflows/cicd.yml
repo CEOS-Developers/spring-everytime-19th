@@ -33,11 +33,11 @@ jobs:
         uses: fifsky/ssh-action@v0.0.6
         with:
           host: ${{ secrets.HOST }}
-          username: ubuntu
+          user: ubuntu
           key: ${{ secrets.KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
+          pass: ${{ secrets.PASSPHRASE }}
           port: 22
-          script: |
+          run: |
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull kckc0608/spring
             docker run -d -p 8080:8080 kckc0608/spring
