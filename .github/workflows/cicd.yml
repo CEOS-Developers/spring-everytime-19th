@@ -35,6 +35,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull kckc0608/spring
