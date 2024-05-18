@@ -1359,7 +1359,7 @@ jwt를 사용하기 위해서는 token encoding을 위한 secret key가 필요�
 openssl rand -hex 64
 ~~~
 # 6주차
-1. 리프레시 토큰 구현
+1. 리프레시 토큰 구현 + Refresh Rotate
 2. 로그아웃 기능 구현
 3. 도커파일로 이미지 생성후 docker compose를 사용하여 컨테이너 빌드
 4. 도커 네트워크(정리 못함)
@@ -1581,4 +1581,71 @@ localhost:8080/login 경로로 로그인 post 요청을 날렸더니 정상적�
 
 ![mysql stop](https://github.com/riceCakeSsamanKo/spring-everytime-19th/assets/121627245/7b695344-f652-4c25-a4c4-caa56ceb788a)
 이는 로컬 컴퓨터에서 mysql db를 돌리고 있던 와중에 컴포즈로 빌드되는 mysql 컨테이너도 3306 포트를 사용하기 때문에 충돌이 일어난 것인데, 로컬 머신의 mysql을 종료함으로써 문제를 해결했다.
+# 8주차
+docker-compose를 이용하여 EC2에 배포를 진행하였다.
+스프링부트 이미지를 빌드하여 docker hub에 push를 진행하였다.
+
+![alt text](인바운드.jpg)
+ec2의 8080포트로 웹서버에 접속할 것이므로 8080포트의 인바운드 규칙을 지정해주었다.
+
+
+
+[amd64빌드.jpg](..%2F..%2F..%2FDesktop%2Fceos-8%EC%A3%BC%EC%B0%A8%EA%B3%BC%EC%A0%9C%2Famd64%EB%B9%8C%EB%93%9C.jpg)
+
+위의 이미지를 보면 --platform 옵션을 통해서 아키텍처를 amd64로 지정한 것을 확인할 수 있다. 이유를 설명해보자면 이미지를 빌드한 컴퓨터가 m1 맥북인데, ec2 인스턴스의 경우 ubuntu 운영체제를 사용한다. 
+
+![img.png](img.png)
+m1 같은 경우 arm64/v8 아키텍처를 ubuntu는 amd64 아키텍처를 사용하기에 플랫폼을 정해주지 않고 이미지를 사용하게 되면 openjdk를 빌드할 때 ,오류가 발생하게 된다.
+
+이후 인스턴스에 ssh 연결을 통해서 컴포즈 파일을 전송하였다.
+
+~~~shell
+scp -i [keypair] [파일절대경로] ubuntu@[public ipv4]:[파일받을경로]
+~~~
+
+컴포즈 파일의 내용은 다음과 같다.
+~~~yaml
+version: '3'
+services:
+  db:
+    image: mysql:latest
+    container_name: everytime-db
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_DATABASE=ceos_everytime_db
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./mysql/store:/var/lib/mysql
+    networks:
+      - ceos-everytime-network
+
+  server:
+    image: ricecakessamanko/ceos-everytime-springboot-amd64:latest
+    container_name: everytime-server
+    restart: always
+    ports:
+      - 8080:8080  
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ceos_everytime_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET}
+    networks:
+      - ceos-everytime-network
+
+networks:
+  ceos-everytime-network:
+    driver: bridge
+~~~
+
+파일을 전송한 이후 ssh 연결을 통해서 ec2 머신에 접속을 해서 docker-compose up -d로 이미지를 불러와 컨테이너를 실행했다.
+
+실제로는 위에 적어둔 docker-compose.yaml 파일에 환경변수로 값을 불러오지 못했다. 이상하게 컴포즈 파일에 환경변수로 값을 등록하고 docker-compose up을 하게되면 값이 주입되지 않았었다. 이 점은 좀더 알아봐야 할 듯하다
+
+![alt text](image-1.png)
+ec2에 8080 포트로 정상적으로 웹서버에 접근이 가능한 모습이다. 
 
