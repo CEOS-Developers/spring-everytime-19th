@@ -19,7 +19,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Gradle # 1. 자바 코드 빌드
-        run: ./gradlew bootJar
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bootJar
 
       - name: Build Docker Image # 2. 도커 이미지 만들기 & push
         run: |
@@ -36,4 +38,4 @@ jobs:
           script: |
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull kckc0608/spring
-            docker run kckc0608/spring
+            docker run -d -p 8080:8080 kckc0608/spring
