@@ -1225,3 +1225,13 @@ spring:
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/8de3f36f-e853-4b4a-af8f-90f44c850acd)
 
 
+이번에는 도커에서 별도의 mysql 로드없이 docker-compose.yml 파일 하나만으로 어플리케이션을 실행시켜보았다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/e6a190fd-94d5-4584-8660-788ac10205cc)
+그러기 위해 위의 사진과 같이 실행중이던 mysql 컨테이너를 중단시켰다.  
+
+그 다음에 `docker-compose -f docker-compose.yml up --build` 명령어를 실행시켜 docker-compose.yml을 통해 어플리케이션을 실행시켜보았다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/0bae3af7-2186-48cf-b19c-dd138df53d5f)
+(중간 로그 생략)  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/3919a596-ac98-4ed2-9140-a6a999dffa44)
+위와 같이 성공적으로 빌드된 것을 확인할 수 있고, `localhost:8080/swagger-ui.html`로 접속하면 아래 사진과 같이 정상적으로 접속이 가능하다는 것도 확인할 수 있다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/068c625b-55cf-4fdc-a64c-74a00a385906)
