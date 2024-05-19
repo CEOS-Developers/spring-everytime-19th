@@ -46,5 +46,5 @@ jobs:
               sudo docker rm -f $(docker ps -qa)
               sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}      
               sudo docker prune -a --volumes -f
-              sudo docker pull parking0/spring
-              docker run -d -p 8080:8080 parking0/spring
+              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/spring
+              docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/spring
