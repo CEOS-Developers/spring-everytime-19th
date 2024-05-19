@@ -1247,8 +1247,86 @@ access token을 black list에 등록해둔다면, 그때부터는 jwt의 상태�
 
 # 7주차
 ## 도커 이미지 배포
-도커 이미지 배포는 프리티어 기간 제한으로 인해 AWS대신 평생 무료 프리티어를 제공하는 Oracle Cloud를 이용하여 배포하였다.      
+배포할 서버는 프리티어 기간 제한으로 인해 `AWS`대신 평생 무료 프리티어를 제공하는 `Oracle Cloud`를 이용하여 배포하였다.      
 인스턴스 생성 과정은 AWS와 비슷하기 때문에 리드미에는 정리하지 않았다.   
+
+### 어플리케이션 배포 과정
+작성한 코드를 서버에 배포할 때는 아래 과정을 거쳐야 한다.
+1. 로컬에서 자바 소스 코드를 빌드하기
+2. 빌드한 jar 파일을 포함하는 도커 이미지 만들기
+3. 도커 이미지를 도커 허브에 push 하기
+4. 서버에 원격 접속하기
+5. 서버에서 도커 허브에 올라간 이미지 pull 하기
+6. 기존 컨테이너를 내리고, 새로 받은 이미지로 새로 컨테이너를 만들어서 올리기
+
+하지만 이 과정을 매번 직접하는 것은 불편한 일이다.   
+따라서 이 과정을 github action을 통해 자동화할 수 있다.
+
+### Github Action 작성
+```yaml
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "kckc0608" ]  # 'kckc0608' 브랜치에 push 가 발생하면 이 스크립트가 실행된다.
+
+# 실행할 동작
+jobs:
+  build: # build 라는 이름의 job 실행
+    runs-on: ubuntu-latest # Github Action의 우분투 가상환경에서 실행
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4 # 레포지토리 코드를 Github Action의 우분투 가상환경에 내려받기
+
+      - name: Set up JDK 17 # 가상환경에 JDK 17 세팅하기
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle # 1. 자바 코드 빌드
+       run: |
+         chmod +x ./gradlew
+         ./gradlew bootJar
+
+      - name: Build Docker Image # 2. 도커 이미지 만들기 & push
+       run: |
+         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+         docker build -t kckc0608/spring .
+         docker push kckc0608/spring
+
+      # - name: Remote SSH Commands
+      #   uses: fifsky/ssh-action@v0.0.6
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     user: ubuntu
+      #     key: ${{ secrets.KEY }}
+      #     pass: ${{ secrets.PASSPHRASE }}
+      #     port: 22
+      #     command: |
+      #       sudo docker rm -f $(docker ps -qa)
+      #       sudo docker pull kckc0608/spring
+      #       docker run -d -p 8080:8080 kckc0608/spring
+            
+
+      - name: Remote SSH & Pull Image & Run Container # 3. 원격 접속 & 이미지 pull & 컨테이너 생성
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          port: 22
+          script: |
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull kckc0608/spring
+            docker run -d -p 8080:8080 kckc0608/spring
+```
+위와 같이 github action 스크립트 yaml을 작성했습니다.   
+그런데 이 스크립트를 기반으로 action을 실행하는 중 `Permission Denied (public key)` 문제와 `ssh: unable to authenticate, attempted methods [none], no supported methods remain` 믄제가 발생했습니다.
+이 문제는 계속 씨름해보고 있는데 아직 해결을 하지 못해서 원격 접속하여 도커 이미지를 다운받고 실행하는 부분은 일단 직접 수행하였습니다.   
+
+(기존에는 rsa 방식의 인증이 허용되었지만, 우분투 버전이 올라가면서 rsa 방식의 키를 사용한 ssh 접근을 명시적으로 허용해주어야 하도록 바뀌었다고 합니다. 2020년에 인스턴스를 만들 때는 putty로 바로 접속이 잘 되던 게, 이번에 새로 인스턴스를 만들 땐 putty로 바로 접속이 안되더라구요. 근데 rsa 방식을 허용해서 putty에서도 접근이 되게끔 했음에도 깃허브 액션이 안되는 문제는 해결되지 않았습니다.. )   
 
 
 
