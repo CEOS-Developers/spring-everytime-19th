@@ -47,27 +47,3 @@ jobs:
               sudo docker rm -f $(docker ps -qa)
               sudo docker pull parking0/spring
               docker run -d -p 8080:8080 parking0/spring
-            
-            
-            
-            
-          
-            
-            ## 여러분이 원하는 경로로 이동합니다.
-                    cd /home/ubuntu/
-            
-            ## .env 파일을 생성합니다.
-                    sudo touch .env
-                    echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
-            
-            ## docker-compose.yaml 파일을 생성합니다.
-                    sudo touch docker-compose.yaml
-                    echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yaml > /dev/null
-            
-            ## docker-compose를 실행합니다.
-                    sudo chmod 666 /var/run/docker.sock
-                    sudo docker rm -f $(docker ps -qa)
-                    sudo docker pull my-repo/my-web-image
-                    sudo docker pull my-repo/my-nginx-image
-                    docker-compose -f docker-compose.yaml --env-file ./.env up -d
-                    docker image prune -f
