@@ -2066,21 +2066,23 @@ develop 브랜치에 push 될 때 jobs 를 돌리는데 현재 코드를 깃헙 
         uses: gradle/wrapper-validation-action@v1
 
       - name: Set up JDK17
-        uses: actions/setup-java@v3
+              uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
+                distribution: 'temurin'
+                java-version: '17'
+                cache: 'gradle'
 
-      - uses: actions/checkout@v3
+                - name: make application.yml
+                uses: actions/checkout@v3
 
       - run: mkdir ./src/main/resources
-      - run: touch ./src/main/resources/application.yml
-      - run: echo "${{ vars.DEV_APPLICATION }}" > ./src/main/resources/application.yml
-      - run: cat ./src/main/resources/application.yml
+              - run: touch ./src/main/resources/application.yml
+              - run: echo "${{ vars.DEV_APPLICATION }}" > ./src/main/resources/application.yml
+              - run: cat ./src/main/resources/application.yml
 ```
 
 1) validate Gradle Wrapper: 
+
 ![img_24.png](img_24.png)
 
 unknown 한 jar 파일이 있으면 fila 한다는데 필요한지는 잘 모르겠다. 
@@ -2088,4 +2090,97 @@ unknown 한 jar 파일이 있으면 fila 한다는데 필요한지는 잘 모르
 https://github.com/gradle/wrapper-validation-action
 
 2) Set up JDK 17
-3) 
+3) application.yml 을 깃헙 variables 에 저장했다. 기존에는 그냥 secrets 에 저장했으나 이번에는 variable 에 저장해봤다. 확실히 secrets 는 기존에 입력했던 것을 볼 수 없어서 
+불편했는데 vars 에저장하니 그 점에 있어서 좋았다. 그런데 각각 쓰임새가 있을텐데 이렇게 내 마음대로 사용해도 될까??
+
+   
+```java
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+
+      - name: Execute Gradle build
+        run: ./gradlew clean build -x test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+
+      - name: build and release to DockerHub
+        env:
+          NAME: ${{ secrets.DOCKER_USERNAME }}
+          APP: ${{ secrets.DEV_BACKEND_APP_NAME }}
+        run: |
+          docker build -t $NAME/$APP -f ./Dockerfile . 
+          docker push $NAME/$APP
+
+```
+
+위는 그냥 build 하고 login 하여 현재 Dockerfile 을 참조하여 push 하는 부분
+
+ceos script 에서는 
+
+```java
+run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t my-repo/my-web-image .
+```
+
+이렇게 로그인을 처리했지만 
+나는 위와 같이 login을 처리했다. 
+
+
+```java
+      - name: EC2 Docker Run
+        uses: appleboy/ssh-action@master
+        env:
+          NAME: ${{ secrets.DOCKER_USERNAME }}
+          APP: ${{ secrets.DEV_BACKEND_APP_NAME }}
+          COMPOSE: docker-compose.yml
+        with:
+          username: ubuntu
+          host: ${{ secrets.UBUNTU_DEV_HOST }}
+          key: ${{ secrets.UBUNTU_DEV_KEY }}
+          envs: APP, COMPOSE, NAME
+          script_stop: true
+          script: |
+            sudo docker-compose -f $COMPOSE down --rmi all
+            sudo docker pull $NAME/$APP
+            sudo docker-compose -f $COMPOSE up -d
+```
+
+위는 ubuntu 안에 있는 docker-compose 파일을 참조해서 docker-compose 명령어를 통해 
+실행하는 부분!!
+
+
+## ceos script 와 비교하며 의문점 및 궁금증 정리 
+
+1. ceos script 에서는 application.yml 을 통째로 넣는 것보다는 
+
+![img_25.png](img_25.png)
+
+이런 식으로 일부 부분만 깃헙 secrets 에 넣었다. 정답은 없겠지만 혹시 나처럼 통째로 
+application.yml 을 넣는 방법은 지양해야 하는 방법일까??
+
+2. ceos script 에서는 docker-compose 파일을 vars 에 저장했다 . 
+하지만 나는 
+![img_26.png](img_26.png)
+
+이처럼 ubuntu 안에 docker-compose.yml 을 넣었다. 이 또한 지양해야 하는 방법일까??
+
+3. nginx 의 Dockerfile 이나 nginx.conf , default.conf 등은 어디다 보관해야 하는가?
+찾아보니 프로젝트 내에 따로 경로를 설정해서 하는 경우가 많이 보이는데 
+
+![img_27.png](img_27.png)
+
+![img_28.png](img_28.png)
+
+이렇게 ubuntu 에서 따로 넣기만 하였는데 이 또한 지양해야 하는 방법일까?? 
+
