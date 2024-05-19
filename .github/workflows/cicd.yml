@@ -25,6 +25,7 @@ jobs:
           cache: 'gradle'
 
       - name: make application.yml
+        uses: actions/checkout@v3
 
       - run: mkdir ./src/main/resources
       - run: touch ./src/main/resources/application.yml
