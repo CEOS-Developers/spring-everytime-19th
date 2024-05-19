@@ -1602,7 +1602,7 @@ jobs:
   err:              ^^^^^^^^^^^^^^
   err:   File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
   err:     client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
-  err:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:  ㅎ            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   err:   File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
   err:     self._version = self._retrieve_server_version()
   err:                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1615,3 +1615,5 @@ jobs:
 해결 : 
 사실 무슨 문제인지도 모르겠고 5시간 쓰다가 구글링 통해서 사람들이 이유도 모르는체 다들 쓰기 시작...
 `pip install --force-reinstall 'requests<2.29.0' 'urllib3<2.0' --break-system-packages`
+
+저 위의 에러로 인해서 너무 시간이 지연되어서 제대로 작성하고 서버가 실행되는지 미쳐 확인을 못하였습니다. 월요일 이내로 수정하겠습니다.

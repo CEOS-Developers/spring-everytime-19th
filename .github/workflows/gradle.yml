@@ -14,13 +14,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: properties set
+        run: |
+          cd ./stc/main/resources
+          touch ./application.yml
+          echo "${{ secrets.APPLICATION }}" > ./application.yml
+        shell: bash
 
       - name: Give permission
         run: chmod +x ./gradlew
@@ -30,11 +37,9 @@ jobs:
 
       - name: Web Docker build and push
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t sunghyun1356/ceos .
           docker push sunghyun1356/ceos
-          docker build -f dockerfile-nginx -t sunghyun1356/ceos_nginx .
-          docker push sunghyun1356/ceos_nginx
 
       - name: Executing remote SSH commands using private key
         uses: appleboy/ssh-action@master
@@ -42,16 +47,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
-          script: |
-            sudo apt-get update
-            sudo apt-get install -y docker.io docker-compose
-
-            cd /home/ubuntu/
-            
-            echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
-            
+          script: |            
             echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yaml > /dev/null
-            
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(sudo docker ps -qa)
             sudo docker pull sunghyun1356/ceos
