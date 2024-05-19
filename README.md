@@ -1341,3 +1341,5 @@ ACM 인증기관에서 인증서를 발급받았다.
 ![스크린샷 2024-05-19 183953](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/c3729079-5b32-4752-acae-84c73b908a44)  
 리스너 추가 및 규칙 편집을 완료하였다.  
 
+## Docker image 배포
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/da53df13-681f-467c-9031-d5d9beddfdc6)
