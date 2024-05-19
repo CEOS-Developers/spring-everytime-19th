@@ -1,29 +1,48 @@
-version: '3'
+
+version: '3.8'
+
 services:
+
   db:
-    image: mysql:latest
+    image: mysql:5.7
+    container_name: ceos-db
     environment:
-      MYSQL_ROOT_PASSWORD: Ab016018!@
-      MYSQL_DATABASE: ceos
-    ports:
-      - "3307:3306"
-    restart: always
+      MYSQL_DATABASE: ceos_db
+      MYSQL_ROOT_PASSWORD: Ab1356!!
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: Ab1356!!
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - ceos
 
   web:
-    image: ceos
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: sunghyun1356/ceos
+    container_name: ceos-web
     ports:
       - "8081:8080"
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ceos
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: Ab016018!@
+      SPRING_DATASOURCE_URL: jdbc:mysql://ceos-db.catymkthpwcp.ap-northeast-2.rds.amazonaws.com/ceos_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: Ab1356!!
+    networks:
+      - ceos
+
+  nginx:
+    container_name: ceos-nginx
+    image: sunghyun1356/ceos_nginx
+    ports:
+      - "81:80"
+    depends_on:
+      - web
+    networks:
+      - ceos
 
 volumes:
   db_data:
+
+networks:
+  ceos:
+    driver: bridge
