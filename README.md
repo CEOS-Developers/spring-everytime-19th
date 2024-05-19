@@ -1285,15 +1285,15 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Gradle # 1. 자바 코드 빌드
-       run: |
-         chmod +x ./gradlew
-         ./gradlew bootJar
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bootJar
 
       - name: Build Docker Image # 2. 도커 이미지 만들기 & push
-       run: |
-         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-         docker build -t kckc0608/spring .
-         docker push kckc0608/spring
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t kckc0608/spring .
+          docker push kckc0608/spring
 
       # - name: Remote SSH Commands
       #   uses: fifsky/ssh-action@v0.0.6
@@ -1322,11 +1322,28 @@ jobs:
             sudo docker pull kckc0608/spring
             docker run -d -p 8080:8080 kckc0608/spring
 ```
-위와 같이 github action 스크립트 yaml을 작성했습니다.   
-그런데 이 스크립트를 기반으로 action을 실행하는 중 `Permission Denied (public key)` 문제와 `ssh: unable to authenticate, attempted methods [none], no supported methods remain` 믄제가 발생했습니다.
-이 문제는 계속 씨름해보고 있는데 아직 해결을 하지 못해서 원격 접속하여 도커 이미지를 다운받고 실행하는 부분은 일단 직접 수행하였습니다.   
+위와 같이 github action 스크립트 yaml을 작성했다.   
+그런데 이 스크립트를 기반으로 action을 실행하는 중 `Permission Denied (public key)` 문제와 `ssh: unable to authenticate, attempted methods [none], no supported methods remain` 믄제가 발생했다. 
 
-(기존에는 rsa 방식의 인증이 허용되었지만, 우분투 버전이 올라가면서 rsa 방식의 키를 사용한 ssh 접근을 명시적으로 허용해주어야 하도록 바뀌었다고 합니다. 2020년에 인스턴스를 만들 때는 putty로 바로 접속이 잘 되던 게, 이번에 새로 인스턴스를 만들 땐 putty로 바로 접속이 안되더라구요. 근데 rsa 방식을 허용해서 putty에서도 접근이 되게끔 했음에도 깃허브 액션이 안되는 문제는 해결되지 않았습니다.. )   
+문제 해결을 위한 시도 내용
+- 지금까지 찾아본 바로는 기존에는 rsa 방식의 인증이 허용되었지만, 우분투 버전이 올라가면서 rsa 방식의 키를 사용한 ssh 접근을 명시적으로 허용해주어야 하도록 바뀌었다고 한다.
+- 사실 2020년에 인스턴스를 만들 때는 처음부터 putty로 접속이 잘 되었으나, 이번에 새로 인스턴스를 만들 땐 putty로 바로 접속이 안되었다. 찾아보니 rsa 방식을 허용하지 않아서라고 하기에 rsa 방식을 허용하여 PuTTY에서 접속이 되었음에도 깃허브 액션이 안되는 문제는 해결되지 않았다.
+- 다른 ssh 접속 action feature를 사용해봤는데, 그 action은 `rsa` 방식이 아니라 `ED25519` 암호화 알고리즘을 사용하여 요청을 보내는 것 같았습니다. 하지만 appleboy/ssh 의 경우 rsa 방식을 지원하는 것으로 보임에도 잘 되지 않았다.
+
+기존에 사용하던 키가 `rsa` 암호화 방식이라 최대한 이 키를 이용해서 해보려고 했는데, 잘 되지 않아서 `ED25519` 방식으로 암호화된 키를 사용해 다시 시도해봐야겠다.   
+일단 과제에서는 원격 접속하여 도커 이미지를 다운받고 실행하는 부분만 직접 수행하였다.
+
+### Nginx 도커 파일 작성
+처음에는 왜 굳이 Nginx에 까지 도커를 써야하는 건지 의문이 들었다.   
+그냥 `sudo apt install nginx` 한번으로 nginx를 설치할 수 있지 않나.   
+설정파일도 한번 적고나면 그 뒤로는 별로 바꿀 일이 없는데 왜 굳이 도커에 nginx를 올리고, 매번 배포할 때마다 nginx 컨테이너까지 내렸다가 다시 올리는 건지 궁금했다.   
+
+분명 nginx는 어플리케이션만큼 자주 변경되지도 않고, 도커를 쓰면 환경이 격리되기 때문에, nginx 컨테이너에서 웹 어플리케이션 컨테이너로 요청을 넘길 때 더 복잡해지는 것은 사실이다.   
+하지만 도커를 사용하면 여러 서버를 운영할 때 nginx에 적용할 설정파일을 공통적으로 간편하게 관리할 수 있다는 장점이 있는 것 같다.   
+
+그럼에도 지금 과제 상황처럼 단일 컨테이너에서 어플리케이션을 실행하는 경우에는 nginx까지 도커를 사용하는 것이 오히려 생산성을 낮추고 아키텍쳐를 복잡하게 만드는 요인이 되는 것 같기도 하다.
+우선 지금은 공부하는 입장이니 Nginx 도커 파일을 작성해서 Docker Compose로 한번에 컨테이너를 관리해보기로 했다.
+
 
 
 
