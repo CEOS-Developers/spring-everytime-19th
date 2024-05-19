@@ -912,3 +912,92 @@ docker-compose 실행후, 회원가입이 올바르게 진행됨
 ![Screenshot 2024-05-12 at 6 14 15 PM](https://github.com/parking0/parking0/assets/67892502/a03150aa-f436-423d-aa89-6683c521edda)
 
 
+* * *
+# 6️⃣ Everytime - Github Action을 이용한 CI/CD
+
+## Workflow
+```
+name: Deploy Development Server
+
+## parking0 브랜치에 push되면 자동 실행
+on:
+  push:
+    branches: [ "parking0" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 기본 체크아웃  
+      - name: checkout
+        uses: actions/checkout@v3
+
+      # 2. 가상환경에 JDK 17 세팅하기
+      - name: Set up JDK 17           
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. gradle build
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # 4. 도커 이미지 만들고 push하기
+      - name: Build Docker Image
+        run: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/spring .
+            docker push ${{ secrets.DOCKER_USERNAME }}/spring
+
+      # 5. 원격 접속, 이미지 pull, 컨테이너 생성
+      - name: Remote SSH & Pull Image & Run Container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          port: 22
+          script: |
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}      
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/spring:0.1
+            docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/spring:0.1
+            docker image prune -f
+
+```
+
+- (5) 원격 접속, 이미지 pull, 컨테이너 생성
+  - EC2에 접속해서 도커 로그인 -> 허브에 있는 도커 이미지 pull -> docker run -> 사용하지 않는 도커 이미지는 제거
+
+
+
+## 실행 중 만난 에러
+#### 1. `refusing to allow a Personal Access Token to create or update workflow`
+<img width="895" alt="Screenshot 2024-05-19 at 6 45 11 PM" src="https://github.com/parking0/parking0/assets/67892502/7dc8ac00-b440-43d3-a039-82bda83ab370">
+
+- 해결법
+  - Developer Setting에 들어가서 Personal access token에 `workflow` scope 추가하기
+    ![Screenshot 2024-05-19 at 10 16 28 PM](https://github.com/parking0/parking0/assets/67892502/d004b265-fa0d-47c7-b94b-dc48aef9eb12)
+
+#### 2. key 값 오류
+```
+-----BEGIN RSA PRIVATE KEY-----
+샬라샬라
+-----END RSA PRIVATE KEY-----
+```
+- pem key의 처음부터 끝까지를 복사해서 넣어야 하는데, 샬라샬라 부분만 넣었다.
+
+## ❌ 해결하지 못한 문제
+
+![Screenshot 2024-05-19 at 10 37 03 PM](https://github.com/parking0/parking0/assets/67892502/25a94fd3-3b8b-4534-b9d2-57142f0f9d80)
+
+![Screenshot 2024-05-19 at 10 38 56 PM](https://github.com/parking0/parking0/assets/67892502/1972caf3-74da-454b-b72e-287ed9d59c1d)
+
+- 도커 이미지는 허브에 잘 올라간 듯하다
+- 하지만 그 이후에 ec2에 접속하여 이미지를 pull하고 컨테이너를 생성하는 부분에서 게속해서 오류가 발생한다...
+- `22: i/o timeout` - 이 에러를 중심으로 해결방안을 찾고 있다.
+- (다양한 방법으로 더 시도해보고 수정해놓도록 하겠습니다ㅜㅜ 혹시 같은 오류를 해결한 분은 리뷰 남겨주시길 바랍니다. 감사합니다🥹)
