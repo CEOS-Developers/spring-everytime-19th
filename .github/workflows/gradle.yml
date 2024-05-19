@@ -31,8 +31,8 @@ jobs:
       - name: Build Docker Image
         run: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker build -t parking0/spring .
-            docker push parking0/spring
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/spring .
+            docker push ${{ secrets.DOCKER_USERNAME }}/spring
 
       # 3. 원격 접속 & 이미지 pull & 컨테이너 생성
       - name: Remote SSH & Pull Image & Run Container
@@ -41,9 +41,10 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
-          #passphrase: ${{ secrets.PASSPHRASE }}
           port: 22
           script: |
               sudo docker rm -f $(docker ps -qa)
+              sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}      
+              sudo docker rmi parking0/spring
               sudo docker pull parking0/spring
               docker run -d -p 8080:8080 parking0/spring
