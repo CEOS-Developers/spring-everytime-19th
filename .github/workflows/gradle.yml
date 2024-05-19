@@ -45,10 +45,12 @@ jobs:
       - name: web docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t my-repo/my-web-image .
-          docker push my-repo/my-web-image
-          docker build -f dockerfile-nginx -t my-repo/my-nginx-image .
-          docker push my-repo/my-nginx-image
+          
+          docker build -t sunghyun1356/ceos .
+          docker push sunghyun1356/ceos
+          
+          docker build -f dockerfile-nginx -t sunghyun1356/ceos_nginx .
+          docker push sunghyun1356/ceos_nginx
 
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
@@ -72,7 +74,7 @@ jobs:
             ## docker-compose를 실행합니다.
                     sudo chmod 666 /var/run/docker.sock
                     sudo docker rm -f $(docker ps -qa)
-                    sudo docker pull my-repo/my-web-image
-                    sudo docker pull my-repo/my-nginx-image
+                    sudo docker pull sunghyun1356/ceos
+                    sudo docker pull sunghyun1356/ceos_nginx
                     docker-compose -f docker-compose.yaml --env-file ./.env up -d
                     docker image prune -f
