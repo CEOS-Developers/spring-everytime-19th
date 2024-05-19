@@ -1,0 +1,78 @@
+name: Ceos Sever
+
+## develop 브랜치에 push가 되면 실행됩니다
+on:
+  push:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      # 현재 브랜치를 비어있는 ubuntu에 내려받는다
+      - name: checkout
+        uses: actions/checkout@v3
+
+      # 맞는 java 버전 다운로드
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 시간 동기화 시키기
+      # 시스템 패키지 업데이트하고 자동으로 ntp 시작하기
+      - name: Set up NTP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ntp
+          sudo service ntp start
+
+      # 권한 설정하기
+      - name: permission give for gradlew
+        run: chmod +x ./gradlew
+
+      ## gradle build
+      - name: Build with Gradle
+        run: ./gradlew bootJar -x test
+
+
+      ## 웹 이미지 빌드 및 도커허브에 push
+      - name: web docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t my-repo/my-web-image .
+          docker push my-repo/my-web-image
+          docker build -f dockerfile-nginx -t my-repo/my-nginx-image .
+          docker push my-repo/my-nginx-image
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          script: |
+            
+            ## 여러분이 원하는 경로로 이동합니다.
+                    cd /home/ubuntu/
+            
+            ## .env 파일을 생성합니다.
+                    sudo touch .env
+                    echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
+            
+            ## docker-compose.yaml 파일을 생성합니다.
+                    sudo touch docker-compose.yaml
+                    echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yaml > /dev/null
+            
+            ## docker-compose를 실행합니다.
+                    sudo chmod 666 /var/run/docker.sock
+                    sudo docker rm -f $(docker ps -qa)
+                    sudo docker pull my-repo/my-web-image
+                    sudo docker pull my-repo/my-nginx-image
+                    docker-compose -f docker-compose.yaml --env-file ./.env up -d
+                    docker image prune -f
