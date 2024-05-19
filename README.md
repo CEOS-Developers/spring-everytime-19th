@@ -1401,4 +1401,16 @@ https는 무료로 인증서를 제공해주는 `letsencrypt` 를 사용하였�
 ![image](https://github.com/kckc0608/kckc0608/assets/64959010/0105a237-f0de-4a48-bcdb-2e1ff3f010ca)   
 최종적으로 https가 적용된 모습이다.
 
+### Nginx 와 Spring Application 연결
+Nginx가 앞단에서 받은 요청을 Spring Application 에 넘겨줄 수 있도록 Proxy_pass 를 설정한다.   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/f92bc4d0-e223-4481-88c2-0c9f5bf9fe50)
+
 ## 배포 환경에 대한 테스트
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/3b774bb8-9504-47f5-b9cd-097c747b0299)   
+포스트 맨에서 위와 같이 요청을 보냈을 때 서버의 응답이 오는지 확인한다.   
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/870a4f16-3b3c-4834-86cc-d3dad40a9365)   
+401 응답을 받았다.   
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/a2bc2233-233c-4ff5-89cc-657ed858fa1b)   
+도커에서 실행중인 스프링 어플리케이션에도 요청이 전달되어 쿼리가 실행되었다.
