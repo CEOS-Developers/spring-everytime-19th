@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  db:
+    image: mysql:8.0.29-oracle
+#    image: mariadb:latest #mac
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: Jyh0914@
+      MYSQL_DATABASE: everytime
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - 3306:3306
+    restart: always
+
+  web:
+    container_name: web
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: db
+    restart: always
+    volumes:
+      - app:/app
+
+volumes:
+  dbdata:
+  app:
