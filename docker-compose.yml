@@ -2,7 +2,7 @@ version: "3"
 
 services:
   db:
-    image: limbs713/my-db-image
+    image: limbs713/my-db-image:0.0
     ports:
       - "3306:3306"
     environment: # -e 옵션
