@@ -49,10 +49,16 @@ public class User {
 # 7주차 - Github CI/CD
 [References](https://sjh9708.tistory.com/100)
 
-
+### SSH 키 등록
 <div align="center">
   <img src="imgs/ssh_key.png" alt="drawing" width=500"/>
 </div>
+
+### 에러
+<div align="center">
+  <img src="imgs/compose_up_error.png" alt="drawing" width=500"/>
+</div>
+
 
 # 6주차 - Docker
 Docker : 컨테이너 기반의 가상화 도구
