@@ -43,7 +43,6 @@ secrets.yml
 application.yml
 docker-compose.yml
 Dockerfile-nginx
- .github/
 nginx/
 
 .db/
