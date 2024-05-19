@@ -1,0 +1,57 @@
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "kckc0608" ]  # 'kckc0608' 브랜치에 push 가 발생하면 이 스크립트가 실행된다.
+
+# 실행할 동작
+jobs:
+  build: # build 라는 이름의 job 실행
+    runs-on: ubuntu-latest # Github Action의 우분투 가상환경에서 실행
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4 # 레포지토리 코드를 Github Action의 우분투 가상환경에 내려받기
+
+      - name: Set up JDK 17 # 가상환경에 JDK 17 세팅하기
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle # 1. 자바 코드 빌드
+       run: |
+         chmod +x ./gradlew
+         ./gradlew bootJar
+
+      - name: Build Docker Image # 2. 도커 이미지 만들기 & push
+       run: |
+         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+         docker build -t kckc0608/spring .
+         docker push kckc0608/spring
+
+      # - name: Remote SSH Commands
+      #   uses: fifsky/ssh-action@v0.0.6
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     user: ubuntu
+      #     key: ${{ secrets.KEY }}
+      #     pass: ${{ secrets.PASSPHRASE }}
+      #     port: 22
+      #     command: |
+      #       sudo docker rm -f $(docker ps -qa)
+      #       sudo docker pull kckc0608/spring
+      #       docker run -d -p 8080:8080 kckc0608/spring
+            
+
+      - name: Remote SSH & Pull Image & Run Container # 3. 원격 접속 & 이미지 pull & 컨테이너 생성
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          port: 22
+          script: |
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull kckc0608/spring
+            docker run -d -p 8080:8080 kckc0608/spring
