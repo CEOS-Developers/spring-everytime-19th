@@ -1,28 +1,28 @@
 version: "3"
-services: # 이 항목 밑에 실행하려는 컨테이너 들을 정의 ( 컴포즈에서 컨테이너 : 서비스 )
-  db: # 서비스 명
-    image: mysql:latest # 사용할 이미지
-    restart: always
-    container_name: ceos # 컨테이너 이름 설정
+
+services:
+  db:
+    image: my-repo/my-db-image
     ports:
-      - "3307:3306" # 접근 포트 설정
+      - "3306:3306"
     environment: # -e 옵션
-      - MYSQL_DATABASE=ceos
-      - MYSQL_ROOT_PASSWORD= "root"  # MYSQL 패스워드 설정 옵션
+      - MYSQL_DATABASE= rds-everytime
+      - MYSQL_ROOT_HOST= admin
+      - MYSQL_ROOT_PASSWORD= 162534Qwe!
       - TZ=Asia/Seoul
     volumes:
-      - /Users/Shared/data/mysql-dev:/var/lib/mysql # -v 옵션 (다렉토리 마운트 설정)
+      - ./db/data:/var/lib/mysql
+    restart: always
+
   web:
     container_name: spring-everytime
-    build: src/main/java
+    image : my-repo/my-web-image
     ports:
       - "8080:8080"
     depends_on:
       - db
     environment:
-      mysql_host: db
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-everytime.c5qse0wmogz5.ap-northeast-2.rds.amazonaws.com:3306/rds-everytime?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&xcreateDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: "admin"
+      SPRING_DATASOURCE_PASSWORD: "162534Qwe!"
     restart: always
-
-volumes:
-  dbdata:
-  app:
