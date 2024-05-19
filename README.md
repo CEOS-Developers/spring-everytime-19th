@@ -1320,7 +1320,7 @@ Github에 secrets와 variables도 아래 사진과 같이 등록하였다.
 
 ## Route 53
 EIP를 할당받은 뒤, '가비아'에서 도메인 주소를 구매하여 앞서 만든 EC2에 연결하였다.  
-![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/9bc0d874-1d0f-4a30-bf54-0711c227d7f7)
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/9bc0d874-1d0f-4a30-bf54-0711c227d7f7)  
 
 그런 다음 도메인을 입력하여 연결을 확인하였다.  
 ![스크린샷 2024-05-19 201727](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/8e3127de-eacf-4d54-9698-7cbb92db357f)  
@@ -1330,9 +1330,9 @@ EIP를 할당받은 뒤, '가비아'에서 도메인 주소를 구매하여 앞�
 위의 사진과 같이 Target Group을 생성하였다.  
 
 그 다음 ALB도 생성하였다.  
-![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/a393732a-cbcf-4f70-ae9d-43b9cc8f2e1b)
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/a393732a-cbcf-4f70-ae9d-43b9cc8f2e1b)  
 
-![스크린샷 2024-05-19 184457](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/1aa5da95-3094-424f-9b06-822a779f26d6)
+![스크린샷 2024-05-19 184457](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/1aa5da95-3094-424f-9b06-822a779f26d6)  
 도메인을 ALB에 연결한 모습이다.  
 
 ![스크린샷 2024-05-19 183829](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/7dc1adf8-b307-44cb-99d2-a980faccad63)  
@@ -1342,4 +1342,13 @@ ACM 인증기관에서 인증서를 발급받았다.
 리스너 추가 및 규칙 편집을 완료하였다.  
 
 ## Docker image 배포
-![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/da53df13-681f-467c-9031-d5d9beddfdc6)
+1/ 앞서 만든 EC2에 SSH 클라이언트로 접속  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/e0ae9e03-c448-47d5-8cfa-2c02cc8ae583)  
+
+2/ docker-compose 파일을 통해 docker image 생성 및 container 실행  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/da53df13-681f-467c-9031-d5d9beddfdc6)  
+위의 사진에서도 확인할 수 있듯이, jar 파일과 db 모두 컨테이너로 잘 실행되고 있음을 확인할 수 있다.  
+
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/0ba61a08-d9d5-40b3-a589-9f746b1fd1f5)  
+하지만... `https://ceos-be-study-everytime.shop:8080/swagger-ui/index.html`로 접속을 시도했는데, timeout error가 뜨면서 접속에 실패하였다...  
+여기에 대해서도 더 고민하고 공부해보도록 하겠습니다...🥲  
