@@ -43,8 +43,8 @@ jobs:
           key: ${{ secrets.KEY }}
           port: 22
           script: |
-              sudo docker rm -f $(docker ps -qa)
-              sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}      
-              #sudo docker prune -a --volumes -f
-              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/spring:0.1
-              docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/spring:0.1
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}      
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/spring:0.1
+            docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/spring:0.1
+            docker image prune -f
