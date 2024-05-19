@@ -1002,6 +1002,50 @@ Dockerfile을 만들고, 생성한 파일을 토대 docker 이미지를 만든 �
 <img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/db008b34-6fc9-49de-bb9c-fcf599c999fd">
 
 
+---
+## 7주 AWS 배포
+삽질을 너무너무 많이 해서 완벽한 배포를 완성하지 못했습니다...   
+### 7.1 AWS  
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/7e0f5b58-6640-40ef-a79c-1f58fa998d95">
+일단 가장 먼저 EC2 인스턴스를 생성하였다.  
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/dc935ede-ce7f-4e92-a107-5045eda17305">
+위와 같이 보안 그룹도 설정하여 여러 port로 들어오는 요청에 대해 열어주었다.  
+3306 port는 MySQL 관련 포트이다. 
 
+다음은 EIP를 할당해주었다.  
+<img width="373" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/9ecc9647-1f45-4625-9131-ff228208cffd">
+EC2 에 발생하고 받는 IP 주소는 고정된 것이 아니고 계속 바뀐다. EC2 인스턴스가 중지 되었다가 다시 시작되면 기존의 IP 주소는 새로운 IP 주소로 바뀐다.  
+  
+따라서 EIP를 할당 받고 연결해주어야 고정된 IP 주소를 사용하고 이를 통해 접속 할 수 있는 것이다.  
 
+다음은 도메인을 구매해 보았다.
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/d3bd0a51-e6d4-4948-9212-4ddfcca47bde">
+가비아에서 이벤트로 판매하는 도메인을 500원 정도에 구매 하였다. 그리고 Route 53을 통해서 연결해주었다.  
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/09ad8b3a-b1bc-4bc3-9b34-b133dfa8099d">
 
+---
+이제 도커 이미지를 도커 허브에 올리고 EC2 에서 이미지를 Pull 한다음 실행 시켜보자  
+먼저, 이전에 작성한 Dockerfile을 통해 생성된 jar 파일을 build 해보자.  
+<img width="1128" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/aacda965-e371-4a2e-80e9-96afc0e1e484">  
+
+```-x test``` 는 테스트 코드를 빌드하지 않는다는 의미라고 한다. ~~이것도 모르고 테스트 코드를 주석처리해서 push 했었다 ㅜ.ㅜ~~  
+
+이제 도커에 로그인 한다음, 이미지를 생성해준다.  
+<img width="602" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/7b23d3ad-ff3d-42ce-8b50-982eb3ae6baa">  
+
+이제 생성한 이미지를 도커 허브에 올린다.(push)
+<img width="698" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/8afab5fa-3082-42a5-acd4-88a2837501b2">  
+
+올렸던 이미지를 ec2에서 받아오면서 run 해준다.  
+<img width="1211" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/ca90747f-d279-4c2a-8989-5e94e87b940d">  
+실행이 된다!
+
+> 도중에 Mysql 관련 이슈가 있었으나, application.yml에 생성했던 RDS의 엔드포인트와 아이디, 비밀번호를 설정해주어 해결했다.  
+
+이제 EC2의 퍼블릭 IPv4 주소로 접속한다.  
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/02c5def2-755e-43e7-a057-4fe727278cd5">  
+
+또한, 이전에 구매했던 도메인에 대해서 접속을 시도 했지만 왜인지 이건 연결이 안되었다. 더 구글링 해보고 해결해야 할 것 같다.
+<img width="1440" alt="image" src="https://github.com/CEOS-Developers/spring-everytime-19th/assets/97235034/d7e8581e-9abb-4159-9a4f-0252603e9c0f">
+
+HTTPS 관련 설정까지 완료 했으나, 도메인 연결이 안되는 바람에,, 502 에러가 뜬다.
