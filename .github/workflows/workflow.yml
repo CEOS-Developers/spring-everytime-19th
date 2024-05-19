@@ -29,8 +29,7 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run:
-          ./gradlew bootJar
+        run: ./gradlew bootJar
 
     ## 웹 이미지 빌드 및 도커허브에 push
       - name: web docker build and push
@@ -45,12 +44,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
-          script: |
-
-          ## docker-compose.yaml 파일을 생성합니다.
-            echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
-    
-          ## docker-compose를 실행합니다.
+          script: | 
+            echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null    
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull my-repo/my-web-image
