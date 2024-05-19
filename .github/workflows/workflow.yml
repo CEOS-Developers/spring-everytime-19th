@@ -35,8 +35,8 @@ jobs:
       - name: web docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t my-repo/my-web-image .
-          docker push my-repo/my-web-image
+          docker build -t limbs713/my-web-image .
+          docker push limbs713/my-web-image
 
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
@@ -48,7 +48,7 @@ jobs:
             echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null    
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(docker ps -qa)
-            sudo docker pull my-repo/my-web-image
-            sudo docker pull my-repo/my-db-image
+            sudo docker pull limbs713/my-web-image
+            sudo docker pull limbs713/my-db-image
             docker-compose -f docker-compose.yml up -d
             docker image prune -f
