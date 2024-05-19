@@ -30,6 +30,11 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/testkkk")
+    public String  testKkk(){
+        return "배포 완료";
+    }
+
 
 
 
