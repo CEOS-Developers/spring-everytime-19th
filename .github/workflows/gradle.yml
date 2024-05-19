@@ -25,7 +25,7 @@ jobs:
 
       ## 1. gradle build
       - name: Build with Gradle
-        run: ./gradlew bootJar
+        run: ./gradlew build
 
       # 2. 도커 이미지 만들기 & push
       - name: Build Docker Image
