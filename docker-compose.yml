@@ -2,7 +2,7 @@ version: "3"
 
 services:
   db:
-    image: my-repo/my-db-image
+    image: limbs713/my-db-image
     ports:
       - "3306:3306"
     environment: # -e 옵션
@@ -16,7 +16,7 @@ services:
 
   web:
     container_name: spring-everytime
-    image : my-repo/my-web-image
+    image : limbs713/my-web-image
     ports:
       - "8080:8080"
     depends_on:
