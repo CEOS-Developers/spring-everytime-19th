@@ -46,6 +46,14 @@ public class User {
 }
 ```
 
+# 7주차 - Github CI/CD
+[References](https://sjh9708.tistory.com/100)
+
+
+<div align="center">
+  <img src="imgs/ssh_key.png" alt="drawing" width=500"/>
+</div>
+
 # 6주차 - Docker
 Docker : 컨테이너 기반의 가상화 도구
 - 가상화 : 서버의 성능을 나눠서 사용하자.
@@ -94,6 +102,9 @@ guest OS : hypervisor에 의해 생성되고 관리되는 운영체제.
 <div align="center">
   <img src="imgs/ddl_exception.png" alt="drawing" width=500"/>
 </div>
+  
+컨테이너 입장에서 localhost != 내 local pc
+host local internal
 
 # 5주차 - Spring Security & JWT
  

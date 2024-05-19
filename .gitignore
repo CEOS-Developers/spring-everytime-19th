@@ -43,3 +43,5 @@ secrets.yml
 .idea
 
 *.yml
+
+*.pem
