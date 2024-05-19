@@ -1351,4 +1351,4 @@ ACM 인증기관에서 인증서를 발급받았다.
 
 ![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/0ba61a08-d9d5-40b3-a589-9f746b1fd1f5)  
 하지만... `https://ceos-be-study-everytime.shop:8080/swagger-ui/index.html`로 접속을 시도했는데, timeout error가 뜨면서 접속에 실패하였다...  
-여기에 대해서도 더 고민하고 공부해보도록 하겠습니다...🥲  
+여기에 대해 열심히 구글링해보고 있는데 아직은 모르겠습니다... 더 고민하고 공부해보도록 하겠습니다...🥲  
