@@ -1344,7 +1344,13 @@ jobs:
 그럼에도 지금 과제 상황처럼 단일 컨테이너에서 어플리케이션을 실행하는 경우에는 nginx까지 도커를 사용하는 것이 오히려 생산성을 낮추고 아키텍쳐를 복잡하게 만드는 요인이 되는 것 같기도 하다.
 우선 지금은 공부하는 입장이니 Nginx 도커 파일을 작성해서 Docker Compose로 한번에 컨테이너를 관리해보기로 했다.
 
-
+```shell
+ubuntu@everdu-sub:~/spring-everytime-19th$ ls
+Dockerfile    docker-compose.yml  gradlew      readme_img
+README.md     environment         gradlew.bat  settings.gradle
+build.gradle  gradle              img.png      src
+```
+docker-compose.yml 파일이 있는 경로에서 `docker-compose up` 명령어를 실행한다.
 
 
 ## 배포 환경에 대한 테스트

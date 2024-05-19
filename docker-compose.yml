@@ -1,13 +1,13 @@
 services:
   web:
     container_name: spring
-    build: .
+    image: kckc0608/spring:latest
     ports:
       - "8080:8080"
     restart: always
 
   nginx:
-    image: nginx:latest
+    image: kckc0608/nginx:latest
     ports:
       - 80:80
     restart: always
