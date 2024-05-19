@@ -2014,3 +2014,78 @@ service "db" refers to undefined volume dbdata: invalid compose project
 를 하니 밑에 volumes 가 없어도 실행이 되었지만 
 자세한 건 다음에 알아봐야 겠다...
 
+
+
+# CICD with github action & https 적용 
+
+
+
+## https 확인 및 배포 인증샷 
+
+![img_19.png](img_19.png)
+
+http 요청을 보내고 ```Automatically follow redirects``` 를 Off 로 설정했는데 아래 사진과 같이 
+```301 Moved Permanently``` 라는 status 와 함께 Location 에 https 가 적용된 url 경로가 생겼다.
+
+또한 이 부분을 ```On``` 으로 하고 진행을 한다면 
+
+![img_21.png](img_21.png)
+
+위 사진과 같이 data 가 잘 나온다는 것을 볼 수 있다. 
+
+브라우저 url 에도 아래 사진과 같이 입력하면 
+
+![img_22.png](img_22.png)
+
+자동으로 https 로 redirect 된다. 
+
+![img_23.png](img_23.png)
+
+## 기존까지 사용했던 스크립트 방식 정리 
+
+### cicd 
+
+```java
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+```
+
+develop 브랜치에 push 될 때 jobs 를 돌리는데 현재 코드를 깃헙 액션 내 가상환경의 고유한 디렉토리 내에 복사한다. 
+
+```java
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Set up JDK17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - uses: actions/checkout@v3
+
+      - run: mkdir ./src/main/resources
+      - run: touch ./src/main/resources/application.yml
+      - run: echo "${{ vars.DEV_APPLICATION }}" > ./src/main/resources/application.yml
+      - run: cat ./src/main/resources/application.yml
+```
+
+1) validate Gradle Wrapper: 
+![img_24.png](img_24.png)
+
+unknown 한 jar 파일이 있으면 fila 한다는데 필요한지는 잘 모르겠다. 
+
+https://github.com/gradle/wrapper-validation-action
+
+2) Set up JDK 17
+3) 
