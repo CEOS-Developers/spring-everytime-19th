@@ -1352,5 +1352,23 @@ build.gradle  gradle              img.png      src
 ```
 docker-compose.yml 파일이 있는 경로에서 `docker-compose up` 명령어를 실행한다.
 
-
+### HTTPS 적용
+https는 무료로 인증서를 제공해주는 `letsencrypt` 를 사용하였다.   
+1. 먼저 `letsencrypt`는 도메인 기반으로 인증서를 발급해주기 때문에 아래와 같이 도메인을 설정해주었다.
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/57b37df5-4c8a-4070-a0db-bac451729ae6)
+2. [링크](https://velog.io/@tlqhrm/Ubuntu-22.04%EC%97%90%EC%84%9C-Nginx%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-%EB%AC%B4%EB%A3%8C-Https-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0)를 참고하여 Certbot을 설치했다.
+3. 나는 직접 설치한 Certbot으로 인증서를 직접 생성하였다.
+    ```shell
+    sudo certbot certonly --nginx -d ceos.everdu.com
+    ```
+    ```shell
+    Saving debug log to /var/log/letsencrypt/letsencrypt.log
+    The nginx plugin is not working; there may be problems with your existing configuration.
+    The error was: NoInstallationError("Could not find a usable 'nginx' binary. Ensure nginx exists, the binary is executable, and your PATH is set correctly.")
+    Ask for help or search for solutions at https://community.letsencrypt.org. See the logfile /var/log/letsencrypt/letsencrypt.log or re-run Certbot with -v for more details.
+    ```
+   그랬더니 nginx가 설치되어 있지 않아서 인증서를 발급할 수 없다는 에러가 발생했다.   
+   현재 nginx는 도커 컨테이너라는 독립된 환경에서 실행중이기 때문에 발생한 문제였다.   
+   어쩔 수 없이 docker-compose 를 이용하여 certbot 컨테이너를 만들고, nginx container 와 같은 볼륨을 공유하도록 해서 인증서를 발급해보았다.
+4. Docker Compose 파일 작성
 ## 배포 환경에 대한 테스트

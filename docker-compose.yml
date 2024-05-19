@@ -1,13 +1,35 @@
+version: '3'
+
 services:
   web:
     container_name: spring
     image: kckc0608/spring:latest
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/html:/usr/share/nginx/html
     ports:
       - "8080:8080"
+    networks:
+      - web
     restart: always
 
   nginx:
-    image: kckc0608/nginx:latest
+    image: nginx:latest
     ports:
       - 80:80
+      - 443:443
     restart: always
+
+  certbot:
+    image: certbot/cerbot
+    volumes:
+      - ./nginx/certs:/etc/letsencrypt
+      # - ./nginx/html:/usr/share/nginx/html
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 6h & wait $${!}; certbot renew; done;'"
+    networks:
+      - web
+
+networks:
+  web:
+    external: false
