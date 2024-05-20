@@ -1413,3 +1413,63 @@ aws 홈페이지에서도 접속해보려 했지만
 docker-compose.yml을 값 수정없이 그대로 올렸다는 문제가 있다
 
 보안에 있어서 큰 문제이므로 세션 전까지 수정해 업로드 하겠다.
+
+### ec2 timeout 문제 해결 과정
+
+구글링을 하며 다양한 방법을 적용해 해결을 시도했다
+
+* 인바운드 규칙에서 22 port 관련 설정
+* 탄력적 ip 설정
+* 사용자 데이터 수정
+* ubuntu에서 ssh 상태 확인
+
+위의 과정을 적용해도 작동하지 않았는데 원인을 발견했다.
+
+![스크린샷 2024-05-20 140517](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/555bb977-1322-41aa-8ba4-4ba5a77b77e0)
+
+프리티어를 사용하면 보통 `t2.micro` 를 서버로 사용하게 되는데 
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/74869f6f-6016-4bf5-a016-a59fcd408294)
+
+사양이 그렇게 좋지 못하다. 즉 우리의 서버가 제공되는 사양에서 감당할 수 없게 되면
+
+서버가 터져버려 접속을 아예 할 수 없게 되는 상황이였다.
+
+그래서 cpu 점유율이 100퍼에 육박했던 거였고
+
+일반적으로 이런 경우 `scale-up`을 통해 해결할 수 있지만
+
+가난한 대학생인 나는 그럴 수 없기에
+
+`swap memory` 방식으로 오버헤드를 줄여보았다.
+
+```
+sudo dd if=/dev/zero of=/swapfile bs=128M count=16H
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo vi /etc/fstab
+```
+
+위의 명령어는 swap memory를 할당하고 기본 설정에서 swap memory를 활성화하는 코드이다.
+
+그 후 접속을 시도해보니
+
+![스크린샷 2024-05-20 142331](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/ada067a5-787e-48d0-bb7c-33cfec4f23b2)
+
+접속이 성공하는 걸 확인했다
+
+![스크린샷 2024-05-20 143428](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/595afd90-1e3c-4e3f-bb5e-3e4f868390e7)
+
+더불어 cpu 점유율도 눈에 띄게 낮아진 것을 확인했다.
+
+다만 RAM이 아닌 HDD를 SWAP MEMORY로 사용하기 때문에 속도가 느려진다는 단점이 있다.
+
+또한 왜 인스턴스를 재부팅해도 계속 서버가 배포되고 있을까? 에 대한 의문이 있었는데
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/4110b9e7-ac28-4770-8eca-a37f3e38112f)
+
+그건 내가 그렇게 하라고 `restart:always` 옵션을 줬기 때문이였다 🥲
+
+따지고 보면 계속 서버를 배포하고 있었다는 의미이니 도커 이미지를 배포하는 과제는 잘한 거 같기도 하다 ㅎ..
+
