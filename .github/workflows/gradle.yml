@@ -43,6 +43,8 @@ jobs:
             echo "${{ secrets.ENV_VARS }}" > .env
             touch docker-compose.yaml
             echo "${{ vars.DOCKER_COMPOSE }}" > docker-compose.yaml
+            cat docker-compose.yaml
+            dos2unix docker-compose.yaml
             chmod 666 /var/run/docker.sock
             docker rm -f $(docker ps -qa)
             docker pull nimikgnoej/et
