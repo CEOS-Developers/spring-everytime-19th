@@ -17,6 +17,10 @@ services:
   web:
     container_name: spring-everytime
     image : limbs713/my-web-image
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     ports:
       - "3030:3030"
     depends_on:
