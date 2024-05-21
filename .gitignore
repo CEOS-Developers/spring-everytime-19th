@@ -47,3 +47,4 @@ src/main/resources/도커파일_데이터.txt
 *.jpg
 *.jpeg
 *.txt
+env
