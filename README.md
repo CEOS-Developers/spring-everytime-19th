@@ -1044,3 +1044,132 @@ public ResponseEntity<Void> createPost(@RequestBody final PostCreateRequestDto r
 게시글 생성을 통해서 테스트를 진행했을 때 정상적으로 동작하는 것을 확인했습니다.
 
 ![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/23991d5b-d086-4448-8976-89141ff92299)
+
+# Week 7
+## github actions 정리
+GitHub Actions는 깃허브에서 제공하는 CI(Continuous Integration, 지속 통합)와 CD(Continuous Deployment, 지속 배포)를 위한 서비스입니다.
+GitHub Actions를 사용하면 자동으로 코드 저장소에서 어떤 이벤트(event)가 발생했을 때 특정 작업이 일어나게 하거나 주기적으로 어떤 작업들을 반복해서 실행시킬 수도 있습니다.
+
+### Workflows
+GitHub Actions에서 가장 상위 개념인 워크플로우(Workflow, 작업 흐름)는 쉽게 말해 자동화해놓은 작업 과정이라고 볼 수 있습니다. 
+워크플로우는 코드 저장소 내에서 `.github/workflows` 폴더 아래에 위치한 YAML 파일로 설정하며, 하나의 코드 저장소에는 여러 개의 워크플로우, 즉 여러 개의 YAML 파일을 생성할 수 있습니다.
+이 워크플로우 YAML 파일에는 크게 2가지를 정의해야 하는데요. 첫 번째는 on 속성을 통해서 해당 워크플로우가 언제 실행되는지를 정의합니다.
+다음은 `develop` 브랜치에 push 이벤트가 발생하거나 `develop` 브랜치로 pull request가 올라왔을 때 해당 워크플로우가 실행되도록 설정한 예시입니다.
+
+```yaml
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+```
+
+두 번째는 jobs 속성을 통해서 워크플로우가 실행될 때 어떤 작업들을 수행할지를 정의합니다.
+
+#### Jobs
+GitHub Actions에서 작업(Job)이란 독립된 가상 머신(machine) 또는 컨테이너(container)에서 돌아가는 하나의 처리 단위를 의미합니다.
+하나의 워크플로우는 여러 개의 작업으로 구성되며 적어도 하나의 작업은 있어야 합니다.
+그리고 모든 작업은 기본적으로 동시에 실행되며 필요 시 작업 간에 의존 관계를 설정하여 작업이 실행되는 순서를 제어할 수도 있습니다.
+
+작업은 워크플로우 YAML 파일 내에서 jobs 속성을 사용하며 작업 식별자(ID)와 작업 세부 내용 간의 맵핑(mapping) 형태로 명시가 되는데요.
+
+```yaml
+
+jobs:
+  job1:
+    # job1에 대한 세부 내용
+  job2:
+    # job2에 대한 세부 내용
+  job3:
+    # job3에 대한 세부 내용
+```
+
+작업의 세부 내용으로는 여러 가지 내용을 명시할 수 있는데요. 
+필수로 들어거야 하는 `runs-on` 속성을 통해 해당 실행 환경을 지정해줘야 합니다.
+
+```yaml
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      # ...(생략)...
+```
+
+#### Steps
+GitHub Actions에서는 각 작업(job)이 하나 이상의 단계(step)로 모델링이 됩니다. 
+작업 단계는 단순한 커맨드(command)나 스크립트(script)가 될 수도 있고 다음 섹션에서 자세히 설명할 액션(action)이라고 하는 좀 더 복잡한 명령일 수도 있습니다. 
+커맨드나 스크립트를 실행할 때는 `run` 속성을 사용하며, 액션을 사용할 때는 `uses` 속성을 사용합니다.
+
+### Actions
+마지막으로 살펴볼 개념은 GitHub Actions의 꽃이라고 볼 수 있으며 서비스 이름에도 들어있는 단어인 바로 액션(Action)입니다. 
+액션은 GitHub Actions에서 빈번하게 필요한 반복 단계를 재사용하기 용이하도록 제공되는 일종의 작업 공유 메커니즘인데요. 
+이 액션은 하나의 코드 저장소 범위 내에서 여러 워크플로우 간에서 공유를 할 수 있을 뿐만 아니라, 공개 코드 저장소를 통해 액션을 공유하면 GitHub 상의 모든 코드 저장소에서 사용이 가능해집니다.
+GitHub에서 제공하는 대표적인 공개 액션으로 체크 아웃 액션(actions/checkout)이 있습니다. 
+
+## 도커 이미지 배포하기
+Nginx를 EC2에 설치하고 깃허브 액션을 이용해서 도커 이미지를 배포했습니다.
+
+### 깃허브 액션 워크플로우
+```yaml
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
+
+      # Gradle 캐싱
+      - name: Gradle caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle- 
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+
+      - name: Docker login and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/azito .
+          docker push ${{ secrets.DOCKER_USERNAME }}/azito
+
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_PASSWORD }}
+          port: 22
+          script: |
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/azito
+            sudo docker run -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/azito
+```
+
+헬스체크를 위한 API에 접속했을 때 정상적으로 배포가 된 것을 확인할 수 있습니다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/116694226/9c7c2182-c179-464b-bd12-2971939f8435)
