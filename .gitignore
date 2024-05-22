@@ -42,3 +42,9 @@ secrets.yml
 
 .idea
 src/main/resources/도커파일_데이터.txt
+.mysql
+*.png
+*.jpg
+*.jpeg
+*.txt
+env
