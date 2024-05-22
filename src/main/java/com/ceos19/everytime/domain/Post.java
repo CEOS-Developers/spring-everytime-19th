@@ -1,0 +1,82 @@
+package com.ceos19.everytime.domain;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Post extends BaseTimeEntity{
+
+    public static final int MAX_TITLE_LENGTH = 100;
+    public static final int MAX_CONTENT_LENGTH = 2000;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
+    private Long id;
+
+    @Column(length = 100, nullable = false)
+    private String title;
+
+    @Column(length = 2000, nullable = false)
+    private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    private Board board;
+
+    @Column(nullable = false)
+    private boolean isAnonymous;
+
+    @Column(nullable = false)
+    private Long likes;
+
+    @Builder
+    public Post(String title, String content, Member author, Board board, boolean isAnonymous){
+        this.title = title;
+        this.content = content;
+        this.author = author;
+        this.board = board;
+        this.isAnonymous = isAnonymous;
+        this.likes = 0L;
+    }
+
+    public void addLike(){
+        likes++;
+    }
+
+    public void cancelLike(){
+        if(this.likes!=0)
+            likes--;
+    }
+
+    public void changeTitle(final String title) {
+        validateTitle(title);
+        this.title = title;
+    }
+
+    public void changeContent(final String content) {
+        validateContent(content);
+        this.content = content;
+    }
+
+    public void changeAnonymous(final boolean isAnonymous){
+        this.isAnonymous = isAnonymous;
+    }
+
+    private boolean validateTitle(String title){
+        return !title.isEmpty() && title.length() <= MAX_TITLE_LENGTH;
+    }
+
+    private boolean validateContent(String content){
+        return !content.isEmpty() && content.length() <= MAX_CONTENT_LENGTH;
+    }
+
+}
