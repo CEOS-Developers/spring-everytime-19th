@@ -1,4 +1,4 @@
-# spring-everytime-19th
+`# spring-everytime-19th
 CEOS 19th BE study - everytime clone coding
 
 ## Everytime 파악!
@@ -1461,3 +1461,159 @@ overlay: 서로 다른 도커 호스트의 컨테이너 간 통신을 도와줌
 #### BRIDGE
 `docker network inspect bridge` -> 네트워크에 연결된 컨테이너들을 확인가능
 ![img_21.png](img_21.png)
+
+------------------
+### 개요
+- 깃허브 액션은 깃허브에서 제공하는 CI/CD 플랫폼으로 빌드, 테스트, 배포를 자동화 시키는 파이프라인을 제작 가능
+- 리눅스, 윈도우, 맥 가상 서버를 지원하며 사용자가 원하는 환경에 self-hosted runner를 통해 자신만의 서버를 구성 가능
+
+### GitHub Action 구성요소
+
+#### Workflow
+- 한개 이상의 job을 실행할 수 있는 자동화된 작업
+- YAML 파일로 저장되며 event에 의해 실행
+
+#### Event
+- workflow 실행을 발동시키는 특정한 활동
+- 깃허브에 소스코드를 푸시하면 발생하는 push event, pull request event, issue event 등 깃허브에서 발생하는 대부분의 작업을 event로 정의 간으
+
+#### Jobs
+- 한가지 러너안에서 실행되는 여러가지 step들의 모음
+- 각가의 step들은 일종의 shell scripts 처럼 실행이 된다
+- Step들은 순서에 따라 실행되며 Step 끼리 데이터들을 공유할 수 있다
+- Job은 다른 Job에 의존관계를 가질 수 있으며 병렬 실행도 가능
+
+#### Actions
+- 복잡하고 자주 반복되는 작업을 정의한 커스텀 어플리케이션
+- workflow 파일 안에서 자주 반복되는 코드를 미리 정의해 코드의 양을 줄일 수 있다
+- 깃허브 마켓플레이스를 통해 공용 Action 또는 다른 사람들이 만든 Action을 사용할 수 있다
+```Python
+ 
+name: learn-github-actions
+on: [push]
+jobs:
+  check-bats-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install -g bats
+      - run: bats -v
+
+```
+### name
+- workflow의 name을 정의
+- 선택사항이며 깃허브 저장소의 깃허브 액션 탭에서 workflow의 이름을 보여준다
+
+### on
+- 해당 workflow를 실행시키는 이벤트를 정의
+- push 이벤트가 발생했을 때 workflow가 실행되도록 정의
+
+### jobs
+- check-bats-version - job의 이름을 정의
+- runs-on : 어떠 ㄴ호스트에서 실행될지 정의 - ubuntu 가상 머신에서 실행 되도록 정의
+
+### Steps
+- `uses : actions / checkout@v2` - 해당 레포지토리를 pull 받고 이동하는 action 대부분의 workflow에서 사용
+- `uses : actions / setup-node@v2` - 노드를 설치하는 action으로 가상머신안에는 대부분의 프로그래밍 언어가 설치되어 있지 않기 때문에 프로젝트 실행에 필요한 언어들을 action을 통해 다운
+- `run : npm install -g bats` - run 키워드를 통해 러너가 실행되는 서버에서 명령어를 실행
+
+-------
+## 에러 모음집
+```java
+  out: Job for docker.service failed because the control process exited with error code.
+  out: See "systemctl status docker.service" and "journalctl -xeu docker.service" for details.
+  out: invoke-rc.d: initscript docker, action "start" failed.
+  out: ● docker.service - Docker Application Container Engine
+  out:      Loaded: loaded (enabled; preset: enabled)
+  out:      Active: activating (auto-restart) (Result: exit-code) since Sun 2024-05-19 09:51:29 UTC; 12ms ago
+  out: TriggeredBy: ● docker.socket
+  out:        Docs: ]8;;https://docs.docker.comhttps://docs.docker.com]8;;
+  out:     Process: 10366 ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock (code=exited, status=1/FAILURE)
+  out:    Main PID: 10366 (code=exited, status=1/FAILURE)
+  out:         CPU: 54ms
+  out: Processing triggers for man-db (2.12.0-4build2) ...
+  out: Running kernel seems to be up-to-date.
+  out: No services need to be restarted.
+  out: No containers need to be restarted.
+  out: No user sessions are running outdated binaries.
+  out: No VM guests are running outdated hypervisor (qemu) binaries on this host.
+  err: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+  err: "docker rm" requires at least 1 argument.
+  err: See 'docker rm --help'.
+  err: Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...]
+  err: Remove one or more containers
+  out: Using default tag: latest
+  err: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+  out: Using default tag: latest
+  err: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+  err: Traceback (most recent call last):
+  err:   File "/usr/lib/python3/dist-packages/docker/api/client.py", line 214, in _retrieve_server_version
+  err:     return self.version(api_version=False)["ApiVersion"]
+  err:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+  err:     return self._result(self._get(url), json=True)
+  err:                         ^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+  err:     return f(self, *args, **kwargs)
+  err:            ^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+  err:     return self.get(url, **self._set_request_timeout(kwargs))
+  err:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 602, in get
+  err:     return self.request("GET", url, **kwargs)
+  err:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 589, in request
+  err:     resp = self.send(prep, **send_kwargs)
+  err:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 703, in send
+  err:     r = adapter.send(request, **kwargs)
+  err:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 486, in send
+  err:     resp = conn.urlopen(
+  err:            ^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 791, in urlopen
+  err:     response = self._make_request(
+  err:                ^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 497, in _make_request
+  err:     conn.request(
+  err: TypeError: HTTPConnection.request() got an unexpected keyword argument 'chunked'
+  err: During handling of the above exception, another exception occurred:
+  err: Traceback (most recent call last):
+  err:   File "/usr/bin/docker-compose", line 33, in <module>
+  err:     sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  err:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+  err:     command_func()
+  err:   File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+  err:     project = project_from_options('.', options)
+  err:               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+  err:     return get_project(
+  err:            ^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+  err:     client = get_client(
+  2024/05/19 09:51:35 Process exited with status 1
+  err:              ^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+  err:     client = docker_client(
+  err:              ^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+  err:     client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  err:  ㅎ            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+  err:     self._version = self._retrieve_server_version()
+  err:                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  err:   File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+  err:     raise DockerException(
+  err: docker.errors.DockerException: Error while fetching server API version: HTTPConnection.request() got an unexpected keyword argument 'chunked'
+  err: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+  Error: Process completed with exit code 1.
+```
+해결 : 
+사실 무슨 문제인지도 모르겠고 5시간 쓰다가 구글링 통해서 사람들이 이유도 모르는체 다들 쓰기 시작...
+`pip install --force-reinstall 'requests<2.29.0' 'urllib3<2.0' --break-system-packages`
+
+저 위의 에러로 인해서 너무 시간이 지연되어서 제대로 작성하고 서버가 실행되는지 미쳐 확인을 못하였습니다. 월요일 이내로 수정하겠습니다.

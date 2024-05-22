@@ -1,0 +1,57 @@
+name: Deploy Development Server
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: properties set
+        run: |
+          cd ./stc/main/resources
+          touch ./application.yml
+          echo "${{ secrets.APPLICATION }}" > ./application.yml
+        shell: bash
+
+      - name: Give permission
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+
+      - name: Web Docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t sunghyun1356/ceos .
+          docker push sunghyun1356/ceos
+
+      - name: Executing remote SSH commands using private key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          script: |            
+            echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yaml > /dev/null
+            sudo chmod 666 /var/run/docker.sock
+            sudo docker rm -f $(sudo docker ps -qa)
+            sudo docker pull sunghyun1356/ceos
+            sudo docker pull sunghyun1356/ceos_nginx
+            sudo docker-compose -f docker-compose.yaml --env-file ./.env up -d
+            sudo docker image prune -f
