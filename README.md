@@ -1253,5 +1253,223 @@ volumes:
 
 여기서부터는 구글링해도 정확한 내 상황을 모르겠어서 제출 후 추가로 작성하겠다......
 
-### 추가 리팩토링 
-(추가 예정)
+///
+
+### 문제 원인
+
+원인이 사실 말도 안되는 내 실수였다.
+
+dockerfile에서 우리는 빌드한 jar 파일을 기반으로 이미지를 생성하는 방식이였는데
+
+설정을 바꾸고 새로 빌드하지 않고 그대로 build를 실행해 이전 jar 파일을 그대로 가지고 이미지를 생성하니
+
+아무런 변화가 없었던 것이다
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/bb8ae9ec-2d4c-46c0-8283-390acd835c87)
+
+설정을 변경하고 난 뒤 `clean`을 통해 build 폴더를 지우고 `bootjar`를 눌러 새로 jar 파일을 build하자.
+
+그후 `docker build`를 통해 이미지를 생성하고
+
+`docker run -p 8080:8080 spring-everytime:0.0` 를 실행하니 정상적으로 서버가 동작하는 것을 확인했다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/20b29d92-8508-4bf1-9c88-4e44a9f41351)
+
+### CI/CD
+
+이번 주 실습은 window용 터미널인 wsl2에서 실습했다.
+
+또한 ubuntu를 통해 ec2 인스턴스와 ssh 원격 접속을 해 작업했다.
+
+ec2와 ssh 연결을 하기 위해서는 key-pair를 사용해야 한다.
+
+key가 저장된 파일인 `my-key-pair.pem`을 통해 연결을 하려해도 권한 문제가 발생해
+
+`chmod` 명령어로 권한을 수정하려 했지만 작동이 안하는 것을 확인했다.
+
+![스크린샷 2024-05-18 192700](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/4e5696ed-dbdc-410d-bec0-919a8598e0e5)
+
+이는 wsl에서는 chmod를 바로 사용할 수 없으며 메타데이터를 수정해야하는 해결방법이 있었다.
+
+```text
+sudo umount /mnt/c
+sudo mount -t drvfs C: /mnt/c -o metadata
+```
+
+위와 같은 명령어를 실행하고 나니 `chmod` 명령어가 정상적으로 작동했고
+
+ec2 서버에 접속을 할 수 있었다.
+
+![스크린샷 2024-05-18 225702](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/5ae7bfbb-423d-4391-b25f-920ce6f4f940)
+
+접속 후에는 `git clone`을 통해 리포지토리에서 어플리케이션을 불러와야한다.
+
+그전에 당연히 git과도 ssh 연결을 해야하기 때문에
+
+git에 ssh key를 등록하는 과정이 필요하다.
+
+![스크린샷 2024-05-18 225607](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/8c54102b-a184-4cb5-8391-89f48d8ba6fd)
+
+그 후 `git clone`을 실행한다
+
+![스크린샷 2024-05-18 230005](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/658a17ab-2d34-4a79-aed3-ba52358d9bcb)
+
+저장소에 미리 작성했던 `docker-compose.yml` 파일을 `docker-compose up -d`로 실행했다.
+
+
+![스크린샷 2024-05-19 211551](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/77c7174c-4ab7-428a-adf2-3d68abfd34d4)
+
+정상적으로 실행됨을 확인할 수 있다.
+
+그리고 자동화 CI를 위해 GITHUB ACTION을 사용해보았다.
+
+```yaml
+name: CD With Gradle
+
+on:
+  push:
+    branches: ["limbs713"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up jdk 18
+        uses: actions/setup-java@v3
+        with:
+          java-version: '18'
+          distribution: 'temurin'
+
+      - name: Make application.properties
+        run: |
+            cd ./src/main/resources
+            touch ./application.yml
+            echo "${{ secrets.APPLICATION }}" > ./application.yml
+        shell: bash
+
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+
+    ## 웹 이미지 빌드 및 도커허브에 push
+      - name: web docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t limbs713/my-web-image .
+          docker push limbs713/my-web-image
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          script: | 
+            echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null    
+            sudo chmod 666 /var/run/docker.sock
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull limbs713/my-web-image
+            sudo docker pull limbs713/my-db-image
+            docker-compose -f docker-compose.yml up -d
+            docker image prune -f
+```
+
+위와 같이 작성했으며 내 브런치에 PUSH되는 순간 DOCKER HUB에 자동으로 PUSH 해주도록 작성했다.
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/860a8639-64f5-4f7d-a2c2-8a11db45048e)
+
+약간..의 시행착오가 있었지만 에러 수정 후 정상적으로 작동되는 것을 확인했다.
+
+### 현재 문제 상황
+
+여기까지 작성을 마치고 POSTMAN 실습만 하려 했는데 REQUEST가 전송도 안된다고 떴다
+
+이상해서 서버를 재접속해보니
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/ccb8595c-2e4d-4f22-8246-9b4e60416b90)
+
+갑자기 접속이 안된다고 뜬다
+
+port에 문제가 있었으면 애초에 접속이 안됐을 건데 잘되다가 안되니 원인을 모르겠다...
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/04cd0709-63eb-447f-9da4-f62f555c5a4b)
+
+aws 홈페이지에서도 접속해보려 했지만
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/35c392ed-d571-4d09-9bad-7a9badb53b5c)
+
+이렇게 접속할 수 없다고 뜬다.
+
+인터넷에서 해봤던 해결책은 아무것도 안되는 상황이라 월욜에 찾아서 수정해보려 한다.
+
+더불어 환경 변수로 설정해서 건들이는 방법이 아직 헷갈려서
+
+docker-compose.yml을 값 수정없이 그대로 올렸다는 문제가 있다
+
+보안에 있어서 큰 문제이므로 세션 전까지 수정해 업로드 하겠다.
+
+### ec2 timeout 문제 해결 과정
+
+구글링을 하며 다양한 방법을 적용해 해결을 시도했다
+
+* 인바운드 규칙에서 22 port 관련 설정
+* 탄력적 ip 설정
+* 사용자 데이터 수정
+* ubuntu에서 ssh 상태 확인
+
+위의 과정을 적용해도 작동하지 않았는데 원인을 발견했다.
+
+![스크린샷 2024-05-20 140517](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/555bb977-1322-41aa-8ba4-4ba5a77b77e0)
+
+프리티어를 사용하면 보통 `t2.micro` 를 서버로 사용하게 되는데 
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/74869f6f-6016-4bf5-a016-a59fcd408294)
+
+사양이 그렇게 좋지 못하다. 즉 우리의 서버가 제공되는 사양에서 감당할 수 없게 되면
+
+서버가 터져버려 접속을 아예 할 수 없게 되는 상황이였다.
+
+그래서 cpu 점유율이 100퍼에 육박했던 거였고
+
+일반적으로 이런 경우 `scale-up`을 통해 해결할 수 있지만
+
+가난한 대학생인 나는 그럴 수 없기에
+
+`swap memory` 방식으로 오버헤드를 줄여보았다.
+
+```
+sudo dd if=/dev/zero of=/swapfile bs=128M count=16H
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo vi /etc/fstab
+```
+
+위의 명령어는 swap memory를 할당하고 기본 설정에서 swap memory를 활성화하는 코드이다.
+
+그 후 접속을 시도해보니
+
+![스크린샷 2024-05-20 142331](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/ada067a5-787e-48d0-bb7c-33cfec4f23b2)
+
+접속이 성공하는 걸 확인했다
+
+![스크린샷 2024-05-20 143428](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/595afd90-1e3c-4e3f-bb5e-3e4f868390e7)
+
+더불어 cpu 점유율도 눈에 띄게 낮아진 것을 확인했다.
+
+다만 RAM이 아닌 HDD를 SWAP MEMORY로 사용하기 때문에 속도가 느려진다는 단점이 있다.
+
+또한 왜 인스턴스를 재부팅해도 계속 서버가 배포되고 있을까? 에 대한 의문이 있었는데
+
+![image](https://github.com/CEOS-Developers/spring-everytime-19th/assets/63999019/4110b9e7-ac28-4770-8eca-a37f3e38112f)
+
+그건 내가 그렇게 하라고 `restart:always` 옵션을 줬기 때문이였다 🥲
+
+따지고 보면 계속 서버를 배포하고 있었다는 의미이니 도커 이미지를 배포하는 과제는 잘한 거 같기도 하다 ㅎ..
+
