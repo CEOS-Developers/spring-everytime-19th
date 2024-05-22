@@ -1244,3 +1244,180 @@ access token을 black list에 등록해둔다면, 그때부터는 jwt의 상태�
 
 그래서 어차피 서버가 토큰의 상태를 관리한다면, 보안상으로도 더 유리한 refresh token을 사용해서 로그아웃을 구현한다.    
 지난 주에 정리할 때는 단순히 보안 문제로만 refresh token을 사용한다고 생각했었는데, 로그아웃, 로그인 유지와 같이 서버가 로그인 정보에 대한 상태를 관리해야 할 때도 사용할 수 있음을 새로 깨닫게 되었다.   
+
+# 7주차
+## 도커 이미지 배포
+배포할 서버는 프리티어 기간 제한으로 인해 `AWS`대신 평생 무료 프리티어를 제공하는 `Oracle Cloud`를 이용하여 배포하였다.      
+인스턴스 생성 과정은 AWS와 비슷하기 때문에 리드미에는 정리하지 않았다.   
+
+### 어플리케이션 배포 과정
+작성한 코드를 서버에 배포할 때는 아래 과정을 거쳐야 한다.
+1. 로컬에서 자바 소스 코드를 빌드하기
+2. 빌드한 jar 파일을 포함하는 도커 이미지 만들기
+3. 도커 이미지를 도커 허브에 push 하기
+4. 서버에 원격 접속하기
+5. 서버에서 도커 허브에 올라간 이미지 pull 하기
+6. 기존 컨테이너를 내리고, 새로 받은 이미지로 새로 컨테이너를 만들어서 올리기
+
+하지만 이 과정을 매번 직접하는 것은 불편한 일이다.   
+따라서 이 과정을 github action을 통해 자동화할 수 있다.
+
+### Github Action 작성
+```yaml
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "kckc0608" ]  # 'kckc0608' 브랜치에 push 가 발생하면 이 스크립트가 실행된다.
+
+# 실행할 동작
+jobs:
+  build: # build 라는 이름의 job 실행
+    runs-on: ubuntu-latest # Github Action의 우분투 가상환경에서 실행
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4 # 레포지토리 코드를 Github Action의 우분투 가상환경에 내려받기
+
+      - name: Set up JDK 17 # 가상환경에 JDK 17 세팅하기
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle # 1. 자바 코드 빌드
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bootJar
+
+      - name: Build Docker Image # 2. 도커 이미지 만들기 & push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t kckc0608/spring .
+          docker push kckc0608/spring
+
+      # - name: Remote SSH Commands
+      #   uses: fifsky/ssh-action@v0.0.6
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     user: ubuntu
+      #     key: ${{ secrets.KEY }}
+      #     pass: ${{ secrets.PASSPHRASE }}
+      #     port: 22
+      #     command: |
+      #       sudo docker rm -f $(docker ps -qa)
+      #       sudo docker pull kckc0608/spring
+      #       docker run -d -p 8080:8080 kckc0608/spring
+            
+
+      - name: Remote SSH & Pull Image & Run Container # 3. 원격 접속 & 이미지 pull & 컨테이너 생성
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          port: 22
+          script: |
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull kckc0608/spring
+            docker run -d -p 8080:8080 kckc0608/spring
+```
+위와 같이 github action 스크립트 yaml을 작성했다.   
+그런데 이 스크립트를 기반으로 action을 실행하는 중 `Permission Denied (public key)` 문제와 `ssh: unable to authenticate, attempted methods [none], no supported methods remain` 믄제가 발생했다. 
+
+문제 해결을 위한 시도 내용
+- 지금까지 찾아본 바로는 기존에는 rsa 방식의 인증이 허용되었지만, 우분투 버전이 올라가면서 rsa 방식의 키를 사용한 ssh 접근을 명시적으로 허용해주어야 하도록 바뀌었다고 한다.
+- 사실 2020년에 인스턴스를 만들 때는 처음부터 putty로 접속이 잘 되었으나, 이번에 새로 인스턴스를 만들 땐 putty로 바로 접속이 안되었다. 찾아보니 rsa 방식을 허용하지 않아서라고 하기에 rsa 방식을 허용하여 PuTTY에서 접속이 되었음에도 깃허브 액션이 안되는 문제는 해결되지 않았다.
+- 다른 ssh 접속 action feature를 사용해봤는데, 그 action은 `rsa` 방식이 아니라 `ED25519` 암호화 알고리즘을 사용하여 요청을 보내는 것 같았습니다. 하지만 appleboy/ssh 의 경우 rsa 방식을 지원하는 것으로 보임에도 잘 되지 않았다.
+
+기존에 사용하던 키가 `rsa` 암호화 방식이라 최대한 이 키를 이용해서 해보려고 했는데, 잘 되지 않아서 `ED25519` 방식으로 암호화된 키를 사용해 다시 시도해봐야겠다.   
+일단 과제에서는 원격 접속하여 도커 이미지를 다운받고 실행하는 부분은 직접 수행하였다.
+
+### Nginx 설치
+처음에는 왜 굳이 Nginx에 까지 도커를 써야하는 건지 의문이 들었다.   
+그냥 `sudo apt install nginx` 한번으로 nginx를 설치할 수 있지 않나.   
+설정파일도 한번 적고나면 그 뒤로는 별로 바꿀 일이 없는데 왜 굳이 도커에 nginx를 올리고, 매번 배포할 때마다 nginx 컨테이너까지 내렸다가 다시 올리는 건지 궁금했다.   
+
+분명 nginx는 어플리케이션만큼 자주 변경되지도 않고, 도커를 쓰면 환경이 격리되기 때문에, nginx 컨테이너에서 웹 어플리케이션 컨테이너로 요청을 넘길 때 더 복잡해지는 것은 사실이다.   
+하지만 도커를 사용하면 여러 서버를 운영할 때 nginx에 적용할 설정파일을 공통적으로 간편하게 관리할 수 있다는 장점이 있는 것 같다.   
+
+그럼에도 지금 과제 상황처럼 단일 컨테이너에서 어플리케이션을 실행하는 경우에는 nginx까지 도커를 사용하는 것이 오히려 생산성을 낮추고 아키텍쳐를 복잡하게 만드는 요인이 되는 것 같기도 하다.
+우선 지금은 공부하는 입장이니 Nginx 도커 파일을 작성해서 Docker Compose로 한번에 컨테이너를 관리해보고자 했다.   
+
+그러나 도커에 nginx를 올린 이후부터는, HTTPS를 적용하기 위해 Certbot도 컨테이너에 올린 뒤 nginx와 연결하여 인증서를 발급받아야 하는데 이 부분에서도 시행착오를 겪어서 우선 nginx도 도커없이 설치하였다.   
+
+```shell
+sudo apt install nginx
+```
+
+nginx를 설치한 이후 nginx가 실행되지 않는 문제가 발생했다.
+```shell
+May 19 07:20:58 everdu-sub nginx[3782]: nginx: [emerg] bind() to 0.0.0.0:80 fai>
+May 19 07:20:58 everdu-sub nginx[3782]: nginx: [emerg] bind() to [::]:80 failed>
+May 19 07:20:59 everdu-sub nginx[3782]: nginx: [emerg] bind() to 0.0.0.0:80 fai>
+May 19 07:20:59 everdu-sub nginx[3782]: nginx: [emerg] bind() to [::]:80 failed>
+May 19 07:20:59 everdu-sub nginx[3782]: nginx: [emerg] bind() to 0.0.0.0:80 fai>
+May 19 07:20:59 everdu-sub nginx[3782]: nginx: [emerg] bind() to [::]:80 failed>
+May 19 07:21:00 everdu-sub nginx[3782]: nginx: [emerg] still could not bind()
+```
+   
+이 문제는 기존에 실행해둔 nginx 컨테이너가 이미 80포트를 사용하고 있어서 안되는 문제였다.   
+컨테이너를 강제로 종료하여서 해결하였다.   
+
+그런데 컨테이너를 종료하여 nginx가 정상적으로 실행이 되었는데도, 접속했을 때 nginx 기본 페이지가 보이지 않았다. (접속이 되지 않았다.)   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/3dbfbb1d-7ec2-4129-a29e-c8d322df9155)   
+첫 번째로 보안규칙에서 인바운드 포트로 80포트가 열려있는지 확인했다.   
+인바운트 포트는 잘 열려있었다.   
+
+두 번째로 리눅스의 방화벽에서 80포트가 닫혀있는건 아닌가 하는 생각이 들어서 아래 명령어로 80 포트를 열어주었다.
+```shell
+sudo iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT
+sudo iptables -I OUTPUT 1 -p tcp --dport 80 -j ACCEPT
+```
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/35fe958e-6bed-46d2-990f-6d4b9340a931)   
+성공적으로 nginx가 잘 설치된 것을 확인할 수 있었다.
+
+### HTTPS 적용
+https는 무료로 인증서를 제공해주는 `letsencrypt` 를 사용하였다.   
+1. 먼저 `letsencrypt`는 도메인 기반으로 인증서를 발급해주기 때문에 아래와 같이 도메인을 설정해주었다.
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/57b37df5-4c8a-4070-a0db-bac451729ae6)
+2. [링크](https://velog.io/@tlqhrm/Ubuntu-22.04%EC%97%90%EC%84%9C-Nginx%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-%EB%AC%B4%EB%A3%8C-Https-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0)를 참고하여 Certbot을 설치했다.
+3. 나는 직접 설치한 Certbot으로 인증서를 직접 생성하였다.
+    ```shell
+    sudo certbot --nginx -d ceos.everdu.com
+    ```
+    이렇게 명령어를 실행하면 certbot이 인증서를 생성한 이후, nginx 설정파일도 자동으로 설정해준다.   
+   ![image](https://github.com/kckc0608/kckc0608/assets/64959010/c6b4cb5d-aa46-4ea5-9d81-df7fb4004403)   
+    http 요청이 들어오면 https 로 자동으로 리다이렉트 시켜준다.
+4. 443 포트 개방
+    nginx에서와 마찬가지로, 다시 서버에 연결할 수 없는 문제가 발생했다.
+    ```shell
+    sudo iptables -I INPUT 1 -p tcp --dport 443 -j ACCEPT
+    sudo iptables -I OUTPUT 1 -p tcp --dport 443 -j ACCEPT
+    ```
+   명령어로 443 포트를 개방하는 것으로 해결하였다.
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/0105a237-f0de-4a48-bcdb-2e1ff3f010ca)   
+최종적으로 https가 적용된 모습이다.
+
+### Nginx 와 Spring Application 연결
+Nginx가 앞단에서 받은 요청을 Spring Application 에 넘겨줄 수 있도록 Proxy_pass 를 설정한다.   
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/f92bc4d0-e223-4481-88c2-0c9f5bf9fe50)
+
+## 배포 환경에 대한 테스트
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/3b774bb8-9504-47f5-b9cd-097c747b0299)   
+포스트 맨에서 위와 같이 요청을 보냈을 때 서버의 응답이 오는지 확인한다.   
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/870a4f16-3b3c-4834-86cc-d3dad40a9365)   
+401 응답을 받았다.   
+
+![image](https://github.com/kckc0608/kckc0608/assets/64959010/a2bc2233-233c-4ff5-89cc-657ed858fa1b)   
+도커에서 실행중인 스프링 어플리케이션에도 요청이 전달되어 쿼리가 실행되었다.
+
+
+## 과제를 하면서 느꼈던 점
+전에는 도커에 대해서 막연하게 알고 있었어서 무지에서 나오는 막연한 어려움이 느껴졌었는데, 도커를 공부하면서 막연한 어려움이 아니라 구체적으로 어떤 점이 어려운 지를 느끼는 계기가 되었다.   
+도커는 배포 환경을 세팅하는데 편리함을 주고, 배포해야 할 환경이 많아질수록 그 장점이 더 부각되는 것 같다.      
+하지만 도커는 각각의 환경(어플리케이션, DB, 웹서버 등)을 따로 따로 별개의 격리된 환경에서 관리하다보니 도커를 사용하지 않았을 때 당연하게 생각하던 저장공간의 공유, 프로세스간 통신에 대해 부가적인 설정을 해주어야 한다는 점이 어려웠다.
+그래도 과제를 하면서 내가 어떤 부분을 어려워하는지 알게되어 앞으로 어떤 방향으로 도커를 공부해야 할 지를 알 수 있게 된 점은 좋았다.  
