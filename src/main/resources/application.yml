@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/everytime?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul?useSSL=false
+  #  url: jdbc:mysql://localhost:8080/everytime?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul?useSSL=false
+    username: root
+    password: Jyh0914@
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        database-platform: org.hibernate.dialect.MySQL8Dialect
+        show_sql: true
+        format_sql: false
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+
+
+server:
+  port: 8080
+  servlet:
+    contextPath: /ceos-everytime
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    tagsSorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+
+jwt:
+  header: Authorization
+  #HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
+  secret: a2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbQ==
+  token-validity-in-seconds: 86400 # ttl (초)

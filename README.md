@@ -46,6 +46,53 @@ public class User {
 }
 ```
 
+# 7주차 - Github CI/CD
+[References](https://sjh9708.tistory.com/100)
+
+### SSH 키 등록
+<div align="center">
+  <img src="imgs/ssh_key.png" alt="drawing" width=500"/>
+</div>
+
+### 에러
+<div align="center">
+  <img src="imgs/compose_up_error.png" alt="drawing" width=500"/>
+</div>
+
+> requests 라이브러리 버전 다운으로 해결
+
+<div align="center">
+  <img src="imgs/docker_web_error.png" alt="drawing" width=500"/>
+</div>
+
+```bash
+sudo apt-get install network-manager
+nmcli dev show | grep 'IP4.DNS'
+```
+> DNS 꼬인 포트 확인
+
+### Docker ps로 확인
+<div align="center">
+  <img src="imgs/docker_ps.png" alt="drawing" width=500"/>
+</div>
+
+### Security Protocol
+앱 실행이 성공했으나, EC2 Public IP(외부 IP)를 통해 접속하기 어려운 상황이다.
+어떤 사용자 어떤 포트에 접근 가능한지 규약 추가해주어야 한다.
+
+<div align="center">
+  <img src="imgs/security_protocol.png" alt="drawing" width=500"/>
+</div>
+
+유형에서 **사용자 지정 TCP를 설정하면 원하는 포트의 접근제어**가 가능하다.  
+- 포트 범위에서 접근 가능하게 하려는 포트, 나의 경우 스프링 applicaiton 포트 번호.
+**0.0.0.0/0** 은 모든 IP에 대해서 해당 Public IP에 대한 8080 포트 접근을 허용한다는 의미.
+
+<div align="center">
+  <img src="imgs/inbound_protocol.png" alt="drawing" width=500"/>
+</div>
+
+
 # 6주차 - Docker
 Docker : 컨테이너 기반의 가상화 도구
 - 가상화 : 서버의 성능을 나눠서 사용하자.
@@ -94,6 +141,9 @@ guest OS : hypervisor에 의해 생성되고 관리되는 운영체제.
 <div align="center">
   <img src="imgs/ddl_exception.png" alt="drawing" width=500"/>
 </div>
+  
+컨테이너 입장에서 localhost != 내 local pc
+host local internal
 
 # 5주차 - Spring Security & JWT
  

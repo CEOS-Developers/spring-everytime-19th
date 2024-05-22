@@ -1,0 +1,62 @@
+name: Deploy Development Server
+
+on:
+  push:
+    branches: [ "yeong-hwan" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      ## gradle build
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+
+
+      - name: web docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t my-repo/my-web-image .
+          docker push my-repo/my-web-image
+          docker build -f dockerfile-nginx -t my-repo/my-nginx-image .
+          docker push my-repo/my-nginx-image
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          script: |
+          
+          ## 여러분이 원하는 경로로 이동합니다.
+            cd /home/ubuntu/
+            
+          ## .env 파일을 생성합니다.
+            sudo touch .env
+            echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
+          
+          ## docker-compose.yaml 파일을 생성합니다.
+            sudo touch docker-compose.yaml
+            echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yaml > /dev/null
+            
+          ## docker-compose를 실행합니다.
+            sudo chmod 666 /var/run/docker.sock
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull my-repo/my-web-image
+            sudo docker pull my-repo/my-nginx-image
+            docker-compose -f docker-compose.yaml --env-file ./.env up -d
+            docker image prune -f
