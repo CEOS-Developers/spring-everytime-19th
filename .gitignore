@@ -2,7 +2,7 @@
 *.iml
 *.ipr
 *.iws
-*.jar
+# *.jar #github action에 필요함
 *.sw?
 *~
 .#*
@@ -42,6 +42,9 @@ secrets.yml
 
 application.yml
 docker-compose.yml
+Dockerfile-nginx
+nginx/
+
 .db/
 db/
 
