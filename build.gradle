@@ -21,15 +21,24 @@ repositories {
 	mavenCentral()
 }
 
+allprojects {
+	repositories {
+		maven { url 'https://jitpack.io' }
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 	implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'

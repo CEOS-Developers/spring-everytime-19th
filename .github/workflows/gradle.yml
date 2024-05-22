@@ -1,0 +1,53 @@
+name: Deploy Development Server
+
+on:
+  push:
+    branches: [ "nimikgnoej" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+
+      - name: web docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t nimikgnoej/et .
+          docker push nimikgnoej/et
+          docker build -f dockerfile-nginx -t nimikgnoej/my-nginx-image .
+          docker push nimikgnoej/my-nginx-image
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          script: |
+            cd /home/ubuntu/
+            touch .env
+            echo "${{ secrets.ENV_VARS }}" > .env
+            touch docker-compose.yaml
+            echo "${{ vars.DOCKER_COMPOSE }}" > docker-compose.yaml
+            cat docker-compose.yaml
+            dos2unix docker-compose.yaml
+            chmod 666 /var/run/docker.sock
+            docker rm -f $(docker ps -qa)
+            docker pull nimikgnoej/et
+            docker pull nimikgnoej/my-nginx-image
+            docker-compose -f docker-compose.yaml --env-file ./.env up -d
+            docker image prune -f
