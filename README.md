@@ -1049,7 +1049,6 @@ version: "3"
 services:
   db:
     image: mysql:5.7 #windows
-    image: mariadb:latest #mac
     environment:
       MYSQL_ROOT_PASSWORD: mysql
       MYSQL_DATABASE: mysql
@@ -1193,3 +1192,163 @@ public class CommentService {
 
 }
 ```
+---
+# CEOS 19th 7th Assignment - AWS
+## 지난주 과제 트러블슈팅
+지난주 과제에서 mysql db connection error 문제가 있었는데 아래와 같은 과정을 통해 해결할 수 있었다.  
+1/ docker에 mysql을 설치해주고 container을 만들어준다.
+```console
+docker pull mysql
+```
+위의 명령어를 입력하여 mysql을 설치해준다.  
+그 다음, 아래의 명령어를 입력하면 mysql이 도커에서 작동하게 된다.
+```console
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=<password> -d -p 3308:3306 mysql:latest
+```
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/87f39f81-fc27-4721-9917-21c29b89f75f)
+
+2/ application.yml 파일에서 DB url 중 `localhost` 부분을 `host.docker.internal`로 수정해준다.
+```yml
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://host.docker.internal:3306/everytime
+```
+
+위의 과정을 거친 후 도커에서 차례로 명령어를 입력하면 아래 사진과 같이 작동한다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/71ec6569-27cf-4388-a36e-554c23aa3a7b)
+위와 같이 빌드해준 뒤, 아래와 같이 실행(run)을 하면 
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/7a071f35-56aa-4485-9185-11252990d4d4)  
+(중간 로그 생략)  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/9341a207-0f35-49c6-a5f8-930071a6a887)  
+아래 사진과 같이 localhost:8080/swagger-ui.html로 접속했을 때 정상적으로 접속이 이루어진다.
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/8de3f36f-e853-4b4a-af8f-90f44c850acd)
+
+
+이번에는 도커에서 별도의 mysql 로드없이 docker-compose.yml 파일 하나만으로 어플리케이션을 실행시켜보았다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/e6a190fd-94d5-4584-8660-788ac10205cc)
+그러기 위해 위의 사진과 같이 실행중이던 mysql 컨테이너를 중단시켰다.  
+
+그 다음에 `docker-compose -f docker-compose.yml up --build` 명령어를 실행시켜 docker-compose.yml을 통해 어플리케이션을 실행시켜보았다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/0bae3af7-2186-48cf-b19c-dd138df53d5f)
+(중간 로그 생략)  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/3919a596-ac98-4ed2-9140-a6a999dffa44)
+위와 같이 성공적으로 빌드된 것을 확인할 수 있고, `localhost:8080/swagger-ui.html`로 접속하면 아래 사진과 같이 정상적으로 접속이 가능하다는 것도 확인할 수 있다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/068c625b-55cf-4fdc-a64c-74a00a385906)
+
+## EC2 생성
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/ed16814a-6b9a-4ace-9c7e-0c852eb9147c)  
+위의 사진과 같이 EC2 생성을 완료하였다.  
+
+## RDS 생성성
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/35ef1733-acf6-4d23-bef5-b114d5cd73c6)  
+EC2에 이어 RDS 생성도 완료하였다.  
+
+## Github Actions
+```yml
+name: CI
+
+## develop 브랜치에 push가 되면 실행됩니다
+on:
+  push:
+    branches: [ "develop" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v3
+
+      ## JDK 17을 사용하므로 17로 수정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      ## gradle build
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+
+
+      ## 웹 이미지 빌드 및 도커허브에 push
+      - name: web docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t my-repo/my-web-image .
+          docker push my-repo/my-web-image
+          docker build -f dockerfile-nginx -t my-repo/my-nginx-image .
+          docker push my-repo/my-nginx-image
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          script: |
+          
+          ## 여러분이 원하는 경로로 이동합니다.
+            cd /home/ubuntu/
+            
+          ## .env 파일을 생성합니다.
+            sudo touch .env
+            echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
+          
+          ## docker-compose.yaml 파일을 생성합니다.
+            sudo touch docker-compose.yaml
+            echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yaml > /dev/null
+            
+          ## docker-compose를 실행합니다.
+            sudo chmod 666 /var/run/docker.sock
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull my-repo/my-web-image
+            sudo docker pull my-repo/my-nginx-image
+            docker-compose -f docker-compose.yaml --env-file ./.env up -d
+            docker image prune -f
+```
+위와 같이 `gradle.yml` 파일도 작성 완료하였다.  
+
+Github에 secrets와 variables도 아래 사진과 같이 등록하였다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/806e386c-7451-4ce8-9fd3-bc9c29d2f792)  
+`DOCKER_COMPOSE`는 `variables`에 docker-compose.yaml의 내용으로 저장하였다.  
+
+## Route 53
+EIP를 할당받은 뒤, '가비아'에서 도메인 주소를 구매하여 앞서 만든 EC2에 연결하였다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/9bc0d874-1d0f-4a30-bf54-0711c227d7f7)  
+
+그런 다음 도메인을 입력하여 연결을 확인하였다.  
+![스크린샷 2024-05-19 201727](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/8e3127de-eacf-4d54-9698-7cbb92db357f)  
+
+## ELB
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/dbcd4f3a-8c3f-4ef1-a3be-5ac8c5b3ed74)  
+위의 사진과 같이 Target Group을 생성하였다.  
+
+그 다음 ALB도 생성하였다.  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/a393732a-cbcf-4f70-ae9d-43b9cc8f2e1b)  
+
+![스크린샷 2024-05-19 184457](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/1aa5da95-3094-424f-9b06-822a779f26d6)  
+도메인을 ALB에 연결한 모습이다.  
+
+![스크린샷 2024-05-19 183829](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/7dc1adf8-b307-44cb-99d2-a980faccad63)  
+ACM 인증기관에서 인증서를 발급받았다.  
+
+![스크린샷 2024-05-19 183953](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/c3729079-5b32-4752-acae-84c73b908a44)  
+리스너 추가 및 규칙 편집을 완료하였다.  
+
+## Docker image 배포
+1/ 앞서 만든 EC2에 SSH 클라이언트로 접속  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/e0ae9e03-c448-47d5-8cfa-2c02cc8ae583)  
+
+2/ docker-compose 파일을 통해 docker image 생성 및 container 실행  
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/da53df13-681f-467c-9031-d5d9beddfdc6)  
+위의 사진에서도 확인할 수 있듯이, jar 파일과 db 모두 컨테이너로 잘 실행되고 있음을 확인할 수 있다.  
+
+![image](https://github.com/chlolive/CEOS-19th-spring-everytime/assets/101798714/0ba61a08-d9d5-40b3-a589-9f746b1fd1f5)  
+하지만... `https://ceos-be-study-everytime.shop:8080/swagger-ui/index.html`로 접속을 시도했는데, timeout error가 뜨면서 접속에 실패하였다...  
+여기에 대해 열심히 구글링해보고 있는데 아직은 모르겠습니다... 더 고민하고 공부해보도록 하겠습니다...🥲  
